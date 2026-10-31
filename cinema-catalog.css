@@ -1,0 +1,613 @@
+html.stash-cinema-catalog {
+  color-scheme: dark;
+  --cinema-bg: #0b0d10;
+  --cinema-sidebar: #0d1014;
+  --cinema-surface: #14181d;
+  --cinema-raised: #1a2026;
+  --cinema-card: #12161a;
+  --cinema-border: #2a3037;
+  --cinema-text: #edf1f5;
+  --cinema-muted: #9aa4af;
+  --cinema-accent: #479ef5;
+  --cinema-accent-rgb: 71, 158, 245;
+  --cinema-sidebar-width: 14rem;
+  --cinema-radius: 8px;
+  background: var(--cinema-bg);
+  color: var(--cinema-text);
+}
+
+html.stash-cinema-catalog[data-stash-cinema-accent="teal"] { --cinema-accent: #00b7c3; --cinema-accent-rgb: 0, 183, 195; }
+html.stash-cinema-catalog[data-stash-cinema-accent="green"] { --cinema-accent: #6bb700; --cinema-accent-rgb: 107, 183, 0; }
+html.stash-cinema-catalog[data-stash-cinema-accent="yellow"] { --cinema-accent: #fce100; --cinema-accent-rgb: 252, 225, 0; }
+html.stash-cinema-catalog[data-stash-cinema-accent="orange"] { --cinema-accent: #f7630c; --cinema-accent-rgb: 247, 99, 12; }
+html.stash-cinema-catalog[data-stash-cinema-accent="red"] { --cinema-accent: #d13438; --cinema-accent-rgb: 209, 52, 56; }
+html.stash-cinema-catalog[data-stash-cinema-accent="pink"] { --cinema-accent: #e3008c; --cinema-accent-rgb: 227, 0, 140; }
+html.stash-cinema-catalog[data-stash-cinema-accent="purple"] { --cinema-accent: #8764b8; --cinema-accent-rgb: 135, 100, 184; }
+
+html.stash-cinema-catalog body {
+  min-height: 100vh;
+  overflow-x: hidden;
+  background: var(--cinema-bg) !important;
+  color: var(--cinema-text) !important;
+  font-family: Inter, "Segoe UI", system-ui, sans-serif;
+}
+
+html.stash-cinema-catalog a { color: inherit; }
+html.stash-cinema-catalog a:hover { color: var(--cinema-text); }
+
+/* Desktop: convert Stash's existing top navigation into the left rail. */
+@media (min-width: 1200px) {
+  html.stash-cinema-catalog body .top-nav {
+    position: fixed !important;
+    inset: 0 auto 0 0 !important;
+    z-index: 1030;
+    display: flex !important;
+    flex-direction: column !important;
+    align-items: stretch !important;
+    width: var(--cinema-sidebar-width) !important;
+    height: 100vh !important;
+    padding: 1rem 0.75rem !important;
+    overflow: hidden;
+    background: var(--cinema-sidebar) !important;
+    border-right: 1px solid var(--cinema-border);
+    box-shadow: none !important;
+  }
+
+  html.stash-cinema-catalog body .top-nav > .navbar-brand {
+    order: 0 !important;
+    display: flex;
+    align-items: center;
+    min-height: 3.25rem;
+    margin: 0 0 1rem !important;
+    padding: 0 0.65rem !important;
+  }
+
+  html.stash-cinema-catalog body .top-nav > .navbar-brand .brand-link {
+    padding: 0 !important;
+    color: var(--cinema-text) !important;
+    font-size: 1.35rem;
+    font-weight: 700;
+    letter-spacing: -0.035em;
+  }
+
+  html.stash-cinema-catalog body .top-nav > .navbar-collapse {
+    order: 1 !important;
+    display: flex !important;
+    flex: 1 1 auto;
+    flex-direction: column !important;
+    align-items: stretch !important;
+    width: 100%;
+    min-height: 0;
+    background: transparent !important;
+  }
+
+  html.stash-cinema-catalog body .top-nav .navbar-collapse > .navbar-nav {
+    display: flex;
+    flex-direction: column !important;
+    align-items: stretch;
+    width: 100%;
+  }
+
+  html.stash-cinema-catalog body .top-nav .navbar-collapse > .navbar-nav:first-child {
+    gap: 0.18rem;
+  }
+
+  html.stash-cinema-catalog body .top-nav .navbar-collapse > .navbar-nav:last-child {
+    gap: 0.25rem;
+    margin-top: auto;
+    padding-top: 0.9rem;
+    border-top: 1px solid var(--cinema-border);
+  }
+
+  html.stash-cinema-catalog body .top-nav .navbar-collapse .nav-link {
+    display: block;
+    width: 100%;
+    max-width: none;
+    flex: 0 0 auto;
+    padding: 0 !important;
+    color: var(--cinema-muted);
+  }
+
+  html.stash-cinema-catalog body .top-nav .navbar-collapse .nav-link > button,
+  html.stash-cinema-catalog body .top-nav .navbar-collapse .nav-link .btn {
+    display: flex !important;
+    align-items: center;
+    justify-content: flex-start;
+    gap: 0.8rem;
+    width: 100%;
+    min-height: 2.65rem;
+    padding: 0.55rem 0.7rem !important;
+    border: 1px solid transparent !important;
+    border-radius: 6px;
+    background: transparent !important;
+    color: var(--cinema-muted) !important;
+    text-align: left;
+    box-shadow: none !important;
+  }
+
+  html.stash-cinema-catalog body .top-nav .navbar-collapse .nav-menu-icon {
+    display: inline-block !important;
+    width: 1.15rem;
+    margin: 0 !important;
+    color: currentColor;
+  }
+
+  html.stash-cinema-catalog body .top-nav .navbar-collapse .nav-link:hover > button,
+  html.stash-cinema-catalog body .top-nav .navbar-collapse .nav-link:hover .btn {
+    background: #1a2026 !important;
+    color: var(--cinema-text) !important;
+  }
+
+  html.stash-cinema-catalog body .top-nav .navbar-collapse button.active,
+  html.stash-cinema-catalog body .top-nav .navbar-collapse .nav-link.active > button,
+  html.stash-cinema-catalog body .top-nav .navbar-collapse .nav-link.active .btn {
+    border-color: rgba(var(--cinema-accent-rgb), 0.2) !important;
+    background: rgba(var(--cinema-accent-rgb), 0.15) !important;
+    color: var(--cinema-accent) !important;
+  }
+
+  html.stash-cinema-catalog body .top-nav > .navbar-buttons {
+    order: 2 !important;
+    display: flex;
+    flex: 0 0 auto;
+    flex-direction: column;
+    align-items: stretch;
+    width: 100%;
+    margin: 0 !important;
+    padding-top: 0.5rem;
+  }
+
+  html.stash-cinema-catalog body .top-nav > .navbar-buttons .nav-utility,
+  html.stash-cinema-catalog body .top-nav > .navbar-buttons .logout-button,
+  html.stash-cinema-catalog body .top-nav > .navbar-buttons .nav-menu-toggle {
+    display: none !important;
+  }
+
+  html.stash-cinema-catalog body .top-nav > .navbar-buttons > div {
+    width: 100%;
+    margin: 0 !important;
+  }
+
+  html.stash-cinema-catalog body .top-nav > .navbar-buttons > div .btn-primary {
+    width: 100%;
+    min-height: 2.6rem;
+    border: 0;
+    border-radius: 6px;
+    background: var(--cinema-accent);
+    color: #08121e;
+    font-weight: 650;
+  }
+
+  html.stash-cinema-catalog body .main {
+    width: calc(100% - var(--cinema-sidebar-width));
+    min-height: 100vh;
+    margin-left: var(--cinema-sidebar-width) !important;
+    padding: 1.35rem clamp(1.1rem, 2vw, 2rem) 2rem !important;
+    background: var(--cinema-bg);
+  }
+}
+
+/* Mobile: keep Stash's compact top bar and open its real menu as a drawer. */
+@media (max-width: 1199.98px) {
+  html.stash-cinema-catalog body .top-nav {
+    position: fixed !important;
+    inset: 0 0 auto 0 !important;
+    z-index: 1050;
+    display: flex !important;
+    flex-direction: row !important;
+    align-items: center !important;
+    width: 100% !important;
+    height: 3.65rem !important;
+    padding: 0 0.8rem !important;
+    background: rgba(13, 16, 20, 0.98) !important;
+    border-bottom: 1px solid var(--cinema-border);
+  }
+
+  html.stash-cinema-catalog body .top-nav > .navbar-brand {
+    order: 0 !important;
+    margin: 0 auto 0 0 !important;
+    padding: 0 !important;
+  }
+
+  html.stash-cinema-catalog body .top-nav > .navbar-brand .brand-link {
+    padding: 0.3rem 0 !important;
+    color: var(--cinema-text) !important;
+    font-weight: 700;
+  }
+
+  html.stash-cinema-catalog body .top-nav > .navbar-buttons {
+    order: 2 !important;
+    display: flex;
+    flex: 0 0 auto;
+    flex-direction: row;
+    align-items: center;
+    width: auto;
+    margin: 0 !important;
+  }
+
+  html.stash-cinema-catalog body .top-nav > .navbar-buttons .nav-utility,
+  html.stash-cinema-catalog body .top-nav > .navbar-buttons .logout-button {
+    display: none !important;
+  }
+
+  html.stash-cinema-catalog body .top-nav > .navbar-buttons > div {
+    margin: 0 0.35rem 0 0 !important;
+  }
+
+  html.stash-cinema-catalog body .top-nav .nav-menu-toggle {
+    display: inline-flex !important;
+    align-items: center;
+    justify-content: center;
+    width: 2.7rem;
+    height: 2.7rem;
+    border: 1px solid transparent;
+    border-radius: 6px;
+    color: var(--cinema-text);
+  }
+
+  html.stash-cinema-catalog body .top-nav .navbar-collapse {
+    display: none !important;
+  }
+
+  html.stash-cinema-catalog body .top-nav .navbar-collapse.show,
+  html.stash-cinema-catalog body .top-nav .navbar-collapse.collapsing {
+    position: fixed !important;
+    inset: 3.65rem auto 0 0 !important;
+    z-index: 1049;
+    display: flex !important;
+    flex-direction: column !important;
+    align-items: stretch;
+    width: min(84vw, 19rem);
+    height: calc(100dvh - 3.65rem) !important;
+    max-height: none !important;
+    margin: 0;
+    padding: 0.7rem;
+    overflow-y: auto;
+    background: #11151a !important;
+    border-right: 1px solid var(--cinema-border);
+    box-shadow: 18px 0 36px rgba(0, 0, 0, 0.42);
+  }
+
+  html.stash-cinema-catalog body .top-nav .navbar-collapse > .navbar-nav {
+    display: flex;
+    flex-direction: column !important;
+    align-items: stretch;
+    width: 100%;
+  }
+
+  html.stash-cinema-catalog body .top-nav .navbar-collapse > .navbar-nav:last-child {
+    margin-top: auto;
+    padding-top: 0.8rem;
+    border-top: 1px solid var(--cinema-border);
+  }
+
+  html.stash-cinema-catalog body .top-nav .navbar-collapse .nav-link {
+    display: block;
+    width: 100%;
+    padding: 0 !important;
+  }
+
+  html.stash-cinema-catalog body .top-nav .navbar-collapse .nav-link > button,
+  html.stash-cinema-catalog body .top-nav .navbar-collapse .nav-link .btn {
+    display: flex !important;
+    align-items: center;
+    justify-content: flex-start;
+    gap: 0.8rem;
+    width: 100%;
+    min-height: 2.85rem;
+    padding: 0.6rem 0.75rem !important;
+    border: 1px solid transparent !important;
+    border-radius: 6px;
+    background: transparent !important;
+    color: var(--cinema-muted) !important;
+    text-align: left;
+  }
+
+  html.stash-cinema-catalog body .top-nav .navbar-collapse .nav-menu-icon {
+    display: inline-block !important;
+    width: 1.2rem;
+    margin: 0 !important;
+  }
+
+  html.stash-cinema-catalog body .top-nav .navbar-collapse button.active,
+  html.stash-cinema-catalog body .top-nav .navbar-collapse .nav-link.active > button,
+  html.stash-cinema-catalog body .top-nav .navbar-collapse .nav-link.active .btn {
+    background: rgba(var(--cinema-accent-rgb), 0.16) !important;
+    color: var(--cinema-accent) !important;
+  }
+
+  html.stash-cinema-catalog body .main {
+    width: 100%;
+    min-height: 100vh;
+    margin-left: 0 !important;
+    padding: 4.6rem 1rem 1.5rem !important;
+    background: var(--cinema-bg);
+  }
+}
+
+/* Quiet shared controls: search, sort, filters, menus and dialogs. */
+html.stash-cinema-catalog body input,
+html.stash-cinema-catalog body select,
+html.stash-cinema-catalog body textarea,
+html.stash-cinema-catalog body .form-control,
+html.stash-cinema-catalog body .custom-select,
+html.stash-cinema-catalog body .dropdown-menu,
+html.stash-cinema-catalog body .modal-content,
+html.stash-cinema-catalog body .popover {
+  background-color: var(--cinema-surface) !important;
+  border-color: var(--cinema-border) !important;
+  color: var(--cinema-text) !important;
+}
+
+html.stash-cinema-catalog body input::placeholder,
+html.stash-cinema-catalog body textarea::placeholder,
+html.stash-cinema-catalog body .text-muted,
+html.stash-cinema-catalog body .text-secondary {
+  color: var(--cinema-muted) !important;
+}
+
+html.stash-cinema-catalog body .btn-primary,
+html.stash-cinema-catalog body .page-item.active .page-link {
+  border-color: var(--cinema-accent) !important;
+  background-color: var(--cinema-accent) !important;
+  color: #08121e !important;
+}
+
+html.stash-cinema-catalog body .btn-secondary,
+html.stash-cinema-catalog body .btn-default,
+html.stash-cinema-catalog body .page-link {
+  border-color: var(--cinema-border) !important;
+  background-color: var(--cinema-raised) !important;
+  color: var(--cinema-text) !important;
+}
+
+html.stash-cinema-catalog body :focus-visible {
+  outline: 2px solid var(--cinema-accent) !important;
+  outline-offset: 2px;
+  box-shadow: none !important;
+}
+
+/* Media-first cards; retain Stash's existing links, selection and popovers. */
+html.stash-cinema-catalog body .grid-card {
+  position: relative;
+  overflow: hidden;
+  border: 1px solid var(--cinema-border) !important;
+  border-radius: var(--cinema-radius) !important;
+  background: var(--cinema-card) !important;
+  color: var(--cinema-text);
+  box-shadow: none !important;
+  transition: border-color 140ms ease, transform 140ms ease;
+}
+
+html.stash-cinema-catalog body .grid-card:hover {
+  border-color: rgba(var(--cinema-accent-rgb), 0.65) !important;
+  transform: translateY(-1px);
+}
+
+html.stash-cinema-catalog body .grid-card.selected {
+  border-color: var(--cinema-accent) !important;
+}
+
+html.stash-cinema-catalog body .grid-card .thumbnail-section {
+  position: relative;
+  overflow: hidden;
+  background: #080a0d;
+}
+
+html.stash-cinema-catalog body .grid-card .thumbnail-section img,
+html.stash-cinema-catalog body .grid-card .thumbnail-section video {
+  object-fit: cover;
+}
+
+html.stash-cinema-catalog body .grid-card .card-section {
+  position: relative;
+  z-index: 2;
+  margin-top: -3.1rem;
+  padding: 2rem 0.75rem 0.7rem;
+  background: linear-gradient(180deg, rgba(11, 13, 16, 0) 0, rgba(11, 13, 16, 0.94) 42%, #111519 100%);
+}
+
+html.stash-cinema-catalog body .grid-card .card-section-title {
+  margin: 0 0 0.3rem;
+  color: var(--cinema-text) !important;
+  font-size: 0.95rem;
+  font-weight: 650;
+  line-height: 1.3;
+  text-shadow: 0 1px 3px #000;
+}
+
+html.stash-cinema-catalog body .grid-card .card-section-title a,
+html.stash-cinema-catalog body .grid-card .card-section a {
+  color: var(--cinema-text) !important;
+  text-decoration: none;
+}
+
+html.stash-cinema-catalog body .scene-card__details,
+html.stash-cinema-catalog body .image-card__details,
+html.stash-cinema-catalog body .group-card__details,
+html.stash-cinema-catalog body .gallery-card__details,
+html.stash-cinema-catalog body .studio-card__details {
+  color: var(--cinema-muted) !important;
+  font-size: 0.75rem;
+  line-height: 1.4;
+}
+
+html.stash-cinema-catalog body .scene-card__date,
+html.stash-cinema-catalog body .image-card__date,
+html.stash-cinema-catalog body .group-card__date,
+html.stash-cinema-catalog body .gallery-card__date {
+  color: var(--cinema-muted) !important;
+}
+
+html.stash-cinema-catalog body .scene-specs-overlay > span,
+html.stash-cinema-catalog body .overlay-resolution,
+html.stash-cinema-catalog body .overlay-duration {
+  border-radius: 4px;
+  background: rgba(5, 7, 9, 0.78);
+  color: #fff;
+  font-variant-numeric: tabular-nums;
+}
+
+html.stash-cinema-catalog body .grid-card .progress-bar {
+  height: 3px;
+  background: rgba(255, 255, 255, 0.22);
+}
+
+html.stash-cinema-catalog body .grid-card .progress-indicator {
+  background: var(--cinema-accent);
+}
+
+html.stash-cinema-catalog body .rating-banner {
+  border-color: rgba(var(--cinema-accent-rgb), 0.6);
+}
+
+html.stash-cinema-catalog body .card-popovers .btn,
+html.stash-cinema-catalog body .card-controls .btn {
+  border-radius: 5px;
+  color: var(--cinema-text);
+}
+
+html.stash-cinema-catalog body .card-popovers .btn:hover,
+html.stash-cinema-catalog body .card-controls .btn:hover {
+  background: rgba(var(--cinema-accent-rgb), 0.14);
+  color: var(--cinema-accent);
+}
+
+html.stash-cinema-catalog body .tag-item,
+html.stash-cinema-catalog body .scene-count,
+html.stash-cinema-catalog body .image-count,
+html.stash-cinema-catalog body .group-count,
+html.stash-cinema-catalog body .marker-count,
+html.stash-cinema-catalog body .gallery-count,
+html.stash-cinema-catalog body .performer-count,
+html.stash-cinema-catalog body .studio-count {
+  border-radius: 4px;
+}
+
+/* Refract-style accent picker lives in Settings > Plugins > Cinema Catalog. */
+html.stash-cinema-catalog body .cinema-catalog-settings {
+  margin: 0.75rem 0;
+  padding: 1rem;
+  border: 1px solid var(--cinema-border);
+  border-radius: 8px;
+  background: #111519;
+}
+
+html.stash-cinema-catalog body .cinema-settings-heading h3 {
+  margin: 0 0 0.25rem;
+  color: var(--cinema-text);
+  font-size: 1rem;
+  font-weight: 650;
+}
+
+html.stash-cinema-catalog body .cinema-settings-heading p {
+  margin: 0 0 1rem;
+  color: var(--cinema-muted);
+  font-size: 0.85rem;
+}
+
+html.stash-cinema-catalog body .cinema-accent-options {
+  display: grid;
+  grid-template-columns: repeat(4, minmax(6rem, 1fr));
+  gap: 0.5rem;
+  max-width: 36rem;
+}
+
+html.stash-cinema-catalog body .cinema-accent-option {
+  position: relative;
+  display: flex;
+  min-height: 2.75rem;
+  align-items: center;
+  gap: 0.55rem;
+  padding: 0.45rem 0.6rem;
+  border: 1px solid var(--cinema-border);
+  border-radius: 6px;
+  background: #171c22;
+  color: var(--cinema-text);
+  cursor: pointer;
+  text-align: left;
+}
+
+html.stash-cinema-catalog body .cinema-accent-option:hover,
+html.stash-cinema-catalog body .cinema-accent-option.is-active {
+  border-color: var(--cinema-accent);
+  background: rgba(var(--cinema-accent-rgb), 0.1);
+}
+
+html.stash-cinema-catalog body .cinema-accent-swatch {
+  width: 1rem;
+  height: 1rem;
+  flex: 0 0 1rem;
+  border-radius: 50%;
+  box-shadow: inset 0 0 0 1px rgba(255, 255, 255, 0.24);
+}
+
+html.stash-cinema-catalog body .cinema-accent-name { font-size: 0.82rem; }
+html.stash-cinema-catalog body .cinema-accent-check { margin-left: auto; color: var(--cinema-accent); }
+
+html.stash-cinema-catalog body .cinema-accent-preview {
+  display: flex;
+  max-width: 36rem;
+  align-items: center;
+  gap: 0.75rem;
+  margin-top: 0.9rem;
+  padding: 0.65rem;
+  border: 1px solid var(--cinema-border);
+  border-radius: 6px;
+  background: #0c1014;
+}
+
+html.stash-cinema-catalog body .cinema-accent-preview-selection {
+  padding: 0.35rem 0.6rem;
+  border-radius: 5px;
+  background: rgba(var(--cinema-accent-rgb), 0.18);
+  color: var(--cinema-accent);
+  font-size: 0.82rem;
+}
+
+html.stash-cinema-catalog body .cinema-accent-preview-track {
+  display: block;
+  width: 5rem;
+  height: 3px;
+  background: #36404a;
+}
+
+html.stash-cinema-catalog body .cinema-accent-preview-track span {
+  display: block;
+  width: 68%;
+  height: 100%;
+  background: var(--cinema-accent);
+}
+
+html.stash-cinema-catalog body .cinema-accent-status {
+  margin-left: auto;
+  color: var(--cinema-muted);
+  font-size: 0.75rem;
+}
+
+@media (max-width: 575.98px) {
+  html.stash-cinema-catalog body .main {
+    padding-right: 0.7rem !important;
+    padding-left: 0.7rem !important;
+  }
+
+  html.stash-cinema-catalog body .cinema-accent-options {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+
+  html.stash-cinema-catalog body .grid-card .card-section {
+    margin-top: -2.5rem;
+    padding-top: 1.6rem;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  html.stash-cinema-catalog body *,
+  html.stash-cinema-catalog body *::before,
+  html.stash-cinema-catalog body *::after {
+    scroll-behavior: auto !important;
+    transition-duration: 0.01ms !important;
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+  }
+}

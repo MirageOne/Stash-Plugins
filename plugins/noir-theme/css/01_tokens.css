@@ -1,41 +1,41 @@
 /* ───────────────────────────────────────────────────────────────────
    Noir tokens layered over Refract's Stash layout.
-   These first-paint defaults match the final Fluent 2 layer so delayed
-   assets do not briefly show the previous theme styling.
+   First-paint defaults use the same flat charcoal and violet palette as
+   the finished streaming-style interface.
    ─────────────────────────────────────────────────────────────────── */
 
 body.stash-noir-theme {
-    --theme-font-stack: "Segoe UI Variable", "Segoe UI", system-ui, sans-serif;
-    --theme-base: #111216;
-    --theme-elevated: #1b1c21;
-    --bg-0: #101114;
-    --bg-1: #15161a;
+    --theme-font-stack: Inter, "Helvetica Neue", system-ui, sans-serif;
+    --theme-base: #0d0e12;
+    --theme-elevated: #181a1f;
+    --bg-0: #0b0c0f;
+    --bg-1: #111216;
     --text: rgba(255, 255, 255, 0.94);
     --text-muted: rgba(255, 255, 255, 0.66);
 
-    --glass-bg: rgba(25, 26, 31, 0.92);
-    --glass-bg-strong: rgba(32, 33, 39, 0.97);
-    --glass-border: rgba(255, 255, 255, 0.09);
-    --glass-border-bright: rgba(255, 255, 255, 0.17);
-    --glass-blur: blur(14px) saturate(125%);
+    --glass-bg: #191a20;
+    --glass-bg-strong: #202127;
+    --glass-border: rgba(255, 255, 255, 0.08);
+    --glass-border-bright: rgba(255, 255, 255, 0.14);
+    --glass-blur: none;
 
     /* Backdrop blur tiers. Each unique backdrop-filter expression compiles
        to its own HLSL shader on Windows Chromium / D3D11; consolidating
        to a fixed token set caps the shader count (was 22, now 11) and
        stops the HLSLCompiler recompile churn on home-page navigation. */
-    --glass-blur-xs:      blur(4px);
-    --glass-blur-sm:      blur(6px);
-    --glass-blur-md:      blur(8px) saturate(120%);
-    --glass-blur-lg:      blur(10px) saturate(120%);
-    --glass-blur-xl:      blur(14px) saturate(125%);
-    --glass-blur-2xl:     blur(18px);
-    --glass-blur-sm-sat:  blur(6px) saturate(120%);
-    --glass-blur-md-sat:  blur(8px) saturate(120%);
-    --glass-blur-lg-sat:  blur(10px) saturate(120%);
-    --glass-blur-xl-sat:  blur(14px) saturate(125%);
-    --glass-blur-2xl-sat: blur(18px) saturate(125%);
+    --glass-blur-xs:      none;
+    --glass-blur-sm:      none;
+    --glass-blur-md:      none;
+    --glass-blur-lg:      none;
+    --glass-blur-xl:      none;
+    --glass-blur-2xl:     none;
+    --glass-blur-sm-sat:  none;
+    --glass-blur-md-sat:  none;
+    --glass-blur-lg-sat:  none;
+    --glass-blur-xl-sat:  none;
+    --glass-blur-2xl-sat: none;
 
-    --glass-shadow: 0 10px 40px rgba(0, 0, 0, 0.45);
+    --glass-shadow: 0 6px 20px rgba(0, 0, 0, 0.28);
 
     /* Depth shadows — graduated single-layer drop shadows. Tokenized
        so light-mode (14_light.css) can swap to soft light variants in
@@ -54,11 +54,8 @@ body.stash-noir-theme {
         inset 0 1px 2px rgba(0, 0, 0, 0.45),
         0 1px 0 rgba(255, 255, 255, 0.05);
 
-    /* Theme navbar elevation: soft depth, hairline, and a top highlight. */
-    --shadow-navbar:
-        0 8px 28px rgba(0, 0, 0, 0.38),
-        0 0 0 1px rgba(0, 0, 0, 0.22),
-        inset 0 1px 0 rgba(255, 255, 255, 0.07);
+    /* The fixed navigation uses a quiet cast shadow on solid surfaces. */
+    --shadow-navbar: 0 4px 14px rgba(0, 0, 0, 0.28);
 
     --radius: 8px;
     --radius-sm: 4px;
@@ -78,14 +75,13 @@ body.stash-noir-theme {
     --fs-lg:   1.25rem;   /* 17.5px   sub-headings                    */
     --fs-xl:   2rem;      /* 28px     page title                      */
 
-    /* Violet is the default; the Fluent accent presets below override
-       these tokens when selected in the plugin settings. */
-    --accent: #8764b8;
-    --accent-bright: #a78bdb;
-    --accent-light: #e3d8f7;
-    --accent-rgb: 135, 100, 184;
-    --accent-glow: rgba(var(--accent-rgb), 0.18);
-    --accent-tint: rgba(var(--accent-rgb), 0.14);
+    /* Violet is the default; other accent colors remain user-selectable. */
+    --accent: #8b5cf6;
+    --accent-bright: #a78bfa;
+    --accent-light: #ede9fe;
+    --accent-rgb: 139, 92, 246;
+    --accent-glow: rgba(var(--accent-rgb), 0.13);
+    --accent-tint: rgba(var(--accent-rgb), 0.16);
 
     --nav-btn-size: 2.4rem;
     --nav-icon-size: 1rem;

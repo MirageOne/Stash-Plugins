@@ -1,10 +1,10 @@
 /* ═══════════════════════════════════════════════════════════════════
-   Fluent dossier layout for performer cards
+   Compact dossier layout for performer cards
    Active when `body.noir-theme-perf-layout-card` is set (Performer card
    style = Refract). Tier TREATMENT lives on `.noir-theme-flourish-tiers`
    instead, so a layout and a flourish can be chosen independently.
    Replaces the rating-banner-on-image + chin-name layout with a
-   dossier layout: an Acrylic name banner across the top plus a
+   dossier layout: a solid name banner across the top plus a
    compact stats strip across the bottom
    (rating, age, scenes, O count, country flag).
 
@@ -49,12 +49,12 @@ body.stash-noir-theme.noir-theme-perf-layout-card .performer-card .noir-theme-pc
     right: 25%;
     padding: 0.5rem 0.75rem;
     z-index: 6;
-    /* Acrylic name label keeps the title legible across bright photos. */
-    background: rgba(32, 32, 32, 0.78);
+    /* Solid name label keeps the title legible across bright photos. */
+    background: #191a20;
     border-bottom: 1px solid var(--glass-border);
     border-radius: 0 0 4px 0;
-    -webkit-backdrop-filter: blur(12px) saturate(130%);
-    backdrop-filter: blur(12px) saturate(130%);
+    -webkit-backdrop-filter: none;
+    backdrop-filter: none;
     color: #fff;
     text-align: left;
     pointer-events: none;
@@ -72,7 +72,7 @@ body.stash-noir-theme.noir-theme-perf-layout-card .performer-card:has(.card-chec
     transition: opacity 0.15s ease;
 }
 
-/* Gender icon aligns with the Fluent text label. */
+/* Gender icon aligns with the performer name. */
 body.stash-noir-theme.noir-theme-perf-layout-card .performer-card .noir-theme-pc-name-banner .gender-icon {
     width: 1.35rem !important;
     height: 1.35rem !important;
@@ -833,10 +833,10 @@ body.stash-noir-theme.noir-theme-perf-layout-card .performer-card .noir-theme-ca
     align-items: center;
     justify-content: center;
     border-radius: 11px 0 0 11px;
-    background: rgba(10, 10, 12, 0.62);
+    background: #101114;
     border: 1px solid var(--glass-border);
     border-right: none;
-    backdrop-filter: blur(8px);
+    backdrop-filter: none;
     color: var(--text);
     cursor: pointer;
     opacity: 0;
@@ -995,7 +995,7 @@ body.stash-noir-theme.noir-theme-pc-hide-tier.noir-theme-pc-hide-tier .performer
 
    The NAME is not restyled here. The back emits the front's own
    `.noir-theme-pc-name-banner`, whose rule is a plain descendant selector, so it
-   inherits the identical treatment: top-left, Fluent type, gender glyph,
+   inherits the identical treatment: top-left, compact type, gender glyph,
    the text-shadow stack, and the right quarter left clear for the sash.
 
    Everything else is sized in `cqw` against the card's inline-size container,
@@ -1367,7 +1367,7 @@ body.stash-noir-theme .noir-theme-cb-portrait {
         0 3px 10px rgba(0, 0, 0, 0.5),
         inset 0 0 0 1px rgba(255, 255, 255, 0.06);
 }
-/* The back uses the same Fluent type and restrained text shadow as the
+/* The back uses the same compact type and restrained text shadow as the
    front. Long names step down in size and then ellipsize. */
 body.stash-noir-theme .noir-theme-cb-name {
     flex: 0 1 auto;

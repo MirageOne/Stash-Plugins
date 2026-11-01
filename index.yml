@@ -9,13 +9,13 @@
     description: Fluent 2 Stash theme with smooth scrolling, responsive scenes, compact performer nameplates, stable pagination, and accent colors.
 - id: noir-theme
   name: Noir
-  version: 1.1.1
-  date: "2026-11-01 16:38:45"
-  path: packages/noir-theme/1.1.1.zip
-  sha256: 40058c8b1f597648f2da35953247c17256550e34df1af4cb4427d8cb51b66f2f
+  version: 1.1.2
+  date: "2026-11-01 22:20:41"
+  path: packages/noir-theme/1.1.2.zip
+  sha256: e4375bb4e24a4f86833a013ae13f240d31fb21329afa87c3746ca141512ba9f1
   requires: []
   metadata:
-    description: Dark Fluent 2-inspired theme with video-first home and scene pages, content-first image and gallery details, image-backed performer profiles, a collapsible sidebar, and responsive navigation.
+    description: Dark video-first Stash theme with flat charcoal surfaces, violet accents, a collapsible sidebar, and responsive mobile navigation.
 - id: library-doctor
   name: Library Doctor
   version: 1.6.4

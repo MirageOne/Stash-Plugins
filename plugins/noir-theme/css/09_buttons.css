@@ -334,11 +334,11 @@ body.stash-noir-theme .stash-view-trigger:hover {
     color: var(--text) !important;
 }
 
-/* Always-visible current view indicator — orange glow, same as active nav */
+/* Always-visible current view indicator — compact violet selected state. */
 body.stash-noir-theme .stash-view-active-ind {
     background: var(--accent-tint) !important;
-    border: 1px solid var(--accent-glow) !important;
-    color: var(--accent) !important;
+    border: 1px solid rgba(var(--accent-rgb), 0.38) !important;
+    color: var(--accent-bright) !important;
     border-radius: var(--radius-sm) !important;
     width: 30px !important;
     height: 30px !important;
@@ -348,17 +348,13 @@ body.stash-noir-theme .stash-view-active-ind {
     justify-content: center !important;
     cursor: pointer !important;
     flex-shrink: 0 !important;
-    box-shadow:
-        0 0 18px rgba(var(--accent-rgb), 0.45),
-        0 0 0 1px rgba(var(--accent-rgb), 0.18) inset !important;
+    box-shadow: none !important;
     transition: background 0.15s !important;
 }
 body.stash-noir-theme .stash-view-active-ind svg {
     width: 16px !important;
     height: 16px !important;
-    filter:
-        drop-shadow(0 0 6px rgba(var(--accent-rgb), 0.65))
-        drop-shadow(0 0 3px rgba(var(--accent-rgb), 0.45)) !important;
+    filter: none !important;
 }
 body.stash-noir-theme .stash-view-active-ind:hover {
     background: rgba(var(--accent-rgb), 0.2) !important;

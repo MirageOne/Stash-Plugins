@@ -455,6 +455,16 @@ body.stash-noir-theme .noir-theme-mobile-drawer {
         transform: translateY(0) scale(1);
         pointer-events: auto;
     }
+    body.stash-noir-theme.noir-theme-drawer-from-header .noir-theme-mobile-drawer {
+        top: calc(3.65rem + 10px);
+        bottom: calc(5.2rem + env(safe-area-inset-bottom, 0px));
+        max-height: calc(100vh - 10rem);
+        transform-origin: top center;
+        transform: translateY(-12px) scale(0.96);
+    }
+    body.stash-noir-theme.noir-theme-burger-open.noir-theme-drawer-from-header .noir-theme-mobile-drawer {
+        transform: translateY(0) scale(1);
+    }
 
     /* ── Drawer tiles ─────────────────────────────────────────────── */
     body.stash-noir-theme .noir-theme-mobile-drawer .noir-theme-drawer-tile {
@@ -1111,13 +1121,11 @@ body.stash-noir-theme .noir-theme-mobile-drawer {
 }
 
 @media (max-width: 768px) {
-    /* ── 2-column compact-card grid on mobile list pages ────────────
-       Use CSS Grid on the card row — more deterministic than flex for
-       forcing a fixed column count, and not affected by inherited
-       width/zoom rules on cards. */
+    /* One substantial video card per phone row. Stash's compact zoom
+       classes otherwise squeeze landscape thumbnails into two columns. */
     body.stash-noir-theme .row.justify-content-center {
         display: grid !important;
-        grid-template-columns: repeat(2, 1fr) !important;
+        grid-template-columns: minmax(0, 1fr) !important;
         gap: 0.6rem !important;
         margin: 0.9rem 0 0 !important;
         padding: 0 0.6rem !important;
@@ -1136,12 +1144,82 @@ body.stash-noir-theme .noir-theme-mobile-drawer {
     }
 }
 
-@media (max-width: 600px) {
+@media (max-width: 768px) {
     /* Performer portraits and their name/favorite controls need room on
        phone screens. Keep one performer per row so the title and stats
        stay legible instead of squeezing into half-width cards. */
     body.stash-noir-theme .row.justify-content-center:has(> .performer-card) {
         grid-template-columns: minmax(0, 1fr) !important;
+    }
+
+    /* A performer's filmography reads as a compact watch list on a phone:
+       landscape thumbnail beside the title, without the desktop card's
+       large poster-first footprint. The main Scenes page remains full width. */
+    body.stash-noir-theme #performer-page .performer-tabs .tab-pane.active .row.justify-content-center:has(> .scene-card) {
+        display: flex !important;
+        flex-direction: column !important;
+        gap: 0.55rem !important;
+        margin: 0.65rem 0 0 !important;
+        padding: 0 !important;
+    }
+    body.stash-noir-theme #performer-page .performer-tabs .tab-pane.active .row.justify-content-center:has(> .scene-card) > .scene-card {
+        display: grid !important;
+        grid-template-columns: minmax(112px, 38%) minmax(0, 1fr) !important;
+        grid-template-rows: minmax(0, 1fr) !important;
+        align-items: stretch !important;
+        min-height: 82px !important;
+        padding: 0 !important;
+    }
+    body.stash-noir-theme #performer-page .performer-tabs .tab-pane.active .scene-card > .video-section {
+        grid-column: 1 !important;
+        grid-row: 1 !important;
+        align-self: stretch !important;
+        min-height: 0 !important;
+        margin: 0 !important;
+        aspect-ratio: auto !important;
+        overflow: hidden !important;
+    }
+    body.stash-noir-theme #performer-page .performer-tabs .tab-pane.active .scene-card > .video-section .scene-card-preview,
+    body.stash-noir-theme #performer-page .performer-tabs .tab-pane.active .scene-card > .video-section .scene-card-link {
+        display: block !important;
+        width: 100% !important;
+        height: 100% !important;
+        min-height: 82px !important;
+        margin: 0 !important;
+    }
+    body.stash-noir-theme #performer-page .performer-tabs .tab-pane.active .scene-card > .video-section img,
+    body.stash-noir-theme #performer-page .performer-tabs .tab-pane.active .scene-card > .video-section .scene-card-preview-image {
+        width: 100% !important;
+        height: 100% !important;
+        min-height: 82px !important;
+        object-fit: cover !important;
+    }
+    body.stash-noir-theme #performer-page .performer-tabs .tab-pane.active .scene-card > .card-section {
+        grid-column: 2 !important;
+        grid-row: 1 !important;
+        display: flex !important;
+        flex-direction: column !important;
+        justify-content: center !important;
+        min-width: 0 !important;
+        margin: 0 !important;
+        padding: 0.45rem 0.65rem !important;
+        overflow: hidden !important;
+    }
+    body.stash-noir-theme #performer-page .performer-tabs .tab-pane.active .scene-card .card-section-title {
+        display: block !important;
+        margin: 0 0 0.25rem !important;
+        font-size: 0.88rem !important;
+        line-height: 1.2 !important;
+    }
+    body.stash-noir-theme #performer-page .performer-tabs .tab-pane.active .scene-card .scene-card__details {
+        display: block !important;
+        margin: 0 !important;
+        font-size: 0.72rem !important;
+        line-height: 1.3 !important;
+    }
+    body.stash-noir-theme #performer-page .performer-tabs .tab-pane.active .scene-card .scene-card__details .file-path,
+    body.stash-noir-theme #performer-page .performer-tabs .tab-pane.active .scene-card .scene-card__description {
+        display: none !important;
     }
 }
 

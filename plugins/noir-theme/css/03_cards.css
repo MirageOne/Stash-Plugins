@@ -170,7 +170,7 @@ body.stash-noir-theme .scene-marker-card .thumbnail-section {
    the shape becomes a translucent accent — no JS, no overlay, no hiding the
    img, so it can never blank a card (if the filter is ever ignored the plain
    silhouette just shows). A data-URI can't read --accent, so there's one rule
-   per swatch; the base rule uses Fluent Blue. */
+   per swatch; the base rule uses blue. */
 body.stash-noir-theme img.performer-card-image[src*="default=true"],
 body.stash-noir-theme img[src*="default=true"].performer-card-image,
 body.stash-noir-theme .performer-card img[src*="default=true"] {

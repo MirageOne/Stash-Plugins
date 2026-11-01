@@ -1,38 +1,36 @@
-/* Fluent 2 styling over Refract's tested Stash layout.
-   Theme is used for page and card surfaces; Acrylic is reserved for
-   floating navigation, menus, and overlays. Fluent accents, Segoe UI
-   typography, restrained corners, and clear control states replace the
-   Refract glow-heavy treatment. */
+/* Noir's dark library styling over Refract's tested Stash layout.
+   Surfaces stay opaque and quiet so video and performer artwork carry the
+   visual weight. */
 html:has(body.stash-noir-theme) {
     color-scheme: dark;
-    background-color: #15161a !important;
+    background-color: #0b0c0f !important;
 }
 
 body.stash-noir-theme {
-    --theme-font-stack: "Segoe UI Variable", "Segoe UI", system-ui, sans-serif;
-    --theme-base: #111216;
-    --theme-elevated: #1b1c21;
-    --bg-0: #101114;
-    --bg-1: #15161a;
+    --theme-font-stack: Inter, "Helvetica Neue", system-ui, sans-serif;
+    --theme-base: #0d0e12;
+    --theme-elevated: #181a1f;
+    --bg-0: #0b0c0f;
+    --bg-1: #111216;
     --text: rgba(255, 255, 255, 0.94);
     --text-muted: rgba(255, 255, 255, 0.66);
 
-    --glass-bg: rgba(25, 26, 31, 0.92);
-    --glass-bg-strong: rgba(32, 33, 39, 0.97);
-    --glass-border: rgba(255, 255, 255, 0.09);
-    --glass-border-bright: rgba(255, 255, 255, 0.17);
-    --glass-blur: blur(14px) saturate(125%);
-    --glass-blur-xs: blur(4px);
-    --glass-blur-sm: blur(6px) saturate(120%);
-    --glass-blur-md: blur(8px) saturate(120%);
-    --glass-blur-lg: blur(10px) saturate(120%);
-    --glass-blur-xl: blur(14px) saturate(125%);
-    --glass-blur-2xl: blur(18px) saturate(125%);
-    --glass-blur-sm-sat: blur(6px) saturate(120%);
-    --glass-blur-md-sat: blur(8px) saturate(120%);
-    --glass-blur-lg-sat: blur(10px) saturate(120%);
-    --glass-blur-xl-sat: blur(14px) saturate(125%);
-    --glass-blur-2xl-sat: blur(18px) saturate(125%);
+    --glass-bg: #191a20;
+    --glass-bg-strong: #202127;
+    --glass-border: rgba(255, 255, 255, 0.08);
+    --glass-border-bright: rgba(255, 255, 255, 0.14);
+    --glass-blur: none;
+    --glass-blur-xs: none;
+    --glass-blur-sm: none;
+    --glass-blur-md: none;
+    --glass-blur-lg: none;
+    --glass-blur-xl: none;
+    --glass-blur-2xl: none;
+    --glass-blur-sm-sat: none;
+    --glass-blur-md-sat: none;
+    --glass-blur-lg-sat: none;
+    --glass-blur-xl-sat: none;
+    --glass-blur-2xl-sat: none;
 
     --glass-shadow: 0 8px 30px rgba(0, 0, 0, 0.36);
     --shadow-xs: 0 1px 3px rgba(0, 0, 0, 0.28);
@@ -41,10 +39,7 @@ body.stash-noir-theme {
     --shadow-lg: 0 8px 28px rgba(0, 0, 0, 0.34);
     --shadow-xl: 0 12px 38px rgba(0, 0, 0, 0.42);
     --shadow-2xl: 0 22px 56px rgba(0, 0, 0, 0.48);
-    --shadow-navbar:
-        0 8px 28px rgba(0, 0, 0, 0.38),
-        0 0 0 1px rgba(0, 0, 0, 0.22),
-        inset 0 1px 0 rgba(255, 255, 255, 0.07);
+    --shadow-navbar: 0 4px 14px rgba(0, 0, 0, 0.28);
 
     --radius: 8px;
     --radius-sm: 4px;
@@ -53,12 +48,12 @@ body.stash-noir-theme {
     --nav-btn-size: 2.55rem;
     --nav-icon-size: 1.05rem;
 
-    --accent: #8764b8;
-    --accent-bright: #a78bdb;
-    --accent-light: #e3d8f7;
-    --accent-rgb: 135, 100, 184;
-    --accent-glow: rgba(var(--accent-rgb), 0.2);
-    --accent-tint: rgba(var(--accent-rgb), 0.14);
+    --accent: #8b5cf6;
+    --accent-bright: #a78bfa;
+    --accent-light: #ede9fe;
+    --accent-rgb: 139, 92, 246;
+    --accent-glow: rgba(var(--accent-rgb), 0.13);
+    --accent-tint: rgba(var(--accent-rgb), 0.16);
 
     --bs-body-bg: var(--bg-0);
     --bs-body-color: var(--text);
@@ -71,12 +66,12 @@ body.stash-noir-theme {
     --bs-border-radius-sm: 4px;
     --bs-border-radius-lg: 8px;
     --bs-primary: var(--accent);
-    --bs-primary-rgb: 135, 100, 184;
+    --bs-primary-rgb: 139, 92, 246;
     --bs-focus-ring-color: rgba(var(--accent-rgb), 0.38);
     --bs-link-color: rgba(255, 255, 255, 0.9);
     --bs-link-color-rgb: 255, 255, 255;
     --bs-link-hover-color: var(--accent-bright);
-    --bs-link-hover-color-rgb: 167, 139, 219;
+    --bs-link-hover-color-rgb: 167, 139, 250;
     --bs-table-color: var(--text);
     --bs-table-bg: transparent;
     --bs-table-striped-color: var(--text);
@@ -84,20 +79,16 @@ body.stash-noir-theme {
     --bs-table-hover-color: #fff;
     --bs-table-hover-bg: rgba(255, 255, 255, 0.055);
     --bs-table-border-color: rgba(255, 255, 255, 0.075);
-    --bs-popover-bg: rgba(32, 33, 39, 0.97);
+    --bs-popover-bg: #202127;
     --bs-popover-border-color: var(--glass-border-bright);
     --bs-popover-border-radius: var(--radius-sm);
     --bs-popover-inner-border-radius: 5px;
     --bs-popover-body-color: var(--text);
-    --bs-popover-header-bg: rgba(255, 255, 255, 0.045);
+    --bs-popover-header-bg: #27282e;
     --bs-popover-header-color: var(--text);
 
     color: var(--text);
-    background:
-        radial-gradient(110% 85% at 8% -12%, rgba(255, 255, 255, 0.055), transparent 55%),
-        radial-gradient(95% 72% at 100% 8%, rgba(var(--accent-rgb), 0.09), transparent 58%),
-        linear-gradient(145deg, #191a1f 0%, #111216 52%, #15161a 100%) !important;
-    background-attachment: fixed !important;
+    background: #0b0c0f !important;
     font-family: var(--theme-font-stack) !important;
 }
 
@@ -111,7 +102,7 @@ body.stash-noir-theme.noir-theme-blue   { --accent: #0078d4; --accent-bright: #2
 body.stash-noir-theme.noir-theme-pink   { --accent: #e3008c; --accent-bright: #ff4db8; --accent-light: #ffd6ee; --accent-rgb: 227, 0, 140; --bs-primary-rgb: 227, 0, 140; --bs-link-hover-color-rgb: 255, 77, 184; }
 body.stash-noir-theme.noir-theme-red    { --accent: #d13438; --accent-bright: #e7484e; --accent-light: #f4c7c9; --accent-rgb: 209, 52, 56; --bs-primary-rgb: 209, 52, 56; --bs-link-hover-color-rgb: 231, 72, 78; }
 body.stash-noir-theme.noir-theme-yellow { --accent: #f2c811; --accent-bright: #ffd335; --accent-light: #fff4ce; --accent-rgb: 242, 200, 17; --bs-primary-rgb: 242, 200, 17; --bs-link-hover-color-rgb: 255, 211, 53; }
-body.stash-noir-theme.noir-theme-purple { --accent: #8764b8; --accent-bright: #a78bdb; --accent-light: #e3d8f7; --accent-rgb: 135, 100, 184; --bs-primary-rgb: 135, 100, 184; --bs-link-hover-color-rgb: 167, 139, 219; }
+body.stash-noir-theme.noir-theme-purple { --accent: #8b5cf6; --accent-bright: #a78bfa; --accent-light: #ede9fe; --accent-rgb: 139, 92, 246; --bs-primary-rgb: 139, 92, 246; --bs-link-hover-color-rgb: 167, 139, 250; }
 body.stash-noir-theme.noir-theme-green  { --accent: #107c10; --accent-bright: #13a10e; --accent-light: #dff6dd; --accent-rgb: 16, 124, 16; --bs-primary-rgb: 16, 124, 16; --bs-link-hover-color-rgb: 19, 161, 14; }
 body.stash-noir-theme.noir-theme-teal   { --accent: #038387; --accent-bright: #00b7c3; --accent-light: #9ad5d6; --accent-rgb: 3, 131, 135; --bs-primary-rgb: 3, 131, 135; --bs-link-hover-color-rgb: 0, 183, 195; }
 
@@ -125,17 +116,17 @@ body.stash-noir-theme.noir-theme-light.noir-theme-green  { --accent: #0b5a0b; --
 body.stash-noir-theme.noir-theme-light.noir-theme-teal   { --accent: #026d70; --accent-bright: #038387; --accent-light: #d9f0f0; --accent-rgb: 2, 109, 112; --bs-primary-rgb: 2, 109, 112; --bs-link-hover-color-rgb: 3, 131, 135; }
 
 body.stash-noir-theme nav.top-nav.navbar {
-    background: rgba(38, 38, 38, 0.78) !important;
+    background: #101114 !important;
     border-color: var(--glass-border) !important;
-    -webkit-backdrop-filter: var(--glass-blur);
-    backdrop-filter: var(--glass-blur);
+    -webkit-backdrop-filter: none;
+    backdrop-filter: none;
 }
 
 body.stash-noir-theme :is(.dropdown-menu, .popover, .modal-content, .toast, .react-select__menu, .react-datepicker, .package-manager .card) {
     background-color: var(--glass-bg-strong) !important;
     border-color: var(--glass-border-bright) !important;
-    -webkit-backdrop-filter: var(--glass-blur-md);
-    backdrop-filter: var(--glass-blur-md);
+    -webkit-backdrop-filter: none;
+    backdrop-filter: none;
     border-radius: var(--radius) !important;
     box-shadow: var(--shadow-lg) !important;
 }
@@ -211,11 +202,10 @@ body.stash-noir-theme .noir-theme-mobile-dock .noir-theme-dock-label {
     overflow: hidden;
 }
 
-/* Fluent 2 component materials. Keep dense gallery cards on opaque Theme;
-   use Acrylic only on surfaces that float above the page. */
+/* Solid cards keep the focus on their thumbnails and metadata. */
 body.stash-noir-theme .card,
 body.stash-noir-theme .grid-card {
-    background-color: rgba(43, 43, 43, 0.90) !important;
+    background-color: #17191e !important;
     border: 1px solid var(--glass-border) !important;
     border-radius: 8px !important;
     box-shadow: var(--shadow-sm) !important;
@@ -239,13 +229,13 @@ body.stash-noir-theme nav.top-nav.navbar,
 body.stash-noir-theme .noir-theme-mobile-drawer,
 body.stash-noir-theme .noir-theme-mobile-dock,
 body.stash-noir-theme :is(.dropdown-menu, .popover, .modal-content, .toast, .react-select__menu, .react-datepicker, .package-manager .card) {
-    background-color: rgba(32, 32, 32, 0.84) !important;
+    background-color: #202127 !important;
     border-color: var(--glass-border-bright) !important;
-    -webkit-backdrop-filter: var(--glass-blur-lg) !important;
-    backdrop-filter: var(--glass-blur-lg) !important;
+    -webkit-backdrop-filter: none !important;
+    backdrop-filter: none !important;
 }
 body.stash-noir-theme .noir-theme-mobile-drawer .noir-theme-drawer-tile {
-    background: rgba(48, 48, 48, 0.82) !important;
+    background: #25262c !important;
     border-color: var(--glass-border) !important;
     border-radius: 6px !important;
     box-shadow: none !important;
@@ -265,7 +255,7 @@ body.stash-noir-theme .noir-theme-mobile-dock .noir-theme-dock-burger.is-open::b
     box-shadow: inset 0 0 0 1px rgba(var(--accent-rgb), 0.22) !important;
 }
 
-/* Fluent controls use clear fill, quiet hover, and a visible focus ring. */
+/* Library controls use solid fills, quiet hover states, and a visible focus ring. */
 body.stash-noir-theme .btn-primary:not(.minimal) {
     background: var(--accent) !important;
     border: 1px solid var(--accent) !important;
@@ -282,18 +272,18 @@ body.stash-noir-theme .btn-primary:not(.minimal):focus-visible {
     box-shadow: 0 0 0 2px rgba(var(--accent-rgb), 0.20) !important;
 }
 body.stash-noir-theme .btn-secondary {
-    background: rgba(255, 255, 255, 0.045) !important;
+    background: #202127 !important;
     border: 1px solid var(--glass-border) !important;
     border-radius: 4px !important;
     color: var(--text) !important;
     box-shadow: none !important;
 }
 body.stash-noir-theme .btn-secondary:hover {
-    background: rgba(255, 255, 255, 0.09) !important;
+    background: #2a2b32 !important;
     border-color: var(--glass-border-bright) !important;
 }
 body.stash-noir-theme :is(.form-control, .form-select, .text-input, input, select, textarea) {
-    background-color: rgba(255, 255, 255, 0.045);
+    background-color: #191a20;
     border-color: var(--glass-border);
     border-radius: 4px !important;
 }
@@ -316,7 +306,7 @@ body.stash-noir-theme [data-stash-filter] button[data-filter-active] svg {
     filter: none !important;
 }
 
-/* Replace Refract's neon nav feedback with Fluent's subtle selected state. */
+/* Use a restrained violet state for active native navigation controls. */
 body.stash-noir-theme nav.top-nav :is(a.nav-link, a.nav-utility):is(.stash-nav-active, .active) > :is(button, .btn),
 body.stash-noir-theme nav.top-nav :is(a.nav-link, a.nav-utility):is(.stash-nav-active, .active).btn,
 body.stash-noir-theme nav.top-nav .navbar-nav a.btn.stash-nav-active,
@@ -344,16 +334,15 @@ body.stash-noir-theme nav.top-nav button.btn:hover svg {
     filter: none !important;
 }
 
-/* The performer dossier layout remains available, but its title treatment
-   uses Fluent typography and an Acrylic label instead of neon display text. */
+/* Keep the optional performer dossier controls consistent with the flat theme. */
 body.stash-noir-theme.noir-theme-perf-layout-card .performer-card .noir-theme-pc-name-banner {
     right: 3rem !important;
     min-height: 2.5rem;
-    background: rgba(32, 32, 32, 0.9) !important;
+    background: #191a20 !important;
     border-bottom: 1px solid var(--glass-border) !important;
     border-radius: 8px 0 6px 0;
-    -webkit-backdrop-filter: var(--glass-blur-sm);
-    backdrop-filter: var(--glass-blur-sm);
+    -webkit-backdrop-filter: none;
+    backdrop-filter: none;
 }
 body.stash-noir-theme.noir-theme-perf-layout-card .performer-card .noir-theme-pc-name-text,
 body.stash-noir-theme .noir-theme-cb-name {
@@ -500,7 +489,7 @@ body.stash-noir-theme .noir-theme-cb-tierchip {
 /* Keep the performer title plate close to its text. The previous full-width
    strip looked like a large opaque box on short names and competed with the
    favorite control. Let it size to the title, cap long names before the heart,
-   and use a restrained Acrylic edge. */
+   and use a simple charcoal edge. */
 body.stash-noir-theme.noir-theme-perf-layout-card .performer-card .noir-theme-pc-name-banner {
     right: auto !important;
     width: max-content !important;
@@ -508,7 +497,7 @@ body.stash-noir-theme.noir-theme-perf-layout-card .performer-card .noir-theme-pc
     min-width: 0 !important;
     box-sizing: border-box !important;
     padding: 0.45rem 0.7rem !important;
-    background: rgba(24, 24, 28, 0.86) !important;
+    background: #191a20 !important;
     border: 1px solid var(--glass-border) !important;
     border-top: 0 !important;
     border-left: 0 !important;

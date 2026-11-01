@@ -289,47 +289,523 @@ body.stash-noir-theme .recommendations-container .scene-recommendations.noir-hom
     display: none !important;
 }
 
-/* Performer identity becomes a soft image-backed profile hero. The image
-   is heavily shaded for legible metadata; the original portrait, rating,
-   favorite, edit actions and tabs remain Stash-owned controls. */
+/* Compact performer dossier. Stash owns the record and all native actions;
+   Noir presents the portrait, identity, real counters and About panel in a
+   compact layout that leaves room for the scene filmography. */
 body.stash-noir-theme #performer-page .detail-header.noir-theme-performer-hero {
     position: relative !important;
-    isolation: isolate;
-    overflow: hidden !important;
-    border-color: rgba(var(--accent-rgb), 0.3) !important;
-    background-image:
-        radial-gradient(80% 120% at 95% 0%, rgba(var(--accent-rgb), 0.16), transparent 58%),
-        linear-gradient(90deg,
-            rgba(19, 20, 24, 0.96) 0%,
-            rgba(19, 20, 24, 0.88) 55%,
-            rgba(19, 20, 24, 0.94) 100%),
-        linear-gradient(0deg, rgba(15, 16, 19, 0.9), rgba(15, 16, 19, 0.4)),
-        var(--noir-profile-backdrop, none) !important;
-    background-size: cover !important;
-    background-position: center, center, center, center 28% !important;
-    box-shadow:
-        0 18px 48px rgba(0, 0, 0, 0.34),
-        0 0 48px -20px rgba(var(--accent-rgb), 0.45) !important;
+    overflow: visible !important;
+    min-height: 0 !important;
+    padding: 0 !important;
+    margin-bottom: 0.9rem !important;
+    background: transparent !important;
+    border: 0 !important;
+    border-radius: 0 !important;
+    box-shadow: none !important;
+    -webkit-backdrop-filter: none !important;
+    backdrop-filter: none !important;
+}
+
+body.stash-noir-theme #performer-page .detail-header.full-width {
+    margin-left: 15px !important;
+    margin-right: 15px !important;
 }
 
 body.stash-noir-theme #performer-page .detail-header .detail-container {
-    position: relative;
-    z-index: 1;
+    display: grid !important;
+    grid-template-columns: 100px minmax(0, 1fr) !important;
+    align-items: start !important;
+    gap: 1rem !important;
+    padding: 0 !important;
 }
 
-@media (min-width: 901px) {
+body.stash-noir-theme #performer-page .detail-header .detail-container > .row {
+    display: block !important;
+    min-width: 0 !important;
+    margin: 0 !important;
+}
+
+body.stash-noir-theme #performer-page .performer-head {
+    position: relative !important;
+    width: auto !important;
+    min-width: 0 !important;
+    padding: 0 !important;
+}
+
+body.stash-noir-theme #performer-page .detail-header-image {
+    position: relative !important;
+    display: flex !important;
+    float: none !important;
+    align-items: center !important;
+    justify-content: center !important;
+    width: 100px !important;
+    height: 100px !important;
+    min-height: 100px !important;
+    padding: 0 !important;
+    margin: 0 !important;
+    overflow: hidden !important;
+    border: 1px solid rgba(var(--accent-rgb), 0.38) !important;
+    border-radius: 12px !important;
+    background: linear-gradient(145deg, #8b70ef, #7136e9) !important;
+    box-shadow: 0 12px 30px rgba(var(--accent-rgb), 0.22) !important;
+}
+
+body.stash-noir-theme #performer-page .detail-header-image > a,
+body.stash-noir-theme #performer-page .detail-header-image .performer-image-container,
+body.stash-noir-theme #performer-page .detail-header-image .lightbox-link {
+    display: block !important;
+    width: 100% !important;
+    height: 100% !important;
+    margin: 0 !important;
+}
+
+body.stash-noir-theme #performer-page .detail-header-image > button {
+    display: block !important;
+    width: 100% !important;
+    height: 100% !important;
+    padding: 0 !important;
+    border: 0 !important;
+    background: transparent !important;
+}
+
+body.stash-noir-theme #performer-page .detail-header-image.noir-theme-performer-fallback-active > button,
+body.stash-noir-theme #performer-page .detail-header-image.noir-theme-performer-fallback-active img.performer {
+    display: none !important;
+}
+
+body.stash-noir-theme #performer-page .detail-header-image img.performer {
+    display: block !important;
+    width: 100px !important;
+    max-width: 100px !important;
+    height: 100px !important;
+    object-fit: cover !important;
+    object-position: center 25% !important;
+    border: 0 !important;
+    border-radius: 11px !important;
+}
+
+body.stash-noir-theme #performer-page .noir-theme-performer-fallback {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    width: 100%;
+    height: 100%;
+    color: #fff;
+    font-size: 2rem;
+    font-weight: 750;
+    letter-spacing: -0.04em;
+    background: linear-gradient(145deg, #8b70ef, #7136e9);
+}
+
+body.stash-noir-theme #performer-page .performer-head > h2 {
+    position: relative;
+    display: flex;
+    align-items: center;
+    min-height: 2.5rem;
+    margin: 0 !important;
+    padding: 0 14.5rem 0 0 !important;
+    color: var(--text) !important;
+    font-size: clamp(1.45rem, 2vw, 1.9rem) !important;
+    font-weight: 700 !important;
+    line-height: 1.2 !important;
+}
+
+body.stash-noir-theme #performer-page .performer-name {
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+}
+
+body.stash-noir-theme #performer-page .performer-head .detail-expand-collapse {
+    display: none !important;
+}
+
+body.stash-noir-theme #performer-page .performer-head .name-icons {
+    position: absolute;
+    top: 0;
+    right: 14.5rem;
+    display: flex;
+    align-items: center;
+    gap: 0.25rem;
+    margin: 0 !important;
+}
+
+body.stash-noir-theme #performer-page .detail-header:not(.edit) .performer-head .name-icons .favorite-button,
+body.stash-noir-theme #performer-page .detail-header:not(.edit) .performer-head > .col {
+    display: none !important;
+}
+
+body.stash-noir-theme #performer-page .detail-header.edit .performer-head > .col {
+    display: block !important;
+    margin: 0 !important;
+    padding: 0 !important;
+}
+
+body.stash-noir-theme #performer-page .detail-header.edit .performer-head > .col > .row {
+    margin: 0 !important;
+}
+
+body.stash-noir-theme #performer-page .detail-header:not(.edit) .performer-head .details-edit {
+    display: none !important;
+}
+
+body.stash-noir-theme #performer-page .performer-head .details-edit {
+    display: flex !important;
+    flex-wrap: wrap;
+    align-items: center;
+    justify-content: flex-end;
+    gap: 0.35rem;
+    padding: 0 !important;
+    margin: 0.65rem 0 0 !important;
+}
+
+body.stash-noir-theme #performer-page .performer-head .details-edit > .btn.edit {
+    min-height: 2.1rem;
+    padding: 0.35rem 0.7rem !important;
+    color: #f0edf5 !important;
+    background: rgba(255, 255, 255, 0.06) !important;
+    border: 1px solid var(--glass-border-bright) !important;
+    border-radius: 8px !important;
+    box-shadow: none !important;
+}
+
+body.stash-noir-theme #performer-page .noir-theme-performer-actions {
+    position: absolute;
+    top: 0;
+    right: 0;
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    gap: 0.55rem;
+    margin: 0;
+}
+
+body.stash-noir-theme #performer-page .noir-theme-performer-action {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    gap: 0.4rem;
+    min-height: 2.1rem;
+    padding: 0.4rem 0.75rem;
+    color: #f0edf5;
+    font-size: 0.8rem;
+    font-weight: 650;
+    background: rgba(255, 255, 255, 0.06);
+    border: 1px solid var(--glass-border-bright);
+    border-radius: 8px;
+    cursor: pointer;
+}
+
+body.stash-noir-theme #performer-page .noir-theme-performer-favorite {
+    color: #fff;
+    background: var(--accent);
+    border-color: rgba(167, 139, 255, 0.34);
+}
+
+body.stash-noir-theme #performer-page .noir-theme-performer-favorite.is-favorite {
+    background: var(--accent-bright);
+}
+
+body.stash-noir-theme #performer-page .noir-theme-performer-action svg {
+    width: 0.95rem;
+    height: 0.95rem;
+    fill: none;
+    stroke: currentColor;
+    stroke-width: 1.8;
+    stroke-linecap: round;
+    stroke-linejoin: round;
+}
+
+body.stash-noir-theme #performer-page .noir-theme-performer-favorite svg {
+    fill: currentColor;
+    stroke: none;
+}
+
+body.stash-noir-theme #performer-page .noir-theme-performer-actions.is-editing {
+    display: none !important;
+}
+
+body.stash-noir-theme #performer-page .noir-theme-performer-more {
+    position: relative;
+}
+
+body.stash-noir-theme #performer-page .noir-theme-performer-more > summary {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    width: 2.1rem;
+    height: 2.1rem;
+    color: var(--text-muted);
+    list-style: none;
+    background: rgba(255, 255, 255, 0.06);
+    border: 1px solid var(--glass-border-bright);
+    border-radius: 8px;
+    cursor: pointer;
+}
+
+body.stash-noir-theme #performer-page .noir-theme-performer-more > summary::-webkit-details-marker {
+    display: none;
+}
+
+body.stash-noir-theme #performer-page .noir-theme-performer-more-menu {
+    position: absolute;
+    z-index: 10;
+    top: calc(100% + 6px);
+    right: 0;
+    display: grid;
+    min-width: 9rem;
+    padding: 0.35rem;
+    background: var(--glass-bg-strong);
+    border: 1px solid var(--glass-border-bright);
+    border-radius: 9px;
+    box-shadow: var(--shadow-lg);
+}
+
+body.stash-noir-theme #performer-page .noir-theme-performer-more-menu button {
+    padding: 0.45rem 0.55rem;
+    color: var(--text);
+    text-align: left;
+    background: transparent;
+    border: 0;
+    border-radius: 5px;
+    cursor: pointer;
+}
+
+body.stash-noir-theme #performer-page .noir-theme-performer-more-menu button:hover {
+    background: var(--accent-tint);
+    color: #fff;
+}
+
+body.stash-noir-theme #performer-page .noir-theme-performer-summary {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    gap: 1.25rem;
+    min-height: 2.75rem;
+    margin: 0.45rem 0 0.7rem;
+}
+
+body.stash-noir-theme #performer-page .noir-theme-performer-summary-item {
+    display: flex;
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 0.05rem;
+    min-width: 3.25rem;
+    padding: 0;
+    color: var(--text);
+    text-align: left;
+    background: transparent;
+    border: 0;
+    cursor: pointer;
+}
+
+body.stash-noir-theme #performer-page .noir-theme-performer-summary-count {
+    color: #fff;
+    font-size: 1.08rem;
+    font-weight: 700;
+    line-height: 1.05;
+}
+
+body.stash-noir-theme #performer-page .noir-theme-performer-summary-label {
+    color: var(--text-muted);
+    font-size: 0.72rem;
+    line-height: 1.2;
+}
+
+body.stash-noir-theme #performer-page .noir-theme-performer-summary-item:hover .noir-theme-performer-summary-label,
+body.stash-noir-theme #performer-page .noir-theme-performer-summary-item.is-active .noir-theme-performer-summary-label {
+    color: var(--accent-bright);
+}
+
+body.stash-noir-theme #performer-page .performer-tabs .nav-link.noir-theme-proxied-tab {
+    display: none !important;
+}
+
+body.stash-noir-theme #performer-page .noir-theme-performer-about {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    min-height: 2.45rem;
+    padding: 0.45rem 0.75rem;
+    margin: 0.25rem 0 0;
+    color: var(--text) !important;
+    font-size: 0.88rem;
+    font-weight: 650;
+    background: #17191e;
+    border: 1px solid var(--glass-border);
+    border-radius: 9px;
+}
+
+body.stash-noir-theme #performer-page .noir-theme-performer-about button {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    width: 1.7rem;
+    height: 1.7rem;
+    padding: 0;
+    color: var(--accent-bright);
+    background: transparent;
+    border: 0;
+    cursor: pointer;
+}
+
+body.stash-noir-theme #performer-page .noir-theme-performer-about svg {
+    width: 1rem;
+    height: 1rem;
+    fill: none;
+    stroke: currentColor;
+    stroke-width: 2;
+    stroke-linecap: round;
+    stroke-linejoin: round;
+}
+
+body.stash-noir-theme #performer-page .detail-header.collapsed .detail-group {
+    display: none !important;
+}
+
+body.stash-noir-theme #performer-page .detail-header .detail-group {
+    margin: 0.5rem 0 0 !important;
+}
+
+body.stash-noir-theme #performer-page .detail-header .detail-group.noir-theme-empty-profile-details,
+body.stash-noir-theme #performer-page .performer-head .quality-group.noir-theme-empty-profile-quality {
+    display: none !important;
+}
+
+body.stash-noir-theme #performer-page .detail-body {
+    margin: 0 15px !important;
+    width: auto !important;
+}
+
+body.stash-noir-theme #performer-page .performer-tabs .tab-pane.active:has(.scene-card)::before {
+    content: "Filmography";
+    display: block;
+    margin: 0.25rem 0 0.55rem;
+    color: var(--text);
+    font-size: 1.2rem;
+    font-weight: 700;
+}
+
+@media (max-width: 768px) {
+    body.stash-noir-theme #performer-page .detail-header .detail-container {
+        grid-template-columns: 64px minmax(0, 1fr) !important;
+        gap: 0.75rem !important;
+    }
+
+    body.stash-noir-theme #performer-page .detail-header-image {
+        width: 64px !important;
+        height: 64px !important;
+        min-height: 64px !important;
+        border-radius: 10px !important;
+    }
+
     body.stash-noir-theme #performer-page .detail-header-image img.performer {
-        width: 190px !important;
-        max-width: 190px !important;
-        height: auto !important;
+        width: 64px !important;
+        max-width: 64px !important;
+        height: 64px !important;
+        border-radius: 9px !important;
+    }
+
+    body.stash-noir-theme #performer-page .noir-theme-performer-fallback {
+        font-size: 1.45rem;
+    }
+
+    body.stash-noir-theme #performer-page .performer-head > h2 {
+        display: block !important;
+        min-height: 1.7rem;
+        padding-right: 0 !important;
+        font-size: 1.08rem !important;
+    }
+
+    body.stash-noir-theme #performer-page .performer-head .name-icons {
+        position: absolute;
+        top: 0;
+        left: auto;
+        right: 0;
+        margin: 0 !important;
+    }
+
+    body.stash-noir-theme #performer-page .noir-theme-performer-actions {
+        position: static;
+        margin: 0 0 0.6rem;
+    }
+
+    body.stash-noir-theme #performer-page .performer-head .details-edit > .btn.edit {
+        position: static;
+        min-height: 1.8rem;
+        padding: 0.25rem 0.55rem !important;
+    }
+
+    body.stash-noir-theme #performer-page .noir-theme-performer-action {
+        flex: 1 1 0;
+        min-width: 0;
+        min-height: 1.9rem;
+        padding: 0.3rem 0.5rem;
+        font-size: 0.72rem;
+    }
+
+    body.stash-noir-theme #performer-page .noir-theme-performer-more {
+        flex: 0 0 auto;
+    }
+
+    body.stash-noir-theme #performer-page .noir-theme-performer-summary {
+        gap: 0.65rem;
+        min-height: 2.3rem;
+        margin: 0.25rem 0 0.45rem;
+    }
+
+    body.stash-noir-theme #performer-page .noir-theme-performer-summary-count {
+        font-size: 0.92rem;
+    }
+
+    body.stash-noir-theme #performer-page .noir-theme-performer-summary-label {
+        font-size: 0.62rem;
+    }
+
+    body.stash-noir-theme #performer-page .noir-theme-performer-about {
+        min-height: 2.1rem;
+        padding: 0.3rem 0.65rem;
+        margin-top: 0.15rem;
+    }
+
+    body.stash-noir-theme #performer-page .detail-header.collapsed .detail-header-image {
+        min-height: 64px !important;
+    }
+
+    body.stash-noir-theme #performer-page .detail-header.collapsed .detail-header-image img.performer {
+        max-width: 64px !important;
+    }
+
+    body.stash-noir-theme #performer-page .detail-body {
+        margin: 0 12px !important;
     }
 }
 
-@media (max-width: 900px) {
+@media (max-width: 420px) {
+    body.stash-noir-theme #performer-page .detail-header.full-width {
+        margin-left: 10px !important;
+        margin-right: 10px !important;
+    }
+
+    body.stash-noir-theme #performer-page .detail-header .detail-container {
+        grid-template-columns: 56px minmax(0, 1fr) !important;
+        gap: 0.6rem !important;
+    }
+
+    body.stash-noir-theme #performer-page .detail-header-image,
     body.stash-noir-theme #performer-page .detail-header-image img.performer {
-        width: 145px !important;
-        max-width: 145px !important;
-        height: auto !important;
+        width: 56px !important;
+        max-width: 56px !important;
+        height: 56px !important;
+        min-height: 56px !important;
+    }
+
+    body.stash-noir-theme #performer-page .performer-head > h2 {
+        font-size: 0.98rem !important;
+    }
+
+    body.stash-noir-theme #performer-page .noir-theme-performer-summary {
+        gap: 0.45rem;
     }
 }
 
@@ -760,4 +1236,104 @@ body.stash-noir-theme .sidebar-pane-content > .row.justify-content-center {
     body.stash-noir-theme.noir-theme-sidebar-ready .main.container-fluid:has(> .row > :is(.scene-tabs, .image-tabs)) {
         padding: 12px 0 0 !important;
     }
+}
+
+/* Match the video-first Noir reference with opaque charcoal surfaces, quiet
+   card edges, and restrained 6px corners. */
+body.stash-noir-theme *,
+body.stash-noir-theme *::before,
+body.stash-noir-theme *::after {
+    -webkit-backdrop-filter: none !important;
+    backdrop-filter: none !important;
+}
+
+body.stash-noir-theme .scene-card.grid-card,
+body.stash-noir-theme .performer-card.grid-card,
+body.stash-noir-theme .studio-card.grid-card,
+body.stash-noir-theme .tag-card.grid-card,
+body.stash-noir-theme .group-card.grid-card,
+body.stash-noir-theme .gallery-card.grid-card,
+body.stash-noir-theme .image-card.grid-card {
+    background: transparent !important;
+    border: 0 !important;
+    border-radius: 0 !important;
+    box-shadow: none !important;
+}
+
+body.stash-noir-theme .scene-card.grid-card:hover,
+body.stash-noir-theme .performer-card.grid-card:hover,
+body.stash-noir-theme .studio-card.grid-card:hover,
+body.stash-noir-theme .tag-card.grid-card:hover,
+body.stash-noir-theme .group-card.grid-card:hover,
+body.stash-noir-theme .gallery-card.grid-card:hover,
+body.stash-noir-theme .image-card.grid-card:hover {
+    border-color: transparent !important;
+    box-shadow: none !important;
+}
+
+body.stash-noir-theme .scene-card .thumbnail-section,
+body.stash-noir-theme .performer-card .thumbnail-section,
+body.stash-noir-theme .studio-card .thumbnail-section,
+body.stash-noir-theme .tag-card .thumbnail-section,
+body.stash-noir-theme .group-card .thumbnail-section,
+body.stash-noir-theme .gallery-card .thumbnail-section,
+body.stash-noir-theme .image-card .thumbnail-section {
+    overflow: hidden;
+    border-radius: 7px !important;
+}
+
+body.stash-noir-theme #performer-page .noir-theme-performer-action,
+body.stash-noir-theme #performer-page .noir-theme-performer-more > summary {
+    border-radius: 6px;
+}
+
+body.stash-noir-theme #performer-page .noir-theme-performer-more-menu,
+body.stash-noir-theme #performer-page .noir-theme-performer-about,
+body.stash-noir-theme #performer-page .performer-tabs .nav-tabs,
+body.stash-noir-theme #performer-page .performer-tabs .tab-content {
+    border-radius: 6px !important;
+}
+
+@media (min-width: 901px) {
+    /* The native performer layout keeps this panel at its old half-width
+       flex basis. Noir gives the filmography the full content rail. */
+    body.stash-noir-theme #performer-page > .detail-body {
+        flex: 0 0 calc(100% - 30px) !important;
+        width: calc(100% - 30px) !important;
+        max-width: none !important;
+    }
+}
+
+body.stash-noir-theme .filtered-list-toolbar {
+    width: 100% !important;
+    max-width: 100% !important;
+    justify-content: flex-start !important;
+    gap: 0.35rem !important;
+    padding: 0.25rem 0 !important;
+    background: transparent !important;
+    border: 0 !important;
+    box-shadow: none !important;
+}
+
+body.stash-noir-theme .filtered-list-toolbar::before {
+    display: none !important;
+    content: none !important;
+}
+
+body.stash-noir-theme .filtered-list-toolbar .btn-secondary.active,
+body.stash-noir-theme .filtered-list-toolbar .btn-secondary.btn-primary {
+    background: #292033 !important;
+    border-color: rgba(var(--accent-rgb), 0.38) !important;
+    color: var(--accent-bright) !important;
+    box-shadow: none !important;
+}
+
+body.stash-noir-theme .filtered-list-toolbar .btn-secondary.active svg,
+body.stash-noir-theme .filtered-list-toolbar .btn-secondary.btn-primary svg {
+    filter: none !important;
+}
+
+body.stash-noir-theme #noir-theme-settings-section :is(.noir-theme-settings-intro, .noir-theme-settings-group, .noir-theme-suggestion-box) {
+    border-radius: 8px !important;
+    box-shadow: none !important;
 }

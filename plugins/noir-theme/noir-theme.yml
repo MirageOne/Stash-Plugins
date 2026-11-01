@@ -1,6 +1,6 @@
 name: Noir
-description: Dark Fluent 2-inspired Stash theme with charcoal surfaces, violet accents, a collapsible sidebar, and responsive navigation.
-version: 1.1.1
+description: Dark, video-first Stash theme with flat charcoal surfaces, violet accents, a collapsible sidebar, and responsive navigation.
+version: 1.1.2
 url: https://github.com/MirageOne/Stasher
 ui:
   assets:

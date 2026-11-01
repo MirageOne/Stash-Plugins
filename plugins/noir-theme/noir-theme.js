@@ -65,7 +65,7 @@
         pink: "#e3008c",
         red: "#d13438",
         yellow: "#f2c811",
-        purple: "#8764b8",
+        purple: "#8b5cf6",
         green: "#107c10",
         teal: "#038387"
     };
@@ -194,7 +194,7 @@
         }
         return R.createElement("div", { className: "setting noir-theme-support" },
             R.createElement("div", { className: "sub-heading" },
-                "Noir is a dark Fluent 2-inspired theme built on ",
+                "Noir is a dark, video-first theme built on ",
                 link("https://github.com/ordureconnoisseur/stash-refract", "Refract"),
                 " (AGPL-3.0)."));
     }
@@ -3108,7 +3108,7 @@
     }
 
     function buildPluginAccentQuickPicker(R) {
-        return function FluentThemeQuickAccentPicker() {
+        return function NoirThemeQuickAccentPicker() {
             var state = R.useState(getStoredAccent());
             var selected = state[0];
             var setSelected = state[1];
@@ -3136,7 +3136,7 @@
             return R.createElement("div", { className: "plugin-settings noir-theme-plugin-settings" },
                 R.createElement("div", { className: "setting", id: "plugin-noir-theme-accent" },
                     R.createElement("div", null,
-                        R.createElement("h3", null, "Fluent 2 accent color"),
+                        R.createElement("h3", null, "Accent color"),
                         R.createElement("div", { className: "sub-heading" }, "Changes apply immediately and sync to this Stash server.")),
                     R.createElement("div", { className: "noir-theme-accent-swatches", role: "group", "aria-label": "Accent color" }, swatches)),
                 R.createElement("div", { className: "sub-heading" },
@@ -4413,7 +4413,7 @@
            are "extravagant". Drives `.noir-theme-flourish-tiers`.
 
        The performer dossier remains the default layout, while rating flourishes
-       default to Minimal for Fluent 2. Only non-default choices emit classes.
+       default to Minimal for Noir. Only non-default choices emit classes.
        Scene card style stays its own setting; the two card types have always
        had independent layouts and merging them would lose combinations. */
     function storedPreviewKind() {
@@ -4430,7 +4430,7 @@
         catch (e) { return true; }
     }
     /* The dossier layout keeps the Refract base geometry. Rating effects use
-       Fluent's restrained treatment by default; saved Extravagant choices stay. */
+       Noir's restrained treatment by default; saved Extravagant choices stay. */
     function getPerfCardStyle() {
         try {
             return localStorage.getItem(PERF_CARD_STYLE_KEY) === "classic" ? "classic" : "refract";
@@ -5177,14 +5177,15 @@
        burger instances (legacy top-nav one and the bottom dock's) get
        the is-open X morph so whichever is visible reads correctly. */
     function refractSetBurgerState(open) {
-        var bs = document.querySelectorAll(".noir-theme-burger, .noir-theme-dock-burger");
+        var bs = document.querySelectorAll(".noir-theme-burger, .noir-theme-dock-burger, .noir-theme-mobile-more");
         for (var i = 0; i < bs.length; i++) {
             bs[i].classList.toggle("is-open", open);
             bs[i].setAttribute("aria-expanded", open ? "true" : "false");
         }
     }
-    function refractOpenBurger() {
+    function refractOpenBurger(fromHeader) {
         document.body.classList.add("noir-theme-burger-open");
+        document.body.classList.toggle("noir-theme-drawer-from-header", !!fromHeader);
         refractSetBurgerState(true);
         refractMarkActiveDrawerTile();
     }
@@ -5192,6 +5193,7 @@
         if (!document.body.classList.contains("noir-theme-burger-open")) { return; }
         refractSetBurgerState(false);
         document.body.classList.remove("noir-theme-burger-open");
+        document.body.classList.remove("noir-theme-drawer-from-header");
     }
 
     /* Mobile drawer — body-level overlay built from a hardcoded item
@@ -5199,12 +5201,13 @@
        on mobile). Each tile is an <a> whose click triggers SPA nav via
        pushState + popstate (Stash's React Router responds to popstate). */
     var MOBILE_NAV_ITEMS = [
+        { href: "/",              label: "Discover",  icon: "discover" },
         { href: "/scenes",         label: "Scenes",     icon: "scenes" },
-        { href: "/images",         label: "Images",     icon: "images" },
-        { href: "/groups",         label: "Groups",     icon: "groups",   aliases: ["/movies"] },
         { href: "/scenes/markers", label: "Markers",    icon: "markers",  aliases: ["/markers"] },
-        { href: "/galleries",      label: "Galleries",  icon: "galleries" },
         { href: "/performers",     label: "Performers", icon: "performers" },
+        { href: "/groups",         label: "Groups",     icon: "groups",   aliases: ["/movies"] },
+        { href: "/galleries",      label: "Galleries",  icon: "galleries" },
+        { href: "/images",         label: "Images",     icon: "images" },
         { href: "/studios",        label: "Studios",    icon: "studios" },
         { href: "/tags",           label: "Tags",       icon: "tags" },
         { href: "/stats",          label: "Stats",      icon: "stats" },
@@ -5212,6 +5215,7 @@
     ];
 
     var MOBILE_NAV_ICONS = {
+        discover:   '<svg width="1em" height="1em" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="10.8" cy="10.8" r="6.8"/><path d="m16 16 5 5"/></svg>',
         scenes:     '<svg width="1em" height="1em" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><path d="M10 8l6 4-6 4z" fill="currentColor" stroke="none"/></svg>',
         images:     '<svg width="1em" height="1em" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="3" width="18" height="18" rx="2"/><circle cx="9" cy="9" r="1.6" fill="currentColor" stroke="none"/><path d="M21 16l-5-5-9 9"/></svg>',
         groups:     '<svg width="1em" height="1em" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="8.5" cy="9" r="5"/><circle cx="15.5" cy="9" r="5"/><circle cx="12" cy="15.5" r="5"/></svg>',
@@ -5221,7 +5225,8 @@
         studios:    '<svg width="1em" height="1em" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="6" cy="6" r="3"/><circle cx="13" cy="6" r="3"/><rect x="2.5" y="9.5" width="15" height="9" rx="1.5"/><path d="M17.5 12.5L21.5 11L21.5 17L17.5 15.5Z"/></svg>',
         tags:       '<svg width="1em" height="1em" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M20.6 13.4l-7.2 7.2a2 2 0 01-2.8 0L3 13V3h10l7.6 7.6a2 2 0 010 2.8z"/><circle cx="7.5" cy="7.5" r="1.5" fill="currentColor" stroke="none"/></svg>',
         stats:      '<svg width="1em" height="1em" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M4 20V10M10 20V4M16 20v-7M22 20H2"/></svg>',
-        settings:   '<svg width="1em" height="1em" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="3"/><path d="M19.4 15a1.65 1.65 0 00.33 1.82l.06.06a2 2 0 01-2.83 2.83l-.06-.06a1.65 1.65 0 00-1.82-.33 1.65 1.65 0 00-1 1.51V21a2 2 0 01-4 0v-.09A1.65 1.65 0 009 19.4a1.65 1.65 0 00-1.82.33l-.06.06a2 2 0 01-2.83-2.83l.06-.06a1.65 1.65 0 00.33-1.82 1.65 1.65 0 00-1.51-1H3a2 2 0 010-4h.09A1.65 1.65 0 004.6 9a1.65 1.65 0 00-.33-1.82l-.06-.06a2 2 0 012.83-2.83l.06.06a1.65 1.65 0 001.82.33H9a1.65 1.65 0 001-1.51V3a2 2 0 014 0v.09a1.65 1.65 0 001 1.51 1.65 1.65 0 001.82-.33l.06-.06a2 2 0 012.83 2.83l-.06.06a1.65 1.65 0 00-.33 1.82V9a1.65 1.65 0 001.51 1H21a2 2 0 010 4h-.09a1.65 1.65 0 00-1.51 1z"/></svg>'
+        settings:   '<svg width="1em" height="1em" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="3"/><path d="M19.4 15a1.65 1.65 0 00.33 1.82l.06.06a2 2 0 01-2.83 2.83l-.06-.06a1.65 1.65 0 00-1.82-.33 1.65 1.65 0 00-1 1.51V21a2 2 0 01-4 0v-.09A1.65 1.65 0 009 19.4a1.65 1.65 0 00-1.82.33l-.06.06a2 2 0 01-2.83-2.83l.06-.06a1.65 1.65 0 00.33-1.82 1.65 1.65 0 00-1.51-1H3a2 2 0 010-4h.09A1.65 1.65 0 004.6 9a1.65 1.65 0 00-.33-1.82l-.06-.06a2 2 0 012.83-2.83l.06.06a1.65 1.65 0 001.82.33H9a1.65 1.65 0 001-1.51V3a2 2 0 014 0v.09a1.65 1.65 0 001 1.51 1.65 1.65 0 001.82-.33l.06-.06a2 2 0 012.83 2.83l-.06.06a1.65 1.65 0 00-.33 1.82V9a1.65 1.65 0 001.51 1H21a2 2 0 010 4h-.09a1.65 1.65 0 00-1.51 1z"/></svg>',
+        library:    '<svg width="1em" height="1em" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="4" width="7" height="16" rx="1.5"/><rect x="14" y="4" width="7" height="16" rx="1.5"/><path d="M6 8h1M17 8h1M6 12h1M17 12h1"/></svg>'
     };
 
     /* Mobile bottom dock — iOS-style fixed pill bar with the essential
@@ -5233,9 +5238,10 @@
        action" complaint without giving up the drawer as the overflow
        strategy. */
     /* Dock contents are USER-CONFIGURABLE (Settings -> Interface ->
-       Refract -> Mobile dock): a click-to-select icon grid persisted as
-       a JSON key array. Default: the four core routes + burger. */
-    var MOBILE_DOCK_DEFAULT = ["/scenes", "/performers", "/studios", "/tags"];
+       Noir -> Mobile dock). Discover, Scenes and Performers are the
+       default destinations; the Library tile opens the full page drawer. */
+    var MOBILE_DOCK_DEFAULT = ["/", "/scenes", "/performers"];
+    var MOBILE_DOCK_PREVIOUS_DEFAULT = ["/scenes", "/performers", "/studios", "/tags"];
     var DOCK_ITEMS_KEY = "noir-theme.dockItems";
 
     function refractGetDockSelection() {
@@ -5244,6 +5250,12 @@
             if (raw) {
                 var arr = JSON.parse(raw);
                 if (Object.prototype.toString.call(arr) === "[object Array]" && arr.length) {
+                    if (arr.length === MOBILE_DOCK_PREVIOUS_DEFAULT.length && arr.every(function (key, index) {
+                        return key === MOBILE_DOCK_PREVIOUS_DEFAULT[index];
+                    })) {
+                        try { localStorage.setItem(DOCK_ITEMS_KEY, JSON.stringify(MOBILE_DOCK_DEFAULT)); } catch (e) { /* ignore */ }
+                        return MOBILE_DOCK_DEFAULT.slice();
+                    }
                     return arr;
                 }
             }
@@ -5347,13 +5359,9 @@
             }
         }
         html +=
-            '<button type="button" class="noir-theme-dock-item noir-theme-dock-burger" aria-label="All pages" aria-expanded="false">' +
-                '<span class="noir-theme-burger-icon" aria-hidden="true">' +
-                    '<span class="noir-theme-burger-line"></span>' +
-                    '<span class="noir-theme-burger-line"></span>' +
-                    '<span class="noir-theme-burger-line"></span>' +
-                '</span>' +
-                '<span class="noir-theme-dock-label">More</span>' +
+            '<button type="button" class="noir-theme-dock-item noir-theme-dock-burger" aria-label="Open library navigation" title="Open library navigation" aria-expanded="false">' +
+                MOBILE_NAV_ICONS.library +
+                '<span class="noir-theme-dock-label">Library</span>' +
             '</button>';
         dock.innerHTML = html;
 
@@ -5553,10 +5561,10 @@
         var path = window.location.pathname || "/";
         var brand = sidebar.querySelector(".noir-theme-sidebar-brand");
         if (brand) {
-            var homeActive = path === "/";
-            brand.classList.toggle("is-active", homeActive);
-            if (homeActive) { brand.setAttribute("aria-current", "page"); }
-            else { brand.removeAttribute("aria-current"); }
+            /* The brand remains a home link, but Discover is the active
+               navigation item for `/`, as shown in the Noir layout. */
+            brand.classList.remove("is-active");
+            brand.removeAttribute("aria-current");
         }
         var items = sidebar.querySelectorAll(".noir-theme-sidebar-item[data-href]");
         for (var i = 0; i < items.length; i++) {
@@ -5702,6 +5710,9 @@
                     '<button class="noir-theme-mobile-search" type="button" aria-label="Search" title="Search" hidden>' +
                         '<svg viewBox="0 0 24 24" aria-hidden="true"><circle cx="10.8" cy="10.8" r="6.8"/><path d="m16 16 5 5"/></svg>' +
                     '</button>' +
+                    '<button class="noir-theme-mobile-more" type="button" aria-label="Open library navigation" title="Open library navigation" aria-expanded="false">' +
+                        '<svg viewBox="0 0 24 24" aria-hidden="true"><path d="M12 5h.01M12 12h.01M12 19h.01" stroke-width="3.5"/></svg>' +
+                    '</button>' +
                 '</div>';
             document.body.appendChild(header);
             header.addEventListener("click", function (e) {
@@ -5728,6 +5739,15 @@
                             if (inputs[i].select) { inputs[i].select(); }
                             return;
                         }
+                    }
+                    return;
+                }
+                if (e.target.closest && e.target.closest(".noir-theme-mobile-more")) {
+                    e.preventDefault();
+                    if (document.body.classList.contains("noir-theme-burger-open")) {
+                        refractCloseBurger();
+                    } else {
+                        refractOpenBurger(true);
                     }
                 }
             });
@@ -6257,6 +6277,7 @@
             var t = e.target;
             if (!t || !t.closest) { return; }
             if (t.closest(".noir-theme-burger")) { return; }
+            if (t.closest(".noir-theme-mobile-more")) { return; }
             // Scrim + drawer-tile + dock clicks are handled by their own
             // listeners (the dock burger toggles; dock tiles close+navigate).
             if (t.closest(".noir-theme-burger-scrim")) { return; }
@@ -7346,7 +7367,7 @@
         /* Reuse the FRONT's own name banner rather than approximating it. Its
            rule is a plain descendant selector, so the same markup inside the
            back inherits the identical treatment: left-aligned at the very top
-           edge, Fluent type, the gender glyph, the text-shadow stack, and
+           edge, compact type, the gender glyph, the text-shadow stack, and
            the right quarter left clear for the tier sash. Centring a bold copy
            of it, as the first pass did, was not a mirror of anything. */
         var srcBanner = card.querySelector(".noir-theme-pc-name-banner");
@@ -9153,20 +9174,209 @@
     }
 
     function initNoirPerformerHero() {
-        var header = document.querySelector("#performer-page > .detail-header.full-width");
+        var header = document.querySelector("#performer-page > .detail-header");
         if (!header) { return; }
         header.classList.add("noir-theme-performer-hero");
+        header.style.removeProperty("--noir-profile-backdrop");
+
         var image = header.querySelector(".detail-header-image img.performer");
-        var source = image ? (image.currentSrc || image.getAttribute("src") || "") : "";
-        if (!source) {
-            header.style.removeProperty("--noir-profile-backdrop");
-            return;
+        var imageFrame = header.querySelector(".detail-header-image");
+        var defaultPlaceholder = !!(image && /[?&]default=true(?:&|$)/.test(image.getAttribute("src") || ""));
+        if (imageFrame && (defaultPlaceholder || !image)) {
+            imageFrame.classList.add("noir-theme-performer-fallback-active");
+            var fallback = imageFrame.querySelector(".noir-theme-performer-fallback");
+            if (!fallback && !imageFrame.querySelector(".loading-indicator, .spinner-border")) {
+                fallback = document.createElement("div");
+                fallback.className = "noir-theme-performer-fallback";
+                fallback.setAttribute("aria-hidden", "true");
+                imageFrame.appendChild(fallback);
+            }
+            if (fallback) {
+                var nameNode = header.querySelector(".performer-name");
+                var name = nameNode ? nameNode.textContent.replace(/\s+/g, " ").trim() : "";
+                var parts = name.split(" ").filter(Boolean);
+                var initials = parts.slice(0, 2).map(function (part) { return part.charAt(0); }).join("").toUpperCase();
+                fallback.textContent = initials || "?";
+            }
+        } else if (imageFrame) {
+            imageFrame.classList.remove("noir-theme-performer-fallback-active");
+            var oldFallback = imageFrame.querySelector(".noir-theme-performer-fallback");
+            if (oldFallback) { oldFallback.parentNode.removeChild(oldFallback); }
         }
-        /* Quote/escape the URL because performer art may be hosted on an
-           external image source. This only feeds a CSS image URL; no HTML
-           string or event handler is built from metadata. */
-        var escaped = source.replace(/\\/g, "\\\\").replace(/"/g, "\\\"").replace(/[\n\r]/g, "");
-        header.style.setProperty("--noir-profile-backdrop", 'url("' + escaped + '")');
+
+        var head = header.querySelector(".performer-head");
+        if (!head) { return; }
+        var nativeTabs = document.querySelector("#performer-page .performer-tabs");
+        var summary = head.querySelector(".noir-theme-performer-summary");
+        if (!summary) {
+            summary = document.createElement("div");
+            summary.className = "noir-theme-performer-summary";
+            summary.setAttribute("aria-label", "Performer library counts");
+            [
+                ["scenes", "Scenes"],
+                ["images", "Images"],
+                ["galleries", "Galleries"]
+            ].forEach(function (entry) {
+                var item = document.createElement("button");
+                item.type = "button";
+                item.className = "noir-theme-performer-summary-item";
+                item.setAttribute("data-performer-tab", entry[0]);
+                item.setAttribute("aria-label", entry[1]);
+                var count = document.createElement("strong");
+                count.className = "noir-theme-performer-summary-count";
+                var label = document.createElement("span");
+                label.className = "noir-theme-performer-summary-label";
+                label.textContent = entry[1];
+                item.appendChild(count);
+                item.appendChild(label);
+                summary.appendChild(item);
+            });
+            summary.addEventListener("click", function (event) {
+                var item = event.target.closest && event.target.closest("[data-performer-tab]");
+                if (!item) { return; }
+                var scope = document.querySelector("#performer-page .performer-tabs");
+                if (!scope) { return; }
+                var key = item.getAttribute("data-performer-tab");
+                var target = scope.querySelector('[data-rb-event-key="' + key + '"]') || document.getElementById("performer-tabs-tab-" + key);
+                if (target) { target.click(); }
+            });
+            var title = head.querySelector("h2");
+            if (title && title.parentNode === head) { title.parentNode.insertBefore(summary, title.nextSibling); }
+            else { head.insertBefore(summary, head.firstChild); }
+        }
+
+        if (nativeTabs && summary) {
+            var summaryItems = summary.querySelectorAll("[data-performer-tab]");
+            for (var si = 0; si < summaryItems.length; si++) {
+                var key = summaryItems[si].getAttribute("data-performer-tab");
+                var nativeTab = nativeTabs.querySelector('[data-rb-event-key="' + key + '"]') || document.getElementById("performer-tabs-tab-" + key);
+                if (!nativeTab) { continue; }
+                var badge = nativeTab.querySelector(".badge");
+                var value = badge ? (badge.getAttribute("data-value") || badge.textContent.trim()) : "0";
+                var countNode = summaryItems[si].querySelector(".noir-theme-performer-summary-count");
+                if (countNode && countNode.textContent !== value) { countNode.textContent = value; }
+                var active = nativeTab.classList.contains("active") || nativeTab.getAttribute("aria-selected") === "true";
+                summaryItems[si].classList.toggle("is-active", active);
+                summaryItems[si].setAttribute("aria-pressed", active ? "true" : "false");
+                nativeTab.classList.add("noir-theme-proxied-tab");
+            }
+        }
+
+        var actions = head.querySelector(".noir-theme-performer-actions");
+        if (!actions) {
+            actions = document.createElement("div");
+            actions.className = "noir-theme-performer-actions";
+            actions.innerHTML =
+                '<button type="button" class="noir-theme-performer-action noir-theme-performer-favorite" data-profile-action="favorite" aria-pressed="false">' +
+                    '<svg viewBox="0 0 24 24" aria-hidden="true"><path d="M20.8 4.6a5.5 5.5 0 0 0-7.8 0L12 5.7l-1.1-1.1a5.5 5.5 0 0 0-7.8 7.8l1.1 1.1L12 21l7.8-7.5 1.1-1.1a5.5 5.5 0 0 0-.1-7.8Z"/></svg><span>Favorite</span>' +
+                '</button>' +
+                '<button type="button" class="noir-theme-performer-action noir-theme-performer-edit" data-profile-action="edit">' +
+                    '<svg viewBox="0 0 24 24" aria-hidden="true"><path d="m14 5 5 5M4 20l4.2-.8L19 8.4a2.1 2.1 0 0 0-3-3L5.2 16.2 4 20Z"/></svg><span>Edit</span>' +
+                '</button>';
+            actions.addEventListener("click", function (event) {
+                var control = event.target.closest && event.target.closest("[data-profile-action]");
+                if (control) {
+                    var source = control.getAttribute("data-profile-action") === "favorite"
+                        ? header.querySelector(".name-icons .favorite-button")
+                        : header.querySelector(".details-edit > .btn.edit");
+                    if (source) { source.click(); }
+                    return;
+                }
+                var moreAction = event.target.closest && event.target.closest("[data-more-action-index]");
+                if (moreAction) {
+                    var index = parseInt(moreAction.getAttribute("data-more-action-index"), 10);
+                    var editor = header.querySelector(".details-edit");
+                    var sourceButtons = editor ? Array.prototype.filter.call(editor.querySelectorAll("button"), function (button) {
+                        return !button.classList.contains("edit");
+                    }) : [];
+                    if (sourceButtons[index]) { sourceButtons[index].click(); }
+                }
+            });
+            if (summary && summary.parentNode === head) { head.insertBefore(actions, summary.nextSibling); }
+            else { head.insertBefore(actions, head.firstChild); }
+        }
+
+        var favoriteSource = header.querySelector(".name-icons .favorite-button");
+        var editSource = header.querySelector(".details-edit > .btn.edit");
+        var editing = header.classList.contains("edit");
+        var favoriteAction = actions.querySelector(".noir-theme-performer-favorite");
+        var editAction = actions.querySelector(".noir-theme-performer-edit span");
+        if (favoriteSource && favoriteAction) {
+            var isFavorite = favoriteSource.classList.contains("favorite") && !favoriteSource.classList.contains("not-favorite");
+            favoriteAction.classList.toggle("is-favorite", isFavorite);
+            favoriteAction.setAttribute("aria-pressed", isFavorite ? "true" : "false");
+        }
+        if (editSource && editAction) { editAction.textContent = editSource.textContent.trim() || (editing ? "Cancel" : "Edit"); }
+        actions.classList.toggle("is-editing", editing);
+
+        var more = actions.querySelector(".noir-theme-performer-more");
+        var detailsEdit = header.querySelector(".details-edit");
+        var extraButtons = detailsEdit ? Array.prototype.filter.call(detailsEdit.querySelectorAll("button"), function (button) {
+            return !button.classList.contains("edit");
+        }) : [];
+        var extraSignature = extraButtons.map(function (button) { return button.textContent.trim(); }).join("|");
+        if (extraButtons.length) {
+            if (!more) {
+                more = document.createElement("details");
+                more.className = "noir-theme-performer-more";
+                more.innerHTML = '<summary aria-label="More performer actions" title="More performer actions">•••</summary><div class="noir-theme-performer-more-menu"></div>';
+                actions.appendChild(more);
+            }
+            if (more.getAttribute("data-signature") !== extraSignature) {
+                var menu = more.querySelector(".noir-theme-performer-more-menu");
+                menu.innerHTML = "";
+                extraButtons.forEach(function (button, index) {
+                    var proxy = document.createElement("button");
+                    proxy.type = "button";
+                    proxy.setAttribute("data-more-action-index", String(index));
+                    proxy.textContent = button.textContent.trim() || button.getAttribute("aria-label") || "Action";
+                    menu.appendChild(proxy);
+                });
+                more.setAttribute("data-signature", extraSignature);
+            }
+        } else if (more) {
+            more.parentNode.removeChild(more);
+        }
+
+        var details = head.querySelector(".detail-group");
+        if (details) {
+            details.classList.toggle("noir-theme-empty-profile-details", !details.innerText.trim());
+        }
+        var quality = head.querySelector(".quality-group");
+        if (quality) {
+            quality.classList.toggle("noir-theme-empty-profile-quality", !quality.innerText.trim());
+        }
+        var about = head.querySelector(".noir-theme-performer-about");
+        if (details && !about) {
+            about = document.createElement("div");
+            about.className = "noir-theme-performer-about";
+            about.innerHTML = '<span>About</span><button type="button" aria-label="Collapse About" aria-expanded="true"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="m6 15 6-6 6 6"/></svg></button>';
+            about.addEventListener("click", function (event) {
+                var control = event.target.closest && event.target.closest("button");
+                if (!control) { return; }
+                var nativeControl = header.querySelector(".detail-expand-collapse button");
+                if (nativeControl) {
+                    nativeControl.click();
+                    window.setTimeout(syncAboutState, 0);
+                }
+            });
+            head.insertBefore(about, details);
+        } else if (details && about && about.parentNode !== head) {
+            head.insertBefore(about, details);
+        }
+
+        function syncAboutState() {
+            if (!about) { return; }
+            var expanded = !header.classList.contains("collapsed");
+            var control = about.querySelector("button");
+            if (!control) { return; }
+            control.setAttribute("aria-expanded", expanded ? "true" : "false");
+            control.setAttribute("aria-label", (expanded ? "Collapse" : "Expand") + " About");
+            control.innerHTML = expanded
+                ? '<svg viewBox="0 0 24 24" aria-hidden="true"><path d="m6 15 6-6 6 6"/></svg>'
+                : '<svg viewBox="0 0 24 24" aria-hidden="true"><path d="m6 9 6 6 6-6"/></svg>';
+        }
+        syncAboutState();
     }
 
     function watchForReinjection() {
@@ -10159,7 +10369,7 @@
             }
 
             /* Refit the stat strip when the card changes size. Names use a
-               shared Fluent size and CSS ellipsis, so card widths do not
+               shared text sizing and CSS ellipsis, so card widths do not
                produce a different title size on every performer. */
             var refitPending = false;
             /* Exposed so the batched stat fill can re-fit once values land. */
@@ -10204,7 +10414,7 @@
                 });
             }
 
-            /* Playing-card mode name banner — Fluent dossier header:
+            /* Playing-card mode name banner — Noir dossier header:
                  [gender icon (type)]  Name        ← left-aligned
                Inject a copy of the gender icon (cloned from native
                .gender-icon under the title) PLUS just the performer name

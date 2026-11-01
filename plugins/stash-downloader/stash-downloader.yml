@@ -1,0 +1,55 @@
+name: Stash Downloader
+description: Download images and videos from URLs with automatic metadata extraction and organization
+version: 0.6.0
+url: https://github.com/MirageOne/Stasher/tree/main/plugins/stash-downloader
+settings:
+  serverDownloadPath:
+    displayName: Download Path
+    description: "Optional absolute path inside the matching Stash library (video or image). Leave blank to use the first matching library. The server task validates this path; browser input cannot override it."
+    type: STRING
+  ytdlpPath:
+    displayName: yt-dlp Path
+    description: "Custom path to yt-dlp binary. Leave empty for auto-detection (tries Python module first, then PATH). Examples: /usr/local/bin/yt-dlp, C:\\tools\\yt-dlp.exe"
+    type: STRING
+  httpProxy:
+    displayName: HTTP Proxy
+    description: HTTP/HTTPS proxy for server-side downloads (e.g., http://proxy.example.com:8080 or socks5://proxy.example.com:1080)
+    type: STRING
+
+# Python backend for server-side downloads (bypasses browser CORS).
+# yt-dlp and requests must be installed in the Python environment Stash uses.
+exec:
+  - python
+  - "{pluginDir}/scripts/download.py"
+
+tasks:
+  - name: Download Media
+    description: Download a video or image from URL using server-side tools
+    defaultArgs:
+      mode: download
+  - name: Extract Metadata
+    description: Extract video metadata without downloading
+    defaultArgs:
+      mode: extract_metadata
+  - name: Read Result
+    description: Read a saved task result from temp file
+    defaultArgs:
+      mode: read_result
+  - name: Cleanup Result
+    description: Delete a saved task result file
+    defaultArgs:
+      mode: cleanup_result
+  - name: Check yt-dlp
+    description: Check if yt-dlp is installed and available; does not install packages
+    defaultArgs:
+      mode: check_ytdlp
+  - name: Test Proxy
+    description: Test proxy connectivity by fetching a URL
+    defaultArgs:
+      mode: test_proxy
+
+ui:
+  javascript:
+    - dist/stash-downloader.js
+# UI JavaScript is bundled separately; raw enables server-side Python tasks.
+interface: raw

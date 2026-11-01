@@ -1,0 +1,343 @@
+/**
+ * ScraperRegistry - Manages metadata scrapers
+ *
+ * Priority order:
+ * - YtDlpScraper (primary) - Server-side yt-dlp via Python backend
+ * - BooruScraper - Image/gallery scraper for booru sites
+ * - StashScraper (fallback) - Uses Stash's built-in scraper API
+ * - GenericScraper (last resort) - URL parsing only
+ */
+
+import type { IMetadataScraper, IScrapedMetadata } from '@/types';
+import { ContentType } from '@/types';
+import { GenericScraper } from './GenericScraper';
+import { YtDlpScraper } from './YtDlpScraper';
+import { StashScraper } from './StashScraper';
+import { BooruScraper } from './BooruScraper';
+import { withTimeout, createLogger } from '@/utils';
+import { getStashService } from '@/services/stash/StashGraphQLService';
+import { PLUGIN_ID } from '@/constants';
+
+const log = createLogger('ScraperRegistry');
+
+export class ScraperRegistry {
+  private scrapers: IMetadataScraper[] = [];
+  private fallbackScraper: IMetadataScraper;
+  private readonly overallTimeoutMs = 90000; // 90 seconds overall timeout
+  private ytdlpVersionChecked = false;
+
+  constructor() {
+    this.fallbackScraper = new GenericScraper();
+
+    // Register scrapers in priority order
+    // All scrapers use server-side extraction (no CORS issues)
+    this.register(new YtDlpScraper());   // Primary for video
+    this.register(new BooruScraper());   // Primary for images/galleries
+    this.register(new StashScraper());   // Fallback (uses Stash's scraper API)
+
+    log.info('Scrapers registered: YtDlpScraper, BooruScraper, StashScraper, GenericScraper (fallback)');
+
+    // Check yt-dlp version asynchronously (fire and forget)
+    this.checkYtDlpVersion();
+  }
+
+  /**
+   * Check yt-dlp availability and version, log result
+   */
+  private async checkYtDlpVersion(): Promise<void> {
+    if (this.ytdlpVersionChecked) return;
+    this.ytdlpVersionChecked = true;
+
+    try {
+      const stashService = getStashService();
+      if (!stashService.isStashEnvironment()) {
+        log.debug('Not in Stash environment, skipping yt-dlp check');
+        return;
+      }
+
+      const result = await stashService.runPluginOperation(PLUGIN_ID, {
+        mode: 'check_ytdlp',
+      }) as { available?: boolean; version?: string; status_message?: string; resolution_method?: string } | null;
+
+      if (result?.available && result?.version) {
+        const method = result.resolution_method ? ` (${result.resolution_method})` : '';
+        log.debug(`yt-dlp installed: v${result.version}${method}`);
+      } else if (result?.available === false) {
+        log.warn(`yt-dlp not available: ${result.status_message || 'not installed'}`);
+      } else {
+        log.warn('yt-dlp status unknown - server-side scraping may not work');
+      }
+    } catch (error) {
+      log.debug(`yt-dlp check failed: ${error instanceof Error ? error.message : String(error)}`);
+    }
+  }
+
+  /**
+   * Register a new scraper
+   */
+  register(scraper: IMetadataScraper): void {
+    this.scrapers.push(scraper);
+  }
+
+  /**
+   * Find appropriate scraper for URL with optional content type filter
+   */
+  findScraper(url: string, preferredContentType?: ContentType): IMetadataScraper {
+    for (const scraper of this.scrapers) {
+      if (!scraper.canHandle(url)) {
+        continue;
+      }
+
+      // If content type preference specified, check if scraper supports it
+      if (preferredContentType && !scraper.contentTypes.includes(preferredContentType)) {
+        log.debug(`${scraper.name} skipped: doesn't support content type ${preferredContentType}`);
+        continue;
+      }
+
+      log.debug(`Using ${scraper.name} for ${url}`);
+      return scraper;
+    }
+
+    log.debug(`Using fallback scraper for ${url}`);
+    return this.fallbackScraper;
+  }
+
+  /**
+   * Get all scrapers that support a specific content type
+   */
+  getScrapersForContentType(contentType: ContentType): IMetadataScraper[] {
+    return this.scrapers.filter(s => s.contentTypes.includes(contentType));
+  }
+
+  /**
+   * Scrape metadata from URL
+   */
+  async scrape(url: string, preferredContentType?: ContentType): Promise<IScrapedMetadata> {
+    return withTimeout(
+      this._scrape(url, preferredContentType),
+      this.overallTimeoutMs,
+      `Metadata scraping timed out after ${this.overallTimeoutMs}ms`
+    );
+  }
+
+  /**
+   * Scrape with metadata enhancement fallback
+   */
+  async scrapeWithEnhancement(url: string, preferredContentType?: ContentType): Promise<IScrapedMetadata> {
+    return withTimeout(
+      this._scrapeWithEnhancement(url, preferredContentType),
+      this.overallTimeoutMs,
+      `Metadata scraping timed out after ${this.overallTimeoutMs}ms`
+    );
+  }
+
+  /**
+   * Internal scrape with enhancement method
+   */
+  private async _scrapeWithEnhancement(url: string, preferredContentType?: ContentType): Promise<IScrapedMetadata> {
+    const primaryScraper = this.findScraper(url, preferredContentType);
+    const host = this.getHostLabel(url);
+
+    try {
+      log.info(`Trying ${primaryScraper.name} scraper`);
+      const metadata = await primaryScraper.scrape(url);
+      this.logExtractedMetadata(primaryScraper.name, metadata, url);
+      return metadata;
+    } catch (primaryError) {
+      const errorMsg = primaryError instanceof Error ? primaryError.message : String(primaryError);
+      log.warn(`${primaryScraper.name} failed, trying alternatives`, `Error: ${errorMsg}\nHost: ${host}`);
+
+      // Try other scrapers for metadata enhancement
+      for (const scraper of this.scrapers) {
+        if (scraper === primaryScraper) continue;
+        if (!scraper.canHandle(url)) continue;
+        if (preferredContentType && !scraper.contentTypes.includes(preferredContentType)) continue;
+
+        try {
+          log.info(`Trying ${scraper.name} scraper`);
+          const enhanced = await scraper.scrape(url);
+          this.logExtractedMetadata(scraper.name, enhanced, url);
+          return enhanced;
+        } catch {
+          log.debug(`${scraper.name} failed`);
+        }
+      }
+
+      // Last resort: fallback scraper
+      log.warn('All scrapers failed - using generic fallback (minimal metadata only)');
+      const fallbackResult = await this.fallbackScraper.scrape(url);
+      this.logExtractedMetadata('Generic (fallback)', fallbackResult, url);
+      return fallbackResult;
+    }
+  }
+
+  /**
+   * Log extracted metadata details with actual values for troubleshooting
+   * Always shows all fields so users can see what's missing
+   */
+  private logExtractedMetadata(scraperName: string, metadata: IScrapedMetadata, url?: string): void {
+    const details: string[] = [];
+
+    // Source URL
+    details.push(`Source: ${url || 'N/A'}`);
+
+    // Title
+    details.push(`Title: ${metadata.title || '—'}`);
+
+    // Video/Image URL (truncated for readability) - always show both
+    const videoUrl = metadata.videoUrl
+      ? (metadata.videoUrl.length > 100 ? metadata.videoUrl.substring(0, 100) + '...' : metadata.videoUrl)
+      : '—';
+    details.push(`Video URL: ${videoUrl}`);
+
+    const imageUrl = metadata.imageUrl
+      ? (metadata.imageUrl.length > 100 ? metadata.imageUrl.substring(0, 100) + '...' : metadata.imageUrl)
+      : '—';
+    details.push(`Image URL: ${imageUrl}`);
+
+    // Quality info - always show
+    details.push(`Quality: ${metadata.quality || '—'}`);
+    details.push(`Available Qualities: ${metadata.availableQualities?.length ? metadata.availableQualities.join(', ') : '—'}`);
+
+    // Duration - always show
+    if (metadata.duration) {
+      const mins = Math.floor(metadata.duration / 60);
+      const secs = Math.round(metadata.duration % 60);
+      details.push(`Duration: ${mins}m ${secs}s`);
+    } else {
+      details.push(`Duration: —`);
+    }
+
+    // Thumbnail
+    details.push(`Thumbnail: ${metadata.thumbnailUrl ? '✓' : '—'}`);
+
+    // Performers - always show
+    if (metadata.performers?.length) {
+      const performerList = metadata.performers.slice(0, 5).join(', ');
+      const suffix = metadata.performers.length > 5 ? ` (+${metadata.performers.length - 5} more)` : '';
+      details.push(`Performers: ${performerList}${suffix}`);
+    } else {
+      details.push(`Performers: —`);
+    }
+
+    // Tags - always show
+    details.push(`Tags: ${metadata.tags?.length || '—'}`);
+
+    // Studio - always show
+    details.push(`Studio: ${metadata.studio || '—'}`);
+
+    // Date - always show
+    details.push(`Date: ${metadata.date || '—'}`);
+
+    // Description (truncated)
+    const desc = metadata.description
+      ? (metadata.description.length > 50 ? metadata.description.substring(0, 50) + '...' : metadata.description)
+      : '—';
+    details.push(`Description: ${desc}`);
+
+    const title = metadata.title || 'Untitled';
+    log.success(`${scraperName} extracted: ${title}`, details.join('\n'));
+  }
+
+  /**
+   * Internal scrape method (without timeout wrapper)
+   */
+  private async _scrape(url: string, preferredContentType?: ContentType): Promise<IScrapedMetadata> {
+    const host = this.getHostLabel(url);
+    log.debug(`Starting scrape for: ${host}`);
+    if (preferredContentType) {
+      log.debug(`Preferred content type: ${preferredContentType}`);
+    }
+
+    let lastErrorMsg = 'Unknown error';
+
+    // Try each registered scraper in order
+    for (const scraper of this.scrapers) {
+      if (!scraper.canHandle(url)) {
+        log.debug(`${scraper.name} cannot handle this URL, skipping`);
+        continue;
+      }
+
+      // Check content type preference
+      if (preferredContentType && !scraper.contentTypes.includes(preferredContentType)) {
+        log.debug(`${scraper.name} skipped: doesn't support ${preferredContentType}`);
+        continue;
+      }
+
+      try {
+        log.info(`Trying ${scraper.name} scraper`);
+        const result = await scraper.scrape(url);
+        this.logExtractedMetadata(scraper.name, result, url);
+        return result;
+      } catch (error) {
+        const errorMsg = error instanceof Error ? error.message : String(error);
+        lastErrorMsg = errorMsg;
+        log.warn(`${scraper.name} failed`, `Error: ${errorMsg}\nHost: ${host}`);
+        // Continue to next scraper
+      }
+    }
+
+    // Last resort: use generic scraper (URL parsing only)
+    log.info('All scrapers failed, using generic fallback');
+    try {
+      return await this.fallbackScraper.scrape(url);
+    } catch {
+      log.error('All scrapers failed', `Host: ${host}\nLast error: ${lastErrorMsg}`);
+      throw new Error(`All scrapers failed for ${host}. Last error: ${lastErrorMsg}`);
+    }
+  }
+
+  /**
+   * Get all registered scrapers
+   */
+  getScrapers(): IMetadataScraper[] {
+    return [...this.scrapers, this.fallbackScraper];
+  }
+
+  private getHostLabel(url: string): string {
+    try { return new URL(url).hostname; } catch { return 'invalid URL'; }
+  }
+
+  /**
+   * Get scrapers that can handle a specific URL
+   */
+  getAvailableScrapersForUrl(url: string, contentType?: ContentType): Array<{ name: string; canHandle: boolean; supportsContentType: boolean }> {
+    const allScrapers = this.getScrapers();
+    return allScrapers.map(scraper => ({
+      name: scraper.name,
+      canHandle: scraper.canHandle(url),
+      supportsContentType: contentType ? scraper.contentTypes.includes(contentType) : true,
+    }));
+  }
+
+  /**
+   * Scrape using a specific scraper by name
+   */
+  async scrapeWithScraper(url: string, scraperName: string): Promise<IScrapedMetadata> {
+    const allScrapers = this.getScrapers();
+    const scraper = allScrapers.find(s => s.name === scraperName);
+
+    if (!scraper) {
+      throw new Error(`Scraper not found: ${scraperName}`);
+    }
+
+    if (!scraper.canHandle(url)) {
+      log.warn(`${scraperName} may not support this URL`, `Host: ${this.getHostLabel(url)}`);
+    }
+
+    log.info(`Re-scraping with ${scraperName}`);
+    const metadata = await scraper.scrape(url);
+    this.logExtractedMetadata(scraperName, metadata, url);
+    return metadata;
+  }
+}
+
+// Singleton instance
+let instance: ScraperRegistry | null = null;
+
+export function getScraperRegistry(): ScraperRegistry {
+  if (!instance) {
+    instance = new ScraperRegistry();
+  }
+  return instance;
+}

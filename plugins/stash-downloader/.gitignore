@@ -1,0 +1,4 @@
+node_modules/
+stash-plugin/
+__pycache__/
+*.py[cod]

@@ -1023,9 +1023,10 @@
             fixApply: byId("ld-fix-apply"), fixCancel: byId("ld-fix-cancel"), fixClose: byId("ld-fix-close")
         };
         setWorkspace(currentWorkspace);
-        byId("ld-workspace-tabs").addEventListener("click", function (event) {
-            var tab = event.target.closest(".ld-workspace-tab[data-workspace]");
-            if (tab) { setWorkspace(tab.getAttribute("data-workspace")); }
+        document.querySelectorAll(".ld-workspace-tab[data-workspace]").forEach(function (tab) {
+            tab.addEventListener("click", function () {
+                setWorkspace(tab.getAttribute("data-workspace"));
+            });
         });
         els.scan.addEventListener("click", scan);
         document.querySelectorAll("[data-start-scan]").forEach(function (button) { button.addEventListener("click", scan); });

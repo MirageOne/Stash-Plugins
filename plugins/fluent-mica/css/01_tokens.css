@@ -17,23 +17,23 @@ body.stash-fluent-mica {
     --glass-bg-strong: rgba(48, 48, 48, 0.96);
     --glass-border: rgba(255, 255, 255, 0.09);
     --glass-border-bright: rgba(255, 255, 255, 0.17);
-    --glass-blur: blur(26px) saturate(135%);
+    --glass-blur: blur(14px) saturate(125%);
 
     /* Backdrop blur tiers. Each unique backdrop-filter expression compiles
        to its own HLSL shader on Windows Chromium / D3D11; consolidating
        to a fixed token set caps the shader count (was 22, now 11) and
        stops the HLSLCompiler recompile churn on home-page navigation. */
-    --glass-blur-xs:      blur(6px);
-    --glass-blur-sm:      blur(10px);
-    --glass-blur-md:      blur(16px) saturate(135%);
-    --glass-blur-lg:      blur(22px) saturate(140%);
-    --glass-blur-xl:      blur(26px) saturate(140%);
-    --glass-blur-2xl:     blur(32px);
-    --glass-blur-sm-sat:  blur(10px) saturate(140%);
-    --glass-blur-md-sat:  blur(16px) saturate(135%);
-    --glass-blur-lg-sat:  blur(22px) saturate(140%);
-    --glass-blur-xl-sat:  blur(26px) saturate(140%);
-    --glass-blur-2xl-sat: blur(32px) saturate(140%);
+    --glass-blur-xs:      blur(4px);
+    --glass-blur-sm:      blur(6px);
+    --glass-blur-md:      blur(8px) saturate(120%);
+    --glass-blur-lg:      blur(10px) saturate(120%);
+    --glass-blur-xl:      blur(14px) saturate(125%);
+    --glass-blur-2xl:     blur(18px);
+    --glass-blur-sm-sat:  blur(6px) saturate(120%);
+    --glass-blur-md-sat:  blur(8px) saturate(120%);
+    --glass-blur-lg-sat:  blur(10px) saturate(120%);
+    --glass-blur-xl-sat:  blur(14px) saturate(125%);
+    --glass-blur-2xl-sat: blur(18px) saturate(125%);
 
     --glass-shadow: 0 10px 40px rgba(0, 0, 0, 0.45);
 

@@ -8563,25 +8563,11 @@
            complete + naturalWidth, else listen for load once. */
         tagOrientation(card);
 
-        /* Heart-halo effect for "Favourite" scenes — driven by the
-           "Favourite ★" tag injected by the Advanced Rating plugin. We
-           detect via the tagInfo array (case-insensitive match on
-           "favourite" / "favorite" so it works for either spelling and
-           catches the ★-suffix). Class + static heart-halo layer are
-           toggled in sync; only tagged cards build the layer. */
-        var isFavourite = tagInfo && tagInfo.some(function (t) {
-            return t && t.name && /^favou?rite/i.test(t.name);
-        });
+        /* Retire particles injected by older theme versions. Favorite tags
+           stay available in the card details; animated hearts are costly in
+           long grids and duplicate the heart button's state. */
         var existingHearts = card.querySelector(":scope > .fluent-mica-heart-particles");
-        if (isFavourite) {
-            card.classList.add("fluent-mica-favourite");
-            if (!existingHearts) {
-                card.appendChild(refractBuildHearts());
-            }
-        } else {
-            card.classList.remove("fluent-mica-favourite");
-            if (existingHearts) { existingHearts.remove(); }
-        }
+        if (existingHearts) { existingHearts.remove(); }
     }
 
     /* Add .fluent-mica-portrait to a scene-card whose preview image is taller
@@ -9168,15 +9154,9 @@
                 if (pm) { refractQueueFrontFill(card, row, pm[1], wantsQuery, anyStat); }
             }
 
-            /* Combined shrink-to-fit for the stat strip + name banner.
-               Both passes need to re-run on card resize (window zoom,
-               grid reflow, etc.) — the one-shot rAF that fired only on
-               first inject left the badges cut off after `cmd+`/`cmd-`.
-               `var bannerInner` is hoisted to the forEach scope and is
-               assigned later in the if(titleEl) block — by the time
-               refit() actually runs (rAF / ResizeObserver callback),
-               that assignment has happened or `bannerInner` is
-               undefined and we skip the name pass. */
+            /* Refit the stat strip when the card changes size. Names use a
+               shared Fluent size and CSS ellipsis, so card widths do not
+               produce a different title size on every performer. */
             var refitPending = false;
             /* Exposed so the batched stat fill can re-fit once values land. */
             card._rfxRefit = function () { refit(); };
@@ -9187,7 +9167,7 @@
                     refitPending = false;
                     if (!document.body.classList.contains("fluent-mica-perf-layout-card")) { return; }
                     /* Stat strip — high scene counts (3 digits) push chips
-                       off the right edge, so shrink to fit.
+                       off the right edge, so shrink them to fit.
 
                        DISCRETE steps, matching refractFitBackStats and the
                        rule it states: a system has a few sizes, it does not
@@ -9217,20 +9197,10 @@
                             if (row.scrollWidth <= pcAvail + 1) { break; }
                         }
                     }
-                    /* Name banner — step the Fluent font-size down through
-                       the ladder until the
-                       text fits the left 3/4 of the banner. */
-                    if (bannerInner) {
-                        var sizes = [1.25, 1.1, 0.95, 0.85, 0.75, 0.7];
-                        for (var j = 0; j < sizes.length; j++) {
-                            bannerInner.style.fontSize = sizes[j] + "rem";
-                            if (bannerInner.scrollWidth <= bannerInner.clientWidth + 1) { break; }
-                        }
-                    }
                 });
             }
 
-            /* Playing-card mode name banner — Pokemon-style header:
+            /* Playing-card mode name banner — Fluent dossier header:
                  [gender icon (type)]  Name        ← left-aligned
                Inject a copy of the gender icon (cloned from native
                .gender-icon under the title) PLUS just the performer name
@@ -9320,111 +9290,13 @@
         });
     }
 
-    /* Heart effect for favourited cards. Builds ONE .fluent-mica-heart-
-       particles layer holding TWO sub-layers; CSS shows whichever fits
-       the current mode (so toggling lite at runtime switches instantly
-       with no rebuild):
-         • .fluent-mica-heart-float-layer — an animated vignette ring of live
-           hearts that twinkle (staggered opacity + scale pulse), full
-           mode. Transform + opacity animation only.
-         • .fluent-mica-heart-halo-layer — a static photographic-vignette ring
-           of hearts (lite mode + reduced motion): one of five baked SVGs
-           (crowding the corners, thinning inward, centre clear) applied as
-           a background-image. One node + one cached blit per card. Zero
-           per-frame cost.
-       Shared by the scene-card (tag-driven) and performer-card (native-
-       favourite) injectors. */
-    function refractBuildHearts() {
-        var particles = document.createElement("div");
-        particles.className = "fluent-mica-heart-particles";
-        particles.setAttribute("aria-hidden", "true");
-
-        /* ── Full-mode layer — an ANIMATED vignette ring. Same edge-
-           crowding distribution as the lite halo, but built as live spans
-           so each heart can twinkle (a staggered opacity + scale pulse)
-           for a shimmering halo. Full mode only; lite swaps to the static
-           baked SVG below. transform + opacity only, so the animation is
-           GPU-composited. */
-        var floatLayer = document.createElement("div");
-        floatLayer.className = "fluent-mica-heart-float-layer";
-
-        var COUNT = 28;     /* hearts in the ring */
-        var BAND  = 0.30;   /* how far inward (0..0.5) the ring reaches */
-        var GLYPHS = ["♥", "♥", "♥", "♥", "♡"];
-        var PALETTE = ["255, 74, 130", "255, 102, 150", "255, 130, 170"];
-        var placed = 0, guard = 0, maxGuard = COUNT * 50;
-        while (placed < COUNT && guard < maxGuard) {
-            guard++;
-            var x = Math.random();
-            var y = Math.random();
-            var edge = Math.min(x, 1 - x, y, 1 - y);    /* 0 at rim .. 0.5 centre */
-            var t = edge / BAND;
-            if (t >= 1) { continue; }                    /* central void */
-            if (Math.random() > Math.pow(1 - t, 1.7)) { continue; } /* vignette falloff */
-            var depth = 1 - t;                           /* 1 at rim .. 0 inward */
-
-            var color = PALETTE[(Math.random() * PALETTE.length) | 0];
-            var size  = (9 + depth * 16).toFixed(1);     /* 9 .. 25px */
-            var op    = (0.4 + depth * 0.55).toFixed(2); /* 0.40 .. 0.95 peak */
-            var rot   = ((Math.random() * 46) - 23).toFixed(1);
-            var glow  = (3 + depth * 9).toFixed(1);
-            var dur   = (2.4 + Math.random() * 2.8).toFixed(2); /* 2.4 .. 5.2s */
-            var dl    = (Math.random() * 3.5).toFixed(2);       /* 0 .. 3.5s stagger */
-
-            var fh = document.createElement("span");
-            fh.className = "fluent-mica-heart-twinkle";
-            fh.textContent = GLYPHS[(Math.random() * GLYPHS.length) | 0];
-            fh.style.cssText =
-                "left:" + (x * 100).toFixed(2) + "%;" +
-                "top:" + (y * 100).toFixed(2) + "%;" +
-                "font-size:" + size + "px;" +
-                "color:rgba(" + color + ",1);" +
-                "text-shadow:0 0 " + glow + "px rgba(" + color + ",0.5);" +
-                "--op:" + op + ";" +
-                "--rot:" + rot + "deg;" +
-                "--dur:" + dur + "s;" +
-                "--dl:" + dl + "s;";
-            floatLayer.appendChild(fh);
-            placed++;
-        }
-        particles.appendChild(floatLayer);
-
-        /* ── Halo layer (lite mode / reduced motion) — static vignette. ──
-           The ring of hearts is a baked SVG (img/heart-halo-N.svg) applied
-           as a background-image in CSS, NOT ~36 live spans. One node per
-           card instead of 36 keeps style-recalc cheap on big favourite
-           grids, and the whole ring paints as a single cached blit. Pick
-           one of five pre-rendered variants at random so the cards don't
-           all share the exact same pattern (the variants are generated
-           from this same vignette distribution; see img/heart-halo-*.svg).
-           The rose rim-glow is baked into each SVG too, so no extra CSS. */
-        var halo = document.createElement("div");
-        var variant = 1 + ((Math.random() * 5) | 0);
-        halo.className = "fluent-mica-heart-halo-layer fluent-mica-heart-halo-v" + variant;
-        particles.appendChild(halo);
-
-        return particles;
-    }
-
-    /* Heart-halo sync for favourited PERFORMER cards — only in playing-
-       card rating-style mode. The source of "is this favourited?" is the
-       native Stash `.favorite-button.favorite` class rather than a tag
-       lookup, so we re-sync on every mutation cycle (Stash toggles the
-       class reactively when the user clicks the heart). */
+    /* Clear particle DOM left by older builds. Favorite state is shown on
+       Stash's native heart button; no extra animated nodes are needed. */
     function syncPerformerCardHearts() {
-        var inPlayingCard = document.body.classList.contains("fluent-mica-perf-layout-card");
         document.querySelectorAll(".performer-card").forEach(function (card) {
-            var isFav = !!card.querySelector(".favorite-button.favorite");
+            card.classList.toggle("fluent-mica-favourite", !!card.querySelector(".favorite-button.favorite"));
             var existing = card.querySelector(":scope > .fluent-mica-heart-particles");
-            if (inPlayingCard && isFav) {
-                card.classList.add("fluent-mica-favourite");
-                if (!existing) {
-                    card.appendChild(refractBuildHearts());
-                }
-            } else {
-                card.classList.remove("fluent-mica-favourite");
-                if (existing) { existing.remove(); }
-            }
+            if (existing) { existing.remove(); }
         });
     }
 

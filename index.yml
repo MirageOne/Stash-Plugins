@@ -9,10 +9,10 @@
     description: Fluent 2 Stash theme with smooth scrolling, responsive scenes, compact performer nameplates, stable pagination, and accent colors.
 - id: library-doctor
   name: Library Doctor
-  version: 1.4.0
-  date: "2026-11-01 03:45:15"
-  path: packages/library-doctor/1.4.0.zip
-  sha256: 07ac601cb0504f85e3ada8472b9dcc1ab503f18762828433f5b68c5dcb26c0d9
+  version: 1.5.0
+  date: "2026-11-01 03:52:21"
+  path: packages/library-doctor/1.5.0.zip
+  sha256: 9cef61b870a529db75678985f30d267300cfc5ac34bf5d50f927460a127f4d1c
   requires: []
   metadata:
-    description: Health checks, filename-based metadata suggestions, configured-source scraping and auto-tagging, guided fixes, and duplicate or alternate-version review.
+    description: Health checks, filename-based metadata suggestions, manual tag fixes, configured-source scraping and auto-tagging, guided fixes, and duplicate or alternate-version review.

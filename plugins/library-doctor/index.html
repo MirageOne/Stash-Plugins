@@ -5,7 +5,7 @@
     <meta name="viewport" content="width=device-width, initial-scale=1">
     <meta name="color-scheme" content="dark">
     <title>Library Doctor</title>
-    <link rel="stylesheet" href="styles.css?v=1.4.0">
+    <link rel="stylesheet" href="styles.css?v=1.5.0">
 </head>
 <body>
     <main class="ld-shell">
@@ -143,7 +143,7 @@
             </div>
             <p class="ld-eyebrow">START WITH A QUICK AUDIT</p>
             <h2 id="ld-empty-title">Your library check is ready.</h2>
-            <p>The scan checks scene file references, metadata, generated artwork, organization status, and repeated titles. You can preview title or date changes before applying them.</p>
+            <p>The scan checks scene file references, metadata, generated artwork, organization status, and repeated titles. You can preview title, date, or tag changes before applying them.</p>
             <button class="ld-button ld-button-primary" type="button" data-start-scan>
                 <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M4 12a8 8 0 1 0 2.34-5.66L4 8.7M4 4v4.7h4.7M12 8v4l2.5 1.5"/></svg>
                 Run first check
@@ -156,11 +156,11 @@
             <div class="ld-module-heading">
                 <div>
                     <p class="ld-eyebrow">METADATA ASSISTANT</p>
-                    <h2 id="ld-metadata-heading">Review missing titles and dates</h2>
-                    <p>Suggestions come from scene filenames. Check each value before applying it.</p>
+                    <h2 id="ld-metadata-heading">Review missing titles, dates, and tags</h2>
+                    <p>Title and date suggestions come from filenames. Choose existing Stash tags for scenes without tags.</p>
                 </div>
             </div>
-            <div id="ld-metadata-empty" class="ld-module-empty">Run Health Check to look for missing titles and dates.</div>
+            <div id="ld-metadata-empty" class="ld-module-empty">Run Health Check to look for missing titles, dates, and tags.</div>
             <div id="ld-metadata-list" class="ld-metadata-list"></div>
         </section>
 
@@ -230,7 +230,7 @@
                     </div>
                     <button id="ld-fix-close" class="ld-page-button" type="button" aria-label="Close fix dialog">×</button>
                 </div>
-                <p class="ld-fix-explainer">Review the filename suggestion or enter your own value, select the missing field, then check the exact change before applying it.</p>
+                <p class="ld-fix-explainer">Review the filename suggestion or choose existing Stash tags, select the fields to update, then check the exact change before applying it.</p>
                 <div id="ld-fix-title-field" class="ld-fix-field" hidden>
                     <label class="ld-fix-choice" for="ld-fix-title-choice">
                         <input id="ld-fix-title-choice" type="checkbox">
@@ -248,6 +248,22 @@
                     <small id="ld-fix-date-help">Use the date format YYYY-MM-DD.</small>
                     <small id="ld-fix-date-suggestion" class="ld-fix-suggestion"></small>
                 </div>
+                <div id="ld-fix-tags-field" class="ld-fix-field" hidden>
+                    <label class="ld-fix-choice" for="ld-fix-tags-choice">
+                        <input id="ld-fix-tags-choice" type="checkbox">
+                        <span>Add tags to this scene</span>
+                    </label>
+                    <div id="ld-fix-tag-picker" class="ld-fix-tag-picker" hidden>
+                        <label class="ld-fix-tag-search-label" for="ld-fix-tag-search">Search existing tags</label>
+                        <input id="ld-fix-tag-search" class="ld-fix-tag-search" type="search" autocomplete="off" placeholder="Type to filter tags" disabled>
+                        <div id="ld-fix-tag-selected" class="ld-fix-tag-selected" aria-label="Selected tags"></div>
+                        <div id="ld-fix-tag-options" class="ld-fix-tag-options" role="group" aria-label="Available Stash tags"></div>
+                        <div class="ld-fix-tag-footer">
+                            <small id="ld-fix-tag-status" role="status">Load a tag list to choose existing tags.</small>
+                            <button id="ld-fix-tag-refresh" class="ld-button ld-button-quiet" type="button">Reload tag list</button>
+                        </div>
+                    </div>
+                </div>
                 <div class="ld-fix-preview-card" aria-live="polite">
                     <span class="ld-fix-preview-label">CHANGE PREVIEW</span>
                     <div id="ld-fix-preview" class="ld-fix-preview"></div>
@@ -263,9 +279,9 @@
 
         <footer class="ld-footer">
             <span>Guided fixes and scraper updates can be undone this session; created tag records remain.</span>
-            <span id="ld-footer-version">v1.4.0</span>
+            <span id="ld-footer-version">v1.5.0</span>
         </footer>
     </main>
-    <script src="app.js?v=1.4.0"></script>
+    <script src="app.js?v=1.5.0"></script>
 </body>
 </html>

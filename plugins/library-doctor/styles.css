@@ -209,6 +209,21 @@ h1, h2, p { margin-top: 0; }
 .ld-fix-field > input[type="text"]:disabled { opacity: 0.48; cursor: not-allowed; }
 .ld-fix-field small { color: var(--ld-subtle); font-size: 0.7rem; }
 .ld-fix-suggestion { color: var(--ld-accent); line-height: 1.45; overflow-wrap: anywhere; }
+.ld-fix-tag-picker { display: grid; gap: 8px; }
+.ld-fix-tag-search-label { color: var(--ld-subtle); font-size: 0.7rem; font-weight: 650; }
+.ld-fix-tag-search { width: 100%; min-height: 40px; padding: 0 11px; border: 1px solid var(--ld-border-strong); border-radius: 8px; outline: 0; background: rgba(255,255,255,0.035); color: var(--ld-text); font: inherit; font-size: 0.82rem; }
+.ld-fix-tag-search:focus { border-color: var(--ld-accent); box-shadow: 0 0 0 3px var(--ld-accent-soft); }
+.ld-fix-tag-search:disabled { opacity: 0.48; }
+.ld-fix-tag-selected { display: flex; flex-wrap: wrap; gap: 6px; }
+.ld-fix-tag-chip { display: inline-flex; align-items: center; gap: 6px; padding: 3px 4px 3px 9px; border: 1px solid color-mix(in srgb, var(--ld-accent), transparent 72%); border-radius: 999px; background: var(--ld-accent-soft); color: var(--ld-text); font-size: 0.72rem; }
+.ld-fix-tag-chip button { width: 20px; height: 20px; border: 0; border-radius: 50%; background: transparent; color: var(--ld-muted); font: inherit; font-size: 1rem; line-height: 1; cursor: pointer; }
+.ld-fix-tag-chip button:hover { background: rgba(255,255,255,0.08); color: var(--ld-text); }
+.ld-fix-tag-options { display: grid; max-height: 190px; gap: 3px; overflow-y: auto; padding: 4px; border: 1px solid var(--ld-border); border-radius: 8px; background: rgba(0,0,0,0.14); }
+.ld-fix-tag-option { display: flex; align-items: center; gap: 9px; min-height: 34px; padding: 5px 8px; border-radius: 6px; color: var(--ld-muted); font-size: 0.77rem; cursor: pointer; }
+.ld-fix-tag-option:hover { background: rgba(255,255,255,0.045); color: var(--ld-text); }
+.ld-fix-tag-option input { width: 15px; height: 15px; margin: 0; accent-color: var(--ld-accent); }
+.ld-fix-tag-footer { display: flex; align-items: center; justify-content: space-between; gap: 10px; }
+.ld-fix-tag-footer .ld-button { min-height: 30px; padding: 0 8px; font-size: 0.68rem; }
 .ld-fix-preview-card { margin-top: 18px; padding: 13px; border: 1px solid var(--ld-border); border-radius: 10px; background: rgba(255,255,255,0.025); }
 .ld-fix-preview-label { color: var(--ld-subtle); font-size: 0.65rem; font-weight: 750; letter-spacing: 0.11em; }
 .ld-fix-preview { display: grid; gap: 9px; margin-top: 9px; }

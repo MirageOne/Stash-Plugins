@@ -41,6 +41,7 @@
     var scrapersLoading = false;
     var tagCatalog = null;
     var tagCatalogPromise = null;
+    var fixSelectedTags = [];
     var scrapeEntries = [];
     var scrapeAttempted = Object.create(null);
     var scrapeStats = { total: 0, processed: 0, exact: 0, applied: 0, review: 0, noMatch: 0, errors: 0, tagsAdded: 0, tagsCreated: 0 };
@@ -400,7 +401,7 @@
 
     function renderMetadataQueue() {
         var scenes = results.filter(function (scene) {
-            return hasIssue(scene, "Missing title") || hasIssue(scene, "Missing date");
+            return hasIssue(scene, "Missing title") || hasIssue(scene, "Missing date") || hasIssue(scene, "No tags");
         });
         els.metadataList.replaceChildren.apply(els.metadataList, scenes.map(function (scene) {
             var card = document.createElement("article");
@@ -420,6 +421,9 @@
             }
             if (hasIssue(scene, "Missing date")) {
                 fields.appendChild(makeMetadataSuggestion("Date", scene.dateSuggestion));
+            }
+            if (hasIssue(scene, "No tags")) {
+                fields.appendChild(makeTagSuggestion());
             }
             var actions = document.createElement("div");
             actions.className = "ld-metadata-actions";
@@ -442,10 +446,10 @@
         if (!results.length) {
             els.metadataEmpty.textContent = lastScanDate
                 ? "No scenes were found in the latest health check."
-                : "Run Health Check to look for missing titles and dates.";
+                : "Run Health Check to look for missing titles, dates, and tags.";
             els.metadataEmpty.hidden = false;
         } else if (!scenes.length) {
-            els.metadataEmpty.textContent = "No missing titles or dates were found in this health check.";
+            els.metadataEmpty.textContent = "No missing titles, dates, or tags were found in this health check.";
             els.metadataEmpty.hidden = false;
         } else {
             els.metadataEmpty.hidden = true;
@@ -466,6 +470,20 @@
         return row;
     }
 
+    function makeTagSuggestion() {
+        var row = document.createElement("div");
+        row.className = "ld-metadata-suggestion";
+        var name = document.createElement("span");
+        name.className = "ld-metadata-label";
+        name.textContent = "Tags";
+        var value = document.createElement("strong");
+        value.textContent = "Choose one or more existing tags";
+        var source = document.createElement("small");
+        source.textContent = "Add tags from your Stash tag list in the review dialog.";
+        row.append(name, value, source);
+        return row;
+    }
+
     function setWorkspace(name) {
         currentWorkspace = name;
         document.querySelectorAll("[data-workspace-panel]").forEach(function (panel) {
@@ -481,7 +499,7 @@
     function updateWorkspaceCounts() {
         els.healthTabCount.textContent = results.length ? results.length.toLocaleString() : (lastScanDate ? "0" : "—");
         els.metadataTabCount.textContent = results.filter(function (scene) {
-            return hasIssue(scene, "Missing title") || hasIssue(scene, "Missing date");
+            return hasIssue(scene, "Missing title") || hasIssue(scene, "Missing date") || hasIssue(scene, "No tags");
         }).length.toLocaleString();
         els.duplicatesTabCount.textContent = buildDuplicateGroups(results).length.toLocaleString();
         els.scrapeTabCount.textContent = results.filter(hasScrapeGaps).length.toLocaleString();
@@ -974,6 +992,90 @@
         els.fixPreview.appendChild(line);
     }
 
+    function tagCatalogEntries() {
+        var seen = Object.create(null);
+        var entries = [];
+        if (!tagCatalog) { return entries; }
+        Object.keys(tagCatalog).forEach(function (key) {
+            tagCatalog[key].forEach(function (tag) {
+                var id = String(tag.id);
+                if (!seen[id]) {
+                    seen[id] = true;
+                    entries.push({ id: id, name: String(tag.name || ""), aliases: Array.isArray(tag.aliases) ? tag.aliases : [] });
+                }
+            });
+        });
+        entries.sort(function (left, right) { return left.name.localeCompare(right.name); });
+        return entries;
+    }
+
+    function renderFixTagPicker() {
+        var selected = Object.create(null);
+        fixSelectedTags.forEach(function (tag) { selected[String(tag.id)] = true; });
+        els.fixTagSelected.replaceChildren.apply(els.fixTagSelected, fixSelectedTags.map(function (tag) {
+            var chip = document.createElement("span");
+            chip.className = "ld-fix-tag-chip";
+            var name = document.createElement("span");
+            name.textContent = tag.name;
+            var remove = document.createElement("button");
+            remove.type = "button";
+            remove.textContent = "×";
+            remove.setAttribute("aria-label", "Remove tag " + tag.name);
+            remove.addEventListener("click", function () {
+                fixSelectedTags = fixSelectedTags.filter(function (item) { return String(item.id) !== String(tag.id); });
+                renderFixTagPicker();
+                updateFixPreview();
+            });
+            chip.append(name, remove);
+            return chip;
+        }));
+
+        var query = normalizeTitle(els.fixTagSearch.value);
+        var entries = tagCatalogEntries();
+        var matches = entries.filter(function (tag) {
+            return !query || [tag.name].concat(tag.aliases).some(function (value) {
+                return normalizeTitle(value).indexOf(query) !== -1;
+            });
+        });
+        var visible = matches.slice(0, 30);
+        els.fixTagOptions.replaceChildren.apply(els.fixTagOptions, visible.map(function (tag) {
+            var option = document.createElement("label");
+            option.className = "ld-fix-tag-option";
+            var checkbox = document.createElement("input");
+            checkbox.type = "checkbox";
+            checkbox.checked = !!selected[tag.id];
+            checkbox.addEventListener("change", function () {
+                if (checkbox.checked && !selected[tag.id]) { fixSelectedTags.push({ id: tag.id, name: tag.name }); }
+                else if (!checkbox.checked) { fixSelectedTags = fixSelectedTags.filter(function (item) { return String(item.id) !== tag.id; }); }
+                renderFixTagPicker();
+                updateFixPreview();
+            });
+            var name = document.createElement("span");
+            name.textContent = tag.name;
+            option.append(checkbox, name);
+            return option;
+        }));
+        if (!entries.length) {
+            els.fixTagStatus.textContent = "No tags exist in Stash yet. Create tags in Stash, then reload the list.";
+        } else if (!matches.length) {
+            els.fixTagStatus.textContent = "No existing tags match this search.";
+        } else {
+            els.fixTagStatus.textContent = matches.length > visible.length
+                ? "Showing the first 30 matches. Type to narrow the list."
+                : matches.length.toLocaleString() + " matching tag" + (matches.length === 1 ? "" : "s") + ".";
+        }
+    }
+
+    function loadFixTags() {
+        els.fixTagStatus.textContent = "Loading existing Stash tags…";
+        els.fixTagOptions.replaceChildren();
+        loadTagCatalog().then(function () {
+            renderFixTagPicker();
+        }).catch(function (error) {
+            els.fixTagStatus.textContent = "Could not load Stash tags: " + (error && error.message ? error.message : String(error));
+        });
+    }
+
     function readFixUpdates() {
         var updates = {};
         var error = "";
@@ -987,7 +1089,11 @@
             if (!validDate(date)) { error = "Enter a valid date in YYYY-MM-DD format."; }
             else { updates.date = date; }
         }
-        if (!error && !Object.keys(updates).length) { error = "Select a field and enter its value to preview a fix."; }
+        if (els.fixTagsChoice.checked) {
+            if (!fixSelectedTags.length) { error = "Choose at least one tag to include this fix."; }
+            else { updates.tag_ids = fixSelectedTags.map(function (tag) { return String(tag.id); }); }
+        }
+        if (!error && !Object.keys(updates).length) { error = "Select a field and enter its value or choose tags to preview a fix."; }
         return { updates: updates, error: error };
     }
 
@@ -996,9 +1102,12 @@
         els.fixPreview.replaceChildren();
         if (state.updates.title) { addPreviewLine("Title", pendingFixScene.title, state.updates.title); }
         if (state.updates.date) { addPreviewLine("Date", pendingFixScene.date, state.updates.date); }
+        if (state.updates.tag_ids) {
+            addPreviewLine("Tags", pendingFixScene.tags.map(function (tag) { return tag.name; }).join(", ") || "Missing", fixSelectedTags.map(function (tag) { return tag.name; }).join(", "));
+        }
         if (!Object.keys(state.updates).length) {
             var empty = document.createElement("p");
-            empty.textContent = "Choose a missing field, enter its value, then review the change here.";
+            empty.textContent = "Choose a missing field, enter its value or select tags, then review the change here.";
             els.fixPreview.appendChild(empty);
         }
         els.fixValidation.textContent = state.error;
@@ -1024,14 +1133,23 @@
         els.fixDateHint.textContent = scene.dateSuggestion
             ? "Filename suggestion: " + scene.dateSuggestion.value + " · from " + scene.dateSuggestion.source + ". Review before applying."
             : "No date found in the filename. You can enter one manually.";
+        fixSelectedTags = [];
+        els.fixTagsChoice.checked = false;
+        els.fixTagSearch.value = "";
+        els.fixTagSearch.disabled = true;
+        els.fixTagPicker.hidden = true;
+        els.fixTagSelected.replaceChildren();
+        els.fixTagsField.hidden = !hasIssue(scene, "No tags");
+        if (!els.fixTagsField.hidden) { loadFixTags(); }
         els.fixScene.textContent = scene.title || "Untitled scene";
         els.fixError.textContent = "";
         els.fixError.hidden = true;
         updateFixPreview();
         if (typeof els.fixDialog.showModal === "function") { els.fixDialog.showModal(); }
         else { els.fixDialog.setAttribute("open", "open"); }
-        if (els.fixTitleField.hidden) { els.fixDateChoice.focus(); }
-        else { els.fixTitleChoice.focus(); }
+        if (!els.fixTitleField.hidden) { els.fixTitleChoice.focus(); }
+        else if (!els.fixDateField.hidden) { els.fixDateChoice.focus(); }
+        else { els.fixTagsChoice.focus(); }
     }
 
     function closeFixDialog() {
@@ -1192,7 +1310,7 @@
         els.fixError.hidden = true;
         clearError();
         updateScene(scene, state.updates).then(function () {
-            var labels = Object.keys(state.updates).map(function (field) { return field === "title" ? "title" : "date"; });
+            var labels = Object.keys(state.updates).map(function (field) { return field === "title" ? "title" : (field === "date" ? "date" : "tags"); });
             var statusLabel = labels.join(" and ");
             applyingFix = false;
             closeFixDialog();
@@ -1411,7 +1529,7 @@
         var openCell = makeCell("Open");
         var actions = document.createElement("div");
         actions.className = "ld-row-actions";
-        if (hasIssue(scene, "Missing title") || hasIssue(scene, "Missing date")) {
+        if (hasIssue(scene, "Missing title") || hasIssue(scene, "Missing date") || hasIssue(scene, "No tags")) {
             var fix = document.createElement("button");
             fix.className = "ld-fix-button";
             fix.type = "button";
@@ -1557,6 +1675,10 @@
             fixTitleHint: byId("ld-fix-title-suggestion"),
             fixDateField: byId("ld-fix-date-field"), fixDateChoice: byId("ld-fix-date-choice"), fixDate: byId("ld-fix-date"),
             fixDateHint: byId("ld-fix-date-suggestion"),
+            fixTagsField: byId("ld-fix-tags-field"), fixTagsChoice: byId("ld-fix-tags-choice"),
+            fixTagPicker: byId("ld-fix-tag-picker"), fixTagSearch: byId("ld-fix-tag-search"),
+            fixTagSelected: byId("ld-fix-tag-selected"), fixTagOptions: byId("ld-fix-tag-options"),
+            fixTagStatus: byId("ld-fix-tag-status"), fixTagRefresh: byId("ld-fix-tag-refresh"),
             fixPreview: byId("ld-fix-preview"), fixValidation: byId("ld-fix-validation"), fixError: byId("ld-fix-error"),
             fixApply: byId("ld-fix-apply"), fixCancel: byId("ld-fix-cancel"), fixClose: byId("ld-fix-close")
         };
@@ -1599,6 +1721,18 @@
             updateFixPreview();
         });
         els.fixDate.addEventListener("input", updateFixPreview);
+        els.fixTagsChoice.addEventListener("change", function () {
+            els.fixTagSearch.disabled = !els.fixTagsChoice.checked;
+            els.fixTagPicker.hidden = !els.fixTagsChoice.checked;
+            if (els.fixTagsChoice.checked && tagCatalog) { renderFixTagPicker(); }
+            updateFixPreview();
+        });
+        els.fixTagSearch.addEventListener("input", renderFixTagPicker);
+        els.fixTagRefresh.addEventListener("click", function () {
+            tagCatalog = null;
+            tagCatalogPromise = null;
+            loadFixTags();
+        });
         els.fixApply.addEventListener("click", applyFix);
         els.undo.addEventListener("click", undoLastFix);
         els.fixCancel.addEventListener("click", closeFixDialog);

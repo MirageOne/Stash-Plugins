@@ -11,7 +11,7 @@ This repository hosts independent Stash plugins. Each plugin keeps its manifest,
 Add the repository once in Stash under **Settings → Plugins → Add source**. Use **MirageOne Stash Plugins** as the source name and this index URL:
 
 ```text
-https://raw.githubusercontent.com/MirageOne/Stasher/main/index.yml
+https://raw.githubusercontent.com/MirageOne/Stasher/refs/heads/main/index.yml
 ```
 
 Reload plugins, then install any listed plugin from **Available Plugins**. New plugins added to the shared index will appear under the same source.

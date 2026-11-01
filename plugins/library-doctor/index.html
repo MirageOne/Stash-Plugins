@@ -34,14 +34,18 @@
             <div>
                 <p class="ld-eyebrow">LIBRARY MAINTENANCE</p>
                 <h1 id="ld-title">A healthier library, one check at a time.</h1>
-                <p class="ld-subtitle">Find scenes that may need metadata or generated files. Review each result in Stash before making changes.</p>
+                <p class="ld-subtitle">Find library gaps, then preview and apply safe title or date fixes. Open any other scene in Stash for review.</p>
             </div>
-            <div class="ld-readonly-note">
-                <span class="ld-readonly-dot" aria-hidden="true"></span>
-                Read-only scan · No library changes
+            <div class="ld-workflow-note">
+                <span class="ld-workflow-dot" aria-hidden="true"></span>
+                Scan first · Review before applying
             </div>
         </section>
 
+        <div id="ld-status" class="ld-status" role="status" aria-live="polite" hidden>
+            <span id="ld-status-message"></span>
+            <button id="ld-undo" class="ld-button ld-button-quiet" type="button" hidden>Undo last fix</button>
+        </div>
         <section class="ld-progress-card" id="ld-progress-card" hidden aria-live="polite">
             <div class="ld-progress-copy">
                 <strong id="ld-progress-title">Checking scenes…</strong>
@@ -130,16 +134,55 @@
             </div>
             <p class="ld-eyebrow">START WITH A QUICK AUDIT</p>
             <h2 id="ld-empty-title">Your library check is ready.</h2>
-            <p>The scan checks scene file references, metadata, generated artwork, organization status, and repeated titles. It does not edit or delete anything.</p>
+            <p>The scan checks scene file references, metadata, generated artwork, organization status, and repeated titles. You can preview title or date changes before applying them.</p>
             <button class="ld-button ld-button-primary" type="button" data-start-scan>
                 <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M4 12a8 8 0 1 0 2.34-5.66L4 8.7M4 4v4.7h4.7M12 8v4l2.5 1.5"/></svg>
                 Run first check
             </button>
         </section>
 
+        <dialog id="ld-fix-dialog" class="ld-fix-dialog" aria-labelledby="ld-fix-heading">
+            <div class="ld-fix-dialog-content">
+                <div class="ld-fix-dialog-heading">
+                    <div>
+                        <p class="ld-eyebrow">GUIDED FIX</p>
+                        <h2 id="ld-fix-heading">Review metadata changes</h2>
+                        <p id="ld-fix-scene" class="ld-fix-scene"></p>
+                    </div>
+                    <button id="ld-fix-close" class="ld-page-button" type="button" aria-label="Close fix dialog">×</button>
+                </div>
+                <p class="ld-fix-explainer">Choose a missing field, enter the value you want, and review the exact change before applying it. This will only update the fields you select.</p>
+                <div id="ld-fix-title-field" class="ld-fix-field" hidden>
+                    <label class="ld-fix-choice" for="ld-fix-title-choice">
+                        <input id="ld-fix-title-choice" type="checkbox">
+                        <span>Set missing title</span>
+                    </label>
+                    <input id="ld-fix-title" type="text" maxlength="500" autocomplete="off" aria-label="New scene title" placeholder="Enter the scene title" disabled>
+                </div>
+                <div id="ld-fix-date-field" class="ld-fix-field" hidden>
+                    <label class="ld-fix-choice" for="ld-fix-date-choice">
+                        <input id="ld-fix-date-choice" type="checkbox">
+                        <span>Set missing date</span>
+                    </label>
+                    <input id="ld-fix-date" type="text" inputmode="numeric" autocomplete="off" aria-label="New scene date" placeholder="YYYY-MM-DD" aria-describedby="ld-fix-date-help" disabled>
+                    <small id="ld-fix-date-help">Use the date format YYYY-MM-DD.</small>
+                </div>
+                <div class="ld-fix-preview-card" aria-live="polite">
+                    <span class="ld-fix-preview-label">CHANGE PREVIEW</span>
+                    <div id="ld-fix-preview" class="ld-fix-preview"></div>
+                </div>
+                <p id="ld-fix-validation" class="ld-fix-validation" role="status" hidden></p>
+                <div id="ld-fix-error" class="ld-error ld-fix-error" role="alert" hidden></div>
+                <div class="ld-fix-actions">
+                    <button id="ld-fix-cancel" class="ld-button ld-button-secondary" type="button">Cancel</button>
+                    <button id="ld-fix-apply" class="ld-button ld-button-primary" type="button" disabled>Apply selected fixes</button>
+                </div>
+            </div>
+        </dialog>
+
         <footer class="ld-footer">
-            <span>Library Doctor only reads Stash library data.</span>
-            <span id="ld-footer-version">v1.0.1</span>
+            <span>Only selected title and date fields are changed; recent fixes can be undone this session.</span>
+            <span id="ld-footer-version">v1.1.0</span>
         </footer>
     </main>
     <script src="app.js"></script>

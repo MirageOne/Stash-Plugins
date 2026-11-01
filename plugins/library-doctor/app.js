@@ -3,6 +3,8 @@
 
     var PAGE_SIZE = 50;
     var SCAN_PAGE_SIZE = 200;
+    var FRESH_SCENE_QUERY = "query LibraryDoctorFreshScene($id: ID!) { findScene(id: $id) { id title date } }";
+    var UPDATE_SCENE_MUTATION = "mutation LibraryDoctorUpdateScene($input: SceneUpdateInput!) { sceneUpdate(input: $input) { id title date } }";
     var QUERY = "query LibraryDoctorScenes($page: Int!, $perPage: Int!) { " +
         "findScenes(filter: { page: $page, per_page: $perPage, sort: \"title\", direction: ASC }) { " +
         "count scenes { id title date organized files { id path size duration } " +
@@ -21,6 +23,10 @@
     var scanController = null;
     var completeScan = false;
     var lastScanDate = null;
+    var pendingFixScene = null;
+    var applyingFix = false;
+    var undoingFix = false;
+    var undoStack = [];
     var els = {};
 
     var ACCENTS = {
@@ -68,6 +74,31 @@
                     throw new Error("Stash did not return scene data. Check the plugin log or reload Stash.");
                 }
                 return payload.data.findScenes;
+            });
+        });
+    }
+
+    function graphQLRequest(query, variables) {
+        return fetch("/graphql", {
+            method: "POST",
+            credentials: "same-origin",
+            cache: "no-store",
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify({ query: query, variables: variables })
+        }).then(function (response) {
+            return response.text().then(function (text) {
+                var payload;
+                try { payload = JSON.parse(text); }
+                catch (e) { throw new Error("Stash returned an unreadable response. Reload the page and try again."); }
+                if (!response.ok) {
+                    var httpMessage = payload && payload.errors && payload.errors[0] && payload.errors[0].message;
+                    throw new Error(httpMessage || ("Stash returned HTTP " + response.status + "."));
+                }
+                if (payload.errors && payload.errors.length) {
+                    throw new Error(payload.errors.map(function (item) { return item.message; }).join(" "));
+                }
+                if (!payload.data) { throw new Error("Stash did not confirm the requested change."); }
+                return payload.data;
             });
         });
     }
@@ -123,6 +154,221 @@
         });
     }
 
+    function hasIssue(scene, label) {
+        return scene._doctorIssues.some(function (issue) { return issue.label === label; });
+    }
+
+    function validDate(value) {
+        if (!/^\d{4}-\d{2}-\d{2}$/.test(value)) { return false; }
+        var parts = value.split("-").map(Number);
+        var date = new Date(Date.UTC(parts[0], parts[1] - 1, parts[2]));
+        return date.getUTCFullYear() === parts[0]
+            && date.getUTCMonth() === parts[1] - 1
+            && date.getUTCDate() === parts[2];
+    }
+
+    function addPreviewLine(label, before, after) {
+        var line = document.createElement("div");
+        line.className = "ld-fix-preview-line";
+        var name = document.createElement("strong");
+        name.textContent = label;
+        var values = document.createElement("span");
+        values.textContent = (before || "Missing") + "  →  " + after;
+        line.append(name, values);
+        els.fixPreview.appendChild(line);
+    }
+
+    function readFixUpdates() {
+        var updates = {};
+        var error = "";
+        if (els.fixTitleChoice.checked) {
+            var title = els.fixTitle.value.trim();
+            if (!title) { error = "Enter a title to include this fix."; }
+            else { updates.title = title; }
+        }
+        if (els.fixDateChoice.checked) {
+            var date = els.fixDate.value.trim();
+            if (!validDate(date)) { error = "Enter a valid date in YYYY-MM-DD format."; }
+            else { updates.date = date; }
+        }
+        if (!error && !Object.keys(updates).length) { error = "Select a field and enter its value to preview a fix."; }
+        return { updates: updates, error: error };
+    }
+
+    function updateFixPreview() {
+        var state = readFixUpdates();
+        els.fixPreview.replaceChildren();
+        if (state.updates.title) { addPreviewLine("Title", pendingFixScene.title, state.updates.title); }
+        if (state.updates.date) { addPreviewLine("Date", pendingFixScene.date, state.updates.date); }
+        if (!Object.keys(state.updates).length) {
+            var empty = document.createElement("p");
+            empty.textContent = "Choose a missing field, enter its value, then review the change here.";
+            els.fixPreview.appendChild(empty);
+        }
+        els.fixValidation.textContent = state.error;
+        els.fixValidation.hidden = !state.error;
+        els.fixApply.disabled = applyingFix || !!state.error;
+    }
+
+    function openFixDialog(scene) {
+        pendingFixScene = scene;
+        els.fixApply.textContent = "Apply selected fixes";
+        els.fixCancel.disabled = false;
+        els.fixTitleField.hidden = !hasIssue(scene, "Missing title");
+        els.fixDateField.hidden = !hasIssue(scene, "Missing date");
+        els.fixTitleChoice.checked = false;
+        els.fixTitle.disabled = true;
+        els.fixTitle.value = "";
+        els.fixDateChoice.checked = false;
+        els.fixDate.disabled = true;
+        els.fixDate.value = "";
+        els.fixScene.textContent = scene.title || "Untitled scene";
+        els.fixError.textContent = "";
+        els.fixError.hidden = true;
+        updateFixPreview();
+        if (typeof els.fixDialog.showModal === "function") { els.fixDialog.showModal(); }
+        else { els.fixDialog.setAttribute("open", "open"); }
+        if (els.fixTitleField.hidden) { els.fixDateChoice.focus(); }
+        else { els.fixTitleChoice.focus(); }
+    }
+
+    function closeFixDialog() {
+        if (applyingFix) { return; }
+        if (typeof els.fixDialog.close === "function" && els.fixDialog.open) { els.fixDialog.close(); }
+        else { els.fixDialog.removeAttribute("open"); }
+        pendingFixScene = null;
+    }
+
+    function updateScene(scene, updates) {
+        var before = {};
+        Object.keys(updates).forEach(function (field) { before[field] = String(scene[field] || ""); });
+        return graphQLRequest(FRESH_SCENE_QUERY, { id: scene.id }).then(function (data) {
+            var latest = data.findScene;
+            if (!latest) { throw new Error("Stash no longer has this scene. Run a new library check."); }
+            var changedSinceScan = Object.keys(updates).some(function (field) {
+                return String(latest[field] || "").trim() !== String(scene[field] || "").trim();
+            });
+            if (changedSinceScan) {
+                throw new Error("This scene changed after the check. Close this dialog and run the check again before applying a fix.");
+            }
+            var input = { id: scene.id };
+            Object.keys(updates).forEach(function (field) { input[field] = updates[field]; });
+            return graphQLRequest(UPDATE_SCENE_MUTATION, { input: input });
+        }).then(function (data) {
+            var updated = data.sceneUpdate;
+            if (!updated || String(updated.id) !== scene.id) {
+                throw new Error("Stash did not confirm the updated scene. Run a new library check to verify its state.");
+            }
+            scene.title = updated.title == null ? (updates.title || scene.title) : String(updated.title).trim();
+            scene.date = updated.date == null ? (updates.date || scene.date) : String(updated.date).trim();
+            var undo = { id: scene.id, sceneLabel: scene.title || "Untitled scene", before: before, after: {} };
+            Object.keys(updates).forEach(function (field) { undo.after[field] = scene[field]; });
+            undoStack.push(undo);
+            if (undoStack.length > 20) { undoStack.shift(); }
+            scene._doctorIssues = scene._doctorIssues.filter(function (issue) {
+                return !(issue.label === "Missing title" && scene.title)
+                    && !(issue.label === "Missing date" && scene.date);
+            });
+            results.forEach(function (item) {
+                item._doctorIssues = item._doctorIssues.filter(function (issue) { return issue.kind !== "review"; });
+            });
+            markRepeatedTitles(results);
+            render();
+            return scene;
+        });
+    }
+
+    function undoLastFix() {
+        if (undoingFix || !undoStack.length) { return; }
+        var undo = undoStack[undoStack.length - 1];
+        undoingFix = true;
+        clearError();
+        els.scan.disabled = true;
+        els.export.disabled = true;
+        els.undo.disabled = true;
+        els.statusMessage.textContent = "Undoing the last Library Doctor change…";
+        graphQLRequest(FRESH_SCENE_QUERY, { id: undo.id }).then(function (data) {
+            var latest = data.findScene;
+            if (!latest) { throw new Error("Stash no longer has this scene. The change was not undone."); }
+            var changedSinceFix = Object.keys(undo.after).some(function (field) {
+                return String(latest[field] || "").trim() !== String(undo.after[field] || "").trim();
+            });
+            if (changedSinceFix) {
+                throw new Error("This field changed after Library Doctor updated it. The change was not undone to avoid overwriting newer work.");
+            }
+            var input = { id: undo.id };
+            Object.keys(undo.before).forEach(function (field) { input[field] = undo.before[field]; });
+            return graphQLRequest(UPDATE_SCENE_MUTATION, { input: input });
+        }).then(function (data) {
+            var updated = data.sceneUpdate;
+            if (!updated || String(updated.id) !== undo.id) {
+                throw new Error("Stash did not confirm the undo. Run a new library check to verify the scene.");
+            }
+            undoStack.pop();
+            var scene = results.filter(function (item) { return item.id === undo.id; })[0];
+            if (scene) {
+                Object.keys(undo.before).forEach(function (field) {
+                    scene[field] = updated[field] == null ? "" : String(updated[field]).trim();
+                    var issueLabel = field === "title" ? "Missing title" : "Missing date";
+                    scene._doctorIssues = scene._doctorIssues.filter(function (issue) { return issue.label !== issueLabel; });
+                    if (!scene[field]) { addIssue(scene, issueLabel, "metadata"); }
+                });
+                results.forEach(function (item) {
+                    item._doctorIssues = item._doctorIssues.filter(function (issue) { return issue.kind !== "review"; });
+                });
+                markRepeatedTitles(results);
+                render();
+            }
+            var fieldNames = Object.keys(undo.before).map(function (field) { return field === "title" ? "title" : "date"; });
+            showStatus("Undid the " + fieldNames.join(" and ") + " update for “" + undo.sceneLabel + "”.", undoStack.length > 0);
+        }).catch(function (error) {
+            showError("Could not undo this fix: " + (error && error.message ? error.message : String(error)));
+            showStatus("Undo was not applied. Your current library values were left unchanged.", true);
+        }).then(function () {
+            undoingFix = false;
+            els.scan.disabled = !!scanController;
+            els.export.disabled = !results.length;
+            if (undoStack.length) {
+                els.undo.hidden = false;
+                els.undo.disabled = !!scanController;
+            } else {
+                els.undo.hidden = true;
+            }
+        });
+    }
+
+    function applyFix() {
+        if (applyingFix || undoingFix || !pendingFixScene) { return; }
+        var state = readFixUpdates();
+        if (state.error) { updateFixPreview(); return; }
+        var scene = pendingFixScene;
+        var sceneLabel = scene.title || "Untitled scene";
+        applyingFix = true;
+        els.fixApply.textContent = "Applying…";
+        els.fixApply.disabled = true;
+        els.fixCancel.disabled = true;
+        els.fixError.textContent = "";
+        els.fixError.hidden = true;
+        clearError();
+        updateScene(scene, state.updates).then(function () {
+            var labels = Object.keys(state.updates).map(function (field) { return field === "title" ? "title" : "date"; });
+            var statusLabel = labels.join(" and ");
+            applyingFix = false;
+            closeFixDialog();
+            showStatus("Updated " + statusLabel + " for “" + (scene.title || sceneLabel) + "”. You can undo this change during this session.", true);
+        }).catch(function (error) {
+            els.fixError.textContent = "Could not apply this fix: " + (error && error.message ? error.message : String(error));
+            els.fixError.hidden = false;
+        }).then(function () {
+            applyingFix = false;
+            if (els.fixDialog.open || els.fixDialog.hasAttribute("open")) {
+                els.fixApply.textContent = "Apply selected fixes";
+                els.fixCancel.disabled = false;
+                updateFixPreview();
+            }
+        });
+    }
+
     function setProgress(percent, detail) {
         var value = Math.max(0, Math.min(100, Math.round(percent)));
         els.progressBar.style.width = value + "%";
@@ -135,6 +381,13 @@
         els.error.hidden = false;
     }
 
+    function showStatus(message, canUndo) {
+        els.statusMessage.textContent = message;
+        els.undo.hidden = !canUndo || !undoStack.length;
+        els.undo.disabled = undoingFix;
+        els.status.hidden = false;
+    }
+
     function clearError() {
         els.error.textContent = "";
         els.error.hidden = true;
@@ -145,6 +398,7 @@
         els.export.disabled = scanning || !results.length;
         els.cancel.hidden = !scanning;
         els.progressCard.hidden = !scanning;
+        els.undo.disabled = scanning || undoingFix || !undoStack.length;
         if (!scanning) { scanController = null; }
     }
 
@@ -166,6 +420,7 @@
         els.cancel.hidden = false;
         els.scan.disabled = true;
         els.export.disabled = true;
+        els.undo.disabled = true;
         clearError();
         setProgress(0, "Connecting to Stash");
         els.rows.replaceChildren();
@@ -303,6 +558,17 @@
         issueCell.appendChild(issueList);
 
         var openCell = makeCell("Open");
+        var actions = document.createElement("div");
+        actions.className = "ld-row-actions";
+        if (hasIssue(scene, "Missing title") || hasIssue(scene, "Missing date")) {
+            var fix = document.createElement("button");
+            fix.className = "ld-fix-button";
+            fix.type = "button";
+            fix.textContent = "Fix fields";
+            fix.setAttribute("aria-label", "Review safe fixes for " + (scene.title || "untitled scene"));
+            fix.addEventListener("click", function () { openFixDialog(scene); });
+            actions.appendChild(fix);
+        }
         var open = document.createElement("a");
         open.className = "ld-open-scene";
         open.href = "/scenes/" + encodeURIComponent(scene.id);
@@ -310,7 +576,8 @@
         open.rel = "noopener noreferrer";
         open.setAttribute("aria-label", "Open " + (scene.title || "scene") + " in Stash");
         open.innerHTML = "Open <svg viewBox='0 0 24 24' aria-hidden='true'><path d='M14 4h6v6M20 4l-9 9'/><path d='M18 13v5a2 2 0 0 1-2 2H6a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h5'/></svg>";
-        openCell.appendChild(open);
+        actions.appendChild(open);
+        openCell.appendChild(actions);
         row.append(sceneCell, studioCell, dateCell, issueCell, openCell);
         return row;
     }
@@ -413,7 +680,13 @@
             countScenes: byId("ld-count-scenes"), countFlagged: byId("ld-count-flagged"),
             countFiles: byId("ld-count-files"), countMetadata: byId("ld-count-metadata"),
             scanTitle: byId("ld-progress-title"), scanTime: byId("ld-scan-time"), resultRange: byId("ld-result-range"),
-            pageStatus: byId("ld-page-status"), pagePrev: byId("ld-page-prev"), pageNext: byId("ld-page-next")
+            pageStatus: byId("ld-page-status"), pagePrev: byId("ld-page-prev"), pageNext: byId("ld-page-next"),
+            status: byId("ld-status"), statusMessage: byId("ld-status-message"), undo: byId("ld-undo"),
+            fixDialog: byId("ld-fix-dialog"), fixScene: byId("ld-fix-scene"),
+            fixTitleField: byId("ld-fix-title-field"), fixTitleChoice: byId("ld-fix-title-choice"), fixTitle: byId("ld-fix-title"),
+            fixDateField: byId("ld-fix-date-field"), fixDateChoice: byId("ld-fix-date-choice"), fixDate: byId("ld-fix-date"),
+            fixPreview: byId("ld-fix-preview"), fixValidation: byId("ld-fix-validation"), fixError: byId("ld-fix-error"),
+            fixApply: byId("ld-fix-apply"), fixCancel: byId("ld-fix-cancel"), fixClose: byId("ld-fix-close")
         };
         els.scan.addEventListener("click", scan);
         document.querySelectorAll("[data-start-scan]").forEach(function (button) { button.addEventListener("click", scan); });
@@ -429,6 +702,27 @@
         els.search.addEventListener("input", function () { currentPage = 1; render(); });
         els.pagePrev.addEventListener("click", function () { if (currentPage > 1) { currentPage--; render(); } });
         els.pageNext.addEventListener("click", function () { currentPage++; render(); });
+        els.fixTitleChoice.addEventListener("change", function () {
+            els.fixTitle.disabled = !els.fixTitleChoice.checked;
+            if (!els.fixTitleChoice.checked) { els.fixTitle.value = ""; }
+            updateFixPreview();
+        });
+        els.fixTitle.addEventListener("input", updateFixPreview);
+        els.fixDateChoice.addEventListener("change", function () {
+            els.fixDate.disabled = !els.fixDateChoice.checked;
+            if (!els.fixDateChoice.checked) { els.fixDate.value = ""; }
+            updateFixPreview();
+        });
+        els.fixDate.addEventListener("input", updateFixPreview);
+        els.fixApply.addEventListener("click", applyFix);
+        els.undo.addEventListener("click", undoLastFix);
+        els.fixCancel.addEventListener("click", closeFixDialog);
+        els.fixClose.addEventListener("click", closeFixDialog);
+        els.fixDialog.addEventListener("cancel", function (event) {
+            if (applyingFix) { event.preventDefault(); }
+            else { pendingFixScene = null; }
+        });
+        els.fixDialog.addEventListener("close", function () { pendingFixScene = null; });
     }
 
     setAccent();

@@ -34,7 +34,7 @@
             <div>
                 <p class="ld-eyebrow">LIBRARY MAINTENANCE</p>
                 <h1 id="ld-title">A healthier library, one check at a time.</h1>
-                <p class="ld-subtitle">Find library gaps, then preview and apply safe title or date fixes. Open any other scene in Stash for review.</p>
+                <p class="ld-subtitle">Find library gaps, review filename-based metadata suggestions, and compare possible duplicate or alternate-version scenes.</p>
             </div>
             <div class="ld-workflow-note">
                 <span class="ld-workflow-dot" aria-hidden="true"></span>
@@ -82,6 +82,19 @@
             </article>
         </section>
 
+        <section id="ld-duplicate-review" class="ld-duplicate-review" hidden aria-labelledby="ld-duplicate-heading">
+            <div class="ld-duplicate-header">
+                <div>
+                    <p class="ld-eyebrow">DUPLICATE &amp; VERSION REVIEW</p>
+                    <h2 id="ld-duplicate-heading">Potential matches <span id="ld-duplicate-count">0</span></h2>
+                    <p>Matching titles are grouped for comparison. File details can suggest copies or alternate encodes; review them before taking action.</p>
+                </div>
+                <button id="ld-duplicate-toggle-reviewed" class="ld-button ld-button-secondary" type="button" aria-pressed="false">Show reviewed (0)</button>
+            </div>
+            <div id="ld-duplicate-empty" class="ld-duplicate-empty" hidden>All current candidates have been reviewed. Show reviewed groups to revisit them.</div>
+            <div id="ld-duplicate-groups" class="ld-duplicate-groups"></div>
+        </section>
+
         <section id="ld-findings" class="ld-findings" hidden aria-labelledby="ld-findings-title">
             <div class="ld-findings-heading">
                 <div>
@@ -101,7 +114,7 @@
                 <button class="ld-filter" type="button" data-filter="metadata">Metadata <span>0</span></button>
                 <button class="ld-filter" type="button" data-filter="generated">Generated files <span>0</span></button>
                 <button class="ld-filter" type="button" data-filter="organization">Organization <span>0</span></button>
-                <button class="ld-filter" type="button" data-filter="review">Review flags <span>0</span></button>
+                <button class="ld-filter" type="button" data-filter="review">Duplicate candidates <span>0</span></button>
             </div>
 
             <div class="ld-table-wrap">
@@ -146,17 +159,18 @@
                 <div class="ld-fix-dialog-heading">
                     <div>
                         <p class="ld-eyebrow">GUIDED FIX</p>
-                        <h2 id="ld-fix-heading">Review metadata changes</h2>
+                        <h2 id="ld-fix-heading">Metadata Assistant</h2>
                         <p id="ld-fix-scene" class="ld-fix-scene"></p>
                     </div>
                     <button id="ld-fix-close" class="ld-page-button" type="button" aria-label="Close fix dialog">×</button>
                 </div>
-                <p class="ld-fix-explainer">Choose a missing field, enter the value you want, and review the exact change before applying it. This will only update the fields you select.</p>
+                <p class="ld-fix-explainer">Review the filename suggestion or enter your own value, select the missing field, then check the exact change before applying it.</p>
                 <div id="ld-fix-title-field" class="ld-fix-field" hidden>
                     <label class="ld-fix-choice" for="ld-fix-title-choice">
                         <input id="ld-fix-title-choice" type="checkbox">
                         <span>Set missing title</span>
                     </label>
+                    <small id="ld-fix-title-suggestion" class="ld-fix-suggestion"></small>
                     <input id="ld-fix-title" type="text" maxlength="500" autocomplete="off" aria-label="New scene title" placeholder="Enter the scene title" disabled>
                 </div>
                 <div id="ld-fix-date-field" class="ld-fix-field" hidden>
@@ -166,6 +180,7 @@
                     </label>
                     <input id="ld-fix-date" type="text" inputmode="numeric" autocomplete="off" aria-label="New scene date" placeholder="YYYY-MM-DD" aria-describedby="ld-fix-date-help" disabled>
                     <small id="ld-fix-date-help">Use the date format YYYY-MM-DD.</small>
+                    <small id="ld-fix-date-suggestion" class="ld-fix-suggestion"></small>
                 </div>
                 <div class="ld-fix-preview-card" aria-live="polite">
                     <span class="ld-fix-preview-label">CHANGE PREVIEW</span>
@@ -182,7 +197,7 @@
 
         <footer class="ld-footer">
             <span>Only selected title and date fields are changed; recent fixes can be undone this session.</span>
-            <span id="ld-footer-version">v1.1.0</span>
+            <span id="ld-footer-version">v1.2.0</span>
         </footer>
     </main>
     <script src="app.js"></script>

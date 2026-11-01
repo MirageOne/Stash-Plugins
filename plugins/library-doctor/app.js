@@ -3,6 +3,7 @@
 
     var PAGE_SIZE = 50;
     var SCAN_PAGE_SIZE = 200;
+    var REVIEWED_DUPLICATES_KEY = "library-doctor.reviewedDuplicates";
     var FRESH_SCENE_QUERY = "query LibraryDoctorFreshScene($id: ID!) { findScene(id: $id) { id title date } }";
     var UPDATE_SCENE_MUTATION = "mutation LibraryDoctorUpdateScene($input: SceneUpdateInput!) { sceneUpdate(input: $input) { id title date } }";
     var QUERY = "query LibraryDoctorScenes($page: Int!, $perPage: Int!) { " +
@@ -15,7 +16,7 @@
         metadata: "Metadata",
         generated: "Generated file",
         organization: "Organization",
-        review: "Review"
+        review: "Duplicate / version"
     };
     var results = [];
     var currentFilter = "all";
@@ -27,6 +28,8 @@
     var applyingFix = false;
     var undoingFix = false;
     var undoStack = [];
+    var reviewedDuplicateKeys = loadReviewedDuplicateKeys();
+    var showReviewedDuplicates = false;
     var els = {};
 
     var ACCENTS = {
@@ -35,6 +38,41 @@
     };
 
     function byId(id) { return document.getElementById(id); }
+
+    function loadReviewedDuplicateKeys() {
+        try {
+            var value = JSON.parse(localStorage.getItem(REVIEWED_DUPLICATES_KEY) || "{}");
+            return value && typeof value === "object" && !Array.isArray(value) ? value : {};
+        } catch (e) { return {}; }
+    }
+
+    function fileBasename(path) {
+        var value = String(path || "").split(/[\\/]/).pop() || "";
+        try { value = decodeURIComponent(value); } catch (e) { /* retain original */ }
+        return value;
+    }
+
+    function suggestTitleFromPath(path) {
+        var source = fileBasename(path);
+        if (!source) { return null; }
+        var value = source.replace(/\.[^.]+$/, "");
+        value = value.replace(/(?:^|[^\d])(?:19|20)\d{2}[-_.]?\d{2}[-_.]?\d{2}(?=$|[^\d])/g, " ");
+        value = value.replace(/^\[[^\]]+\]\s*/, "").replace(/[._]+/g, " ").replace(/\s*-\s*/g, " ").replace(/[()[\]{}]+/g, " ").replace(/\s+/g, " ").trim();
+        if (!value || value.length < 2 || value.length > 120 || !/\p{L}/u.test(value)) { return null; }
+        if (/^(?:IMG|VID|DSC|PXL|MOV|MVI|CAM|GOPR|DJI)[-_ ]?\d+$/i.test(value)) { return null; }
+        if (/^[a-f0-9]{24,}$/i.test(value.replace(/\s+/g, ""))) { return null; }
+        return { value: value, source: source };
+    }
+
+    function suggestDateFromPath(path) {
+        var source = fileBasename(path);
+        var value = String(path || "");
+        var match = value.match(/(?:^|[^\d])((?:19|20)\d{2})[-_.](\d{1,2})[-_.](\d{1,2})(?:[^\d]|$)/);
+        if (!match) { match = value.match(/(?:^|[^\d])((?:19|20)\d{2})(\d{2})(\d{2})(?:[^\d]|$)/); }
+        if (!match) { return null; }
+        var date = match[1] + "-" + ("0" + match[2]).slice(-2) + "-" + ("0" + match[3]).slice(-2);
+        return validDate(date) ? { value: date, source: source } : null;
+    }
 
     function setAccent() {
         try {
@@ -108,15 +146,21 @@
     }
 
     function inspectScene(source) {
+        var files = Array.isArray(source.files) ? source.files : [];
+        var firstPath = files[0] && files[0].path ? String(files[0].path) : "";
+        var title = String(source.title || "").trim();
+        var date = String(source.date || "").trim();
         var scene = {
             id: String(source.id || ""),
-            title: String(source.title || "").trim(),
-            date: String(source.date || "").trim(),
+            title: title,
+            date: date,
+            titleSuggestion: title ? null : suggestTitleFromPath(firstPath),
+            dateSuggestion: date ? null : suggestDateFromPath(firstPath),
             organized: source.organized,
             studio: source.studio && source.studio.name ? String(source.studio.name).trim() : "",
             performers: Array.isArray(source.performers) ? source.performers.map(function (p) { return p && p.name ? String(p.name).trim() : ""; }).filter(Boolean) : [],
             tags: Array.isArray(source.tags) ? source.tags.length : 0,
-            files: Array.isArray(source.files) ? source.files : [],
+            files: files,
             paths: source.paths || {},
             _doctorIssues: []
         };
@@ -149,9 +193,182 @@
         Object.keys(byTitle).forEach(function (key) {
             if (byTitle[key].length < 2) { return; }
             byTitle[key].forEach(function (scene) {
-                addIssue(scene, "Repeated title · review", "review");
+                addIssue(scene, "Repeated title · compare", "review");
             });
         });
+    }
+
+    function duplicateMetadataSignature(scene) {
+        return [
+            normalizeTitle(scene.studio),
+            String(scene.date || "").trim(),
+            scene.performers.map(normalizeTitle).sort().join(",")
+        ].join("|");
+    }
+
+    function fileMetricsClose(scenes, property, relativeLimit, absoluteLimit) {
+        var values = scenes.map(function (scene) {
+            var file = scene.files[0];
+            var value = file ? Number(file[property]) : NaN;
+            return isFinite(value) && value > 0 ? value : null;
+        });
+        if (values.some(function (value) { return value === null; })) { return false; }
+        var min = Math.min.apply(Math, values);
+        var max = Math.max.apply(Math, values);
+        return max - min <= Math.max(max * relativeLimit, absoluteLimit || 0);
+    }
+
+    function fileMetricsDiffer(scenes, property, relativeLimit) {
+        var values = scenes.map(function (scene) {
+            var file = scene.files[0];
+            var value = file ? Number(file[property]) : NaN;
+            return isFinite(value) && value > 0 ? value : null;
+        });
+        if (values.some(function (value) { return value === null; })) { return false; }
+        var min = Math.min.apply(Math, values);
+        var max = Math.max.apply(Math, values);
+        return max - min > max * relativeLimit;
+    }
+
+    function classifyDuplicateGroup(scenes) {
+        var signatures = scenes.map(duplicateMetadataSignature);
+        var hasMetadata = scenes.some(function (scene) {
+            return !!(scene.studio || scene.date || scene.performers.length);
+        });
+        var sameMetadata = hasMetadata && signatures.every(function (signature) { return signature === signatures[0]; });
+        var similarDuration = sameMetadata && fileMetricsClose(scenes, "duration", 0.03, 1);
+        if (similarDuration && fileMetricsClose(scenes, "size", 0.02, 0)) {
+            return {
+                label: "Possible duplicate copies",
+                explanation: "Title, scene details, duration, and file size are very close. Compare the files and paths before deciding."
+            };
+        }
+        if (similarDuration && fileMetricsDiffer(scenes, "size", 0.10)) {
+            return {
+                label: "Possible alternate versions",
+                explanation: "Title and scene details match, durations are close, and file sizes differ. These may be alternate encodes."
+            };
+        }
+        return {
+            label: "Repeated title · compare",
+            explanation: "The title matches, while other details differ or are unavailable. Review each scene before grouping or changing anything."
+        };
+    }
+
+    function buildDuplicateGroups(items) {
+        var byTitle = Object.create(null);
+        items.forEach(function (scene) {
+            var key = normalizeTitle(scene.title);
+            if (!key) { return; }
+            if (!byTitle[key]) { byTitle[key] = []; }
+            byTitle[key].push(scene);
+        });
+        return Object.keys(byTitle).filter(function (key) { return byTitle[key].length > 1; }).map(function (key) {
+            var scenes = byTitle[key].slice().sort(function (a, b) { return a.id.localeCompare(b.id); });
+            var classification = classifyDuplicateGroup(scenes);
+            return {
+                key: scenes.map(function (scene) { return scene.id; }).join(","),
+                title: scenes[0].title,
+                scenes: scenes,
+                label: classification.label,
+                explanation: classification.explanation,
+                reviewed: !!reviewedDuplicateKeys[scenes.map(function (scene) { return scene.id; }).join(",")]
+            };
+        });
+    }
+
+    function saveReviewedDuplicateKeys() {
+        try { localStorage.setItem(REVIEWED_DUPLICATES_KEY, JSON.stringify(reviewedDuplicateKeys)); }
+        catch (e) { /* review marks still work for this page session */ }
+    }
+
+    function formatBytes(bytes) {
+        var value = Number(bytes);
+        if (!isFinite(value) || value <= 0) { return "size unknown"; }
+        var units = ["B", "KB", "MB", "GB", "TB"];
+        var index = 0;
+        while (value >= 1024 && index < units.length - 1) { value /= 1024; index += 1; }
+        return value.toFixed(index === 0 ? 0 : 1) + " " + units[index];
+    }
+
+    function formatDuration(seconds) {
+        var value = Number(seconds);
+        if (!isFinite(value) || value <= 0) { return "duration unknown"; }
+        value = Math.round(value);
+        var hours = Math.floor(value / 3600);
+        var minutes = Math.floor((value % 3600) / 60);
+        var remainder = value % 60;
+        return hours
+            ? hours + ":" + ("0" + minutes).slice(-2) + ":" + ("0" + remainder).slice(-2)
+            : minutes + ":" + ("0" + remainder).slice(-2);
+    }
+
+    function renderDuplicateGroups() {
+        var groups = buildDuplicateGroups(results);
+        els.duplicateReview.hidden = groups.length === 0;
+        if (!groups.length) { return; }
+        var reviewedCount = groups.filter(function (group) { return group.reviewed; }).length;
+        els.duplicateCount.textContent = groups.length.toLocaleString();
+        els.duplicateToggle.textContent = showReviewedDuplicates ? "Hide reviewed" : "Show reviewed (" + reviewedCount.toLocaleString() + ")";
+        els.duplicateToggle.setAttribute("aria-pressed", showReviewedDuplicates ? "true" : "false");
+        var visibleGroups = groups.filter(function (group) { return group.reviewed === showReviewedDuplicates; });
+        els.duplicateGroups.replaceChildren.apply(els.duplicateGroups, visibleGroups.map(function (group) {
+            var card = document.createElement("article");
+            card.className = "ld-duplicate-card" + (group.reviewed ? " is-reviewed" : "");
+            var heading = document.createElement("div");
+            heading.className = "ld-duplicate-card-heading";
+            var title = document.createElement("h3");
+            title.textContent = group.title;
+            var badge = document.createElement("span");
+            badge.className = "ld-duplicate-badge";
+            badge.textContent = group.label;
+            heading.append(title, badge);
+            var explanation = document.createElement("p");
+            explanation.className = "ld-duplicate-explanation";
+            explanation.textContent = group.explanation;
+            var list = document.createElement("ul");
+            list.className = "ld-duplicate-scenes";
+            group.scenes.forEach(function (scene) {
+                var item = document.createElement("li");
+                var details = document.createElement("div");
+                var sceneTitle = document.createElement("strong");
+                sceneTitle.textContent = scene.title || "Untitled scene";
+                var metadata = document.createElement("span");
+                metadata.className = "ld-duplicate-meta";
+                metadata.textContent = [scene.studio, scene.date, scene.performers.join(", ")].filter(Boolean).join(" · ") || "No additional scene details";
+                var file = scene.files[0] || {};
+                var fileInfo = document.createElement("span");
+                fileInfo.className = "ld-duplicate-file";
+                fileInfo.textContent = (fileBasename(file.path) || "File details unavailable") + " · " + formatDuration(file.duration) + " · " + formatBytes(file.size);
+                details.append(sceneTitle, metadata, fileInfo);
+                var open = document.createElement("a");
+                open.className = "ld-open-scene";
+                open.href = "/scenes/" + encodeURIComponent(scene.id);
+                open.target = "_blank";
+                open.rel = "noopener noreferrer";
+                open.textContent = "Open scene";
+                open.setAttribute("aria-label", "Open " + (scene.title || "scene") + " in Stash");
+                item.append(details, open);
+                list.appendChild(item);
+            });
+            var actions = document.createElement("div");
+            actions.className = "ld-duplicate-actions";
+            var review = document.createElement("button");
+            review.className = "ld-fix-button";
+            review.type = "button";
+            review.textContent = group.reviewed ? "Mark unreviewed" : "Mark reviewed";
+            review.setAttribute("aria-pressed", group.reviewed ? "true" : "false");
+            review.addEventListener("click", function () {
+                if (group.reviewed) { delete reviewedDuplicateKeys[group.key]; }
+                else { reviewedDuplicateKeys[group.key] = true; }
+                saveReviewedDuplicateKeys();
+                renderDuplicateGroups();
+            });
+            actions.appendChild(review);
+            card.append(heading, explanation, list, actions);
+            return card;
+        }));
+        els.duplicateEmpty.hidden = visibleGroups.length > 0;
     }
 
     function hasIssue(scene, label) {
@@ -218,10 +435,16 @@
         els.fixDateField.hidden = !hasIssue(scene, "Missing date");
         els.fixTitleChoice.checked = false;
         els.fixTitle.disabled = true;
-        els.fixTitle.value = "";
+        els.fixTitle.value = scene.titleSuggestion ? scene.titleSuggestion.value : "";
+        els.fixTitleHint.textContent = scene.titleSuggestion
+            ? "Filename suggestion: “" + scene.titleSuggestion.value + "” · from " + scene.titleSuggestion.source + ". Review before applying."
+            : "No clear title suggestion from the filename. You can enter one manually.";
         els.fixDateChoice.checked = false;
         els.fixDate.disabled = true;
-        els.fixDate.value = "";
+        els.fixDate.value = scene.dateSuggestion ? scene.dateSuggestion.value : "";
+        els.fixDateHint.textContent = scene.dateSuggestion
+            ? "Filename suggestion: " + scene.dateSuggestion.value + " · from " + scene.dateSuggestion.source + ". Review before applying."
+            : "No date found in the filename. You can enter one manually.";
         els.fixScene.textContent = scene.title || "Untitled scene";
         els.fixError.textContent = "";
         els.fixError.hidden = true;
@@ -610,6 +833,7 @@
             els.scanTime.textContent = (completeScan ? "Completed " : "Partial scan · ") + lastScanDate.toLocaleString();
         }
         renderFilters();
+        renderDuplicateGroups();
 
         var filtered = currentItems();
         var pages = Math.max(1, Math.ceil(filtered.length / PAGE_SIZE));
@@ -682,9 +906,14 @@
             scanTitle: byId("ld-progress-title"), scanTime: byId("ld-scan-time"), resultRange: byId("ld-result-range"),
             pageStatus: byId("ld-page-status"), pagePrev: byId("ld-page-prev"), pageNext: byId("ld-page-next"),
             status: byId("ld-status"), statusMessage: byId("ld-status-message"), undo: byId("ld-undo"),
+            duplicateReview: byId("ld-duplicate-review"), duplicateCount: byId("ld-duplicate-count"),
+            duplicateToggle: byId("ld-duplicate-toggle-reviewed"),
+            duplicateEmpty: byId("ld-duplicate-empty"), duplicateGroups: byId("ld-duplicate-groups"),
             fixDialog: byId("ld-fix-dialog"), fixScene: byId("ld-fix-scene"),
             fixTitleField: byId("ld-fix-title-field"), fixTitleChoice: byId("ld-fix-title-choice"), fixTitle: byId("ld-fix-title"),
+            fixTitleHint: byId("ld-fix-title-suggestion"),
             fixDateField: byId("ld-fix-date-field"), fixDateChoice: byId("ld-fix-date-choice"), fixDate: byId("ld-fix-date"),
+            fixDateHint: byId("ld-fix-date-suggestion"),
             fixPreview: byId("ld-fix-preview"), fixValidation: byId("ld-fix-validation"), fixError: byId("ld-fix-error"),
             fixApply: byId("ld-fix-apply"), fixCancel: byId("ld-fix-cancel"), fixClose: byId("ld-fix-close")
         };
@@ -702,15 +931,17 @@
         els.search.addEventListener("input", function () { currentPage = 1; render(); });
         els.pagePrev.addEventListener("click", function () { if (currentPage > 1) { currentPage--; render(); } });
         els.pageNext.addEventListener("click", function () { currentPage++; render(); });
+        els.duplicateToggle.addEventListener("click", function () {
+            showReviewedDuplicates = !showReviewedDuplicates;
+            renderDuplicateGroups();
+        });
         els.fixTitleChoice.addEventListener("change", function () {
             els.fixTitle.disabled = !els.fixTitleChoice.checked;
-            if (!els.fixTitleChoice.checked) { els.fixTitle.value = ""; }
             updateFixPreview();
         });
         els.fixTitle.addEventListener("input", updateFixPreview);
         els.fixDateChoice.addEventListener("change", function () {
             els.fixDate.disabled = !els.fixDateChoice.checked;
-            if (!els.fixDateChoice.checked) { els.fixDate.value = ""; }
             updateFixPreview();
         });
         els.fixDate.addEventListener("input", updateFixPreview);

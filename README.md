@@ -26,7 +26,7 @@ Download a plugin's manual archive, extract its included plugin folder into Stas
 
 - [Fluent Mica manual archive](packages/fluent-mica/1.0.5-manual.zip)
 - [Noir manual archive](packages/noir-theme/1.0.7-manual.zip)
-- [Library Doctor manual archive](packages/library-doctor/1.6.3-manual.zip)
+- [Library Doctor manual archive](packages/library-doctor/1.6.4-manual.zip)
 - [Scene Gallery Generator manual archive](packages/scene-gallery-generator/1.0.2-manual.zip)
 - [Stash Downloader manual archive](packages/stash-downloader/0.6.2-manual.zip)
 

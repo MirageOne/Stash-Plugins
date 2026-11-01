@@ -10,18 +10,23 @@ import subprocess
 import sys
 
 try:
-    import log
-except ImportError:  # Allows the validation harness to run outside Stash.
-    class _Log:
-        @staticmethod
-        def LogInfo(message):
-            sys.stderr.write(str(message) + "\n")
+    # Stash exposes task logging through its Python API package. Keep the
+    # top-level import as a compatibility fallback for older plugin runners.
+    from stashapi import log
+except ImportError:
+    try:
+        import log
+    except ImportError:  # Allows the validation harness to run outside Stash.
+        class _Log:
+            @staticmethod
+            def LogInfo(message):
+                sys.stderr.write(str(message) + "\n")
 
-        @staticmethod
-        def LogProgress(value):
-            pass
+            @staticmethod
+            def LogProgress(value):
+                pass
 
-    log = _Log()
+        log = _Log()
 
 
 ACTIVE_PROCESS = None
@@ -41,6 +46,27 @@ def report_progress(value):
         log.LogProgress(float(max(0.0, min(1.0, value))))
     except Exception:
         pass
+
+
+def ffmpeg_elapsed_seconds(line):
+    """Read FFmpeg's progress time across its common -progress formats."""
+    field, separator, value = line.partition("=")
+    if not separator:
+        return None
+    if field in ("out_time_us", "out_time_ms"):
+        try:
+            # FFmpeg reports these fields in microseconds despite the legacy
+            # out_time_ms name.
+            return int(value) / 1000000.0
+        except ValueError:
+            return None
+    if field == "out_time":
+        try:
+            hours, minutes, seconds = value.split(":", 2)
+            return int(hours) * 3600 + int(minutes) * 60 + float(seconds)
+        except ValueError:
+            return None
+    return None
 
 
 def cancel_handler(_signum, _frame):
@@ -389,16 +415,13 @@ def run_ffmpeg(command, duration):
                 continue
             recent.append(line)
             recent = recent[-16:]
-            if line.startswith("out_time_ms="):
-                try:
-                    elapsed = int(line.split("=", 1)[1]) / 1000000.0
-                    progress = min(0.94, max(0.0, elapsed / duration * 0.94))
-                    rounded = int(progress * 100)
-                    if rounded != last_progress:
-                        report_progress(progress)
-                        last_progress = rounded
-                except ValueError:
-                    pass
+            elapsed = ffmpeg_elapsed_seconds(line)
+            if elapsed is not None and duration > 0:
+                progress = min(0.94, max(0.0, elapsed / duration * 0.94))
+                rounded = int(progress * 100)
+                if rounded != last_progress:
+                    report_progress(progress)
+                    last_progress = rounded
         return_code = ACTIVE_PROCESS.wait()
     finally:
         if ACTIVE_WATCHDOG is not None:

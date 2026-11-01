@@ -18,10 +18,10 @@
     description: Dark Fluent 2-inspired theme with video-first home and scene pages, content-first image and gallery details, image-backed performer profiles, a collapsible sidebar, and responsive navigation.
 - id: library-doctor
   name: Library Doctor
-  version: 1.6.3
-  date: "2026-11-01 16:46:56"
-  path: packages/library-doctor/1.6.3.zip
-  sha256: 7bb2a9378f405dc97999781e84e8eb795b4ed1bec85b5c1bffb10957b425f2d7
+  version: 1.6.4
+  date: "2026-11-01 17:01:52"
+  path: packages/library-doctor/1.6.4.zip
+  sha256: 2eac14af5c89d21a71dbac86aa0aa06f3a813c34b339e9741736b34c4226c5a9
   requires: []
   metadata:
     description: Health checks, FFmpeg encoding audit and re-encoding, metadata assistance, scraping, tagging, and duplicate or alternate-version review.

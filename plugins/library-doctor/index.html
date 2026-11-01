@@ -59,6 +59,14 @@
 
         <div id="ld-error" class="ld-error" role="alert" hidden></div>
 
+        <nav id="ld-workspace-tabs" class="ld-workspace-tabs" aria-label="Library Doctor sections">
+            <button class="ld-workspace-tab is-active" type="button" data-workspace="health" aria-pressed="true">Health Check <span id="ld-tab-health-count">—</span></button>
+            <button class="ld-workspace-tab" type="button" data-workspace="metadata" aria-pressed="false">Metadata Assistant <span id="ld-tab-metadata-count">0</span></button>
+            <button class="ld-workspace-tab" type="button" data-workspace="duplicates" aria-pressed="false">Duplicate &amp; Version Review <span id="ld-tab-duplicates-count">0</span></button>
+        </nav>
+
+        <div id="ld-health-workspace" class="ld-workspace-panel" data-workspace-panel="health">
+
         <section id="ld-summary" class="ld-summary" hidden aria-label="Scan summary">
             <article class="ld-stat-card">
                 <span class="ld-stat-label">Scenes checked</span>
@@ -80,19 +88,6 @@
                 <strong id="ld-count-metadata">0</strong>
                 <span class="ld-stat-caption">title, date, people, studio, or tags</span>
             </article>
-        </section>
-
-        <section id="ld-duplicate-review" class="ld-duplicate-review" hidden aria-labelledby="ld-duplicate-heading">
-            <div class="ld-duplicate-header">
-                <div>
-                    <p class="ld-eyebrow">DUPLICATE &amp; VERSION REVIEW</p>
-                    <h2 id="ld-duplicate-heading">Potential matches <span id="ld-duplicate-count">0</span></h2>
-                    <p>Matching titles are grouped for comparison. File details can suggest copies or alternate encodes; review them before taking action.</p>
-                </div>
-                <button id="ld-duplicate-toggle-reviewed" class="ld-button ld-button-secondary" type="button" aria-pressed="false">Show reviewed (0)</button>
-            </div>
-            <div id="ld-duplicate-empty" class="ld-duplicate-empty" hidden>All current candidates have been reviewed. Show reviewed groups to revisit them.</div>
-            <div id="ld-duplicate-groups" class="ld-duplicate-groups"></div>
         </section>
 
         <section id="ld-findings" class="ld-findings" hidden aria-labelledby="ld-findings-title">
@@ -154,6 +149,35 @@
             </button>
         </section>
 
+        </div>
+
+        <section id="ld-metadata-workspace" class="ld-workspace-panel ld-metadata-workspace" data-workspace-panel="metadata" hidden aria-labelledby="ld-metadata-heading">
+            <div class="ld-module-heading">
+                <div>
+                    <p class="ld-eyebrow">METADATA ASSISTANT</p>
+                    <h2 id="ld-metadata-heading">Review missing titles and dates</h2>
+                    <p>Suggestions come from scene filenames. Check each value before applying it.</p>
+                </div>
+            </div>
+            <div id="ld-metadata-empty" class="ld-module-empty">Run Health Check to look for missing titles and dates.</div>
+            <div id="ld-metadata-list" class="ld-metadata-list"></div>
+        </section>
+
+        <section id="ld-duplicate-workspace" class="ld-workspace-panel" data-workspace-panel="duplicates" hidden aria-labelledby="ld-duplicate-heading">
+            <section id="ld-duplicate-review" class="ld-duplicate-review" aria-labelledby="ld-duplicate-heading">
+                <div class="ld-duplicate-header">
+                    <div>
+                        <p class="ld-eyebrow">DUPLICATE &amp; VERSION REVIEW</p>
+                        <h2 id="ld-duplicate-heading">Potential matches <span id="ld-duplicate-count">0</span></h2>
+                        <p>Matching titles are grouped for comparison. File details can suggest copies or alternate encodes; review them before taking action.</p>
+                    </div>
+                    <button id="ld-duplicate-toggle-reviewed" class="ld-button ld-button-secondary" type="button" aria-pressed="false">Show reviewed (0)</button>
+                </div>
+                <div id="ld-duplicate-empty" class="ld-duplicate-empty">Run Health Check to look for matching titles.</div>
+                <div id="ld-duplicate-groups" class="ld-duplicate-groups"></div>
+            </section>
+        </section>
+
         <dialog id="ld-fix-dialog" class="ld-fix-dialog" aria-labelledby="ld-fix-heading">
             <div class="ld-fix-dialog-content">
                 <div class="ld-fix-dialog-heading">
@@ -197,7 +221,7 @@
 
         <footer class="ld-footer">
             <span>Only selected title and date fields are changed; recent fixes can be undone this session.</span>
-            <span id="ld-footer-version">v1.2.0</span>
+            <span id="ld-footer-version">v1.3.0</span>
         </footer>
     </main>
     <script src="app.js"></script>

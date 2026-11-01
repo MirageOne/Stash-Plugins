@@ -20,6 +20,7 @@
     };
     var results = [];
     var currentFilter = "all";
+    var currentWorkspace = "health";
     var currentPage = 1;
     var scanController = null;
     var completeScan = false;
@@ -305,13 +306,23 @@
 
     function renderDuplicateGroups() {
         var groups = buildDuplicateGroups(results);
-        els.duplicateReview.hidden = groups.length === 0;
-        if (!groups.length) { return; }
+        els.duplicateReview.hidden = false;
         var reviewedCount = groups.filter(function (group) { return group.reviewed; }).length;
         els.duplicateCount.textContent = groups.length.toLocaleString();
-        els.duplicateToggle.textContent = showReviewedDuplicates ? "Hide reviewed" : "Show reviewed (" + reviewedCount.toLocaleString() + ")";
+        els.duplicateToggle.textContent = showReviewedDuplicates ? "Show unreviewed" : "Show reviewed (" + reviewedCount.toLocaleString() + ")";
         els.duplicateToggle.setAttribute("aria-pressed", showReviewedDuplicates ? "true" : "false");
         var visibleGroups = groups.filter(function (group) { return group.reviewed === showReviewedDuplicates; });
+        if (!groups.length) {
+            els.duplicateGroups.replaceChildren();
+            els.duplicateEmpty.textContent = results.length
+                ? "No matching titles were found in this health check."
+                : (lastScanDate ? "No scenes were found in the latest health check." : "Run Health Check to look for matching titles.");
+            els.duplicateEmpty.hidden = false;
+            return;
+        }
+        els.duplicateEmpty.textContent = showReviewedDuplicates
+            ? "No reviewed groups are available yet."
+            : "All current candidates have been reviewed. Show reviewed groups to revisit them.";
         els.duplicateGroups.replaceChildren.apply(els.duplicateGroups, visibleGroups.map(function (group) {
             var card = document.createElement("article");
             card.className = "ld-duplicate-card" + (group.reviewed ? " is-reviewed" : "");
@@ -369,6 +380,94 @@
             return card;
         }));
         els.duplicateEmpty.hidden = visibleGroups.length > 0;
+    }
+
+    function renderMetadataQueue() {
+        var scenes = results.filter(function (scene) {
+            return hasIssue(scene, "Missing title") || hasIssue(scene, "Missing date");
+        });
+        els.metadataList.replaceChildren.apply(els.metadataList, scenes.map(function (scene) {
+            var card = document.createElement("article");
+            card.className = "ld-metadata-card";
+            var heading = document.createElement("div");
+            heading.className = "ld-metadata-card-heading";
+            var title = document.createElement("h3");
+            title.textContent = scene.title || "Untitled scene";
+            var meta = document.createElement("span");
+            meta.className = "ld-metadata-source-file";
+            meta.textContent = fileBasename(scene.files[0] && scene.files[0].path) || "Scene file name unavailable";
+            heading.append(title, meta);
+            var fields = document.createElement("div");
+            fields.className = "ld-metadata-suggestions";
+            if (hasIssue(scene, "Missing title")) {
+                fields.appendChild(makeMetadataSuggestion("Title", scene.titleSuggestion));
+            }
+            if (hasIssue(scene, "Missing date")) {
+                fields.appendChild(makeMetadataSuggestion("Date", scene.dateSuggestion));
+            }
+            var actions = document.createElement("div");
+            actions.className = "ld-metadata-actions";
+            var fix = document.createElement("button");
+            fix.className = "ld-fix-button";
+            fix.type = "button";
+            fix.textContent = "Review changes";
+            fix.setAttribute("aria-label", "Review metadata suggestions for " + (scene.title || "untitled scene"));
+            fix.addEventListener("click", function () { openFixDialog(scene); });
+            var open = document.createElement("a");
+            open.className = "ld-open-scene";
+            open.href = "/scenes/" + encodeURIComponent(scene.id);
+            open.target = "_blank";
+            open.rel = "noopener noreferrer";
+            open.textContent = "Open scene";
+            actions.append(fix, open);
+            card.append(heading, fields, actions);
+            return card;
+        }));
+        if (!results.length) {
+            els.metadataEmpty.textContent = lastScanDate
+                ? "No scenes were found in the latest health check."
+                : "Run Health Check to look for missing titles and dates.";
+            els.metadataEmpty.hidden = false;
+        } else if (!scenes.length) {
+            els.metadataEmpty.textContent = "No missing titles or dates were found in this health check.";
+            els.metadataEmpty.hidden = false;
+        } else {
+            els.metadataEmpty.hidden = true;
+        }
+    }
+
+    function makeMetadataSuggestion(label, suggestion) {
+        var row = document.createElement("div");
+        row.className = "ld-metadata-suggestion";
+        var name = document.createElement("span");
+        name.className = "ld-metadata-label";
+        name.textContent = label;
+        var value = document.createElement("strong");
+        value.textContent = suggestion ? suggestion.value : "No clear filename suggestion";
+        var source = document.createElement("small");
+        source.textContent = suggestion ? "Suggested from filename · " + suggestion.source : "Enter a value manually in the review dialog.";
+        row.append(name, value, source);
+        return row;
+    }
+
+    function setWorkspace(name) {
+        currentWorkspace = name;
+        document.querySelectorAll("[data-workspace-panel]").forEach(function (panel) {
+            panel.hidden = panel.getAttribute("data-workspace-panel") !== name;
+        });
+        document.querySelectorAll(".ld-workspace-tab[data-workspace]").forEach(function (tab) {
+            var active = tab.getAttribute("data-workspace") === name;
+            tab.classList.toggle("is-active", active);
+            tab.setAttribute("aria-pressed", active ? "true" : "false");
+        });
+    }
+
+    function updateWorkspaceCounts() {
+        els.healthTabCount.textContent = results.length ? results.length.toLocaleString() : (lastScanDate ? "0" : "—");
+        els.metadataTabCount.textContent = results.filter(function (scene) {
+            return hasIssue(scene, "Missing title") || hasIssue(scene, "Missing date");
+        }).length.toLocaleString();
+        els.duplicatesTabCount.textContent = buildDuplicateGroups(results).length.toLocaleString();
     }
 
     function hasIssue(scene, label) {
@@ -627,6 +726,7 @@
 
     function scan() {
         if (scanController) { return; }
+        setWorkspace("health");
         scanController = new AbortController();
         var controller = scanController;
         var collected = [];
@@ -833,7 +933,9 @@
             els.scanTime.textContent = (completeScan ? "Completed " : "Partial scan · ") + lastScanDate.toLocaleString();
         }
         renderFilters();
+        renderMetadataQueue();
         renderDuplicateGroups();
+        updateWorkspaceCounts();
 
         var filtered = currentItems();
         var pages = Math.max(1, Math.ceil(filtered.length / PAGE_SIZE));
@@ -905,6 +1007,9 @@
             countFiles: byId("ld-count-files"), countMetadata: byId("ld-count-metadata"),
             scanTitle: byId("ld-progress-title"), scanTime: byId("ld-scan-time"), resultRange: byId("ld-result-range"),
             pageStatus: byId("ld-page-status"), pagePrev: byId("ld-page-prev"), pageNext: byId("ld-page-next"),
+            healthTabCount: byId("ld-tab-health-count"), metadataTabCount: byId("ld-tab-metadata-count"),
+            duplicatesTabCount: byId("ld-tab-duplicates-count"), metadataEmpty: byId("ld-metadata-empty"),
+            metadataList: byId("ld-metadata-list"),
             status: byId("ld-status"), statusMessage: byId("ld-status-message"), undo: byId("ld-undo"),
             duplicateReview: byId("ld-duplicate-review"), duplicateCount: byId("ld-duplicate-count"),
             duplicateToggle: byId("ld-duplicate-toggle-reviewed"),
@@ -917,6 +1022,11 @@
             fixPreview: byId("ld-fix-preview"), fixValidation: byId("ld-fix-validation"), fixError: byId("ld-fix-error"),
             fixApply: byId("ld-fix-apply"), fixCancel: byId("ld-fix-cancel"), fixClose: byId("ld-fix-close")
         };
+        setWorkspace(currentWorkspace);
+        byId("ld-workspace-tabs").addEventListener("click", function (event) {
+            var tab = event.target.closest(".ld-workspace-tab[data-workspace]");
+            if (tab) { setWorkspace(tab.getAttribute("data-workspace")); }
+        });
         els.scan.addEventListener("click", scan);
         document.querySelectorAll("[data-start-scan]").forEach(function (button) { button.addEventListener("click", scan); });
         els.cancel.addEventListener("click", function () { if (scanController) { scanController.abort(); } });

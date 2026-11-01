@@ -572,6 +572,84 @@
         return file.title + " — " + fileName(file.path) + " · " + file.width + "×" + file.height + " · " + file.codec + " · " + formatBytes(file.size);
     }
 
+    function buildEncodingResolutionFilters(files) {
+        var filters = [{ value: "all", label: "All resolutions", type: "all", count: files.length }];
+        var ranges = [
+            { value: "range:0:480", label: "480p and below", min: 0, max: 480 },
+            { value: "range:481:720", label: "Above 480p to 720p", min: 481, max: 720 },
+            { value: "range:721:1080", label: "Above 720p to 1080p", min: 721, max: 1080 },
+            { value: "range:1081:0", label: "Above 1080p", min: 1081, max: Infinity }
+        ];
+        ranges.forEach(function (range) {
+            var count = files.filter(function (file) { return file.height >= range.min && file.height <= range.max; }).length;
+            if (count) {
+                filters.push({ value: range.value, label: range.label, type: "range", min: range.min, max: range.max, count: count });
+            }
+        });
+
+        var dimensions = Object.create(null);
+        files.forEach(function (file) {
+            var key = file.width + "x" + file.height;
+            if (!dimensions[key]) { dimensions[key] = { width: file.width, height: file.height, count: 0 }; }
+            dimensions[key].count += 1;
+        });
+        Object.keys(dimensions).map(function (key) { return dimensions[key]; })
+            .sort(function (left, right) { return right.height - left.height || right.width - left.width; })
+            .forEach(function (dimension) {
+                filters.push({
+                    value: "exact:" + dimension.width + "x" + dimension.height,
+                    label: dimension.width + " × " + dimension.height + " (" + dimension.height + "p)",
+                    type: "exact", width: dimension.width, height: dimension.height, count: dimension.count
+                });
+            });
+        return filters;
+    }
+
+    function updateEncodingResolutionFilter(files) {
+        var previous = els.encodingResolution.value || "all";
+        var filters = buildEncodingResolutionFilters(files);
+        var allOption = document.createElement("option");
+        allOption.value = filters[0].value;
+        allOption.textContent = filters[0].label + " · " + filters[0].count.toLocaleString();
+        els.encodingResolution.replaceChildren(allOption);
+
+        var rangeOptions = filters.filter(function (filter) { return filter.type === "range"; });
+        if (rangeOptions.length) {
+            var rangeGroup = document.createElement("optgroup");
+            rangeGroup.label = "Resolution ranges";
+            rangeOptions.forEach(function (filter) {
+                var option = document.createElement("option");
+                option.value = filter.value;
+                option.textContent = filter.label + " · " + filter.count.toLocaleString();
+                rangeGroup.appendChild(option);
+            });
+            els.encodingResolution.appendChild(rangeGroup);
+        }
+
+        var exactOptions = filters.filter(function (filter) { return filter.type === "exact"; });
+        if (exactOptions.length) {
+            var exactGroup = document.createElement("optgroup");
+            exactGroup.label = "Exact resolutions in this scan";
+            exactOptions.forEach(function (filter) {
+                var option = document.createElement("option");
+                option.value = filter.value;
+                option.textContent = filter.label + " · " + filter.count.toLocaleString();
+                exactGroup.appendChild(option);
+            });
+            els.encodingResolution.appendChild(exactGroup);
+        }
+
+        var selected = filters.filter(function (filter) { return filter.value === previous; })[0] || filters[0];
+        els.encodingResolution.value = selected.value;
+        return selected;
+    }
+
+    function matchesEncodingResolution(file, filter) {
+        if (filter.type === "all") { return true; }
+        if (filter.type === "range") { return file.height >= filter.min && file.height <= filter.max; }
+        return file.width === filter.width && file.height === filter.height;
+    }
+
     function currentEncodingSettings() {
         var preset = els.encodingPreset.value;
         if (encodingSettings[preset]) {
@@ -598,7 +676,7 @@
         var custom = els.encodingPreset.value === "custom";
         els.encodingCustom.hidden = !custom;
         els.encodingFile.disabled = encodingBusy || !els.encodingFile.options.length;
-        [els.encodingPreset, els.encodingContainer, els.encodingCodec, els.encodingCrf, els.encodingSpeed, els.encodingHeight, els.encodingAudio, els.encodingReplace].forEach(function (control) { control.disabled = encodingBusy; });
+        [els.encodingResolution, els.encodingPreset, els.encodingContainer, els.encodingCodec, els.encodingCrf, els.encodingSpeed, els.encodingHeight, els.encodingAudio, els.encodingReplace].forEach(function (control) { control.disabled = encodingBusy; });
         els.encodingRun.disabled = encodingBusy || !els.encodingFile.value || !!scanController;
         els.encodingRun.textContent = encodingBusy ? "Re-encoding…" : "Run re-encode";
         els.encodingPreview.textContent = describeEncodingSettings(currentEncodingSettings()) + " · " + els.encodingContainer.value.toUpperCase();
@@ -607,10 +685,14 @@
     function renderEncodingAuditor() {
         if (!els.encodingFile) { return; }
         encodingFiles = listEncodingFiles();
-        var query = String(els.encodingSearch.value || "").trim().toLocaleLowerCase();
-        var filteredFiles = query ? encodingFiles.filter(function (file) {
-            return (file.title + " " + file.path + " " + file.codec + " " + file.audio).toLocaleLowerCase().indexOf(query) !== -1;
-        }) : encodingFiles;
+        var rawQuery = String(els.encodingSearch.value || "").trim();
+        var query = rawQuery.toLocaleLowerCase();
+        var resolutionFilter = updateEncodingResolutionFilter(encodingFiles);
+        var filteredFiles = encodingFiles.filter(function (file) {
+            if (!matchesEncodingResolution(file, resolutionFilter)) { return false; }
+            var searchable = file.title + " " + file.path + " " + file.codec + " " + file.audio + " " + file.width + " " + file.height + " " + file.format;
+            return !query || searchable.toLocaleLowerCase().indexOf(query) !== -1;
+        });
         var previous = els.encodingFile.value;
         var visibleFiles = filteredFiles.slice(0, 100);
         var options = visibleFiles.map(function (file) {
@@ -622,14 +704,21 @@
         els.encodingFile.replaceChildren.apply(els.encodingFile, options);
         if (visibleFiles.some(function (file) { return file.id === previous; })) { els.encodingFile.value = previous; }
         if (visibleFiles.length && !els.encodingFile.value) { els.encodingFile.value = visibleFiles[0].id; }
+        var matchReasons = [];
+        if (resolutionFilter.type !== "all") { matchReasons.push(resolutionFilter.label); }
+        if (rawQuery) { matchReasons.push("search ‘" + rawQuery + "’"); }
         els.encodingCount.textContent = lastScanDate
-            ? encodingFiles.length.toLocaleString() + " video file" + (encodingFiles.length === 1 ? "" : "s") + " available from the latest health check."
+            ? matchReasons.length
+                ? filteredFiles.length.toLocaleString() + " of " + encodingFiles.length.toLocaleString() + " video files match " + matchReasons.join(" and ") + "."
+                : encodingFiles.length.toLocaleString() + " video file" + (encodingFiles.length === 1 ? "" : "s") + " available from the latest health check."
             : "Run Health Check to load video files.";
-        els.encodingEmpty.hidden = !lastScanDate || encodingFiles.length > 0;
-        els.encodingEmpty.textContent = lastScanDate ? "No video files with encoding details were found in this scan." : "Run Health Check before reviewing encoding details.";
-        if (query && !filteredFiles.length) {
-            els.encodingEmpty.hidden = false;
-            els.encodingEmpty.textContent = "No video files match “" + query + "”. Try another title, filename, or codec.";
+        els.encodingEmpty.hidden = !lastScanDate || filteredFiles.length > 0;
+        if (!lastScanDate) {
+            els.encodingEmpty.textContent = "Run Health Check before reviewing encoding details.";
+        } else if (!encodingFiles.length) {
+            els.encodingEmpty.textContent = "No video files with encoding details were found in this scan.";
+        } else if (!filteredFiles.length) {
+            els.encodingEmpty.textContent = "No video files match " + (matchReasons.length ? matchReasons.join(" and ") : "the selected filters") + ".";
         }
         var list = visibleFiles.slice(0, 20).map(function (file) {
             var card = document.createElement("article");
@@ -648,11 +737,11 @@
         if (filteredFiles.length > 20) {
             var more = document.createElement("p");
             more.className = "ld-encoding-file-details";
-            more.textContent = "Showing 20 of " + filteredFiles.length.toLocaleString() + " matches. Use the search box to narrow the list.";
+            more.textContent = "Showing 20 of " + filteredFiles.length.toLocaleString() + " matches. Use the search or resolution filter to narrow the list.";
             list.push(more);
         }
         if (filteredFiles.length > 100) {
-            els.encodingCount.textContent += " Type to narrow the list; the selector shows the first 100 matches.";
+            els.encodingCount.textContent += " The scene-file selector shows the first 100 matches.";
         }
         els.encodingList.replaceChildren.apply(els.encodingList, list);
         updateEncodingControls();
@@ -1976,7 +2065,7 @@
             pageStatus: byId("ld-page-status"), pagePrev: byId("ld-page-prev"), pageNext: byId("ld-page-next"),
             healthTabCount: byId("ld-tab-health-count"), metadataTabCount: byId("ld-tab-metadata-count"),
             duplicatesTabCount: byId("ld-tab-duplicates-count"), scrapeTabCount: byId("ld-tab-scrape-count"), metadataEmpty: byId("ld-metadata-empty"),
-            encodingTabCount: byId("ld-tab-encoding-count"), encodingCount: byId("ld-encoding-count"), encodingSearch: byId("ld-encoding-search"), encodingFile: byId("ld-encoding-file"),
+            encodingTabCount: byId("ld-tab-encoding-count"), encodingCount: byId("ld-encoding-count"), encodingSearch: byId("ld-encoding-search"), encodingResolution: byId("ld-encoding-resolution"), encodingFile: byId("ld-encoding-file"),
             encodingPreset: byId("ld-encoding-preset"), encodingContainer: byId("ld-encoding-container"), encodingCustom: byId("ld-encoding-custom"),
             encodingCodec: byId("ld-encoding-codec"), encodingCrf: byId("ld-encoding-crf"), encodingSpeed: byId("ld-encoding-speed"),
             encodingHeight: byId("ld-encoding-height"), encodingAudio: byId("ld-encoding-audio"), encodingReplace: byId("ld-encoding-replace"),
@@ -2051,6 +2140,7 @@
         });
         els.encodingFile.addEventListener("change", updateEncodingControls);
         els.encodingSearch.addEventListener("input", renderEncodingAuditor);
+        els.encodingResolution.addEventListener("change", renderEncodingAuditor);
         els.encodingRun.addEventListener("click", startEncoding);
         els.fixTitleChoice.addEventListener("change", function () {
             els.fixTitle.disabled = !els.fixTitleChoice.checked;

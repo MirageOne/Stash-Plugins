@@ -261,7 +261,7 @@ h1, h2, p { margin-top: 0; }
 .ld-encoding-summary strong { color: var(--ld-text); font-size: 0.82rem; }
 .ld-encoding-summary span { color: var(--ld-muted); font-size: 0.72rem; line-height: 1.45; }
 .ld-encoding-card { display: grid; gap: 15px; padding: 16px; border: 1px solid var(--ld-border); border-radius: 12px; background: linear-gradient(145deg, rgba(255,255,255,0.035), rgba(255,255,255,0.008)), var(--ld-surface); }
-.ld-encoding-fields { display: grid; grid-template-columns: minmax(180px, 1.1fr) minmax(230px, 1.5fr) repeat(2, minmax(150px, 1fr)); gap: 11px; }
+.ld-encoding-fields { display: grid; grid-template-columns: minmax(160px, 1fr) minmax(160px, 1fr) minmax(200px, 1.3fr) repeat(2, minmax(140px, 0.9fr)); gap: 11px; }
 .ld-encoding-custom { display: grid; grid-template-columns: repeat(5, minmax(120px, 1fr)); gap: 11px; padding-top: 14px; border-top: 1px solid var(--ld-border); }
 .ld-encoding-field { display: grid; min-width: 0; gap: 6px; color: var(--ld-subtle); font-size: 0.68rem; font-weight: 700; letter-spacing: 0.04em; text-transform: uppercase; }
 .ld-encoding-field select, .ld-encoding-field input { width: 100%; min-width: 0; min-height: 40px; padding: 0 10px; border: 1px solid var(--ld-border-strong); border-radius: 8px; outline: 0; background: #202024; color: var(--ld-text); font: inherit; font-size: 0.78rem; letter-spacing: normal; text-transform: none; }

@@ -164,7 +164,7 @@ export const QueueItem: React.FC<QueueItemProps> = ({ item, onRemove, onEdit, on
               role="progressbar"
               style={{
                 width: `${overallPercentage}%`,
-                backgroundColor: '#6f42c1',
+                backgroundColor: 'var(--accent, #0078d4)',
               }}
               aria-valuenow={overallPercentage}
               aria-valuemin={0}
@@ -243,7 +243,7 @@ export const QueueItem: React.FC<QueueItemProps> = ({ item, onRemove, onEdit, on
   const isScrapingMetadata = !item.metadata && !item.error && item.status === DownloadStatus.Pending;
 
   return (
-    <div className="card text-light mb-3" style={{ backgroundColor: '#30404d' }}>
+    <div className="card text-light mb-3" style={{ backgroundColor: 'var(--glass-bg, rgba(39, 39, 39, 0.90))' }}>
       <div className="card-body">
         <div className="d-flex gap-3 align-items-start">
           {/* Thumbnail preview, skeleton, or placeholder */}
@@ -255,9 +255,9 @@ export const QueueItem: React.FC<QueueItemProps> = ({ item, onRemove, onEdit, on
                 width: '48px',
                 height: '48px',
                 flexShrink: 0,
-                backgroundColor: '#243340',
+                backgroundColor: 'var(--mica-elevated, #292929)',
                 borderRadius: '4px',
-                border: '1px solid #394b59',
+                border: '1px solid var(--glass-border, rgba(255, 255, 255, 0.09))',
               }}
             >
               <span style={{ fontSize: '20px', opacity: 0.6 }}>
@@ -276,9 +276,9 @@ export const QueueItem: React.FC<QueueItemProps> = ({ item, onRemove, onEdit, on
                 width: '120px',
                 height: '80px',
                 flexShrink: 0,
-                backgroundColor: '#243340',
+                backgroundColor: 'var(--mica-elevated, #292929)',
                 borderRadius: '4px',
-                border: '1px solid #394b59',
+                border: '1px solid var(--glass-border, rgba(255, 255, 255, 0.09))',
               }}
             >
               <div className="spinner-border spinner-border-sm text-info" role="status" aria-label="Loading"></div>
@@ -296,8 +296,8 @@ export const QueueItem: React.FC<QueueItemProps> = ({ item, onRemove, onEdit, on
                 gap: '2px',
                 borderRadius: '4px',
                 overflow: 'hidden',
-                border: '1px solid #394b59',
-                backgroundColor: '#243340',
+                border: '1px solid var(--glass-border, rgba(255, 255, 255, 0.09))',
+                backgroundColor: 'var(--mica-elevated, #292929)',
               }}
             >
               {item.metadata.galleryImages.slice(0, 4).map((img, idx) => (
@@ -322,7 +322,7 @@ export const QueueItem: React.FC<QueueItemProps> = ({ item, onRemove, onEdit, on
                 Array.from({ length: 4 - item.metadata.galleryImages.length }).map((_, idx) => (
                   <div
                     key={`empty-${idx}`}
-                    style={{ backgroundColor: '#1a252f' }}
+                    style={{ backgroundColor: 'var(--mica-base, #202020)' }}
                   />
                 ))
               }
@@ -337,7 +337,7 @@ export const QueueItem: React.FC<QueueItemProps> = ({ item, onRemove, onEdit, on
                 objectFit: 'cover',
                 cursor: 'pointer',
                 borderRadius: '4px',
-                border: '1px solid #394b59',
+                border: '1px solid var(--glass-border, rgba(255, 255, 255, 0.09))',
                 flexShrink: 0,
                 transition: 'transform 0.2s',
               }}
@@ -377,9 +377,9 @@ export const QueueItem: React.FC<QueueItemProps> = ({ item, onRemove, onEdit, on
                 width: '120px',
                 height: '80px',
                 flexShrink: 0,
-                backgroundColor: '#243340',
+                backgroundColor: 'var(--mica-elevated, #292929)',
                 borderRadius: '4px',
-                border: '1px solid #394b59',
+                border: '1px solid var(--glass-border, rgba(255, 255, 255, 0.09))',
               }}
             >
               <span style={{ fontSize: '24px', opacity: 0.5 }}>
@@ -397,7 +397,7 @@ export const QueueItem: React.FC<QueueItemProps> = ({ item, onRemove, onEdit, on
               {isScrapingMetadata ? (
                 <div className="d-flex gap-2 align-items-center">
                   <div className="spinner-border spinner-border-sm text-info" role="status" aria-label="Loading"></div>
-                  <span style={{ color: '#8b9fad' }}>Scraping metadata...</span>
+                  <span style={{ color: 'var(--text-muted, rgba(255, 255, 255, 0.66))' }}>Scraping metadata...</span>
                 </div>
               ) : item.metadata?.title ? (
                 <h6 className="mb-0">{item.metadata.title}</h6>
@@ -450,21 +450,21 @@ export const QueueItem: React.FC<QueueItemProps> = ({ item, onRemove, onEdit, on
                       className="badge"
                       style={{
                         backgroundColor: item.metadata.contentType === ContentType.Gallery
-                          ? 'rgba(111, 66, 193, 0.2)'
+                          ? 'var(--accent-tint, rgba(0, 120, 212, 0.14))'
                           : item.metadata.contentType === ContentType.Image
-                            ? 'rgba(108, 117, 125, 0.2)'
-                            : 'rgba(13, 110, 253, 0.2)',
+                            ? 'rgba(255, 255, 255, 0.06)'
+                            : 'var(--accent-tint, rgba(0, 120, 212, 0.14))',
                         color: item.metadata.contentType === ContentType.Gallery
-                          ? '#a78bfa'
+                          ? 'var(--accent-bright, #2899f5)'
                           : item.metadata.contentType === ContentType.Image
-                            ? '#adb5bd'
-                            : '#6ea8fe',
+                            ? 'var(--text-muted, rgba(255, 255, 255, 0.66))'
+                            : 'var(--accent-bright, #2899f5)',
                         border: `1px solid ${
                           item.metadata.contentType === ContentType.Gallery
-                            ? '#6f42c1'
+                            ? 'var(--accent, #0078d4)'
                             : item.metadata.contentType === ContentType.Image
-                              ? '#6c757d'
-                              : '#0d6efd'
+                              ? 'var(--text-muted, rgba(255, 255, 255, 0.66))'
+                              : 'var(--accent, #0078d4)'
                         }`,
                       }}
                     >
@@ -569,11 +569,13 @@ export const QueueItem: React.FC<QueueItemProps> = ({ item, onRemove, onEdit, on
                       left: dropdownPosition.left,
                       transform: 'translateY(-100%)',
                       zIndex: 99999,
-                      backgroundColor: '#243340',
-                      border: '1px solid #394b59',
+                      backgroundColor: 'var(--glass-bg-strong, rgba(48, 48, 48, 0.96))',
+                      border: '1px solid var(--glass-border, rgba(255, 255, 255, 0.09))',
                       minWidth: '200px',
-                      boxShadow: '0 -4px 12px rgba(0, 0, 0, 0.4)',
-                      borderRadius: '4px',
+                      boxShadow: 'var(--shadow-lg, 0 8px 28px rgba(0, 0, 0, 0.34))',
+                      borderRadius: 'var(--radius, 8px)',
+                      backdropFilter: 'var(--glass-blur-md, blur(8px) saturate(120%))',
+                      WebkitBackdropFilter: 'var(--glass-blur-md, blur(8px) saturate(120%))',
                     }}
                   >
                     <div className="dropdown-header text-muted" style={{ fontSize: '0.75rem', padding: '0.5rem 1rem' }}>
@@ -584,7 +586,7 @@ export const QueueItem: React.FC<QueueItemProps> = ({ item, onRemove, onEdit, on
                         key={scraper.name}
                         className={`dropdown-item ${!scraper.canHandle ? 'text-muted' : ''}`}
                         style={{
-                          color: scraper.canHandle ? '#fff' : '#6c757d',
+                          color: scraper.canHandle ? 'var(--text, rgba(255, 255, 255, 0.94))' : 'var(--text-muted, rgba(255, 255, 255, 0.66))',
                           backgroundColor: 'transparent',
                           padding: '0.5rem 1rem',
                         }}
@@ -592,7 +594,7 @@ export const QueueItem: React.FC<QueueItemProps> = ({ item, onRemove, onEdit, on
                           setRescrapeDropdownOpen(false);
                           onRescrapeClick(item.id, scraper.name);
                         }}
-                        onMouseEnter={(e) => e.currentTarget.style.backgroundColor = '#394b59'}
+                        onMouseEnter={(e) => e.currentTarget.style.backgroundColor = 'var(--glass-border, rgba(255, 255, 255, 0.09))'}
                         onMouseLeave={(e) => e.currentTarget.style.backgroundColor = 'transparent'}
                       >
                         {scraper.name}

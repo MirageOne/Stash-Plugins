@@ -1,8 +1,6 @@
 /**
- * Stash Downloader Plugin - Style Enhancements
- *
- * These styles enhance Bootstrap 4 (Stash) to look closer to Bootstrap 5,
- * and provide consistent dark theme styling across both environments.
+ * Stash Downloader Plugin - Fluent Mica integration
+ * Uses the host theme's surface, typography, radius, and accent tokens.
  */
 
 /* ==========================================================================
@@ -13,7 +11,7 @@
   --stash-card-bg: var(--glass-bg, rgba(39, 39, 39, 0.92));
   --stash-header-bg: var(--mica-elevated, #292929);
   --stash-input-bg: var(--mica-base, #202020);
-  --stash-border: var(--glass-border, rgba(255, 255, 255, 0.1));
+  --stash-border: var(--glass-border, rgba(255, 255, 255, 0.09));
   --stash-muted: var(--text-muted, rgba(255, 255, 255, 0.66));
   --stash-text: var(--text, rgba(255, 255, 255, 0.94));
   --stash-hover-bg: var(--glass-bg-strong, rgba(48, 48, 48, 0.96));
@@ -21,6 +19,7 @@
 }
 
 .stash-downloader-plugin {
+  --accent-contrast: #fff;
   min-height: 100vh;
   color: var(--text, rgba(255, 255, 255, 0.94));
   font-family: var(--theme-font-stack, "Segoe UI Variable", "Segoe UI", system-ui, sans-serif);
@@ -29,20 +28,18 @@
 .stash-downloader-plugin .card,
 .stash-downloader-plugin .queue-item,
 .stash-downloader-plugin .thumbnail-container {
-  border-color: var(--glass-border, rgba(255, 255, 255, 0.1));
-  border-radius: 10px;
+  border-color: var(--glass-border, rgba(255, 255, 255, 0.09));
+  border-radius: var(--radius, 8px);
 }
 
 .stash-downloader-plugin .card {
   background-color: var(--glass-bg, rgba(39, 39, 39, 0.92));
-  backdrop-filter: var(--glass-blur, blur(10px) saturate(120%));
-  -webkit-backdrop-filter: var(--glass-blur, blur(10px) saturate(120%));
 }
 
 .stash-downloader-plugin .card-header,
 .stash-downloader-plugin .card-footer {
   background-color: var(--mica-elevated, #292929);
-  border-color: var(--glass-border, rgba(255, 255, 255, 0.1));
+  border-color: var(--glass-border, rgba(255, 255, 255, 0.09));
 }
 
 .stash-downloader-plugin .container-lg {
@@ -50,23 +47,46 @@
   max-width: 1440px;
 }
 
-.stash-downloader-plugin .btn-primary,
-.stash-downloader-plugin .btn-success {
+.stash-downloader-plugin .btn-primary {
   background-color: var(--accent, #0078d4);
   border-color: var(--accent, #0078d4);
-  color: #fff;
+  color: var(--accent-contrast, #fff);
 }
 
-.stash-downloader-plugin .btn-primary:hover,
-.stash-downloader-plugin .btn-success:hover {
+.stash-downloader-plugin .btn-primary:hover {
   filter: brightness(1.08);
+}
+
+.stash-downloader-plugin .btn-outline-primary {
+  color: var(--accent-bright, #2899f5);
+  border-color: var(--accent, #0078d4);
+}
+
+.stash-downloader-plugin .btn-outline-primary:hover,
+.stash-downloader-plugin .btn-outline-primary:active {
+  background-color: var(--accent-tint, rgba(0, 120, 212, 0.14));
+  color: var(--text, rgba(255, 255, 255, 0.94));
+}
+
+.stash-downloader-plugin .bg-primary,
+.stash-downloader-plugin .badge.bg-primary {
+  background-color: var(--accent, #0078d4) !important;
+  color: var(--accent-contrast, #fff) !important;
+}
+
+.stash-downloader-plugin .text-primary {
+  color: var(--accent-bright, #2899f5) !important;
+}
+
+.stash-downloader-plugin .border-primary {
+  border-color: var(--accent, #0078d4) !important;
 }
 
 .stash-downloader-plugin .form-control,
 .stash-downloader-plugin .form-select {
   color: var(--text, rgba(255, 255, 255, 0.94));
   background-color: var(--mica-base, #202020);
-  border-color: var(--glass-border, rgba(255, 255, 255, 0.1));
+  border-color: var(--glass-border, rgba(255, 255, 255, 0.09));
 }
 
 .stash-downloader-plugin .form-control:focus,
@@ -74,19 +94,6 @@
   border-color: var(--accent, #0078d4);
   box-shadow: 0 0 0 0.2rem var(--accent-tint, rgba(0, 120, 212, 0.25));
 }
-
-/* Inline values are retained by upstream components; map those values back
-   onto Stash's current Fluent Mica tokens without touching the host app. */
-.stash-downloader-plugin [style*="#30404d"] { background-color: var(--glass-bg, rgba(39, 39, 39, 0.92)) !important; }
-.stash-downloader-plugin [style*="#243340"],
-.stash-downloader-plugin [style*="#1a252f"],
-.stash-downloader-plugin [style*="#1a2530"] { background-color: var(--mica-elevated, #292929) !important; }
-.stash-downloader-plugin [style*="#394b59"] { border-color: var(--glass-border, rgba(255, 255, 255, 0.1)) !important; }
-.stash-downloader-plugin [style*="#8b9fad"] { color: var(--text-muted, rgba(255, 255, 255, 0.66)) !important; }
-.stash-downloader-plugin [style*="#0d6efd"] { background-color: var(--accent, #0078d4) !important; border-color: var(--accent, #0078d4) !important; color: var(--accent, #0078d4) !important; }
-.stash-downloader-plugin [style*="#6f42c1"],
-.stash-downloader-plugin [style*="#a78bfa"] { background-color: var(--accent, #0078d4) !important; border-color: var(--accent, #0078d4) !important; color: var(--accent-light, #c7e0f4) !important; }
-.stash-downloader-plugin [style*="#6c757d"] { color: var(--text-muted, rgba(255, 255, 255, 0.66)) !important; }
 
 /* ==========================================================================
    Form Controls - Enhanced styling for dark theme
@@ -168,7 +175,7 @@
 .btn-sm {
   font-size: 0.8125rem;
   padding: 0.25rem 0.5rem;
-  border-radius: 0.25rem;
+  border-radius: var(--radius-sm, 4px);
 }
 
 /* ==========================================================================
@@ -222,9 +229,12 @@
 
 .dropdown-menu.show,
 .dropup .dropdown-menu.show {
-  background-color: var(--stash-header-bg);
+  background-color: var(--glass-bg-strong, rgba(48, 48, 48, 0.96));
   border-color: var(--stash-border);
-  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.3);
+  -webkit-backdrop-filter: var(--glass-blur-md, blur(8px) saturate(120%));
+  backdrop-filter: var(--glass-blur-md, blur(8px) saturate(120%));
+  box-shadow: var(--shadow-lg, 0 8px 28px rgba(0, 0, 0, 0.34));
+  border-radius: var(--radius, 8px);
 }
 
 .dropdown-item {
@@ -255,7 +265,7 @@
    ========================================================================== */
 
 .alert {
-  border-radius: 0.375rem;
+  border-radius: var(--radius, 8px);
 }
 
 .alert-info {
@@ -289,11 +299,12 @@
 .badge {
   font-weight: 500;
   padding: 0.35em 0.65em;
-  border-radius: 0.375rem;
+  border-radius: var(--radius-sm, 4px);
 }
 
 .badge.bg-secondary {
-  background-color: #6c757d !important;
+  background-color: var(--glass-bg-strong, rgba(48, 48, 48, 0.96)) !important;
+  color: var(--text, rgba(255, 255, 255, 0.94));
 }
 
 /* ==========================================================================
@@ -302,13 +313,17 @@
 
 .progress {
   background-color: var(--stash-input-bg);
-  border-radius: 0.375rem;
+  border-radius: var(--radius-sm, 4px);
   height: 0.5rem;
 }
 
 .progress-bar {
-  border-radius: 0.375rem;
+  border-radius: var(--radius-sm, 4px);
   transition: width 0.3s ease;
+}
+
+.stash-downloader-plugin .progress-bar:not(.bg-success):not(.bg-info):not(.bg-warning):not(.bg-danger) {
+  background-color: var(--accent, #0078d4);
 }
 
 /* ==========================================================================
@@ -407,7 +422,7 @@
 .queue-item {
   background-color: var(--stash-card-bg);
   border: 1px solid var(--stash-border);
-  border-radius: 0.375rem;
+  border-radius: var(--radius, 8px);
   transition: border-color 0.15s ease, box-shadow 0.15s ease;
 }
 
@@ -419,7 +434,7 @@
   background-color: var(--stash-header-bg);
   border-bottom: 1px solid var(--stash-border);
   padding: 0.5rem 0.75rem;
-  border-radius: 0.375rem 0.375rem 0 0;
+  border-radius: var(--radius, 8px) var(--radius, 8px) 0 0;
 }
 
 /* ==========================================================================
@@ -429,7 +444,7 @@
 .thumbnail-container {
   background-color: var(--stash-input-bg);
   border: 1px solid var(--stash-border);
-  border-radius: 0.25rem;
+  border-radius: var(--radius-sm, 4px);
   overflow: hidden;
 }
 
@@ -473,11 +488,6 @@ a.text-light:hover {
 .form-select:focus {
   outline: none;
   box-shadow: 0 0 0 0.2rem var(--stash-focus-ring);
-}
-
-/* Remove default focus outline in favor of box-shadow */
-*:focus {
-  outline: none;
 }
 
 *:focus-visible {

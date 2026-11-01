@@ -24,7 +24,7 @@ Download a plugin's manual archive, extract its included plugin folder into Stas
 
 - [Fluent Mica manual archive](packages/fluent-mica/1.0.4-manual.zip)
 - [Library Doctor manual archive](packages/library-doctor/1.6.0-manual.zip)
-- [Stash Downloader manual archive](packages/stash-downloader/0.6.0-manual.zip)
+- [Stash Downloader manual archive](packages/stash-downloader/0.6.1-manual.zip)
 
 Each plugin's README links to its current manual archive.
 

@@ -18,10 +18,10 @@
     description: Health checks, FFmpeg encoding audit and re-encoding, metadata assistance, scraping, tagging, and duplicate or alternate-version review.
 - id: stash-downloader
   name: Stash Downloader
-  version: 0.6.0
-  date: "2026-11-01 10:36:27"
-  path: packages/stash-downloader/0.6.0.zip
-  sha256: 2653e695b367325f8f99410054603c2cb2e68dd0a547bc2221fa2b0013de7359
+  version: 0.6.1
+  date: "2026-11-01 10:46:21"
+  path: packages/stash-downloader/0.6.1.zip
+  sha256: c3a4b3ccd9807b9566aa9a253ab7d85f077f096030a822e7548f3568b3f12dbb
   requires: []
   metadata:
     description: Server-side image and video downloads with yt-dlp, proxy settings, library-aware imports, and metadata extraction.

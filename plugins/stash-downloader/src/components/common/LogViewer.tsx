@@ -79,8 +79,8 @@ export const LogViewer: React.FC<LogViewerProps> = ({
   };
 
   return (
-    <div className="card text-light mt-3" style={{ backgroundColor: '#30404d' }}>
-      <div className="card-header" style={{ backgroundColor: '#243340' }}>
+    <div className="card text-light mt-3" style={{ backgroundColor: 'var(--glass-bg, rgba(39, 39, 39, 0.90))' }}>
+      <div className="card-header" style={{ backgroundColor: 'var(--mica-elevated, #292929)' }}>
         <div className="d-flex justify-content-between align-items-center">
           <div className="d-flex align-items-center gap-2">
             <h6 className="mb-0">Activity Log</h6>
@@ -110,42 +110,42 @@ export const LogViewer: React.FC<LogViewerProps> = ({
       {isExpanded && (
         <>
           {showFilters && (
-            <div className="card-body" style={{ borderBottom: '1px solid #394b59' }}>
+            <div className="card-body" style={{ borderBottom: '1px solid var(--glass-border, rgba(255, 255, 255, 0.09))' }}>
               <div className="row g-2">
                 <div className="col-12 col-md-6">
-                  <label className="form-label small" style={{ color: '#8b9fad' }}>Filter by Level</label>
+                  <label className="form-label small" style={{ color: 'var(--text-muted, rgba(255, 255, 255, 0.66))' }}>Filter by Level</label>
                   <select
                     className="form-select form-select-sm"
                     style={{
-                      backgroundColor: '#243340',
-                      borderColor: '#394b59',
-                      color: '#fff',
+                      backgroundColor: 'var(--mica-elevated, #292929)',
+                      borderColor: 'var(--glass-border, rgba(255, 255, 255, 0.09))',
+                      color: 'var(--text, rgba(255, 255, 255, 0.94))',
                     }}
                     value={selectedLevel}
                     onChange={(e) => setSelectedLevel(e.target.value as LogLevel | 'all')}
                   >
-                    <option value="all" style={{ backgroundColor: '#243340', color: '#fff' }}>All Levels</option>
-                    <option value="info" style={{ backgroundColor: '#243340', color: '#fff' }}>Info</option>
-                    <option value="success" style={{ backgroundColor: '#243340', color: '#fff' }}>Success</option>
-                    <option value="warning" style={{ backgroundColor: '#243340', color: '#fff' }}>Warning</option>
-                    <option value="error" style={{ backgroundColor: '#243340', color: '#fff' }}>Error</option>
+                    <option value="all" style={{ backgroundColor: 'var(--mica-elevated, #292929)', color: 'var(--text, rgba(255, 255, 255, 0.94))' }}>All Levels</option>
+                    <option value="info" style={{ backgroundColor: 'var(--mica-elevated, #292929)', color: 'var(--text, rgba(255, 255, 255, 0.94))' }}>Info</option>
+                    <option value="success" style={{ backgroundColor: 'var(--mica-elevated, #292929)', color: 'var(--text, rgba(255, 255, 255, 0.94))' }}>Success</option>
+                    <option value="warning" style={{ backgroundColor: 'var(--mica-elevated, #292929)', color: 'var(--text, rgba(255, 255, 255, 0.94))' }}>Warning</option>
+                    <option value="error" style={{ backgroundColor: 'var(--mica-elevated, #292929)', color: 'var(--text, rgba(255, 255, 255, 0.94))' }}>Error</option>
                   </select>
                 </div>
                 <div className="col-12 col-md-6">
-                  <label className="form-label small" style={{ color: '#8b9fad' }}>Filter by Category</label>
+                  <label className="form-label small" style={{ color: 'var(--text-muted, rgba(255, 255, 255, 0.66))' }}>Filter by Category</label>
                   <select
                     className="form-select form-select-sm"
                     style={{
-                      backgroundColor: '#243340',
-                      borderColor: '#394b59',
-                      color: '#fff',
+                      backgroundColor: 'var(--mica-elevated, #292929)',
+                      borderColor: 'var(--glass-border, rgba(255, 255, 255, 0.09))',
+                      color: 'var(--text, rgba(255, 255, 255, 0.94))',
                     }}
                     value={selectedCategory}
                     onChange={(e) => setSelectedCategory(e.target.value)}
                   >
-                    <option value="all" style={{ backgroundColor: '#243340', color: '#fff' }}>All Categories</option>
+                    <option value="all" style={{ backgroundColor: 'var(--mica-elevated, #292929)', color: 'var(--text, rgba(255, 255, 255, 0.94))' }}>All Categories</option>
                     {categories.map((cat) => (
-                      <option key={cat} value={cat} style={{ backgroundColor: '#243340', color: '#fff' }}>
+                      <option key={cat} value={cat} style={{ backgroundColor: 'var(--mica-elevated, #292929)', color: 'var(--text, rgba(255, 255, 255, 0.94))' }}>
                         {cat}
                       </option>
                     ))}
@@ -162,8 +162,8 @@ export const LogViewer: React.FC<LogViewerProps> = ({
               </div>
             ) : (
               <div className="table-responsive">
-                <table className="table table-sm table-hover mb-0" style={{ backgroundColor: '#30404d', color: '#fff' }}>
-                  <thead className="sticky-top" style={{ backgroundColor: '#243340' }}>
+                <table className="table table-sm table-hover mb-0" style={{ backgroundColor: 'var(--glass-bg, rgba(39, 39, 39, 0.90))', color: 'var(--text, rgba(255, 255, 255, 0.94))' }}>
+                  <thead className="sticky-top" style={{ backgroundColor: 'var(--mica-elevated, #292929)' }}>
                     <tr>
                       <th style={{ width: '120px' }}>Time</th>
                       <th style={{ width: '80px' }}>Level</th>
@@ -176,7 +176,7 @@ export const LogViewer: React.FC<LogViewerProps> = ({
                     {filteredLogs.map((log) => (
                       <tr key={log.id}>
                         <td>
-                          <span className="small" style={{ color: '#8b9fad' }}>
+                          <span className="small" style={{ color: 'var(--text-muted, rgba(255, 255, 255, 0.66))' }}>
                             {formatTimestamp(log.timestamp)}
                           </span>
                         </td>
@@ -186,9 +186,9 @@ export const LogViewer: React.FC<LogViewerProps> = ({
                           </span>
                         </td>
                         <td>
-                          <span className="badge" style={{ backgroundColor: '#394b59' }}>{log.category}</span>
+                          <span className="badge" style={{ backgroundColor: 'var(--glass-border, rgba(255, 255, 255, 0.09))' }}>{log.category}</span>
                         </td>
-                        <td style={{ color: '#fff' }}>{log.message}</td>
+                        <td style={{ color: 'var(--text, rgba(255, 255, 255, 0.94))' }}>{log.message}</td>
                         <td>
                           <button
                             type="button"

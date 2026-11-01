@@ -194,9 +194,9 @@ export const EditMetadataModal: React.FC<EditMetadataModalProps> = ({
       <div className="modal-backdrop fade show"></div>
       <div className="modal fade show d-block" tabIndex={-1} role="dialog">
         <div className="modal-dialog modal-lg modal-dialog-scrollable" role="document">
-          <div className="modal-content" style={{ backgroundColor: '#30404d', color: '#fff' }}>
+          <div className="modal-content" style={{ backgroundColor: 'var(--glass-bg, rgba(39, 39, 39, 0.90))', color: 'var(--text, rgba(255, 255, 255, 0.94))' }}>
             {/* Modal Header */}
-            <div className="modal-header" style={{ backgroundColor: '#243340', borderColor: '#394b59' }}>
+            <div className="modal-header" style={{ backgroundColor: 'var(--mica-elevated, #292929)', borderColor: 'var(--glass-border, rgba(255, 255, 255, 0.09))' }}>
               <div className="d-flex align-items-center gap-2">
                 <h5 className="modal-title text-light mb-0">
                   {isComplete ? 'Import Details' : 'Import to Stash'}
@@ -245,7 +245,7 @@ export const EditMetadataModal: React.FC<EditMetadataModalProps> = ({
                             Speed: {formatBytes(downloadProgress.speed)}/s
                           </p>
                         ) : elapsedSeconds > 0 && (
-                          <p className="text-center small mb-0" style={{ color: '#6c757d' }}>
+                          <p className="text-center small mb-0" style={{ color: 'var(--text-muted, rgba(255, 255, 255, 0.66))' }}>
                             ⏱ {formatElapsedTime(elapsedSeconds)} elapsed
                             {elapsedSeconds >= 5 && <span className="ms-2" style={{ color: '#28a745' }}>• Working...</span>}
                           </p>
@@ -276,8 +276,8 @@ export const EditMetadataModal: React.FC<EditMetadataModalProps> = ({
             </div>
 
             {/* Modal Footer */}
-            <div className="modal-footer" style={{ backgroundColor: '#243340', borderColor: '#394b59' }}>
-              <small className="flex-grow-1" style={{ color: '#8b9fad' }}>
+            <div className="modal-footer" style={{ backgroundColor: 'var(--mica-elevated, #292929)', borderColor: 'var(--glass-border, rgba(255, 255, 255, 0.09))' }}>
+              <small className="flex-grow-1" style={{ color: 'var(--text-muted, rgba(255, 255, 255, 0.66))' }}>
                 {isImporting ? 'Please wait...' : isComplete ? 'This item has been imported' : 'Review and import to Stash'}
               </small>
               {!isImporting && !isComplete && onSkip && totalPending && totalPending > 1 && (

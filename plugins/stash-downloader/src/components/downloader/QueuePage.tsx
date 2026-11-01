@@ -763,10 +763,10 @@ export const QueuePage: React.FC = () => {
 
           {/* Proxy and Server Status */}
           {isStashEnvironment && (
-            <div className="card text-light mb-3" style={{ backgroundColor: '#30404d', borderColor: '#394b59' }}>
+            <div className="card text-light mb-3" style={{ backgroundColor: 'var(--glass-bg, rgba(39, 39, 39, 0.90))', borderColor: 'var(--glass-border, rgba(255, 255, 255, 0.09))' }}>
               <div
                 className="card-header d-flex justify-content-between align-items-center"
-                style={{ backgroundColor: '#243340', borderColor: '#394b59', cursor: 'pointer' }}
+                style={{ backgroundColor: 'var(--mica-elevated, #292929)', borderColor: 'var(--glass-border, rgba(255, 255, 255, 0.09))', cursor: 'pointer' }}
                 onClick={() => setServerConfigExpanded(!serverConfigExpanded)}
               >
                 <h6 className="mb-0">Server Configuration</h6>
@@ -782,32 +782,32 @@ export const QueuePage: React.FC = () => {
                 <div className="card-body">
                   <div className="d-flex flex-column gap-2">
                     <div className="d-flex justify-content-between align-items-center">
-                      <span style={{ color: '#8b9fad' }}>yt-dlp:</span>
+                      <span style={{ color: 'var(--text-muted, rgba(255, 255, 255, 0.66))' }}>yt-dlp:</span>
                       {ytDlpVersion ? (
                         <div className="d-flex align-items-center gap-2">
                           <span className="badge bg-success">Installed</span>
                           <code className="text-light" style={{ fontSize: '0.85em' }}>{ytDlpVersion}</code>
                           {ytDlpResolutionMethod && (
-                            <small style={{ color: '#8b9fad' }}>({ytDlpResolutionMethod})</small>
+                            <small style={{ color: 'var(--text-muted, rgba(255, 255, 255, 0.66))' }}>({ytDlpResolutionMethod})</small>
                           )}
                         </div>
                       ) : (
                         <div className="d-flex align-items-center gap-2">
                           <span className="badge bg-danger">Not Found</span>
-                          <small style={{ color: '#8b9fad' }}>Install the plugin requirements in Stash's Python environment, or set the executable path in plugin settings.</small>
+                          <small style={{ color: 'var(--text-muted, rgba(255, 255, 255, 0.66))' }}>Install the plugin requirements in Stash's Python environment, or set the executable path in plugin settings.</small>
                         </div>
                       )}
                     </div>
                     <div className="d-flex justify-content-between align-items-center">
-                      <span style={{ color: '#8b9fad' }}>Video download path:</span>
+                      <span style={{ color: 'var(--text-muted, rgba(255, 255, 255, 0.66))' }}>Video download path:</span>
                       <code className="text-light">{videoDownloadPath}</code>
                     </div>
                     <div className="d-flex justify-content-between align-items-center">
-                      <span style={{ color: '#8b9fad' }}>Image download path:</span>
+                      <span style={{ color: 'var(--text-muted, rgba(255, 255, 255, 0.66))' }}>Image download path:</span>
                       <code className="text-light">{imageDownloadPath}</code>
                     </div>
                     <div className="d-flex justify-content-between align-items-center">
-                      <span style={{ color: '#8b9fad' }}>HTTP/SOCKS Proxy:</span>
+                      <span style={{ color: 'var(--text-muted, rgba(255, 255, 255, 0.66))' }}>HTTP/SOCKS Proxy:</span>
                       {httpProxy ? (
                         <div className="d-flex align-items-center gap-2">
                           <span className="badge bg-success">Enabled</span>
@@ -840,7 +840,7 @@ export const QueuePage: React.FC = () => {
                             Test Proxy
                           </button>
                         </div>
-                        <small style={{ color: '#8b9fad' }}>
+                        <small style={{ color: 'var(--text-muted, rgba(255, 255, 255, 0.66))' }}>
                           Proxy will be used for server-side downloads and metadata extraction. TLS certificate verification remains enabled.
                         </small>
                       </>
@@ -868,24 +868,24 @@ export const QueuePage: React.FC = () => {
           </div>
 
           {/* Queue Statistics */}
-          <div className="card text-light mb-3" style={{ backgroundColor: '#30404d' }}>
+          <div className="card text-light mb-3" style={{ backgroundColor: 'var(--glass-bg, rgba(39, 39, 39, 0.90))' }}>
             <div className="card-body">
               <div className="d-flex justify-content-around align-items-center">
                 <div className="text-center">
                   <h5 className="mb-0">{queue.stats.total}</h5>
-                  <small style={{ color: '#8b9fad' }}>Total</small>
+                  <small style={{ color: 'var(--text-muted, rgba(255, 255, 255, 0.66))' }}>Total</small>
                 </div>
                 <div className="text-center">
                   <h5 className="mb-0 text-info">{queue.stats.downloading}</h5>
-                  <small style={{ color: '#8b9fad' }}>Downloading</small>
+                  <small style={{ color: 'var(--text-muted, rgba(255, 255, 255, 0.66))' }}>Downloading</small>
                 </div>
                 <div className="text-center">
                   <h5 className="mb-0 text-success">{queue.stats.complete}</h5>
-                  <small style={{ color: '#8b9fad' }}>Complete</small>
+                  <small style={{ color: 'var(--text-muted, rgba(255, 255, 255, 0.66))' }}>Complete</small>
                 </div>
                 <div className="text-center">
                   <h5 className="mb-0 text-danger">{queue.stats.failed}</h5>
-                  <small style={{ color: '#8b9fad' }}>Failed</small>
+                  <small style={{ color: 'var(--text-muted, rgba(255, 255, 255, 0.66))' }}>Failed</small>
                 </div>
               </div>
             </div>
@@ -977,7 +977,7 @@ export const QueuePage: React.FC = () => {
               <select
                 id="logLevelSelect"
                 className="form-select form-select-sm"
-                style={{ backgroundColor: '#243340', borderColor: '#394b59', color: '#fff', width: 'auto' }}
+                style={{ backgroundColor: 'var(--mica-elevated, #292929)', borderColor: 'var(--glass-border, rgba(255, 255, 255, 0.09))', color: 'var(--text, rgba(255, 255, 255, 0.94))', width: 'auto' }}
                 value={settings.logLevel}
                 onChange={(e) => updateSettings({ logLevel: e.target.value as IPluginSettings['logLevel'] })}
               >

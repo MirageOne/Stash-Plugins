@@ -21,7 +21,15 @@ function injectStyles() {
 
   const style = document.createElement('style');
   style.id = styleId;
-  style.textContent = pluginStyles;
+  style.textContent = `${pluginStyles}\n
+    /* Fluent's yellow accent is bright on the dark theme; use dark button text. */
+    body.stash-fluent-mica.fluent-mica-yellow:not(.fluent-mica-light) .stash-downloader-plugin {
+      --accent-contrast: #201f1e;
+    }
+    body.stash-fluent-mica.fluent-mica-yellow:not(.fluent-mica-light) .stash-downloader-plugin :is(.btn-primary:not(.minimal), .bg-primary) {
+      color: var(--accent-contrast) !important;
+    }
+  `;
   document.head.appendChild(style);
 }
 
@@ -91,10 +99,22 @@ function addNavButtonViaMutationObserver() {
       </svg>
     `;
 
+    const syncActiveState = () => {
+      const active = window.location.pathname === ROUTES.MAIN ||
+        window.location.pathname.startsWith(`${ROUTES.MAIN}/`);
+      navButton.classList.toggle('stash-nav-active', active);
+      if (active) navButton.setAttribute('aria-current', 'page');
+      else navButton.removeAttribute('aria-current');
+    };
+
+    syncActiveState();
+    window.addEventListener('popstate', syncActiveState);
+
     navButton.addEventListener('click', (e: MouseEvent) => {
       if (e.button !== 0 || e.metaKey || e.ctrlKey || e.shiftKey || e.altKey) return;
       e.preventDefault();
       window.history.pushState({}, '', ROUTES.MAIN);
+      syncActiveState();
       window.dispatchEvent(new PopStateEvent('popstate'));
     });
 

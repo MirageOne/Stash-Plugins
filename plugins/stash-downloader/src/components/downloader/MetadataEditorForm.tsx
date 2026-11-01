@@ -145,8 +145,8 @@ export const MetadataEditorForm: React.FC<MetadataEditorFormProps> = ({
   };
 
   return (
-    <div className="card text-light" style={{ backgroundColor: '#30404d', borderColor: '#394b59' }}>
-      <div className="card-header d-flex justify-content-between align-items-center" style={{ backgroundColor: '#243340', borderColor: '#394b59' }}>
+    <div className="card text-light" style={{ backgroundColor: 'var(--glass-bg, rgba(39, 39, 39, 0.90))', borderColor: 'var(--glass-border, rgba(255, 255, 255, 0.09))' }}>
+      <div className="card-header d-flex justify-content-between align-items-center" style={{ backgroundColor: 'var(--mica-elevated, #292929)', borderColor: 'var(--glass-border, rgba(255, 255, 255, 0.09))' }}>
         <h6 className="mb-0">{readOnly ? 'Imported Metadata' : 'Import Preview'}</h6>
         <div className="d-flex gap-2">
           {/* View in Stash link for imported items */}
@@ -189,7 +189,7 @@ export const MetadataEditorForm: React.FC<MetadataEditorFormProps> = ({
                     objectFit: 'cover',
                     cursor: 'pointer',
                     borderRadius: '4px',
-                    border: '1px solid #394b59',
+                    border: '1px solid var(--glass-border, rgba(255, 255, 255, 0.09))',
                     flexShrink: 0,
                   }}
                   onClick={() => item.metadata?.thumbnailUrl && handlePreview(item.metadata.thumbnailUrl, 'image')}
@@ -204,9 +204,9 @@ export const MetadataEditorForm: React.FC<MetadataEditorFormProps> = ({
                   style={{
                     width: '160px',
                     height: '100px',
-                    backgroundColor: '#243340',
+                    backgroundColor: 'var(--mica-elevated, #292929)',
                     borderRadius: '4px',
-                    border: '1px solid #394b59',
+                    border: '1px solid var(--glass-border, rgba(255, 255, 255, 0.09))',
                     flexShrink: 0,
                   }}
                 >
@@ -248,11 +248,11 @@ export const MetadataEditorForm: React.FC<MetadataEditorFormProps> = ({
 
             {/* URL Display */}
             <div>
-              <label className="form-label" style={{ color: '#8b9fad' }}>Source URL</label>
+              <label className="form-label" style={{ color: 'var(--text-muted, rgba(255, 255, 255, 0.66))' }}>Source URL</label>
               <input
                 type="text"
                 className="form-control text-light"
-                style={{ backgroundColor: '#243340', borderColor: '#394b59' }}
+                style={{ backgroundColor: 'var(--mica-elevated, #292929)', borderColor: 'var(--glass-border, rgba(255, 255, 255, 0.09))' }}
                 value={item.url}
                 disabled
               />
@@ -260,14 +260,14 @@ export const MetadataEditorForm: React.FC<MetadataEditorFormProps> = ({
 
             {/* Title (editable unless readOnly) */}
             <div>
-              <label htmlFor="title" className="form-label" style={{ color: '#8b9fad' }}>
+              <label htmlFor="title" className="form-label" style={{ color: 'var(--text-muted, rgba(255, 255, 255, 0.66))' }}>
                 Title
               </label>
               <input
                 id="title"
                 type="text"
                 className="form-control text-light"
-                style={{ backgroundColor: '#243340', borderColor: '#394b59' }}
+                style={{ backgroundColor: 'var(--mica-elevated, #292929)', borderColor: 'var(--glass-border, rgba(255, 255, 255, 0.09))' }}
                 value={title}
                 onChange={(e) => !readOnly && setTitle(e.target.value)}
                 placeholder="Enter title..."
@@ -278,12 +278,12 @@ export const MetadataEditorForm: React.FC<MetadataEditorFormProps> = ({
             {/* Post-Import Action - hide in read-only mode */}
             {!readOnly && (
               <div>
-                <label className="form-label" style={{ color: '#8b9fad' }}>
+                <label className="form-label" style={{ color: 'var(--text-muted, rgba(255, 255, 255, 0.66))' }}>
                   Additional Processing
                 </label>
                 <select
                   className="form-select text-light"
-                  style={{ backgroundColor: '#243340', borderColor: '#394b59' }}
+                  style={{ backgroundColor: 'var(--mica-elevated, #292929)', borderColor: 'var(--glass-border, rgba(255, 255, 255, 0.09))' }}
                   value={postImportAction}
                   onChange={(e) => setPostImportAction(e.target.value as PostImportAction)}
                 >
@@ -300,16 +300,16 @@ export const MetadataEditorForm: React.FC<MetadataEditorFormProps> = ({
             )}
 
             {/* Performers Section */}
-            <div className="p-3 rounded" style={{ backgroundColor: '#243340', border: '1px solid #394b59' }}>
+            <div className="p-3 rounded" style={{ backgroundColor: 'var(--mica-elevated, #292929)', border: '1px solid var(--glass-border, rgba(255, 255, 255, 0.09))' }}>
               <div
                 className="d-flex justify-content-between align-items-center"
                 style={{ cursor: 'pointer' }}
                 onClick={() => toggleSection('performers')}
               >
-                <label className="form-label mb-0" style={{ color: '#8b9fad', cursor: 'pointer' }}>
+                <label className="form-label mb-0" style={{ color: 'var(--text-muted, rgba(255, 255, 255, 0.66))', cursor: 'pointer' }}>
                   👤 Performers ({performers.length})
                 </label>
-                <span style={{ color: '#8b9fad' }}>
+                <span style={{ color: 'var(--text-muted, rgba(255, 255, 255, 0.66))' }}>
                   {expandedSections.performers ? '▼' : '▶'}
                 </span>
               </div>
@@ -347,7 +347,7 @@ export const MetadataEditorForm: React.FC<MetadataEditorFormProps> = ({
                       <input
                         type="text"
                         className="form-control text-light"
-                        style={{ backgroundColor: '#1a2530', borderColor: '#394b59' }}
+                        style={{ backgroundColor: 'var(--mica-base, #202020)', borderColor: 'var(--glass-border, rgba(255, 255, 255, 0.09))' }}
                         placeholder="Add performer..."
                         value={newPerformer}
                         onChange={(e) => setNewPerformer(e.target.value)}
@@ -368,16 +368,16 @@ export const MetadataEditorForm: React.FC<MetadataEditorFormProps> = ({
             </div>
 
             {/* Tags Section */}
-            <div className="p-3 rounded" style={{ backgroundColor: '#243340', border: '1px solid #394b59' }}>
+            <div className="p-3 rounded" style={{ backgroundColor: 'var(--mica-elevated, #292929)', border: '1px solid var(--glass-border, rgba(255, 255, 255, 0.09))' }}>
               <div
                 className="d-flex justify-content-between align-items-center"
                 style={{ cursor: 'pointer' }}
                 onClick={() => toggleSection('tags')}
               >
-                <label className="form-label mb-0" style={{ color: '#8b9fad', cursor: 'pointer' }}>
+                <label className="form-label mb-0" style={{ color: 'var(--text-muted, rgba(255, 255, 255, 0.66))', cursor: 'pointer' }}>
                   🏷️ Tags ({tags.length})
                 </label>
-                <span style={{ color: '#8b9fad' }}>
+                <span style={{ color: 'var(--text-muted, rgba(255, 255, 255, 0.66))' }}>
                   {expandedSections.tags ? '▼' : '▶'}
                 </span>
               </div>
@@ -415,7 +415,7 @@ export const MetadataEditorForm: React.FC<MetadataEditorFormProps> = ({
                       <input
                         type="text"
                         className="form-control text-light"
-                        style={{ backgroundColor: '#1a2530', borderColor: '#394b59' }}
+                        style={{ backgroundColor: 'var(--mica-base, #202020)', borderColor: 'var(--glass-border, rgba(255, 255, 255, 0.09))' }}
                         placeholder="Add tag..."
                         value={newTag}
                         onChange={(e) => setNewTag(e.target.value)}
@@ -437,14 +437,14 @@ export const MetadataEditorForm: React.FC<MetadataEditorFormProps> = ({
 
             {/* Studio Section */}
             <div>
-              <label className="form-label" style={{ color: '#8b9fad' }}>
+              <label className="form-label" style={{ color: 'var(--text-muted, rgba(255, 255, 255, 0.66))' }}>
                 🏢 Studio
               </label>
               <div className="input-group">
                 <input
                   type="text"
                   className="form-control text-light"
-                  style={{ backgroundColor: '#243340', borderColor: '#394b59' }}
+                  style={{ backgroundColor: 'var(--mica-elevated, #292929)', borderColor: 'var(--glass-border, rgba(255, 255, 255, 0.09))' }}
                   placeholder={readOnly ? '(none)' : 'Studio name...'}
                   value={studio}
                   onChange={(e) => !readOnly && setStudio(e.target.value)}

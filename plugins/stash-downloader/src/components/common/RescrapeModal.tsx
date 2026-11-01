@@ -140,7 +140,7 @@ export const RescrapeModal: React.FC<RescrapeModalProps> = ({
         style={{ backgroundColor: isDifferent ? 'rgba(255, 193, 7, 0.1)' : 'transparent' }}
       >
         <div className="d-flex justify-content-between align-items-center mb-1">
-          <label className="form-label mb-0" style={{ color: '#8b9fad', fontSize: '0.85rem' }}>
+          <label className="form-label mb-0" style={{ color: 'var(--text-muted, rgba(255, 255, 255, 0.66))', fontSize: '0.85rem' }}>
             {label}
             {isDifferent && <span className="badge bg-warning text-dark ms-2" style={{ fontSize: '0.65rem' }}>Different</span>}
           </label>
@@ -170,7 +170,7 @@ export const RescrapeModal: React.FC<RescrapeModalProps> = ({
             <div
               className={`p-2 rounded ${selections[fieldKey] === 'original' ? 'border border-primary' : ''}`}
               style={{
-                backgroundColor: '#1a252f',
+                backgroundColor: 'var(--mica-base, #202020)',
                 fontSize: '0.8rem',
                 maxHeight: '60px',
                 overflow: 'auto',
@@ -185,7 +185,7 @@ export const RescrapeModal: React.FC<RescrapeModalProps> = ({
             <div
               className={`p-2 rounded ${selections[fieldKey] === 'new' ? 'border border-success' : ''}`}
               style={{
-                backgroundColor: '#1a252f',
+                backgroundColor: 'var(--mica-base, #202020)',
                 fontSize: '0.8rem',
                 maxHeight: '60px',
                 overflow: 'auto',
@@ -220,8 +220,8 @@ export const RescrapeModal: React.FC<RescrapeModalProps> = ({
       onClick={(e) => e.target === e.currentTarget && onClose()}
     >
       <div className="modal-dialog modal-lg modal-dialog-centered modal-dialog-scrollable">
-        <div className="modal-content bg-dark text-light" style={{ borderColor: '#394b59' }}>
-          <div className="modal-header" style={{ backgroundColor: '#243340', borderColor: '#394b59' }}>
+        <div className="modal-content bg-dark text-light" style={{ borderColor: 'var(--glass-border, rgba(255, 255, 255, 0.09))' }}>
+          <div className="modal-header" style={{ backgroundColor: 'var(--mica-elevated, #292929)', borderColor: 'var(--glass-border, rgba(255, 255, 255, 0.09))' }}>
             <h5 className="modal-title">
               Re-scrape Results
               <span className="badge bg-info ms-2" style={{ fontSize: '0.7rem' }}>{scraperName}</span>
@@ -233,7 +233,7 @@ export const RescrapeModal: React.FC<RescrapeModalProps> = ({
               aria-label="Close"
             />
           </div>
-          <div className="modal-body" style={{ backgroundColor: '#30404d', maxHeight: '70vh', overflowY: 'auto' }}>
+          <div className="modal-body" style={{ backgroundColor: 'var(--glass-bg, rgba(39, 39, 39, 0.90))', maxHeight: '70vh', overflowY: 'auto' }}>
             {isLoading ? (
               <div className="d-flex flex-column align-items-center justify-content-center py-5">
                 <div className="spinner-border text-info" role="status" aria-label="Loading"></div>
@@ -246,9 +246,9 @@ export const RescrapeModal: React.FC<RescrapeModalProps> = ({
             ) : newMetadata ? (
               <>
                 {/* Bulk actions */}
-                <div className="d-flex justify-content-between align-items-center mb-3 pb-2 border-bottom" style={{ borderColor: '#394b59' }}>
+                <div className="d-flex justify-content-between align-items-center mb-3 pb-2 border-bottom" style={{ borderColor: 'var(--glass-border, rgba(255, 255, 255, 0.09))' }}>
                   <div className="d-flex align-items-center gap-3">
-                    <span style={{ color: '#8b9fad', fontSize: '0.85rem' }}>
+                    <span style={{ color: 'var(--text-muted, rgba(255, 255, 255, 0.66))', fontSize: '0.85rem' }}>
                       Compare and select which values to keep:
                     </span>
                     <div className="form-check form-switch">
@@ -411,7 +411,7 @@ export const RescrapeModal: React.FC<RescrapeModalProps> = ({
               </div>
             )}
           </div>
-          <div className="modal-footer" style={{ backgroundColor: '#243340', borderColor: '#394b59' }}>
+          <div className="modal-footer" style={{ backgroundColor: 'var(--mica-elevated, #292929)', borderColor: 'var(--glass-border, rgba(255, 255, 255, 0.09))' }}>
             <button type="button" className="btn btn-outline-secondary" onClick={onClose}>
               Cancel
             </button>

@@ -65,7 +65,7 @@ export const URLInputForm: React.FC<URLInputFormProps> = ({
             id="url-input"
             type="text"
             className={`form-control text-light flex-grow-1 ${error ? 'is-invalid' : ''}`}
-            style={{ backgroundColor: '#243340', borderColor: '#394b59' }}
+            style={{ backgroundColor: 'var(--mica-elevated, #292929)', borderColor: 'var(--glass-border, rgba(255, 255, 255, 0.09))' }}
             placeholder="https://example.com/video.mp4"
             value={url}
             onChange={(e) => {
@@ -80,8 +80,8 @@ export const URLInputForm: React.FC<URLInputFormProps> = ({
           <select
             className="form-select text-light"
             style={{
-              backgroundColor: '#243340',
-              borderColor: '#394b59',
+              backgroundColor: 'var(--mica-elevated, #292929)',
+              borderColor: 'var(--glass-border, rgba(255, 255, 255, 0.09))',
               width: '140px',
               flexShrink: 0,
             }}
@@ -96,7 +96,7 @@ export const URLInputForm: React.FC<URLInputFormProps> = ({
             <option value={ContentType.Gallery}>Gallery</option>
           </select>
         </div>
-        <div className={error ? 'invalid-feedback d-block' : 'form-text'} style={{ color: error ? undefined : '#8b9fad' }}>
+        <div className={error ? 'invalid-feedback d-block' : 'form-text'} style={{ color: error ? undefined : 'var(--text-muted, rgba(255, 255, 255, 0.66))' }}>
           {error || 'Enter a URL from a supported site. Use the dropdown to specify content type.'}
         </div>
       </div>

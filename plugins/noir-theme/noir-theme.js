@@ -8593,15 +8593,19 @@
         }
     }
 
-    function removeNoirSpotlightDuplicate(recommendations, sceneId) {
-        if (!recommendations || !sceneId) { return; }
+    function removeNoirSpotlightDuplicates(recommendations, sceneIds) {
+        if (!recommendations || !sceneIds || !sceneIds.length) { return; }
         var row = recommendations.querySelector(".scene-recommendations");
         if (!row) { return; }
+        var featuredIds = {};
+        for (var f = 0; f < sceneIds.length; f++) {
+            if (sceneIds[f]) { featuredIds[String(sceneIds[f])] = true; }
+        }
         var cards = row.querySelectorAll(".scene-card");
         var remaining = 0;
         for (var i = 0; i < cards.length; i++) {
             var cardId = noirHomeSceneId(cards[i]);
-            var excluded = cardId === String(sceneId);
+            var excluded = !!featuredIds[String(cardId)];
             var slide = cards[i].closest(".slick-slide");
             if (excluded) {
                 (slide || cards[i]).classList.add("noir-home-spotlight-excluded");
@@ -8656,7 +8660,7 @@
         return hours ? hours + ":" + two(minutes) + ":" + two(seconds) : minutes + ":" + two(seconds);
     }
 
-    function fetchNoirSpotlightScene(visibleIds) {
+    function fetchNoirSpotlightScenes(visibleIds) {
         var query = "query NoirHomeSpotlight { findScenes(filter: { per_page: 50, sort: \"random\" }) { " +
             "scenes { id title date rating100 studio { name } performers { name } " +
             "files { basename duration width height } paths { screenshot } } } }";
@@ -8669,11 +8673,25 @@
             return response.json();
         }).then(function (result) {
             var scenes = result && result.data && result.data.findScenes && result.data.findScenes.scenes || [];
+            var featured = [];
+            var shelfFallbacks = [];
+            var seen = {};
             for (var i = 0; i < scenes.length; i++) {
-                if (scenes[i] && scenes[i].id && !visibleIds[String(scenes[i].id)]) { return scenes[i]; }
+                var scene = scenes[i];
+                var id = scene && scene.id ? String(scene.id) : "";
+                if (!id || seen[id]) { continue; }
+                var data = noirSpotlightSceneData(scene);
+                if (!data) { continue; }
+                seen[id] = true;
+                if (visibleIds[id]) { shelfFallbacks.push(data); }
+                else { featured.push(data); }
+                if (featured.length >= 5) { break; }
             }
-            return null;
-        }).catch(function () { return null; });
+            for (var j = 0; featured.length < 5 && j < shelfFallbacks.length; j++) {
+                featured.push(shelfFallbacks[j]);
+            }
+            return featured;
+        }).catch(function () { return []; });
     }
 
     function noirSpotlightSceneData(scene) {
@@ -8704,80 +8722,225 @@
         };
     }
 
-    function renderNoirHomeSpotlight(main, recommendations, data) {
-        if (!data) { return; }
-        var title = data.title || "Recently released video";
-        var signature = [data.id, title, data.href, data.image, data.metadata.join("|")].join("\u001f");
+    function renderNoirHomeSpotlight(main, recommendations, dataSet) {
+        dataSet = (dataSet || []).filter(Boolean).slice(0, 5);
+        if (!dataSet.length) { return; }
+        for (var d = 0; d < dataSet.length; d++) {
+            if (!dataSet[d].title) { dataSet[d].title = "Recently released video"; }
+            if (!Array.isArray(dataSet[d].metadata)) { dataSet[d].metadata = []; }
+        }
+        var signature = dataSet.map(function (data) {
+            return [data.id, data.title, data.href, data.image, data.metadata.join("|")].join("\u001f");
+        }).join("\u001e");
+        var featuredIds = dataSet.map(function (data) { return String(data.id || ""); }).filter(Boolean);
         var existing = document.querySelector(".noir-home-spotlight");
         if (existing && existing.getAttribute("data-signature") === signature) {
-            removeNoirSpotlightDuplicate(recommendations, data.id);
+            removeNoirSpotlightDuplicates(recommendations, featuredIds);
             return;
         }
         if (existing && existing.parentNode) { existing.parentNode.removeChild(existing); }
 
         var hero = document.createElement("section");
         hero.className = "noir-home-spotlight";
-        hero.setAttribute("aria-labelledby", "noir-home-spotlight-title");
+        hero.setAttribute("aria-roledescription", "carousel");
+        hero.setAttribute("aria-label", "Featured videos from your library");
         hero.setAttribute("data-signature", signature);
-        hero.setAttribute("data-scene-id", data.id || "");
+        hero.setAttribute("data-scene-ids", featuredIds.join(","));
 
-        if (data.image) {
-            var heroImage = document.createElement("img");
-            heroImage.className = "noir-home-spotlight__image";
-            heroImage.src = data.image;
-            heroImage.alt = "";
-            heroImage.setAttribute("aria-hidden", "true");
-            heroImage.setAttribute("fetchpriority", "high");
-            hero.appendChild(heroImage);
+        var slides = document.createElement("div");
+        slides.className = "noir-home-spotlight__slides";
+        var slideNodes = [];
+        var indicatorButtons = [];
+        for (var i = 0; i < dataSet.length; i++) {
+            var data = dataSet[i];
+            var title = data.title;
+            var slide = document.createElement("article");
+            slide.id = "noir-home-spotlight-slide-" + (i + 1);
+            slide.className = "noir-home-spotlight__slide" + (i === 0 ? " is-active" : "");
+            slide.setAttribute("role", "group");
+            slide.setAttribute("aria-roledescription", "slide");
+            slide.setAttribute("aria-label", (i + 1) + " of " + dataSet.length);
+            if (i > 0) {
+                slide.setAttribute("aria-hidden", "true");
+                slide.setAttribute("inert", "");
+            }
+            slide.setAttribute("data-scene-id", data.id || "");
+
+            if (data.image) {
+                var heroImage = document.createElement("img");
+                heroImage.className = "noir-home-spotlight__image";
+                heroImage.src = data.image;
+                heroImage.alt = "";
+                heroImage.setAttribute("aria-hidden", "true");
+                if (i === 0) { heroImage.setAttribute("fetchpriority", "high"); }
+                else { heroImage.setAttribute("loading", "lazy"); }
+                slide.appendChild(heroImage);
+            }
+
+            var content = document.createElement("div");
+            content.className = "noir-home-spotlight__content";
+            var eyebrow = document.createElement("div");
+            eyebrow.className = "noir-home-spotlight__eyebrow";
+            eyebrow.textContent = "Featured from your library";
+            var heading = document.createElement("h1");
+            heading.id = "noir-home-spotlight-title-" + (i + 1);
+            heading.textContent = title;
+            var meta = document.createElement("div");
+            meta.className = "noir-home-spotlight__meta";
+            for (var m = 0; m < data.metadata.length; m++) {
+                var chip = document.createElement("span");
+                chip.textContent = data.metadata[m];
+                meta.appendChild(chip);
+            }
+
+            var actions = document.createElement("div");
+            actions.className = "noir-home-spotlight__actions";
+            var primary = document.createElement("a");
+            primary.className = "primary";
+            primary.href = data.href || "/scenes";
+            primary.setAttribute("aria-label", "Open scene: " + title);
+            var playIcon = document.createElementNS("http://www.w3.org/2000/svg", "svg");
+            playIcon.setAttribute("viewBox", "0 0 24 24");
+            playIcon.setAttribute("width", "16");
+            playIcon.setAttribute("height", "16");
+            playIcon.setAttribute("aria-hidden", "true");
+            var playPath = document.createElementNS("http://www.w3.org/2000/svg", "path");
+            playPath.setAttribute("d", "M8 5.8c0-.8.9-1.3 1.6-.9l9.1 6.2a1.1 1.1 0 0 1 0 1.8l-9.1 6.2c-.7.5-1.6 0-1.6-.9V5.8Z");
+            playPath.setAttribute("fill", "currentColor");
+            playIcon.appendChild(playPath);
+            primary.appendChild(playIcon);
+            primary.appendChild(document.createTextNode("Open scene"));
+            var browse = document.createElement("a");
+            browse.className = "secondary";
+            browse.href = "/scenes";
+            browse.textContent = "Browse all scenes";
+            actions.appendChild(primary);
+            actions.appendChild(browse);
+
+            content.appendChild(eyebrow);
+            content.appendChild(heading);
+            if (data.metadata.length) { content.appendChild(meta); }
+            content.appendChild(actions);
+            slide.appendChild(content);
+            slides.appendChild(slide);
+            slideNodes.push(slide);
         }
+        hero.setAttribute("aria-labelledby", "noir-home-spotlight-title-1");
+        hero.appendChild(slides);
 
-        var content = document.createElement("div");
-        content.className = "noir-home-spotlight__content";
-        var eyebrow = document.createElement("div");
-        eyebrow.className = "noir-home-spotlight__eyebrow";
-        eyebrow.textContent = "Featured from your library";
-        var heading = document.createElement("h1");
-        heading.id = "noir-home-spotlight-title";
-        heading.textContent = title;
-        var meta = document.createElement("div");
-        meta.className = "noir-home-spotlight__meta";
-        for (var m = 0; m < data.metadata.length; m++) {
-            var chip = document.createElement("span");
-            chip.textContent = data.metadata[m];
-            meta.appendChild(chip);
+        if (dataSet.length > 1) {
+            var controls = document.createElement("div");
+            controls.className = "noir-home-spotlight__controls";
+            controls.setAttribute("role", "group");
+            controls.setAttribute("aria-label", "Featured video controls");
+            var indicators = document.createElement("div");
+            indicators.className = "noir-home-spotlight__indicators";
+            indicators.setAttribute("role", "group");
+            indicators.setAttribute("aria-label", "Choose a featured video");
+            var count = document.createElement("span");
+            count.className = "noir-home-spotlight__count";
+            count.setAttribute("aria-live", "polite");
+            count.setAttribute("aria-atomic", "true");
+
+            function makeArrow(direction, path) {
+                var button = document.createElement("button");
+                button.type = "button";
+                button.className = "noir-home-spotlight__arrow noir-home-spotlight__arrow--" + direction;
+                button.setAttribute("aria-label", direction === "prev" ? "Previous featured video" : "Next featured video");
+                var icon = document.createElementNS("http://www.w3.org/2000/svg", "svg");
+                icon.setAttribute("viewBox", "0 0 24 24");
+                icon.setAttribute("width", "18");
+                icon.setAttribute("height", "18");
+                icon.setAttribute("aria-hidden", "true");
+                var chevron = document.createElementNS("http://www.w3.org/2000/svg", "path");
+                chevron.setAttribute("d", path);
+                chevron.setAttribute("fill", "none");
+                chevron.setAttribute("stroke", "currentColor");
+                chevron.setAttribute("stroke-width", "2");
+                chevron.setAttribute("stroke-linecap", "round");
+                chevron.setAttribute("stroke-linejoin", "round");
+                icon.appendChild(chevron);
+                button.appendChild(icon);
+                return button;
+            }
+
+            function activateSlide(nextIndex) {
+                var activeIndex = (nextIndex + dataSet.length) % dataSet.length;
+                for (var s = 0; s < slideNodes.length; s++) {
+                    var isActive = s === activeIndex;
+                    slideNodes[s].classList.toggle("is-active", isActive);
+                    slideNodes[s].setAttribute("aria-hidden", isActive ? "false" : "true");
+                    if (isActive) { slideNodes[s].removeAttribute("inert"); }
+                    else { slideNodes[s].setAttribute("inert", ""); }
+                    if (indicatorButtons[s]) {
+                        indicatorButtons[s].setAttribute("aria-current", isActive ? "true" : "false");
+                    }
+                }
+                hero.setAttribute("aria-labelledby", "noir-home-spotlight-title-" + (activeIndex + 1));
+                hero.setAttribute("data-scene-id", dataSet[activeIndex].id || "");
+                count.textContent = (activeIndex + 1) + " / " + dataSet.length;
+            }
+
+            var previous = makeArrow("prev", "M15 18l-6-6 6-6");
+            var next = makeArrow("next", "M9 18l6-6-6-6");
+            previous.addEventListener("click", function () {
+                var active = 0;
+                for (var s = 0; s < slideNodes.length; s++) {
+                    if (slideNodes[s].classList.contains("is-active")) { active = s; break; }
+                }
+                activateSlide(active - 1);
+            });
+            next.addEventListener("click", function () {
+                var active = 0;
+                for (var s = 0; s < slideNodes.length; s++) {
+                    if (slideNodes[s].classList.contains("is-active")) { active = s; break; }
+                }
+                activateSlide(active + 1);
+            });
+
+            for (var dotIndex = 0; dotIndex < dataSet.length; dotIndex++) {
+                var dot = document.createElement("button");
+                dot.type = "button";
+                dot.className = "noir-home-spotlight__indicator";
+                dot.setAttribute("aria-label", "Show featured video " + (dotIndex + 1) + ": " + dataSet[dotIndex].title);
+                dot.setAttribute("aria-controls", slideNodes[dotIndex].id);
+                dot.setAttribute("aria-current", dotIndex === 0 ? "true" : "false");
+                dot.addEventListener("click", (function (index) {
+                    return function () { activateSlide(index); };
+                }(dotIndex)));
+                var dotVisual = document.createElement("span");
+                dotVisual.setAttribute("aria-hidden", "true");
+                dot.appendChild(dotVisual);
+                indicators.appendChild(dot);
+                indicatorButtons.push(dot);
+            }
+
+            controls.appendChild(previous);
+            controls.appendChild(indicators);
+            controls.appendChild(count);
+            controls.appendChild(next);
+            hero.appendChild(controls);
+            var touchStartX = null;
+            slides.addEventListener("touchstart", function (event) {
+                touchStartX = event.changedTouches && event.changedTouches.length ? event.changedTouches[0].clientX : null;
+            }, { passive: true });
+            slides.addEventListener("touchend", function (event) {
+                if (touchStartX === null || !event.changedTouches || !event.changedTouches.length) { return; }
+                var distance = event.changedTouches[0].clientX - touchStartX;
+                touchStartX = null;
+                if (Math.abs(distance) < 48) { return; }
+                var active = 0;
+                for (var s = 0; s < slideNodes.length; s++) {
+                    if (slideNodes[s].classList.contains("is-active")) { active = s; break; }
+                }
+                activateSlide(active + (distance < 0 ? 1 : -1));
+            }, { passive: true });
+            activateSlide(0);
+        } else {
+            hero.setAttribute("data-scene-id", dataSet[0].id || "");
         }
-
-        var actions = document.createElement("div");
-        actions.className = "noir-home-spotlight__actions";
-        var primary = document.createElement("a");
-        primary.className = "primary";
-        primary.href = data.href || "/scenes";
-        primary.setAttribute("aria-label", "Open scene: " + title);
-        var playIcon = document.createElementNS("http://www.w3.org/2000/svg", "svg");
-        playIcon.setAttribute("viewBox", "0 0 24 24");
-        playIcon.setAttribute("width", "16");
-        playIcon.setAttribute("height", "16");
-        playIcon.setAttribute("aria-hidden", "true");
-        var playPath = document.createElementNS("http://www.w3.org/2000/svg", "path");
-        playPath.setAttribute("d", "M8 5.8c0-.8.9-1.3 1.6-.9l9.1 6.2a1.1 1.1 0 0 1 0 1.8l-9.1 6.2c-.7.5-1.6 0-1.6-.9V5.8Z");
-        playPath.setAttribute("fill", "currentColor");
-        playIcon.appendChild(playPath);
-        primary.appendChild(playIcon);
-        primary.appendChild(document.createTextNode("Open scene"));
-        var browse = document.createElement("a");
-        browse.className = "secondary";
-        browse.href = "/scenes";
-        browse.textContent = "Browse all scenes";
-        actions.appendChild(primary);
-        actions.appendChild(browse);
-
-        content.appendChild(eyebrow);
-        content.appendChild(heading);
-        if (data.metadata.length) { content.appendChild(meta); }
-        content.appendChild(actions);
-        hero.appendChild(content);
         main.insertBefore(hero, recommendations);
-        removeNoirSpotlightDuplicate(recommendations, data.id);
+        removeNoirSpotlightDuplicates(recommendations, featuredIds);
     }
 
     function initNoirHomeSpotlight() {
@@ -8812,7 +8975,7 @@
         }
 
         if (existing) {
-            removeNoirSpotlightDuplicate(recommendations, existing.getAttribute("data-scene-id") || "");
+            removeNoirSpotlightDuplicates(recommendations, (existing.getAttribute("data-scene-ids") || "").split(","));
             return;
         }
         if (noirHomeSpotlightPending) { return; }
@@ -8827,13 +8990,22 @@
 
         var requestId = ++noirHomeSpotlightRequest;
         noirHomeSpotlightPending = requestId;
-        fetchNoirSpotlightScene(visibleIds).then(function (scene) {
+        fetchNoirSpotlightScenes(visibleIds).then(function (scenes) {
             if (noirHomeSpotlightPending === requestId) { noirHomeSpotlightPending = 0; }
             if (requestId !== noirHomeSpotlightRequest ||
                     (window.location.pathname || "/").replace(/\/+$/, "") !== "" ||
                     !document.documentElement.contains(recommendations) ||
                     recommendations.classList.contains("recommendations-container-edit")) { return; }
-            renderNoirHomeSpotlight(main, recommendations, noirSpotlightSceneData(scene) || fallbackData);
+            var featured = scenes || [];
+            var included = {};
+            for (var i = 0; i < featured.length; i++) {
+                if (featured[i].id) { included[String(featured[i].id)] = true; }
+            }
+            if (fallbackData && featured.length < 5 && (!fallbackData.id || !included[String(fallbackData.id)])) {
+                featured.push(fallbackData);
+            }
+            if (!featured.length && fallbackData) { featured.push(fallbackData); }
+            renderNoirHomeSpotlight(main, recommendations, featured);
         });
     }
 

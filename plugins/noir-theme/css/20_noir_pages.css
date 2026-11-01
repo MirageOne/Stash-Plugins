@@ -4,14 +4,13 @@
    sections the larger editorial hierarchy shown in the Noir mockup.
    ─────────────────────────────────────────────────────────────────── */
 
-/* Home spotlight is built from the first native scene card. The card's
-   screenshot and destination stay linked to Stash, while this wide hero
-   gives the newest video the visual priority of a streaming home page. */
+/* The home spotlight rotates through library scenes outside the visible
+   recommendation shelves. Each scene keeps its screenshot, metadata, and
+   destination linked to Stash. */
 body.stash-noir-theme .noir-home-spotlight {
     position: relative;
     isolation: isolate;
-    display: flex;
-    align-items: flex-end;
+    display: block;
     min-height: clamp(330px, 37vw, 470px);
     margin: 8px 0 2rem;
     border: 1px solid rgba(var(--accent-rgb), 0.25);
@@ -25,10 +24,36 @@ body.stash-noir-theme .noir-home-spotlight {
         0 0 54px -28px rgba(var(--accent-rgb), 0.65);
 }
 
+body.stash-noir-theme .noir-home-spotlight__slides {
+    position: absolute;
+    inset: 0;
+    z-index: 0;
+}
+
+body.stash-noir-theme .noir-home-spotlight__slide {
+    position: absolute;
+    inset: 0;
+    display: flex;
+    align-items: flex-end;
+    opacity: 0;
+    visibility: hidden;
+    transform: translateX(12px);
+    pointer-events: none;
+    transition: opacity 260ms ease, transform 260ms ease, visibility 260ms;
+}
+
+body.stash-noir-theme .noir-home-spotlight__slide.is-active {
+    z-index: 1;
+    opacity: 1;
+    visibility: visible;
+    transform: translateX(0);
+    pointer-events: auto;
+}
+
 body.stash-noir-theme .noir-home-spotlight__image {
     position: absolute;
     inset: 0;
-    z-index: -2;
+    z-index: 0;
     width: 100%;
     height: 100%;
     object-fit: cover;
@@ -37,11 +62,11 @@ body.stash-noir-theme .noir-home-spotlight__image {
     filter: saturate(0.8);
 }
 
-body.stash-noir-theme .noir-home-spotlight::after {
+body.stash-noir-theme .noir-home-spotlight__slide::after {
     content: "";
     position: absolute;
     inset: 0;
-    z-index: -1;
+    z-index: 1;
     pointer-events: none;
     background:
         linear-gradient(90deg,
@@ -54,6 +79,7 @@ body.stash-noir-theme .noir-home-spotlight::after {
 
 body.stash-noir-theme .noir-home-spotlight__content {
     position: relative;
+    z-index: 2;
     max-width: 760px;
     padding: clamp(24px, 4vw, 52px);
     color: #fff;
@@ -146,6 +172,91 @@ body.stash-noir-theme .noir-home-spotlight__actions a:hover {
     transform: translateY(-1px);
 }
 
+body.stash-noir-theme .noir-home-spotlight__controls {
+    position: absolute;
+    z-index: 3;
+    right: 24px;
+    bottom: 22px;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    padding: 6px;
+    border: 1px solid rgba(255, 255, 255, 0.14);
+    border-radius: 999px;
+    background: rgba(12, 13, 16, 0.55);
+    -webkit-backdrop-filter: var(--glass-blur-sm);
+    backdrop-filter: var(--glass-blur-sm);
+}
+
+body.stash-noir-theme .noir-home-spotlight__arrow {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    flex: 0 0 36px;
+    width: 36px;
+    height: 36px;
+    padding: 0;
+    border: 1px solid rgba(255, 255, 255, 0.1);
+    border-radius: 50%;
+    color: #fff;
+    background: rgba(255, 255, 255, 0.08);
+    cursor: pointer;
+    transition: color 0.15s ease, background 0.15s ease, border-color 0.15s ease;
+}
+
+body.stash-noir-theme .noir-home-spotlight__arrow:hover,
+body.stash-noir-theme .noir-home-spotlight__arrow:focus-visible {
+    border-color: rgba(var(--accent-rgb), 0.6);
+    color: #fff;
+    background: var(--accent);
+}
+
+body.stash-noir-theme .noir-home-spotlight__indicators {
+    display: flex;
+    align-items: center;
+    gap: 2px;
+}
+
+body.stash-noir-theme .noir-home-spotlight__indicator {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    width: 20px;
+    height: 32px;
+    padding: 0;
+    border: 0;
+    background: transparent;
+    cursor: pointer;
+}
+
+body.stash-noir-theme .noir-home-spotlight__indicator span {
+    display: block;
+    width: 6px;
+    height: 6px;
+    border-radius: 999px;
+    background: rgba(255, 255, 255, 0.48);
+    transition: width 0.18s ease, background 0.18s ease;
+}
+
+body.stash-noir-theme .noir-home-spotlight__indicator[aria-current="true"] span {
+    width: 16px;
+    background: var(--accent-bright);
+}
+
+body.stash-noir-theme .noir-home-spotlight__indicator:focus-visible {
+    outline: 2px solid var(--accent-bright);
+    outline-offset: 1px;
+    border-radius: 999px;
+}
+
+body.stash-noir-theme .noir-home-spotlight__count {
+    min-width: 34px;
+    color: rgba(255, 255, 255, 0.76);
+    font-size: 0.75rem;
+    font-variant-numeric: tabular-nums;
+    text-align: center;
+}
+
 /* Streaming-service scale section labels make the native, user-configured
    recommendation rows read as distinct shelves beneath the spotlight. */
 body.stash-noir-theme .recommendation-row-head h2 {
@@ -156,9 +267,9 @@ body.stash-noir-theme .recommendation-row-head h2 {
     text-transform: none !important;
 }
 
-/* The hero replaces its own card in the first scene shelf. Keep the
-   remaining carousel slides in place; only the duplicate slide collapses
-   to zero width, so the native arrows and card actions remain available. */
+/* The spotlight replaces matching cards in the first scene shelf. Keep the
+   remaining native carousel slides in place; only featured duplicates
+   collapse to zero width, leaving Stash's arrows and card actions intact. */
 body.stash-noir-theme .recommendations-container .scene-recommendations .slick-slide.noir-home-spotlight-excluded {
     flex: 0 0 0 !important;
     width: 0 !important;
@@ -511,7 +622,7 @@ body.stash-noir-theme .sidebar-pane-content > .row.justify-content-center {
         opacity: 0.52;
     }
 
-    body.stash-noir-theme .noir-home-spotlight::after {
+    body.stash-noir-theme .noir-home-spotlight__slide::after {
         background:
             linear-gradient(0deg,
                 rgba(12, 13, 16, 0.97) 0%,
@@ -521,7 +632,7 @@ body.stash-noir-theme .sidebar-pane-content > .row.justify-content-center {
     }
 
     body.stash-noir-theme .noir-home-spotlight__content {
-        padding: 20px 18px 22px;
+        padding: 20px 18px 78px;
     }
 
     body.stash-noir-theme .noir-home-spotlight h1 {
@@ -543,10 +654,26 @@ body.stash-noir-theme .sidebar-pane-content > .row.justify-content-center {
         padding: 0 14px;
         font-size: 0.9rem;
     }
+
+    body.stash-noir-theme .noir-home-spotlight__controls {
+        right: 12px;
+        bottom: 12px;
+        gap: 5px;
+        padding: 4px;
+    }
+
+    body.stash-noir-theme .noir-home-spotlight__arrow {
+        flex-basis: 34px;
+        width: 34px;
+        height: 34px;
+    }
 }
 
 @media (prefers-reduced-motion: reduce) {
-    body.stash-noir-theme .noir-home-spotlight__actions a {
+    body.stash-noir-theme .noir-home-spotlight__actions a,
+    body.stash-noir-theme .noir-home-spotlight__slide,
+    body.stash-noir-theme .noir-home-spotlight__indicator span,
+    body.stash-noir-theme .noir-home-spotlight__arrow {
         transition: none;
     }
 }

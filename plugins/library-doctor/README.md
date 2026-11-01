@@ -1,8 +1,14 @@
 # Library Doctor
 
-Library Doctor checks scene records for common metadata and generated-file gaps. It adds an icon beside the right-side utility controls in Stash's navigation and opens a responsive dashboard.
+Library Doctor checks scene records for common metadata, generated-file, and encoding details. It adds an icon beside the right-side utility controls in Stash's navigation and opens a responsive dashboard.
 
-Library Doctor has four workspaces: **Health Check**, **Metadata Assistant**, **Duplicate & Version Review**, and **Scrape & Auto-Tag**. Health Check scans for missing file references, titles, dates, performers, studios, tags, screenshots, and previews; scenes marked unorganized; and repeated titles that may deserve review.
+Library Doctor has five workspaces: **Health Check**, **Encoding Auditor**, **Metadata Assistant**, **Duplicate & Version Review**, and **Scrape & Auto-Tag**. Health Check scans for missing file references, titles, dates, performers, studios, tags, screenshots, and previews; scenes marked unorganized; repeated titles; and video details used by Encoding Auditor.
+
+**Encoding Auditor** lists the scene's video codec, audio codec, resolution, format, frame rate, bitrate, duration, and size. Search by scene title or filename, choose a video, and submit an FFmpeg job to Stash. Presets include H.264 compatibility (CRF 22, AAC 192 kb/s), higher-quality H.264 (CRF 18, slow), space-saving H.265 (CRF 28), and higher-quality H.265 (CRF 23, slow). **Custom settings** let you choose H.264 or H.265, CRF 16–35, fast/medium/slow encoding, a maximum resolution, audio copy or AAC bitrate, and MKV or MP4 output.
+
+The default writes a new file under Stash's configured metadata directory at `LibraryDoctor/Reencoded/`; the original stays in place. To replace an original, enable the explicit replacement option. Library Doctor supports in-place replacement only when the source and selected container are both MP4 or both MKV. It verifies the temporary output with FFprobe, copies the original to `LibraryDoctor/Backups/`, atomically installs the new file, then queues a Stash metadata refresh. Check available disk space before replacing a large file. New-copy output is not added to a scene automatically. Lower CRF targets higher quality and usually creates a larger file; encoding does not guarantee a smaller output, so review the result before using it.
+
+Re-encoding requires Stash's configured Python 3.8 or newer and working FFmpeg/FFprobe binaries available through Stash's configured paths, the server PATH, or the config directory. The selected video codec must be supported by that FFmpeg build (`libx264` for H.264 or `libx265` for H.265).
 
 Run a scan to see counts, filter findings, search by scene title, studio, performer, or issue, and export flagged scenes to CSV. The **Metadata Assistant** proposes missing titles and dates from scene filenames and lists scenes without tags. For missing tags, select one or more existing Stash tags in the guided fix dialog. Title and date suggestions remain editable and are never applied automatically. Each finding links to its scene in Stash. Before applying a selected title, date, or tags, Library Doctor shows a before-and-after preview and checks that text fields have not changed since the scan. **Undo last fix** restores the previous values if they have not changed since; the latest 20 fixes can be undone during the current dashboard session.
 
@@ -10,6 +16,6 @@ Run a scan to see counts, filter findings, search by scene title, studio, perfor
 
 **Duplicate & Version Review** groups scenes with matching normalized titles, compares their studio, date, performers, duration, and file size, and labels possible copies or alternate encodes for review. Matching titles alone do not prove two scenes are duplicates. Marking a group reviewed is saved in the current browser; Library Doctor does not delete, merge, or reorganize scenes.
 
-Install from the repository source in the root README or download [the 1.5.1 manual archive](../../packages/library-doctor/1.5.1-manual.zip) and extract the `library-doctor/` directory into Stash's configured plugins directory. Enable the plugin in **Settings → Plugins**. Reload the plugin page after updating so its versioned assets load.
+Install from the repository source in the root README or download [the 1.6.0 manual archive](../../packages/library-doctor/1.6.0-manual.zip) and extract the `library-doctor/` directory into Stash's configured plugins directory. Enable the plugin in **Settings → Plugins**. Reload the plugin page after updating so its versioned assets load.
 
 The dashboard uses the Fluent accent selected in Fluent Mica when available and falls back to Fluent blue.

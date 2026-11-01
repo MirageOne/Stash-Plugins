@@ -255,6 +255,32 @@ h1, h2, p { margin-top: 0; }
 .ld-duplicate-scenes li { display: grid; grid-template-columns: minmax(0,1fr) auto; align-items: center; gap: 10px; padding: 9px 10px; border: 1px solid rgba(255,255,255,0.055); border-radius: 8px; background: rgba(255,255,255,0.018); }
 .ld-duplicate-scenes li > div { display: grid; min-width: 0; gap: 3px; }
 .ld-duplicate-scenes strong { color: var(--ld-text); font-size: 0.78rem; overflow-wrap: anywhere; }
+.ld-encoding-workspace { display: grid; gap: 14px; }
+.ld-encoding-workspace .ld-module-heading { margin-bottom: 1px; }
+.ld-encoding-summary { display: grid; gap: 5px; padding: 13px 15px; border: 1px solid color-mix(in srgb, var(--ld-accent), transparent 78%); border-radius: 10px; background: var(--ld-accent-soft); }
+.ld-encoding-summary strong { color: var(--ld-text); font-size: 0.82rem; }
+.ld-encoding-summary span { color: var(--ld-muted); font-size: 0.72rem; line-height: 1.45; }
+.ld-encoding-card { display: grid; gap: 15px; padding: 16px; border: 1px solid var(--ld-border); border-radius: 12px; background: linear-gradient(145deg, rgba(255,255,255,0.035), rgba(255,255,255,0.008)), var(--ld-surface); }
+.ld-encoding-fields { display: grid; grid-template-columns: minmax(180px, 1.1fr) minmax(230px, 1.5fr) repeat(2, minmax(150px, 1fr)); gap: 11px; }
+.ld-encoding-custom { display: grid; grid-template-columns: repeat(5, minmax(120px, 1fr)); gap: 11px; padding-top: 14px; border-top: 1px solid var(--ld-border); }
+.ld-encoding-field { display: grid; min-width: 0; gap: 6px; color: var(--ld-subtle); font-size: 0.68rem; font-weight: 700; letter-spacing: 0.04em; text-transform: uppercase; }
+.ld-encoding-field select, .ld-encoding-field input { width: 100%; min-width: 0; min-height: 40px; padding: 0 10px; border: 1px solid var(--ld-border-strong); border-radius: 8px; outline: 0; background: #202024; color: var(--ld-text); font: inherit; font-size: 0.78rem; letter-spacing: normal; text-transform: none; }
+.ld-encoding-field select:focus, .ld-encoding-field input:focus { border-color: var(--ld-accent); box-shadow: 0 0 0 3px var(--ld-accent-soft); }
+.ld-encoding-field :disabled { opacity: 0.6; }
+.ld-encoding-replace { display: flex; align-items: center; gap: 9px; color: var(--ld-muted); font-size: 0.76rem; line-height: 1.4; cursor: pointer; }
+.ld-encoding-replace input { width: 16px; height: 16px; margin: 0; accent-color: var(--ld-accent); }
+.ld-encoding-preview { margin: 0; color: var(--ld-subtle); font-size: 0.72rem; line-height: 1.45; }
+.ld-encoding-actions { display: flex; align-items: center; flex-wrap: wrap; gap: 12px; }
+.ld-encoding-actions > span { color: var(--ld-subtle); font-size: 0.69rem; }
+.ld-encoding-job { display: grid; gap: 10px; padding: 14px 15px; border: 1px solid var(--ld-border); border-radius: 10px; background: var(--ld-surface); }
+.ld-encoding-job-heading { display: flex; align-items: center; justify-content: space-between; gap: 10px; font-size: 0.78rem; }
+.ld-encoding-job-heading > span { color: var(--ld-accent); font-size: 0.7rem; white-space: nowrap; }
+.ld-encoding-job p { margin: 0; color: var(--ld-muted); font-size: 0.72rem; line-height: 1.45; overflow-wrap: anywhere; }
+.ld-encoding-list { display: grid; gap: 8px; }
+.ld-encoding-file-card { display: grid; gap: 5px; min-width: 0; padding: 11px 13px; border: 1px solid var(--ld-border); border-radius: 9px; background: rgba(255,255,255,0.018); }
+.ld-encoding-file-card strong { color: var(--ld-text); font-size: 0.78rem; overflow-wrap: anywhere; }
+.ld-encoding-file-path { color: var(--ld-subtle); font-size: 0.67rem; overflow-wrap: anywhere; }
+.ld-encoding-file-details { color: var(--ld-muted); font-size: 0.69rem; }
 .ld-duplicate-meta, .ld-duplicate-file { color: var(--ld-subtle); font-size: 0.68rem; line-height: 1.4; overflow-wrap: anywhere; }
 .ld-duplicate-file { color: var(--ld-muted); }
 .ld-duplicate-scenes .ld-open-scene { flex: 0 0 auto; }
@@ -338,6 +364,8 @@ h1, h2, p { margin-top: 0; }
     .ld-filters { padding: 0 16px 13px; }
     .ld-table th:first-child, .ld-table td:first-child { padding-left: 16px; }
     .ld-table th:last-child, .ld-table td:last-child { padding-right: 16px; }
+    .ld-encoding-fields { grid-template-columns: repeat(2, minmax(0,1fr)); }
+    .ld-encoding-custom { grid-template-columns: repeat(3, minmax(0,1fr)); }
 }
 @media (max-width: 620px) {
     .ld-shell { width: calc(100% - 24px); }
@@ -397,6 +425,11 @@ h1, h2, p { margin-top: 0; }
     .ld-duplicate-header .ld-button { align-self: flex-start; }
     .ld-duplicate-scenes li { align-items: flex-start; grid-template-columns: minmax(0,1fr); }
     .ld-duplicate-scenes .ld-open-scene { padding: 3px 0 0; }
+    .ld-encoding-card { padding: 13px; }
+    .ld-encoding-fields, .ld-encoding-custom { grid-template-columns: minmax(0,1fr); }
+    .ld-encoding-actions { align-items: flex-start; flex-direction: column; }
+    .ld-encoding-actions .ld-button { width: 100%; }
+    .ld-encoding-job-heading { align-items: flex-start; flex-direction: column; gap: 4px; }
 }
 @media (prefers-reduced-motion: reduce) {
     *, *::before, *::after { scroll-behavior: auto !important; transition-duration: 0.01ms !important; animation-duration: 0.01ms !important; animation-iteration-count: 1 !important; }

@@ -14,8 +14,11 @@
     var TAG_CREATE_MUTATION = "mutation LibraryDoctorCreateTag($input: TagCreateInput!) { tagCreate(input: $input) { id name aliases } }";
     var QUERY = "query LibraryDoctorScenes($page: Int!, $perPage: Int!) { " +
         "findScenes(filter: { page: $page, per_page: $perPage, sort: \"title\", direction: ASC }) { " +
-        "count scenes { id title date organized files { id path size duration } " +
+        "count scenes { id title date organized files { id path size duration ... on VideoFile { format width height video_codec audio_codec frame_rate bit_rate } } " +
         "paths { screenshot preview } studio { id name } performers { id name } tags { id name } } } }";
+    var RUN_ENCODING_TASK = "mutation LibraryDoctorReencode($args: Map!) { runPluginTask(plugin_id: \"library-doctor\", task_name: \"Re-encode scene file\", args_map: $args) }";
+    var FIND_JOB_QUERY = "query LibraryDoctorEncodingJob($input: FindJobInput!) { findJob(input: $input) { id status progress error subTasks } }";
+    var ENCODING_CONFIG_QUERY = "query LibraryDoctorEncodingConfig { configuration { general { metadataPath } } }";
     var CATEGORY_ORDER = ["files", "metadata", "generated", "organization", "review"];
     var CATEGORY_LABELS = {
         files: "File reference",
@@ -48,6 +51,17 @@
     var scrapeAttempted = Object.create(null);
     var scrapeStats = { total: 0, processed: 0, exact: 0, applied: 0, review: 0, noMatch: 0, errors: 0, tagsAdded: 0, tagsCreated: 0 };
     var scrapeBusy = false;
+    var encodingFiles = [];
+    var encodingFilesForResults = null;
+    var encodingBusy = false;
+    var encodingJobTimer = null;
+    var encodingMetadataPath = "";
+    var encodingSettings = {
+        h264_compat: { codec: "libx264", crf: 22, speed: "medium", height: 0, audio: "aac192" },
+        h264_quality: { codec: "libx264", crf: 18, speed: "slow", height: 0, audio: "copy" },
+        hevc_saver: { codec: "libx265", crf: 28, speed: "medium", height: 0, audio: "copy" },
+        hevc_quality: { codec: "libx265", crf: 23, speed: "slow", height: 0, audio: "copy" }
+    };
     var els = {};
 
     var ACCENTS = {
@@ -505,7 +519,249 @@
         }).length.toLocaleString();
         els.duplicatesTabCount.textContent = buildDuplicateGroups(results).length.toLocaleString();
         els.scrapeTabCount.textContent = results.filter(hasScrapeGaps).length.toLocaleString();
+        els.encodingTabCount.textContent = listEncodingFiles().length.toLocaleString();
+        if (currentWorkspace === "encoding") { renderEncodingAuditor(); }
         updateScrapeControls();
+    }
+
+    function listEncodingFiles() {
+        if (encodingFilesForResults === results) { return encodingFiles; }
+        encodingFiles = results.reduce(function (all, scene) {
+            (scene.files || []).forEach(function (file) {
+                if (file && file.id && file.path && Number(file.width) > 0 && Number(file.height) > 0) {
+                    all.push({
+                        id: String(file.id), sceneId: scene.id, title: scene.title || "Untitled scene",
+                        path: String(file.path), size: Number(file.size) || 0, duration: Number(file.duration) || 0,
+                        width: Number(file.width) || 0, height: Number(file.height) || 0,
+                        codec: String(file.video_codec || "unknown"), audio: String(file.audio_codec || "unknown"),
+                        format: String(file.format || "unknown"), frameRate: Number(file.frame_rate) || 0,
+                        bitRate: Number(file.bit_rate) || 0
+                    });
+                }
+            });
+            return all;
+        }, []);
+        encodingFilesForResults = results;
+        return encodingFiles;
+    }
+
+    function formatBytes(bytes) {
+        if (!bytes) { return "size unavailable"; }
+        var units = ["B", "KB", "MB", "GB", "TB"];
+        var value = bytes;
+        var index = 0;
+        while (value >= 1024 && index < units.length - 1) { value /= 1024; index += 1; }
+        return value.toFixed(index > 1 ? 1 : 0) + " " + units[index];
+    }
+
+    function fileName(path) { return String(path || "").split(/[\\/]/).pop() || String(path || ""); }
+
+    function fileExtension(path) {
+        var name = fileName(path);
+        var dot = name.lastIndexOf(".");
+        return dot > 0 && dot < name.length - 1 ? name.slice(dot + 1) : "mkv";
+    }
+
+    function fileStem(path) {
+        var name = fileName(path);
+        var dot = name.lastIndexOf(".");
+        return dot > 0 ? name.slice(0, dot) : name;
+    }
+
+    function encodingFileLabel(file) {
+        return file.title + " — " + fileName(file.path) + " · " + file.width + "×" + file.height + " · " + file.codec + " · " + formatBytes(file.size);
+    }
+
+    function currentEncodingSettings() {
+        var preset = els.encodingPreset.value;
+        if (encodingSettings[preset]) {
+            var selected = encodingSettings[preset];
+            return { codec: selected.codec, crf: selected.crf, speed: selected.speed, height: selected.height, audio: selected.audio };
+        }
+        return {
+            codec: els.encodingCodec.value,
+            crf: Number.isInteger(Number(els.encodingCrf.value)) ? Number(els.encodingCrf.value) : 23,
+            speed: els.encodingSpeed.value,
+            height: parseInt(els.encodingHeight.value, 10) || 0,
+            audio: els.encodingAudio.value
+        };
+    }
+
+    function describeEncodingSettings(settings) {
+        var codec = settings.codec === "libx265" ? "H.265 / HEVC" : "H.264";
+        var audio = settings.audio === "copy" ? "copy audio" : "AAC " + settings.audio.slice(3) + " kb/s";
+        var height = settings.height ? "up to " + settings.height + "p" : "keep source resolution";
+        return codec + " · CRF " + settings.crf + " · " + settings.speed + " speed · " + audio + " · " + height;
+    }
+
+    function updateEncodingControls() {
+        var custom = els.encodingPreset.value === "custom";
+        els.encodingCustom.hidden = !custom;
+        els.encodingFile.disabled = encodingBusy || !els.encodingFile.options.length;
+        [els.encodingPreset, els.encodingContainer, els.encodingCodec, els.encodingCrf, els.encodingSpeed, els.encodingHeight, els.encodingAudio, els.encodingReplace].forEach(function (control) { control.disabled = encodingBusy; });
+        els.encodingRun.disabled = encodingBusy || !els.encodingFile.value || !!scanController;
+        els.encodingRun.textContent = encodingBusy ? "Re-encoding…" : "Run re-encode";
+        els.encodingPreview.textContent = describeEncodingSettings(currentEncodingSettings()) + " · " + els.encodingContainer.value.toUpperCase();
+    }
+
+    function renderEncodingAuditor() {
+        if (!els.encodingFile) { return; }
+        encodingFiles = listEncodingFiles();
+        var query = String(els.encodingSearch.value || "").trim().toLocaleLowerCase();
+        var filteredFiles = query ? encodingFiles.filter(function (file) {
+            return (file.title + " " + file.path + " " + file.codec + " " + file.audio).toLocaleLowerCase().indexOf(query) !== -1;
+        }) : encodingFiles;
+        var previous = els.encodingFile.value;
+        var visibleFiles = filteredFiles.slice(0, 100);
+        var options = visibleFiles.map(function (file) {
+            var option = document.createElement("option");
+            option.value = file.id;
+            option.textContent = encodingFileLabel(file);
+            return option;
+        });
+        els.encodingFile.replaceChildren.apply(els.encodingFile, options);
+        if (visibleFiles.some(function (file) { return file.id === previous; })) { els.encodingFile.value = previous; }
+        if (visibleFiles.length && !els.encodingFile.value) { els.encodingFile.value = visibleFiles[0].id; }
+        els.encodingCount.textContent = lastScanDate
+            ? encodingFiles.length.toLocaleString() + " video file" + (encodingFiles.length === 1 ? "" : "s") + " available from the latest health check."
+            : "Run Health Check to load video files.";
+        els.encodingEmpty.hidden = !lastScanDate || encodingFiles.length > 0;
+        els.encodingEmpty.textContent = lastScanDate ? "No video files with encoding details were found in this scan." : "Run Health Check before reviewing encoding details.";
+        if (query && !filteredFiles.length) {
+            els.encodingEmpty.hidden = false;
+            els.encodingEmpty.textContent = "No video files match “" + query + "”. Try another title, filename, or codec.";
+        }
+        var list = visibleFiles.slice(0, 20).map(function (file) {
+            var card = document.createElement("article");
+            card.className = "ld-encoding-file-card";
+            var heading = document.createElement("strong");
+            heading.textContent = file.title;
+            var path = document.createElement("span");
+            path.className = "ld-encoding-file-path";
+            path.textContent = file.path;
+            var details = document.createElement("span");
+            details.className = "ld-encoding-file-details";
+            details.textContent = file.width + "×" + file.height + " · " + file.codec + " video · " + file.audio + " audio · " + (file.frameRate ? file.frameRate.toFixed(2) + " fps · " : "") + (file.bitRate ? (file.bitRate / 1000000).toFixed(1) + " Mb/s · " : "") + file.format + " · " + formatBytes(file.size) + (file.duration ? " · " + Math.round(file.duration / 60) + " min" : "");
+            card.append(heading, path, details);
+            return card;
+        });
+        if (filteredFiles.length > 20) {
+            var more = document.createElement("p");
+            more.className = "ld-encoding-file-details";
+            more.textContent = "Showing 20 of " + filteredFiles.length.toLocaleString() + " matches. Use the search box to narrow the list.";
+            list.push(more);
+        }
+        if (filteredFiles.length > 100) {
+            els.encodingCount.textContent += " Type to narrow the list; the selector shows the first 100 matches.";
+        }
+        els.encodingList.replaceChildren.apply(els.encodingList, list);
+        updateEncodingControls();
+    }
+
+    function outputMetadataPath(file, token, folder, extension) {
+        var separator = encodingMetadataPath.indexOf("\\") !== -1 ? "\\" : "/";
+        var stem = fileStem(file.path);
+        var root = encodingMetadataPath.replace(/[\\/]+$/, "");
+        return root + separator + "LibraryDoctor" + separator + folder + separator + stem + ".ld-" + (folder === "Backups" ? "backup-" : "reencoded-") + token + "." + extension;
+    }
+
+    function startEncoding() {
+        if (encodingBusy || scanController || !els.encodingFile.value) { return; }
+        var file = encodingFiles.filter(function (item) { return item.id === els.encodingFile.value; })[0];
+        if (!file) { return; }
+        var replaceOriginal = els.encodingReplace.checked;
+        if (els.encodingPreset.value === "custom") {
+            var customCRF = Number(els.encodingCrf.value);
+            if (!Number.isInteger(customCRF) || customCRF < 16 || customCRF > 35) {
+                els.encodingError.textContent = "Set Custom CRF to a whole number from 16 to 35.";
+                els.encodingError.hidden = false;
+                return;
+            }
+        }
+        var settings = currentEncodingSettings();
+        if (replaceOriginal) {
+            var sourceExtension = fileExtension(file.path).toLowerCase();
+            var matchingContainer = sourceExtension === "mkv" ? "mkv" : sourceExtension === "mp4" ? "mp4" : "";
+            if (matchingContainer !== els.encodingContainer.value) {
+                els.encodingError.textContent = "For an in-place replacement, choose a matching MP4 or MKV source and output container. For other extensions, save a new file instead.";
+                els.encodingError.hidden = false;
+                return;
+            }
+        }
+        if (replaceOriginal && !window.confirm("Replace this source only after FFmpeg verifies the new file? Library Doctor will keep a full backup in Stash's metadata directory. Make sure there is free space for both the temporary re-encode and the backup.")) { return; }
+        els.encodingError.hidden = true;
+        els.encodingJob.hidden = false;
+        els.encodingJobTitle.textContent = "Starting re-encode…";
+        els.encodingJobStatus.textContent = "Queued";
+        els.encodingJobDetail.textContent = encodingFileLabel(file);
+        els.encodingProgressBar.style.width = "0%";
+        els.encodingProgressTrack.setAttribute("aria-valuenow", "0");
+        encodingBusy = true;
+        updateEncodingControls();
+        var token = window.crypto && window.crypto.randomUUID ? window.crypto.randomUUID().replace(/-/g, "") : (Date.now().toString(16) + Math.random().toString(16).slice(2)).slice(0, 24);
+        graphQLRequest(ENCODING_CONFIG_QUERY, {}).then(function (configData) {
+            var general = configData.configuration && configData.configuration.general;
+            encodingMetadataPath = general && general.metadataPath ? String(general.metadataPath) : "";
+            if (!encodingMetadataPath) { throw new Error("Stash did not return its metadata directory. Check the plugin log and server configuration."); }
+            var args = {
+                scene_id: file.sceneId, file_id: file.id, token: token, preset: els.encodingPreset.value,
+                codec: settings.codec, crf: settings.crf, speed: settings.speed, max_height: settings.height,
+                audio: settings.audio, container: els.encodingContainer.value, replace_original: replaceOriginal
+            };
+            return graphQLRequest(RUN_ENCODING_TASK, { args: args });
+        }).then(function (data) {
+            var jobId = data.runPluginTask;
+            if (!jobId) { throw new Error("Stash did not start the FFmpeg task."); }
+            els.encodingJobTitle.textContent = "Re-encoding " + file.title;
+            els.encodingJobStatus.textContent = "Running";
+            pollEncodingJob(String(jobId), file, token, replaceOriginal);
+        }).catch(function (error) {
+            encodingBusy = false;
+            updateEncodingControls();
+            els.encodingJob.hidden = true;
+            els.encodingError.textContent = error && error.message ? error.message : String(error);
+            els.encodingError.hidden = false;
+        });
+    }
+
+    function pollEncodingJob(jobId, file, token, replaceOriginal) {
+        graphQLRequest(FIND_JOB_QUERY, { input: { id: jobId } }).then(function (data) {
+            var job = data.findJob;
+            if (!job) { throw new Error("Stash no longer has this encoding job in its queue."); }
+            var progress = Number(job.progress) || 0;
+            if (progress > 0 && progress <= 1) { progress *= 100; }
+            progress = Math.max(0, Math.min(100, progress));
+            els.encodingProgressBar.style.width = progress + "%";
+            els.encodingProgressTrack.setAttribute("aria-valuenow", String(Math.round(progress)));
+            els.encodingJobStatus.textContent = job.status + (progress ? " · " + Math.round(progress) + "%" : "");
+            els.encodingJobDetail.textContent = Array.isArray(job.subTasks) && job.subTasks.length ? job.subTasks[job.subTasks.length - 1] : "FFmpeg is processing the selected video on the Stash server.";
+            if (job.status === "FINISHED") {
+                encodingBusy = false;
+                updateEncodingControls();
+                els.encodingProgressBar.style.width = "100%";
+                els.encodingProgressTrack.setAttribute("aria-valuenow", "100");
+                els.encodingJobTitle.textContent = replaceOriginal ? "Original replaced and verified" : "Re-encode complete";
+                els.encodingJobStatus.textContent = "Finished";
+                els.encodingJobDetail.textContent = replaceOriginal
+                    ? "Updated " + file.path + ". Backup saved to " + outputMetadataPath(file, token, "Backups", fileExtension(file.path)) + ". Stash metadata refresh is queued; run Health Check after it finishes."
+                    : "New file saved to " + outputMetadataPath(file, token, "Reencoded", els.encodingContainer.value);
+                return;
+            }
+            if (["FAILED", "CANCELLED"].indexOf(job.status) !== -1) {
+                encodingBusy = false;
+                updateEncodingControls();
+                els.encodingError.textContent = job.error || (job.status === "CANCELLED" ? "The re-encode was cancelled. The source file was kept." : "FFmpeg could not complete this re-encode. The source file was kept.");
+                els.encodingError.hidden = false;
+                els.encodingJobTitle.textContent = "Re-encode " + job.status.toLowerCase();
+                return;
+            }
+            encodingJobTimer = window.setTimeout(function () { pollEncodingJob(jobId, file, token, replaceOriginal); }, 1200);
+        }).catch(function (error) {
+            encodingBusy = false;
+            updateEncodingControls();
+            els.encodingError.textContent = error && error.message ? error.message : String(error);
+            els.encodingError.hidden = false;
+        });
     }
 
     function updateScrapeControls() {
@@ -1421,6 +1677,7 @@
         els.progressCard.hidden = !scanning;
         els.undo.disabled = scanning || undoingFix || !undoStack.length;
         if (!scanning) { scanController = null; }
+        updateEncodingControls();
     }
 
     function scan() {
@@ -1449,6 +1706,7 @@
         els.scan.disabled = true;
         els.export.disabled = true;
         els.undo.disabled = true;
+        updateEncodingControls();
         els.scrapeProgress.hidden = true;
         renderScrapeResults();
         updateScrapeControls();
@@ -1718,6 +1976,14 @@
             pageStatus: byId("ld-page-status"), pagePrev: byId("ld-page-prev"), pageNext: byId("ld-page-next"),
             healthTabCount: byId("ld-tab-health-count"), metadataTabCount: byId("ld-tab-metadata-count"),
             duplicatesTabCount: byId("ld-tab-duplicates-count"), scrapeTabCount: byId("ld-tab-scrape-count"), metadataEmpty: byId("ld-metadata-empty"),
+            encodingTabCount: byId("ld-tab-encoding-count"), encodingCount: byId("ld-encoding-count"), encodingSearch: byId("ld-encoding-search"), encodingFile: byId("ld-encoding-file"),
+            encodingPreset: byId("ld-encoding-preset"), encodingContainer: byId("ld-encoding-container"), encodingCustom: byId("ld-encoding-custom"),
+            encodingCodec: byId("ld-encoding-codec"), encodingCrf: byId("ld-encoding-crf"), encodingSpeed: byId("ld-encoding-speed"),
+            encodingHeight: byId("ld-encoding-height"), encodingAudio: byId("ld-encoding-audio"), encodingReplace: byId("ld-encoding-replace"),
+            encodingPreview: byId("ld-encoding-preview"), encodingRun: byId("ld-encoding-run"), encodingJob: byId("ld-encoding-job"),
+            encodingJobTitle: byId("ld-encoding-job-title"), encodingJobStatus: byId("ld-encoding-job-status"), encodingJobDetail: byId("ld-encoding-job-detail"),
+            encodingProgressTrack: byId("ld-encoding-progress-track"), encodingProgressBar: byId("ld-encoding-progress-bar"),
+            encodingError: byId("ld-encoding-error"), encodingEmpty: byId("ld-encoding-empty"), encodingList: byId("ld-encoding-list"),
             metadataList: byId("ld-metadata-list"),
             scrapeSource: byId("ld-scrape-source"), scrapeSourceStatus: byId("ld-scrape-source-status"),
             scrapeRemaining: byId("ld-scrape-remaining"), scrapeRefresh: byId("ld-scrape-refresh"),
@@ -1750,6 +2016,10 @@
                 var workspace = tab.getAttribute("data-workspace");
                 setWorkspace(workspace);
                 if (workspace === "scrape") { loadScrapers(); }
+                if (workspace === "encoding") {
+                    encodingFilesForResults = null;
+                    renderEncodingAuditor();
+                }
             });
         });
         els.scan.addEventListener("click", scan);
@@ -1773,6 +2043,15 @@
         els.scrapeRefresh.addEventListener("click", function () { loadScrapers(true); });
         els.scrapeSource.addEventListener("change", updateScrapeControls);
         els.scrapeRun.addEventListener("click", scrapeMetadataGaps);
+        els.encodingPreset.addEventListener("change", updateEncodingControls);
+        els.encodingContainer.addEventListener("change", updateEncodingControls);
+        [els.encodingCodec, els.encodingCrf, els.encodingSpeed, els.encodingHeight, els.encodingAudio].forEach(function (control) {
+            control.addEventListener("change", updateEncodingControls);
+            control.addEventListener("input", updateEncodingControls);
+        });
+        els.encodingFile.addEventListener("change", updateEncodingControls);
+        els.encodingSearch.addEventListener("input", renderEncodingAuditor);
+        els.encodingRun.addEventListener("click", startEncoding);
         els.fixTitleChoice.addEventListener("change", function () {
             els.fixTitle.disabled = !els.fixTitleChoice.checked;
             updateFixPreview();

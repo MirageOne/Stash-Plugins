@@ -1,7 +1,14 @@
 name: Library Doctor
-description: Library health checks, filename metadata suggestions, manual tag fixes, configured and installed scraper selection, safe auto-tagging, and duplicate or alternate-version review.
-version: 1.5.1
+description: Library health checks, encoding audit and FFmpeg re-encoding, filename metadata suggestions, scraping, tagging, and duplicate or alternate-version review.
+version: 1.6.0
 url: https://github.com/MirageOne/Stasher
+exec:
+  - python
+  - "{pluginDir}/reencode_task.py"
+interface: raw
+tasks:
+  - name: Re-encode scene file
+    description: Re-encodes a selected scene video with Stash's FFmpeg. The source is preserved unless replacement is explicitly enabled after output verification.
 ui:
   assets:
     /: .

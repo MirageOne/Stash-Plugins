@@ -5,7 +5,7 @@
     <meta name="viewport" content="width=device-width, initial-scale=1">
     <meta name="color-scheme" content="dark">
     <title>Library Doctor</title>
-    <link rel="stylesheet" href="styles.css?v=1.5.1">
+    <link rel="stylesheet" href="styles.css?v=1.6.0">
 </head>
 <body>
     <main class="ld-shell">
@@ -34,7 +34,7 @@
             <div>
                 <p class="ld-eyebrow">LIBRARY MAINTENANCE</p>
                 <h1 id="ld-title">A healthier library, one check at a time.</h1>
-                <p class="ld-subtitle">Find library gaps, scrape missing metadata from configured sources, and review possible duplicates or alternate versions.</p>
+                <p class="ld-subtitle">Find library gaps, review encodings, re-encode selected files, scrape missing metadata, and compare possible duplicates.</p>
             </div>
             <div class="ld-workflow-note">
                 <span class="ld-workflow-dot" aria-hidden="true"></span>
@@ -61,6 +61,7 @@
 
         <nav id="ld-workspace-tabs" class="ld-workspace-tabs" aria-label="Library Doctor sections">
             <button class="ld-workspace-tab is-active" type="button" data-workspace="health" aria-pressed="true">Health Check <span id="ld-tab-health-count">—</span></button>
+            <button class="ld-workspace-tab" type="button" data-workspace="encoding" aria-pressed="false">Encoding Auditor <span id="ld-tab-encoding-count">0</span></button>
             <button class="ld-workspace-tab" type="button" data-workspace="metadata" aria-pressed="false">Metadata Assistant <span id="ld-tab-metadata-count">0</span></button>
             <button class="ld-workspace-tab" type="button" data-workspace="duplicates" aria-pressed="false">Duplicate &amp; Version Review <span id="ld-tab-duplicates-count">0</span></button>
             <button class="ld-workspace-tab" type="button" data-workspace="scrape" aria-pressed="false">Scrape &amp; Auto-Tag <span id="ld-tab-scrape-count">0</span></button>
@@ -143,7 +144,7 @@
             </div>
             <p class="ld-eyebrow">START WITH A QUICK AUDIT</p>
             <h2 id="ld-empty-title">Your library check is ready.</h2>
-            <p>The scan checks scene file references, metadata, generated artwork, organization status, and repeated titles. You can preview title, date, or tag changes before applying them.</p>
+            <p>The scan checks scene file references, video encoding details, metadata, generated artwork, organization status, and repeated titles. You can preview metadata changes before applying them.</p>
             <button class="ld-button ld-button-primary" type="button" data-start-scan>
                 <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M4 12a8 8 0 1 0 2.34-5.66L4 8.7M4 4v4.7h4.7M12 8v4l2.5 1.5"/></svg>
                 Run first check
@@ -151,6 +152,78 @@
         </section>
 
         </div>
+
+        <section id="ld-encoding-workspace" class="ld-workspace-panel ld-encoding-workspace" data-workspace-panel="encoding" hidden aria-labelledby="ld-encoding-heading">
+            <div class="ld-module-heading">
+                <div>
+                    <p class="ld-eyebrow">ENCODING AUDITOR</p>
+                    <h2 id="ld-encoding-heading">Review and re-encode scene files</h2>
+                    <p>Inspect video details, choose a preset or tune the encoder, then run FFmpeg on the Stash server.</p>
+                </div>
+            </div>
+
+            <div class="ld-encoding-summary">
+                <strong id="ld-encoding-count">Run Health Check to load video files.</strong>
+                <span>Re-encoding leaves the source untouched by default. Replacing a source keeps a backup under Stash's metadata directory.</span>
+            </div>
+
+            <section class="ld-encoding-card" aria-label="Re-encode settings">
+                <div class="ld-encoding-fields">
+                    <label class="ld-encoding-field">Find a video
+                        <input id="ld-encoding-search" type="search" placeholder="Filter by scene or filename" autocomplete="off">
+                    </label>
+                    <label class="ld-encoding-field ld-encoding-scene">Scene file
+                        <select id="ld-encoding-file" disabled><option value="">Run Health Check to load scene files</option></select>
+                    </label>
+                    <label class="ld-encoding-field">Preset
+                        <select id="ld-encoding-preset">
+                            <option value="h264_compat">H.264 compatible · balanced size</option>
+                            <option value="h264_quality">H.264 · higher quality</option>
+                            <option value="hevc_saver">H.265 / HEVC · space saver</option>
+                            <option value="hevc_quality">H.265 / HEVC · higher quality</option>
+                            <option value="custom">Custom settings</option>
+                        </select>
+                    </label>
+                    <label class="ld-encoding-field">Container
+                        <select id="ld-encoding-container"><option value="mkv">MKV · broad stream support</option><option value="mp4">MP4 · wider device support</option></select>
+                    </label>
+                </div>
+
+                <div id="ld-encoding-custom" class="ld-encoding-custom" hidden>
+                    <label class="ld-encoding-field">Video codec
+                        <select id="ld-encoding-codec"><option value="libx264">H.264 / x264</option><option value="libx265">H.265 / x265</option></select>
+                    </label>
+                    <label class="ld-encoding-field">Quality (CRF)
+                        <input id="ld-encoding-crf" type="number" min="16" max="35" value="23" inputmode="numeric">
+                    </label>
+                    <label class="ld-encoding-field">Speed
+                        <select id="ld-encoding-speed"><option value="fast">Fast</option><option value="medium" selected>Balanced</option><option value="slow">Smaller file</option></select>
+                    </label>
+                    <label class="ld-encoding-field">Maximum resolution
+                        <select id="ld-encoding-height"><option value="0">Keep source resolution</option><option value="2160">Up to 2160p</option><option value="1440">Up to 1440p</option><option value="1080">Up to 1080p</option><option value="720">Up to 720p</option></select>
+                    </label>
+                    <label class="ld-encoding-field">Audio
+                        <select id="ld-encoding-audio"><option value="copy">Copy original audio</option><option value="aac160">AAC · 160 kb/s</option><option value="aac192">AAC · 192 kb/s</option><option value="aac256">AAC · 256 kb/s</option></select>
+                    </label>
+                </div>
+
+                <label class="ld-encoding-replace"><input id="ld-encoding-replace" type="checkbox"> Replace the original after verification (keep a backup)</label>
+                <p id="ld-encoding-preview" class="ld-encoding-preview">H.264 · CRF 22 · balanced speed · copy audio · keep source resolution</p>
+                <div class="ld-encoding-actions">
+                    <button id="ld-encoding-run" class="ld-button ld-button-primary" type="button" disabled>Run re-encode</button>
+                    <span>Uses Stash's configured FFmpeg and FFprobe. One file per job.</span>
+                </div>
+            </section>
+
+            <section id="ld-encoding-job" class="ld-encoding-job" hidden aria-live="polite">
+                <div class="ld-encoding-job-heading"><strong id="ld-encoding-job-title">Preparing re-encode…</strong><span id="ld-encoding-job-status">Queued</span></div>
+                <p id="ld-encoding-job-detail"></p>
+                <div id="ld-encoding-progress-track" class="ld-progress-track" role="progressbar" aria-label="Re-encode progress" aria-valuemin="0" aria-valuemax="100" aria-valuenow="0"><span id="ld-encoding-progress-bar"></span></div>
+            </section>
+            <div id="ld-encoding-error" class="ld-error" role="alert" hidden></div>
+            <div id="ld-encoding-empty" class="ld-module-empty">Run Health Check before reviewing encoding details.</div>
+            <div id="ld-encoding-list" class="ld-encoding-list"></div>
+        </section>
 
         <section id="ld-metadata-workspace" class="ld-workspace-panel ld-metadata-workspace" data-workspace-panel="metadata" hidden aria-labelledby="ld-metadata-heading">
             <div class="ld-module-heading">
@@ -279,9 +352,9 @@
 
         <footer class="ld-footer">
             <span>Guided fixes and scraper updates can be undone this session; created tag records remain.</span>
-            <span id="ld-footer-version">v1.5.1</span>
+            <span id="ld-footer-version">v1.6.0</span>
         </footer>
     </main>
-    <script src="app.js?v=1.5.1"></script>
+    <script src="app.js?v=1.6.0"></script>
 </body>
 </html>

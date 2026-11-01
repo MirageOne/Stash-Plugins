@@ -1,6 +1,6 @@
 name: Library Doctor
 description: Read-only library health checks for missing scene metadata and generated files.
-version: 1.0.0
+version: 1.0.1
 url: https://github.com/MirageOne/Stasher
 ui:
   assets:

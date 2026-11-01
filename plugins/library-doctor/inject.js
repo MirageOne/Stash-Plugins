@@ -1,6 +1,6 @@
-/* Adds a direct Library Doctor entry to Stash's navbar. The dashboard is
-   served as a standalone same-origin plugin asset page, so opening it does
-   not interfere with Stash's React route state. */
+/* Adds a Library Doctor utility button beside the other right-side navbar
+   actions. The dashboard is served as a standalone same-origin plugin asset
+   page, so opening it does not interfere with Stash's React route state. */
 (function () {
     "use strict";
 
@@ -8,31 +8,38 @@
     var DASHBOARD_URL = "/plugin/library-doctor/assets/index.html";
     var ICON = "<svg viewBox='0 0 24 24' aria-hidden='true' focusable='false' fill='none' stroke='currentColor' stroke-width='1.8' stroke-linecap='round' stroke-linejoin='round'><path d='M7 3.8h7l4 4V20a1.5 1.5 0 0 1-1.5 1.5h-9A1.5 1.5 0 0 1 6 20V5.3a1.5 1.5 0 0 1 1-1.5Z'/><path d='M14 4v4h4M9 13h6M9 16h3'/><path d='m14.5 17 1.2 1.2 2.5-2.6'/></svg>";
 
-    function findNavList() {
-        return document.querySelector("nav.top-nav .navbar-nav") ||
-            document.querySelector("nav.navbar .navbar-nav");
+    function findUtilityButtons() {
+        return document.querySelector("nav.top-nav .navbar-buttons") ||
+            document.querySelector("nav.navbar .navbar-buttons");
     }
 
     function ensureEntry() {
         if (!document.body || location.pathname.indexOf("/plugin/library-doctor/") === 0) {
             return false;
         }
-        var nav = findNavList();
-        if (!nav || document.getElementById(ENTRY_ID)) { return false; }
+        var buttons = findUtilityButtons();
+        if (!buttons || document.getElementById(ENTRY_ID)) { return false; }
 
-        var item = document.createElement("li");
-        item.id = ENTRY_ID;
-        item.className = "nav-item";
         var link = document.createElement("a");
-        link.className = "nav-link";
+        link.id = ENTRY_ID;
+        link.className = "btn btn-secondary minimal nav-utility";
         link.href = DASHBOARD_URL;
         link.target = "_blank";
         link.rel = "noopener noreferrer";
         link.title = "Audit library metadata and generated files";
         link.setAttribute("aria-label", "Library Doctor");
-        link.innerHTML = ICON + "<span>Library Doctor</span>";
-        item.appendChild(link);
-        nav.appendChild(item);
+        link.style.order = "89";
+        link.innerHTML = ICON;
+
+        /* Fluent Mica orders Settings at 90, so this sits directly beside it.
+           In stock Stash the high flex order keeps it with the right-side
+           utility controls instead of the primary library routes. */
+        var settings = buttons.querySelector('a[href="/settings"]');
+        if (settings) {
+            buttons.insertBefore(link, settings);
+        } else {
+            buttons.appendChild(link);
+        }
         return true;
     }
 

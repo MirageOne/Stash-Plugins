@@ -5,7 +5,7 @@
     <meta name="viewport" content="width=device-width, initial-scale=1">
     <meta name="color-scheme" content="dark">
     <title>Library Doctor</title>
-    <link rel="stylesheet" href="styles.css?v=1.5.0">
+    <link rel="stylesheet" href="styles.css?v=1.5.1">
 </head>
 <body>
     <main class="ld-shell">
@@ -184,14 +184,14 @@
                 <div>
                     <p class="ld-eyebrow">SCRAPE &amp; AUTO-TAG</p>
                     <h2 id="ld-scrape-heading">Fill gaps from configured scene scrapers</h2>
-                    <p>Uses Stash's configured scene and Stash-box sources in order. A unique fingerprint match can fill a missing title or date and add tags; multiple matches wait for your review. Scenes with existing tags are included when title or date is missing.</p>
+                    <p>Uses Stash's configured scene and Stash-box sources in order, and also lists installed scene scrapers individually. A unique fingerprint match can fill a missing title or date and add tags; multiple matches wait for your review.</p>
                 </div>
                 <button id="ld-scrape-refresh" class="ld-button ld-button-secondary" type="button">Reload scrapers</button>
             </div>
             <div class="ld-scrape-controls">
                 <label class="ld-scrape-provider">
                     <span>Configured metadata sources</span>
-                    <select id="ld-scrape-source" disabled><option value="">Open this workspace to load sources</option></select>
+                    <select id="ld-scrape-source" disabled><option value="">Open this workspace to load scrapers</option></select>
                 </label>
                 <label class="ld-scrape-create-tags">
                     <input id="ld-scrape-create-tags" type="checkbox" checked>
@@ -279,9 +279,9 @@
 
         <footer class="ld-footer">
             <span>Guided fixes and scraper updates can be undone this session; created tag records remain.</span>
-            <span id="ld-footer-version">v1.5.0</span>
+            <span id="ld-footer-version">v1.5.1</span>
         </footer>
     </main>
-    <script src="app.js?v=1.5.0"></script>
+    <script src="app.js?v=1.5.1"></script>
 </body>
 </html>

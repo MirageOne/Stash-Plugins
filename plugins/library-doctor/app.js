@@ -7,7 +7,8 @@
     var REVIEWED_DUPLICATES_KEY = "library-doctor.reviewedDuplicates";
     var FRESH_SCENE_QUERY = "query LibraryDoctorFreshScene($id: ID!) { findScene(id: $id) { id title date tags { id name } } }";
     var UPDATE_SCENE_MUTATION = "mutation LibraryDoctorUpdateScene($input: SceneUpdateInput!) { sceneUpdate(input: $input) { id title date tags { id name } } }";
-    var SCRAPERS_QUERY = "query LibraryDoctorScrapers { listScrapers(types: [SCENE]) { id name } configuration { general { stashBoxes { name endpoint } } defaults { identify { sources { source { scraper_id stash_box_endpoint stash_box_index } } } } } }";
+    var SCRAPERS_QUERY = "query LibraryDoctorScrapers { listScrapers(types: [SCENE]) { id name } }";
+    var IDENTIFY_SOURCES_QUERY = "query LibraryDoctorIdentifySources { configuration { general { stashBoxes { name endpoint } } defaults { identify { sources { source { scraper_id stash_box_endpoint stash_box_index } } } } } }";
     var SCRAPE_SCENES_QUERY = "query LibraryDoctorScrapeScenes($source: ScraperSourceInput!, $input: ScrapeMultiScenesInput!) { scrapeMultiScenes(source: $source, input: $input) { title date tags { stored_id name } } }";
     var TAG_CATALOG_QUERY = "query LibraryDoctorTagCatalog($page: Int!, $perPage: Int!) { findTags(filter: { page: $page, per_page: $perPage }) { count tags { id name aliases } } }";
     var TAG_CREATE_MUTATION = "mutation LibraryDoctorCreateTag($input: TagCreateInput!) { tagCreate(input: $input) { id name aliases } }";
@@ -37,6 +38,7 @@
     var reviewedDuplicateKeys = loadReviewedDuplicateKeys();
     var showReviewedDuplicates = false;
     var scrapers = [];
+    var configuredScraperCount = 0;
     var scrapersLoaded = false;
     var scrapersLoading = false;
     var tagCatalog = null;
@@ -544,7 +546,7 @@
 
     function getSelectedScrapers(selection) {
         if (!scrapers.length) { return []; }
-        if (!selection || selection === "all") { return scrapers.slice(); }
+        if (!selection || selection === "all") { return scrapers.slice(0, configuredScraperCount || scrapers.length); }
         var index = Number(selection);
         return isFinite(index) && index >= 0 && index < scrapers.length ? [scrapers[index]] : [];
     }
@@ -556,12 +558,30 @@
         els.scrapeSource.replaceChildren();
         var loadingOption = document.createElement("option");
         loadingOption.value = "";
-        loadingOption.textContent = "Loading configured sources…";
+        loadingOption.textContent = "Loading scene scrapers…";
         els.scrapeSource.appendChild(loadingOption);
-        els.scrapeSourceStatus.textContent = "Loading the scene identify sources configured in Stash.";
-        return graphQLRequest(SCRAPERS_QUERY, {}).then(function (data) {
+        els.scrapeSourceStatus.textContent = "Loading installed scene scrapers and Stash's configured identify sources.";
+        var installedRequest = graphQLRequest(SCRAPERS_QUERY, {}).then(function (data) {
+            return { data: data, error: null };
+        }).catch(function (error) {
+            return { data: null, error: error };
+        });
+        var identifyRequest = graphQLRequest(IDENTIFY_SOURCES_QUERY, {}).then(function (data) {
+            return { data: data, error: null };
+        }).catch(function (error) {
+            return { data: null, error: error };
+        });
+        return Promise.all([installedRequest, identifyRequest]).then(function (responses) {
+            var installedResult = responses[0];
+            var identifyResult = responses[1];
+            if (!installedResult.data && !identifyResult.data) {
+                throw new Error("Could not read installed scrapers or configured identify sources. " + [installedResult.error, identifyResult.error].filter(Boolean).map(function (error) { return error.message || String(error); }).join(" "));
+            }
+            var installedScrapers = installedResult.data && Array.isArray(installedResult.data.listScrapers)
+                ? installedResult.data.listScrapers : [];
+            var data = identifyResult.data || {};
             var scraperNames = Object.create(null);
-            (Array.isArray(data.listScrapers) ? data.listScrapers : []).forEach(function (scraper) {
+            installedScrapers.forEach(function (scraper) {
                 scraperNames[String(scraper.id)] = scraper.name;
             });
             var boxes = data.configuration && data.configuration.general && Array.isArray(data.configuration.general.stashBoxes)
@@ -569,7 +589,7 @@
             var boxNames = Object.create(null);
             boxes.forEach(function (box) { boxNames[String(box.endpoint)] = box.name; });
             var defaults = data.configuration && data.configuration.defaults && data.configuration.defaults.identify;
-            scrapers = defaults && Array.isArray(defaults.sources) ? defaults.sources.map(function (item) {
+            var configuredSources = defaults && Array.isArray(defaults.sources) ? defaults.sources.map(function (item) {
                 var source = item && item.source;
                 if (!source) { return null; }
                 var id = source.scraper_id ? String(source.scraper_id) : "";
@@ -578,43 +598,85 @@
                 if (!id && !endpoint && stashBoxIndex == null) { return null; }
                 return {
                     source: id ? { scraper_id: id } : (endpoint ? { stash_box_endpoint: endpoint } : { stash_box_index: stashBoxIndex }),
+                    configured: true,
                     name: id ? (scraperNames[id] || ("Scene scraper " + id)) : (endpoint
                         ? (boxNames[endpoint] || endpoint)
                         : ((boxes[stashBoxIndex] && boxes[stashBoxIndex].name) || ("Stash-box " + (stashBoxIndex + 1))))
                 };
             }).filter(Boolean) : [];
+            var configuredIds = Object.create(null);
+            configuredSources.forEach(function (scraper) {
+                if (scraper.source.scraper_id) { configuredIds[String(scraper.source.scraper_id)] = true; }
+            });
+            var additionalScrapers = installedScrapers.filter(function (scraper) {
+                return scraper && scraper.id != null && !configuredIds[String(scraper.id)];
+            }).map(function (scraper) {
+                return { source: { scraper_id: String(scraper.id) }, configured: false, name: String(scraper.name || ("Scene scraper " + scraper.id)) };
+            });
+            configuredScraperCount = configuredSources.length;
+            scrapers = configuredSources.concat(additionalScrapers);
             scrapersLoaded = true;
             els.scrapeSource.replaceChildren();
             if (!scrapers.length) {
                 var empty = document.createElement("option");
                 empty.value = "";
-                empty.textContent = "No identify sources configured";
+                empty.textContent = installedResult.error || identifyResult.error ? "Scraper sources unavailable" : "No scene scrapers found";
                 els.scrapeSource.appendChild(empty);
-                els.scrapeSourceStatus.textContent = "Configure scene scrapers or Stash-box sources in Settings → Metadata Providers → Identify, then reload this list.";
+                var loadErrors = [installedResult.error, identifyResult.error].filter(Boolean).map(function (error) { return error.message || String(error); });
+                els.scrapeSourceStatus.textContent = loadErrors.length
+                    ? "Could not load scraper sources: " + loadErrors.join(" · ")
+                    : "No installed scene scrapers or configured identify sources were returned. Check Settings → Metadata Providers and reload this list.";
             } else {
                 var allOption = document.createElement("option");
                 allOption.value = "all";
-                allOption.textContent = "All configured sources, in order (" + scrapers.length.toLocaleString() + ")";
+                allOption.textContent = configuredScraperCount
+                    ? "All configured sources, in order (" + configuredScraperCount.toLocaleString() + ")"
+                    : "All installed scene scrapers (" + scrapers.length.toLocaleString() + ")";
                 els.scrapeSource.appendChild(allOption);
-                scrapers.forEach(function (scraper) {
+                function appendSourceOption(scraper, index, parent) {
                     var option = document.createElement("option");
-                    option.value = String(scrapers.indexOf(scraper));
+                    option.value = String(index);
                     option.textContent = scraper.name;
-                    els.scrapeSource.appendChild(option);
+                    parent.appendChild(option);
+                }
+                scrapers.slice(0, configuredScraperCount).forEach(function (scraper, index) {
+                    appendSourceOption(scraper, index, els.scrapeSource);
                 });
+                if (additionalScrapers.length) {
+                    if (configuredScraperCount) {
+                        var group = document.createElement("optgroup");
+                        group.label = "Other installed scene scrapers";
+                        additionalScrapers.forEach(function (scraper, index) {
+                            appendSourceOption(scraper, configuredScraperCount + index, group);
+                        });
+                        els.scrapeSource.appendChild(group);
+                    } else {
+                        additionalScrapers.forEach(function (scraper, index) {
+                            appendSourceOption(scraper, index, els.scrapeSource);
+                        });
+                    }
+                }
                 els.scrapeSource.value = "all";
-                els.scrapeSourceStatus.textContent = scrapers.length.toLocaleString() + " configured source" + (scrapers.length === 1 ? " is" : "s are") + " available in Stash's configured order.";
+                if (configuredScraperCount) {
+                    els.scrapeSourceStatus.textContent = configuredScraperCount.toLocaleString() + " configured source" + (configuredScraperCount === 1 ? " is" : "s are") + " available in Stash's saved order." + (additionalScrapers.length ? " " + additionalScrapers.length.toLocaleString() + " other installed scraper" + (additionalScrapers.length === 1 ? " is" : "s are") + " available individually." : "");
+                    if (installedResult.error) {
+                        els.scrapeSourceStatus.textContent += " Installed scraper names could not be loaded; configured sources are still available.";
+                    }
+                } else {
+                    els.scrapeSourceStatus.textContent = "No configured identify order was found; showing the installed scene scrapers." + (identifyResult.error ? " Configuration details could not be loaded: " + (identifyResult.error.message || String(identifyResult.error)) : "");
+                }
             }
             return scrapers;
         }).catch(function (error) {
             scrapersLoaded = false;
             scrapers = [];
+            configuredScraperCount = 0;
             els.scrapeSource.replaceChildren();
             var failed = document.createElement("option");
             failed.value = "";
-            failed.textContent = "Could not load configured sources";
+            failed.textContent = "Could not load scene scrapers";
             els.scrapeSource.appendChild(failed);
-            els.scrapeSourceStatus.textContent = "Could not load configured Stash sources: " + (error && error.message ? error.message : String(error));
+            els.scrapeSourceStatus.textContent = "Could not load Stash scene scrapers: " + (error && error.message ? error.message : String(error));
             return [];
         }).then(function (loaded) {
             scrapersLoading = false;

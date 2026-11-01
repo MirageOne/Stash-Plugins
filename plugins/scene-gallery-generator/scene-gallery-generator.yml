@@ -1,0 +1,34 @@
+name: Scene Gallery Generator
+description: Extract stills from scene videos and build linked, metadata-rich Stash galleries.
+version: 1.0.0
+url: https://github.com/MirageOne/Stasher/tree/main/plugins/scene-gallery-generator
+settings:
+  autoGenerate:
+    displayName: Automatically generate galleries for new scenes
+    description: Queue a gallery when Stash creates a scene. This is disabled by default.
+    type: BOOLEAN
+  defaultImageCount:
+    displayName: Default images per scene
+    description: Number of frames used for automatic generation. The plugin page also has a per-run image count input.
+    type: NUMBER
+  imageLibraryPath:
+    displayName: Image library path
+    description: Optional image-enabled Stash library path for automatic generation. Leave empty to use the first image-enabled library.
+    type: STRING
+exec:
+  - python
+  - "{pluginDir}/scene_gallery_task.py"
+interface: raw
+tasks:
+  - name: Generate scene galleries
+    description: Extract scene stills with FFmpeg, scan them into Stash, and create or refresh linked galleries.
+    defaultArgs:
+      mode: generate
+hooks:
+  - name: Scene.Create.Post
+    description: Queue a gallery for a newly created scene when automatic generation is enabled.
+ui:
+  assets:
+    /: .
+  javascript:
+    - inject.js

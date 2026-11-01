@@ -16,6 +16,15 @@
   requires: []
   metadata:
     description: Health checks, FFmpeg encoding audit and re-encoding, metadata assistance, scraping, tagging, and duplicate or alternate-version review.
+- id: scene-gallery-generator
+  name: Scene Gallery Generator
+  version: 1.0.0
+  date: "2026-11-01 11:48:57"
+  path: packages/scene-gallery-generator/1.0.0.zip
+  sha256: 266665f9a032eb406f494f5c58338106975df6aa24d4c1850b8832021aecefb8
+  requires: []
+  metadata:
+    description: Choose 1–30 still frames per scene, then create linked galleries with matching metadata using FFmpeg.
 - id: stash-downloader
   name: Stash Downloader
   version: 0.6.1

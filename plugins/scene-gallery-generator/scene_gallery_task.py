@@ -643,6 +643,31 @@ def find_image_by_path(server, path):
     return images[0] if images else None
 
 
+def wait_for_indexed_images(server, directory, names, timeout=45):
+    """Wait until Stash can resolve every generated frame before making a gallery."""
+    indexed = {}
+    deadline = time.monotonic() + max(0, timeout)
+    while True:
+        for name in names:
+            if name in indexed:
+                continue
+            image = find_image_by_path(server, os.path.join(directory, name))
+            if image and image.get("id"):
+                indexed[name] = image
+        missing = [name for name in names if name not in indexed]
+        if not missing:
+            return [indexed[name] for name in names]
+        if time.monotonic() >= deadline:
+            found = len(names) - len(missing)
+            examples = ", ".join(missing[:4])
+            raise RuntimeError(
+                "Stash indexed only " + str(found) + " of " + str(len(names)) +
+                " generated frame images. No gallery was created or linked. Missing: " + examples +
+                ". Check that the selected image library includes the generated folder."
+            )
+        time.sleep(min(1.5, max(0, deadline - time.monotonic())))
+
+
 def find_gallery_by_id(server, gallery_id):
     if not gallery_id:
         return None
@@ -714,6 +739,64 @@ def get_gallery_snapshot(server, gallery_id):
         return None
 
 
+def gallery_contains_generated_frames(gallery, directory, names, manifest):
+    if not isinstance(gallery, dict):
+        return False
+    expected_paths = set(normalize_path(os.path.join(directory, name)) for name in names)
+    expected_image_ids = set(str(item) for item in (manifest.get("image_ids") or []) if item)
+    expected_file_ids = set(str(item) for item in (manifest.get("file_ids") or []) if item)
+    actual_paths = set()
+    actual_image_ids = set()
+    actual_file_ids = set()
+    for item in gallery.get("files") or []:
+        if not isinstance(item, dict):
+            continue
+        if item.get("path"):
+            actual_paths.add(normalize_path(item["path"]))
+        if item.get("id"):
+            actual_file_ids.add(str(item["id"]))
+    for image in gallery.get("images") or []:
+        if not isinstance(image, dict):
+            continue
+        if image.get("id"):
+            actual_image_ids.add(str(image["id"]))
+        for item in image.get("files") or []:
+            if not isinstance(item, dict):
+                continue
+            if item.get("path"):
+                actual_paths.add(normalize_path(item["path"]))
+            if item.get("id"):
+                actual_file_ids.add(str(item["id"]))
+    return bool(
+        expected_paths and expected_paths.issubset(actual_paths) or
+        expected_image_ids and expected_image_ids.issubset(actual_image_ids) or
+        expected_file_ids and expected_file_ids.issubset(actual_file_ids)
+    )
+
+
+def existing_gallery_is_complete(server, scene, directory, count, sampling_mode, manifest, gallery):
+    names = manifest.get("generated_files") or []
+    if (not gallery or not gallery.get("id") or len(names) != count or
+            manifest.get("image_count") != count or manifest.get("sampling_mode") != sampling_mode):
+        return False
+    if any(not isinstance(name, str) or not re.fullmatch(r"frame-[0-9]{3}\.jpg", name) or
+            not os.path.isfile(os.path.join(directory, name)) for name in names):
+        return False
+    scene_id = str(scene.get("id"))
+    expected_title = str(scene.get("title") or ("Scene " + scene_id)) + " — Scene Gallery"
+    try:
+        linked_ids = current_gallery_ids_for_scene(server, scene_id)
+        snapshot = get_gallery_snapshot(server, str(gallery["id"]))
+    except Exception as error:
+        log_info("Could not verify the existing gallery; it will be refreshed: " + str(error))
+        return False
+    return bool(
+        str(gallery["id"]) in linked_ids and snapshot and
+        snapshot.get("title") == expected_title and
+        gallery_contains_generated_frames(snapshot, directory, names, manifest)
+    )
+
+
 def metadata_input(scene, gallery_title, supported_fields, include_identity=False):
     studio = scene.get("studio") or {}
     performer_ids = [str(item.get("id")) for item in (scene.get("performers") or []) if item and item.get("id")]
@@ -780,15 +863,13 @@ def update_image_metadata(server, image, scene, gallery_id, image_fields, index,
     graphql(server, mutation, {"input": values})
 
 
-def attach_generated_files_if_supported(server, gallery_id, scene_id, directory, names, old_manifest, gallery_update_fields, gallery_create_fields, snapshot):
+def attach_generated_files_if_supported(server, gallery_id, scene_id, directory, names, frame_images, old_manifest, gallery_update_fields, gallery_create_fields, snapshot):
     image_ids = []
     file_ids = []
-    images_by_name = {}
+    images_by_name = dict(zip(names, frame_images))
     for name in names:
-        path = os.path.join(directory, name)
-        image = find_image_by_path(server, path)
+        image = images_by_name.get(name)
         if image:
-            images_by_name[name] = image
             image_ids.append(str(image.get("id")))
             for file in image.get("files") or []:
                 if file and file.get("id"):
@@ -827,8 +908,10 @@ def attach_generated_files_if_supported(server, gallery_id, scene_id, directory,
     return image_ids, file_ids
 
 
-def create_or_update_gallery(server, scene, directory, names, old_manifest):
+def create_or_update_gallery(server, scene, directory, names, frame_images, old_manifest):
     scene_id = valid_scene_id(scene.get("id"))
+    if len(frame_images) != len(names) or any(not item or not item.get("id") for item in frame_images):
+        raise RuntimeError("Stash has not indexed every generated frame. No gallery was created or linked.")
     gallery_create_fields = introspect_fields(server, "GalleryCreateInput", "inputFields")
     gallery_update_fields = introspect_fields(server, "GalleryUpdateInput", "inputFields")
     title = str(scene.get("title") or ("Scene " + scene_id)) + " — Scene Gallery"
@@ -847,7 +930,6 @@ def create_or_update_gallery(server, scene, directory, names, old_manifest):
     else:
         # Most Stash versions create a Gallery when scanning a folder of images.
         # If they do not, create one explicitly from the indexed image/file IDs.
-        frame_images = [find_image_by_path(server, os.path.join(directory, name)) for name in names]
         image_ids = [str(item["id"]) for item in frame_images if item and item.get("id")]
         file_ids = []
         for item in frame_images:
@@ -875,10 +957,18 @@ def create_or_update_gallery(server, scene, directory, names, old_manifest):
     link_gallery_to_scene(server, scene_id, gallery_id, gallery_update_fields)
     snapshot = get_gallery_snapshot(server, gallery_id) or {}
     image_ids, file_ids = attach_generated_files_if_supported(
-        server, gallery_id, scene_id, directory, names, old_manifest,
+        server, gallery_id, scene_id, directory, names, frame_images, old_manifest,
         gallery_update_fields, gallery_create_fields, snapshot,
     )
     snapshot = get_gallery_snapshot(server, gallery_id) or snapshot
+    linked_ids = current_gallery_ids_for_scene(server, scene_id)
+    verified_manifest = dict(old_manifest)
+    verified_manifest["image_ids"] = image_ids
+    verified_manifest["file_ids"] = file_ids
+    if str(gallery_id) not in linked_ids:
+        raise RuntimeError("The gallery was created, but Stash did not link it to scene " + scene_id + ".")
+    if not gallery_contains_generated_frames(snapshot, directory, names, verified_manifest):
+        raise RuntimeError("The gallery was linked to scene " + scene_id + ", but Stash did not attach all generated frames.")
     return gallery_id, image_ids, file_ids, snapshot
 
 
@@ -922,14 +1012,17 @@ def process_scene(server, scene, count, library_root, ffmpeg, general, force=Fal
     except (TypeError, ValueError):
         previous_count = 0
     if not force and old_gallery and previous_count == count and old_manifest.get("sampling_mode") == sampling_mode:
-        return "skipped", "Scene " + scene_id + " already has a generated gallery with " + str(count) + " frames."
+        if existing_gallery_is_complete(server, scene, directory, count, sampling_mode, old_manifest, old_gallery):
+            return "skipped", "Scene " + scene_id + " already has a complete generated gallery with " + str(count) + " frames."
+        log_info("Existing gallery for scene " + scene_id + " is incomplete or unlinked; refreshing it.")
 
     directory, names, old_manifest, old_names = generate_frames(scene, count, library_root, ffmpeg, sampling_mode, progress_start, progress_span)
     report_progress(progress_start + progress_span * 0.62)
     scan_job = trigger_scan(server, [directory])
     wait_for_job(server, scan_job)
     report_progress(progress_start + progress_span * 0.78)
-    gallery_id, image_ids, file_ids, snapshot = create_or_update_gallery(server, scene, directory, names, old_manifest)
+    frame_images = wait_for_indexed_images(server, directory, names)
+    gallery_id, image_ids, file_ids, snapshot = create_or_update_gallery(server, scene, directory, names, frame_images, old_manifest)
     removed = remove_stale_generated_files(directory, old_names, names)
     if removed:
         cleanup_job = trigger_scan(server, [directory])

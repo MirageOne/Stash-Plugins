@@ -2,6 +2,7 @@ import importlib.util
 import os
 import tempfile
 import unittest
+from unittest.mock import patch
 
 
 SCRIPT = os.path.abspath(os.path.join(os.path.dirname(__file__), "..", "scene_gallery_task.py"))
@@ -103,6 +104,36 @@ class SceneGalleryTaskTests(unittest.TestCase):
         self.assertEqual(values["performer_ids"], ["2"])
         self.assertEqual(values["tag_ids"], ["4"])
         self.assertEqual(values["code"], "SGG-123")
+
+    def test_gallery_generation_waits_for_every_frame_to_be_indexed(self):
+        names = ["frame-001.jpg", "frame-002.jpg"]
+        with patch.object(TASK, "find_image_by_path", side_effect=lambda _server, path: {"id": os.path.basename(path)}):
+            images = TASK.wait_for_indexed_images({}, "/images/scene", names, timeout=0)
+        self.assertEqual([image["id"] for image in images], names)
+
+    def test_gallery_generation_does_not_continue_with_missing_indexed_frames(self):
+        with patch.object(TASK, "find_image_by_path", side_effect=lambda _server, path: {"id": "frame-001"} if path.endswith("frame-001.jpg") else None):
+            with self.assertRaisesRegex(RuntimeError, "No gallery was created or linked"):
+                TASK.wait_for_indexed_images({}, "/images/scene", ["frame-001.jpg", "frame-002.jpg"], timeout=0)
+
+    def test_gallery_creation_rejects_missing_frame_records_before_mutating_stash(self):
+        with patch.object(TASK, "introspect_fields", side_effect=AssertionError("Stash must not be mutated")):
+            with self.assertRaisesRegex(RuntimeError, "has not indexed every generated frame"):
+                TASK.create_or_update_gallery({}, {"id": "123"}, "/images/scene", ["frame-001.jpg"], [None], {})
+
+    def test_gallery_completion_requires_all_generated_frames_and_scene_link(self):
+        with tempfile.TemporaryDirectory() as directory:
+            frame_path = os.path.join(directory, "frame-001.jpg")
+            with open(frame_path, "wb") as handle:
+                handle.write(b"frame")
+            scene = {"id": "123", "title": "Sample scene"}
+            manifest = {"generated_files": ["frame-001.jpg"], "image_count": 1, "sampling_mode": "smart", "file_ids": ["file-1"]}
+            gallery = {"id": "gallery-1"}
+            snapshot = {"id": "gallery-1", "title": "Sample scene — Scene Gallery", "files": [{"id": "file-1", "path": frame_path}]}
+            with patch.object(TASK, "current_gallery_ids_for_scene", return_value=["gallery-1"]), patch.object(TASK, "get_gallery_snapshot", return_value=snapshot):
+                self.assertTrue(TASK.existing_gallery_is_complete({}, scene, directory, 1, "smart", manifest, gallery))
+            with patch.object(TASK, "current_gallery_ids_for_scene", return_value=[]), patch.object(TASK, "get_gallery_snapshot", return_value=snapshot):
+                self.assertFalse(TASK.existing_gallery_is_complete({}, scene, directory, 1, "smart", manifest, gallery))
 
     def test_hook_scene_id_extraction_handles_nested_stash_payloads(self):
         self.assertEqual(TASK.scene_id_from_hook({"input": {"scene": {"id": 42}}}), "42")

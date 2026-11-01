@@ -27,10 +27,10 @@
     description: Health checks, FFmpeg encoding audit and re-encoding, metadata assistance, scraping, tagging, and duplicate or alternate-version review.
 - id: scene-gallery-generator
   name: Scene Gallery Generator
-  version: 1.0.1
-  date: "2026-11-01 16:34:55"
-  path: packages/scene-gallery-generator/1.0.1.zip
-  sha256: b72df90ba31f303926ab1a43cad0b05defca02d6a69200cce34b4212f5dd001f
+  version: 1.0.2
+  date: "2026-11-01 16:55:26"
+  path: packages/scene-gallery-generator/1.0.2.zip
+  sha256: 07608015bac5d4c99cc9b3fa8d6096e4efcfb1a79f2bdffa1570a4ea1b4e0aca
   requires: []
   metadata:
     description: Choose 1–30 still frames per scene, then create linked galleries with matching metadata using FFmpeg.

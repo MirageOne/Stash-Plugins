@@ -66,7 +66,7 @@ for _signal in (getattr(signal, "SIGTERM", None), getattr(signal, "SIGINT", None
 
 
 def graphql(server, query, variables=None):
-    import http.cookiejar
+    import urllib.error
     import urllib.request
 
     port = int(server.get("Port") or 0)
@@ -87,6 +87,17 @@ def graphql(server, query, variables=None):
     try:
         with urllib.request.urlopen(request, timeout=45) as response:
             payload = json.loads(response.read().decode("utf-8"))
+    except urllib.error.HTTPError as error:
+        operation = re.search(r"\b(?:query|mutation)\s+(\w+)", query)
+        operation_name = operation.group(1) if operation else "request"
+        try:
+            detail = error.read(1200).decode("utf-8", "replace").strip()
+        except Exception:
+            detail = ""
+        suffix = ": " + detail if detail else ""
+        raise RuntimeError(
+            "Stash GraphQL rejected " + operation_name + " with HTTP " + str(error.code) + suffix
+        )
     except Exception as error:
         raise RuntimeError("Could not contact Stash's local GraphQL API: " + str(error))
     if payload.get("errors"):
@@ -419,11 +430,15 @@ def run_task(input_data):
     replace_original = args.get("replace_original") is True
 
     server = input_data.get("server_connection") or {}
-    file_query = "query LibraryDoctorReencodeFile($id: ID!) { findFile(id: $id) { __typename ... on VideoFile { id path size duration scenes { id } } } }"
-    record = graphql(server, file_query, {"id": file_id}).get("findFile")
-    if not record or record.get("__typename") != "VideoFile":
-        raise RuntimeError("The selected record is no longer a Stash video file. Run Health Check again.")
-    if scene_id not in [str(scene.get("id")) for scene in record.get("scenes", [])]:
+    scene_file_query = "query LibraryDoctorReencodeSceneFiles($id: ID!) { findScene(id: $id) { id files { id path size duration } } }"
+    scene_record = graphql(server, scene_file_query, {"id": scene_id}).get("findScene")
+    if not scene_record:
+        raise RuntimeError("The selected scene no longer exists. Run Health Check again.")
+    record = next(
+        (item for item in (scene_record.get("files") or []) if str(item.get("id")) == file_id),
+        None,
+    )
+    if not record:
         raise RuntimeError("The selected video file is no longer attached to this scene. Run Health Check again.")
     source = os.path.abspath(str(record.get("path") or ""))
     if not source or not os.path.isfile(source) or os.path.islink(source):

@@ -550,3 +550,10 @@ body.stash-fluent-mica .pagination .page-count > * {
     flex: 0 0 auto !important;
     white-space: nowrap !important;
 }
+
+/* Center the favorite control on the performer-name baseline. The nameplate
+   is 40px tall while the heart control is 36px; a small top inset centers the
+   heart with the text without shifting the label itself. */
+body.stash-fluent-mica.fluent-mica-perf-layout-card .performer-card .favorite-button {
+    top: 0.1rem !important;
+}

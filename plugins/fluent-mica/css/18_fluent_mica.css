@@ -1,6 +1,8 @@
-/* Fluent 2 dark Mica foundation and Acrylic surface tokens.
-   The Refract layout and component rules stay intact; this layer changes
-   material, color, type, and control shape. */
+/* Fluent 2 styling over Refract's tested Stash layout.
+   Mica is used for page and card surfaces; Acrylic is reserved for
+   floating navigation, menus, and overlays. Fluent accents, Segoe UI
+   typography, restrained corners, and clear control states replace the
+   Refract glow-heavy treatment. */
 html:has(body.stash-fluent-mica) {
     color-scheme: dark;
     background-color: #202020 !important;
@@ -15,8 +17,8 @@ body.stash-fluent-mica {
     --text: rgba(255, 255, 255, 0.94);
     --text-muted: rgba(255, 255, 255, 0.66);
 
-    --glass-bg: rgba(39, 39, 39, 0.76);
-    --glass-bg-strong: rgba(48, 48, 48, 0.92);
+    --glass-bg: rgba(39, 39, 39, 0.90);
+    --glass-bg-strong: rgba(48, 48, 48, 0.96);
     --glass-border: rgba(255, 255, 255, 0.09);
     --glass-border-bright: rgba(255, 255, 255, 0.17);
     --glass-blur: blur(26px) saturate(135%);
@@ -44,8 +46,8 @@ body.stash-fluent-mica {
         0 0 0 1px rgba(0, 0, 0, 0.22),
         inset 0 1px 0 rgba(255, 255, 255, 0.07);
 
-    --radius: 10px;
-    --radius-sm: 6px;
+    --radius: 8px;
+    --radius-sm: 4px;
     --radius-pill: 9999px;
     --nav-gap: 0.28rem;
     --nav-btn-size: 2.55rem;
@@ -207,4 +209,249 @@ body.stash-fluent-mica .fluent-mica-mobile-dock .fluent-mica-dock-label {
     text-overflow: ellipsis;
     white-space: nowrap;
     overflow: hidden;
+}
+
+/* Fluent 2 component materials. Keep dense gallery cards on opaque Mica;
+   use Acrylic only on surfaces that float above the page. */
+body.stash-fluent-mica .card,
+body.stash-fluent-mica .grid-card {
+    background-color: rgba(43, 43, 43, 0.90) !important;
+    border: 1px solid var(--glass-border) !important;
+    border-radius: 8px !important;
+    box-shadow: var(--shadow-sm) !important;
+}
+body.stash-fluent-mica .card:hover,
+body.stash-fluent-mica .grid-card:hover {
+    border-color: rgba(var(--accent-rgb), 0.32) !important;
+    box-shadow:
+        0 6px 18px rgba(0, 0, 0, 0.32),
+        0 0 0 1px rgba(var(--accent-rgb), 0.10) !important;
+}
+body.stash-fluent-mica .grid-card:hover {
+    transform: translateY(-2px) !important;
+}
+body.stash-fluent-mica .slick-slider .card:hover,
+body.stash-fluent-mica .slick-slider .grid-card:hover {
+    transform: none !important;
+    box-shadow: var(--shadow-sm) !important;
+}
+
+body.stash-fluent-mica nav.top-nav.navbar,
+body.stash-fluent-mica .fluent-mica-mobile-drawer,
+body.stash-fluent-mica .fluent-mica-mobile-dock,
+body.stash-fluent-mica :is(.dropdown-menu, .popover, .modal-content, .toast, .react-select__menu, .react-datepicker, .package-manager .card) {
+    background-color: rgba(32, 32, 32, 0.84) !important;
+    border-color: var(--glass-border-bright) !important;
+    -webkit-backdrop-filter: blur(22px) saturate(135%) !important;
+    backdrop-filter: blur(22px) saturate(135%) !important;
+}
+body.stash-fluent-mica .fluent-mica-mobile-drawer .fluent-mica-drawer-tile {
+    background: rgba(48, 48, 48, 0.82) !important;
+    border-color: var(--glass-border) !important;
+    border-radius: 6px !important;
+    box-shadow: none !important;
+}
+body.stash-fluent-mica .fluent-mica-mobile-drawer .fluent-mica-drawer-tile:hover,
+body.stash-fluent-mica .fluent-mica-mobile-drawer .fluent-mica-drawer-tile.is-active {
+    background: var(--accent-tint) !important;
+    border-color: rgba(var(--accent-rgb), 0.34) !important;
+    box-shadow: inset 0 0 0 1px rgba(var(--accent-rgb), 0.08) !important;
+}
+body.stash-fluent-mica .fluent-mica-mobile-dock .fluent-mica-dock-item::before {
+    border-radius: 6px;
+}
+body.stash-fluent-mica .fluent-mica-mobile-dock .fluent-mica-dock-item.is-active::before,
+body.stash-fluent-mica .fluent-mica-mobile-dock .fluent-mica-dock-burger.is-open::before {
+    background: var(--accent-tint) !important;
+    box-shadow: inset 0 0 0 1px rgba(var(--accent-rgb), 0.22) !important;
+}
+
+/* Fluent controls use clear fill, quiet hover, and a visible focus ring. */
+body.stash-fluent-mica .btn-primary:not(.minimal) {
+    background: var(--accent) !important;
+    border: 1px solid var(--accent) !important;
+    border-radius: 4px !important;
+    color: #fff !important;
+    box-shadow: none !important;
+    transition: background-color 120ms ease, border-color 120ms ease, box-shadow 120ms ease !important;
+}
+body.stash-fluent-mica .btn-primary:not(.minimal):hover,
+body.stash-fluent-mica .btn-primary:not(.minimal):focus-visible {
+    background: var(--accent-bright) !important;
+    border-color: var(--accent-bright) !important;
+    color: #fff !important;
+    box-shadow: 0 0 0 2px rgba(var(--accent-rgb), 0.20) !important;
+}
+body.stash-fluent-mica .btn-secondary {
+    background: rgba(255, 255, 255, 0.045) !important;
+    border: 1px solid var(--glass-border) !important;
+    border-radius: 4px !important;
+    color: var(--text) !important;
+    box-shadow: none !important;
+}
+body.stash-fluent-mica .btn-secondary:hover {
+    background: rgba(255, 255, 255, 0.09) !important;
+    border-color: var(--glass-border-bright) !important;
+}
+body.stash-fluent-mica :is(.form-control, .form-select, .text-input, input, select, textarea) {
+    background-color: rgba(255, 255, 255, 0.045);
+    border-color: var(--glass-border);
+    border-radius: 4px !important;
+}
+body.stash-fluent-mica :is(.form-control, .form-select, .text-input, input, select, textarea):focus {
+    border-color: rgba(var(--accent-rgb), 0.56) !important;
+    box-shadow: 0 0 0 2px rgba(var(--accent-rgb), 0.18) !important;
+}
+body.stash-fluent-mica [data-stash-filter] input[placeholder*="Search"] {
+    border-radius: 4px !important;
+}
+body.stash-fluent-mica [data-stash-filter] .btn-primary,
+body.stash-fluent-mica [data-stash-filter] button[data-filter-active] {
+    background: var(--accent-tint) !important;
+    border-color: rgba(var(--accent-rgb), 0.28) !important;
+    color: var(--accent-bright) !important;
+    box-shadow: inset 0 0 0 1px rgba(var(--accent-rgb), 0.08) !important;
+}
+body.stash-fluent-mica [data-stash-filter] .btn-primary svg,
+body.stash-fluent-mica [data-stash-filter] button[data-filter-active] svg {
+    filter: none !important;
+}
+
+/* Replace Refract's neon nav feedback with Fluent's subtle selected state. */
+body.stash-fluent-mica nav.top-nav :is(a.nav-link, a.nav-utility):is(.stash-nav-active, .active) > :is(button, .btn),
+body.stash-fluent-mica nav.top-nav :is(a.nav-link, a.nav-utility):is(.stash-nav-active, .active).btn,
+body.stash-fluent-mica nav.top-nav .navbar-nav a.btn.stash-nav-active,
+body.stash-fluent-mica nav.top-nav .navbar-buttons a[href$="/new"] > :is(button, .btn) {
+    background: var(--accent-tint) !important;
+    border-color: rgba(var(--accent-rgb), 0.28) !important;
+    color: var(--accent-bright) !important;
+    box-shadow: inset 0 0 0 1px rgba(var(--accent-rgb), 0.08) !important;
+}
+body.stash-fluent-mica nav.top-nav :is(a.nav-link, a.nav-utility):is(.stash-nav-active, .active) svg,
+body.stash-fluent-mica nav.top-nav .navbar-nav a.btn.stash-nav-active svg,
+body.stash-fluent-mica nav.top-nav .navbar-buttons a[href$="/new"] svg {
+    filter: none !important;
+}
+body.stash-fluent-mica nav.top-nav a.btn:hover,
+body.stash-fluent-mica nav.top-nav button.btn:hover {
+    transform: none !important;
+    box-shadow: inset 0 0 0 1px var(--glass-border-bright) !important;
+    -webkit-backdrop-filter: none !important;
+    backdrop-filter: none !important;
+}
+body.stash-fluent-mica nav.top-nav a.btn:hover svg,
+body.stash-fluent-mica nav.top-nav button.btn:hover svg {
+    transform: none !important;
+    filter: none !important;
+}
+
+/* The performer dossier layout remains available, but its title treatment
+   uses Fluent typography and an Acrylic label instead of neon display text. */
+body.stash-fluent-mica.fluent-mica-perf-layout-card .performer-card .fluent-mica-pc-name-banner {
+    background: rgba(32, 32, 32, 0.78) !important;
+    border-bottom: 1px solid var(--glass-border) !important;
+    border-radius: 0 0 4px 0;
+    -webkit-backdrop-filter: blur(12px) saturate(130%);
+    backdrop-filter: blur(12px) saturate(130%);
+}
+body.stash-fluent-mica.fluent-mica-perf-layout-card .performer-card .fluent-mica-pc-name-text,
+body.stash-fluent-mica .fluent-mica-cb-name {
+    color: var(--text) !important;
+    -webkit-text-fill-color: var(--text) !important;
+    font-family: var(--theme-font-stack) !important;
+    font-weight: 600 !important;
+    letter-spacing: 0 !important;
+    text-shadow: 0 1px 2px rgba(0, 0, 0, 0.72) !important;
+    filter: none !important;
+    background: none !important;
+    background-clip: border-box !important;
+    -webkit-background-clip: border-box !important;
+    animation: none !important;
+}
+body.stash-fluent-mica.fluent-mica-perf-layout-card .performer-card .fluent-mica-pc-name-banner .gender-icon {
+    filter: none !important;
+}
+body.stash-fluent-mica.fluent-mica-perf-layout-card .performer-card .favorite-button {
+    top: 0.5rem !important;
+    right: 0.5rem !important;
+    width: 2.25rem !important;
+    height: 2.25rem !important;
+    border: 1px solid var(--glass-border-bright) !important;
+    border-radius: 4px !important;
+    background: rgba(32, 32, 32, 0.82) !important;
+    box-shadow: none !important;
+    opacity: 1 !important;
+    animation: none !important;
+    transform: none !important;
+}
+body.stash-fluent-mica.fluent-mica-perf-layout-card .performer-card .favorite-button:hover {
+    background: var(--accent-tint) !important;
+    border-color: rgba(var(--accent-rgb), 0.36) !important;
+}
+body.stash-fluent-mica.fluent-mica-perf-layout-card .performer-card .favorite-button svg {
+    filter: none !important;
+}
+body.stash-fluent-mica .fluent-mica-cb {
+    background: rgba(39, 39, 39, 0.94) !important;
+    box-shadow: inset 0 0 0 1px var(--glass-border) !important;
+}
+body.stash-fluent-mica .fluent-mica-cb::after {
+    display: none !important;
+    animation: none !important;
+}
+body.stash-fluent-mica .fluent-mica-cb-score {
+    background: rgba(255, 255, 255, 0.045) !important;
+    border-color: var(--glass-border) !important;
+    box-shadow: none !important;
+}
+body.stash-fluent-mica .fluent-mica-cb-score-num {
+    background: none !important;
+    color: var(--text) !important;
+    -webkit-text-fill-color: var(--text) !important;
+    filter: none !important;
+    animation: none !important;
+    text-shadow: none !important;
+}
+body.stash-fluent-mica .fluent-mica-cb-tierchip {
+    color: var(--accent-bright) !important;
+    background: var(--accent-tint) !important;
+    border: 1px solid rgba(var(--accent-rgb), 0.24) !important;
+    border-radius: 4px !important;
+    box-shadow: none !important;
+}
+
+/* Scene lists use larger, consistent video cards on desktop and a single
+   full-width scene per row on mobile. Other library grids keep their density. */
+@media (min-width: 901px) {
+    body.stash-fluent-mica .row.justify-content-center:has(> .scene-card) {
+        display: grid !important;
+        grid-template-columns: repeat(auto-fill, minmax(360px, 1fr)) !important;
+        align-items: start;
+        gap: 1rem !important;
+        margin: 1rem 0 0 !important;
+        padding: 0 0.75rem !important;
+    }
+    body.stash-fluent-mica .row.justify-content-center:has(> .scene-card) > .scene-card {
+        width: 100% !important;
+        max-width: 100% !important;
+        min-width: 0 !important;
+        flex: initial !important;
+        margin: 0 !important;
+    }
+}
+@media (max-width: 900px) {
+    body.stash-fluent-mica .row.justify-content-center:has(> .scene-card) {
+        display: grid !important;
+        grid-template-columns: minmax(0, 1fr) !important;
+        gap: 1rem !important;
+        margin: 0.75rem 0 0 !important;
+        padding: 0 0.25rem !important;
+    }
+    body.stash-fluent-mica .row.justify-content-center:has(> .scene-card) > .scene-card {
+        width: 100% !important;
+        max-width: 100% !important;
+        min-width: 0 !important;
+        flex: initial !important;
+        margin: 0 !important;
+    }
 }

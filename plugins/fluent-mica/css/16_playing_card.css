@@ -1,11 +1,11 @@
 /* ═══════════════════════════════════════════════════════════════════
-   Playing-card style for performer cards
+   Fluent dossier layout for performer cards
    Active when `body.fluent-mica-perf-layout-card` is set (Performer card
    style = Refract). Tier TREATMENT lives on `.fluent-mica-flourish-tiers`
    instead, so a layout and a flourish can be chosen independently.
    Replaces the rating-banner-on-image + chin-name layout with a
-   trading-card layout: slim name banner across the top (glow scales
-   with rating tier) + prominent stats strip across the bottom
+   dossier layout: an Acrylic name banner across the top plus a
+   compact stats strip across the bottom
    (rating, age, scenes, O count, country flag).
 
    Performer cards only. Scene cards keep their normal refract chin
@@ -13,29 +13,6 @@
 
    Loaded BEFORE `15_lite.css` so lite-mode overrides still win.
    ═══════════════════════════════════════════════════════════════════ */
-
-/* Concert One — rounded blobby display font for the performer name.
-   Self-hosted from /fonts/. Stash exposes plugin static files at
-   `/plugin/fluent-mica/assets/<path>` (the `ui.assets./: .` mapping in
-   fluent-mica.yml). Two unicode-range subsets keep the latin-ext (accented)
-   payload as a separate face so browsers still skip it when not
-   needed (saves a couple KB of memory). */
-@font-face {
-    font-family: 'Concert One';
-    font-style: normal;
-    font-weight: 400;
-    font-display: block;
-    src: url("/plugin/fluent-mica/assets/fonts/ConcertOne-Regular.latin.woff2") format('woff2');
-    unicode-range: U+0000-00FF, U+0131, U+0152-0153, U+02BB-02BC, U+02C6, U+02DA, U+02DC, U+0304, U+0308, U+0329, U+2000-206F, U+20AC, U+2122, U+2191, U+2193, U+2212, U+2215, U+FEFF, U+FFFD;
-}
-@font-face {
-    font-family: 'Concert One';
-    font-style: normal;
-    font-weight: 400;
-    font-display: block;
-    src: url("/plugin/fluent-mica/assets/fonts/ConcertOne-Regular.latin-ext.woff2") format('woff2');
-    unicode-range: U+0100-02BA, U+02BD-02C5, U+02C7-02CC, U+02CE-02D7, U+02DD-02FF, U+0304, U+0308, U+0329, U+1D00-1DBF, U+1E00-1E9F, U+1EF2-1EFF, U+2020, U+20A0-20AB, U+20AD-20C0, U+2113, U+2C60-2C7F, U+A720-A7FF;
-}
 
 /* ── Reset: hide playing-card-only injected elements in other modes ──
    These are always injected by initPerformerCards() so we don't have
@@ -72,14 +49,12 @@ body.stash-fluent-mica.fluent-mica-perf-layout-card .performer-card .fluent-mica
     right: 25%;
     padding: 0.5rem 0.75rem;
     z-index: 6;
-    /* No background strip — name + gender float directly over the image.
-       Legibility comes from the strong text-shadow stack on the name
-       text (below), so the name remains readable over any image.
-       NO overflow:hidden — would clip the name's drop-shadow into a
-       rectangle. The parent card has overflow:hidden so the glow still
-       can't escape the card boundary. */
-    background: transparent;
-    border-bottom: none;
+    /* Acrylic name label keeps the title legible across bright photos. */
+    background: rgba(32, 32, 32, 0.78);
+    border-bottom: 1px solid var(--glass-border);
+    border-radius: 0 0 4px 0;
+    -webkit-backdrop-filter: blur(12px) saturate(130%);
+    backdrop-filter: blur(12px) saturate(130%);
     color: #fff;
     text-align: left;
     pointer-events: none;
@@ -97,11 +72,7 @@ body.stash-fluent-mica.fluent-mica-perf-layout-card .performer-card:has(.card-ch
     transition: opacity 0.15s ease;
 }
 
-/* Gender "type" slot — sits to the left of the name like a Pokemon
-   card type symbol. Bigger than the base rule + a multi-layer neon
-   glow chain that mirrors the name text's drop-shadow structure
-   (white-hot core → bright color cladding → color gas → far halo)
-   so the gender symbol reads as part of the same neon-tube family. */
+/* Gender icon aligns with the Fluent text label. */
 body.stash-fluent-mica.fluent-mica-perf-layout-card .performer-card .fluent-mica-pc-name-banner .gender-icon {
     width: 1.35rem !important;
     height: 1.35rem !important;
@@ -175,87 +146,28 @@ body.stash-fluent-mica.fluent-mica-lite.fluent-mica-perf-layout-card .performer-
     }
 }
 
-/* Per-gender neon glow chain — mirrors the 7-layer pattern from the
-   name text, using each gender's signature colour as the gas. The
-   icon's `color` property (set by 03_cards.css :1499-1532) feeds the
-   SVG fill via `currentColor`, so we only need to override `filter`
-   here. !important required to beat the base 03_cards rules. */
-/* Each gender glow trimmed from 7 layers to 3 (perf). Inner white-
-   hot + bright gender color stays; outer atmospheric halos (14px+,
-   < 0.85 opacity) cut. */
-/* Female + Trans female — pink */
-body.stash-fluent-mica.fluent-mica-perf-layout-card .performer-card .fluent-mica-pc-name-banner .gender-icon[data-gender="FEMALE"],
-body.stash-fluent-mica.fluent-mica-perf-layout-card .performer-card .fluent-mica-pc-name-banner .gender-icon[data-gender="TRANSGENDER_FEMALE"] {
-    filter:
-        drop-shadow(0 1px 2px rgba(0, 0, 0, 0.95))
-        drop-shadow(0 0 2px rgba(255, 255, 255, 1))
-        drop-shadow(0 0 8px rgba(244, 114, 182, 0.95)) !important;
-}
-/* Male + Trans male — blue */
-body.stash-fluent-mica.fluent-mica-perf-layout-card .performer-card .fluent-mica-pc-name-banner .gender-icon[data-gender="MALE"],
-body.stash-fluent-mica.fluent-mica-perf-layout-card .performer-card .fluent-mica-pc-name-banner .gender-icon[data-gender="TRANSGENDER_MALE"] {
-    filter:
-        drop-shadow(0 1px 2px rgba(0, 0, 0, 0.95))
-        drop-shadow(0 0 2px rgba(255, 255, 255, 1))
-        drop-shadow(0 0 8px rgba(96, 165, 250, 0.95)) !important;
-}
-/* Non-binary / Intersex — purple */
-body.stash-fluent-mica.fluent-mica-perf-layout-card .performer-card .fluent-mica-pc-name-banner .gender-icon[data-gender="NON_BINARY"],
-body.stash-fluent-mica.fluent-mica-perf-layout-card .performer-card .fluent-mica-pc-name-banner .gender-icon[data-gender="INTERSEX"] {
-    filter:
-        drop-shadow(0 1px 2px rgba(0, 0, 0, 0.95))
-        drop-shadow(0 0 2px rgba(255, 255, 255, 1))
-        drop-shadow(0 0 8px rgba(192, 132, 252, 0.95)) !important;
+body.stash-fluent-mica.fluent-mica-perf-layout-card .performer-card .fluent-mica-pc-name-banner .gender-icon {
+    filter: none !important;
 }
 
 body.stash-fluent-mica.fluent-mica-perf-layout-card .performer-card .fluent-mica-pc-name-text {
     display: block;
     flex: 1 1 auto;
     min-width: 0;
-    /* Concert One — rounded blobby display font. `!important` because
-       01_tokens.css:127 has a universal
-       `body.stash-fluent-mica *:not(code) { font-family: var(--theme-font-stack) !important; }`
-       rule that overrides every element's font; without !important here
-       the blanket rule wins and the playing-card name reverts to the
-       theme font. */
-    font-family: "Concert One", "Segoe UI", system-ui, -apple-system, sans-serif !important;
-    font-size: 1.25rem;
-    font-weight: 400;
+    font-family: var(--theme-font-stack) !important;
+    font-size: 1rem;
+    font-weight: 600;
     line-height: 1.1;
-    letter-spacing: 0.015em;
+    letter-spacing: 0;
     text-align: left;
     white-space: nowrap;
-    /* No overflow:hidden — would clip the drop-shadow glow into a
-       rectangle. Long names overflow visibly; the parent card has
-       overflow:hidden so the name still can't escape the card edge.
-       (No `text-overflow: ellipsis` either — it requires
-       `overflow: hidden` to render.) */
-    /* Solid white text — like a hot neon tube's glass, the inside
-       of the letter is white. The tier color identity lives entirely
-       in the drop-shadow chain below (gas glow radiating outward).
-       This keeps every letter equally readable regardless of which
-       tier's color is in play. Perfect tier overrides with a pastel
-       rainbow gradient below since rainbow is its signature. */
-    /* Solid white name (the tier identity lives in the glow / ribbon, not
-       the fill). */
-    color: #ffffff;
-    -webkit-text-fill-color: #ffffff;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    color: var(--text);
+    -webkit-text-fill-color: var(--text);
     background: none;
-    /* Neon glow stack — 4 layers (down from 8, perf-trimmed). Each
-       drop-shadow() is a full GPU blur pass; on a gallery page with
-       30+ animated cards the outer atmospheric halos (24px+, < 0.55
-       opacity) contribute nearly nothing visually but dominate paint
-       cost. Kept layers:
-         1. Sharp black drop  — legibility against any image
-         2. White-hot inner   — tube interior
-         3. Bright color rim  — gas glow at the tube wall
-         4. Color gas         — bulk of the gas plume
-    */
-    filter:
-        drop-shadow(0 1px 2px rgba(0, 0, 0, 0.95))
-        drop-shadow(0 0 2px rgba(255, 255, 255, 1))
-        drop-shadow(0 0 6px rgba(var(--badge-color-bright), 1))
-        drop-shadow(0 0 14px rgba(var(--badge-color), 0.6));
+    text-shadow: 0 1px 2px rgba(0, 0, 0, 0.72);
+    filter: none !important;
 }
 
 /* ── Hide elements that conflict with the playing-card layout ────── */
@@ -1083,7 +995,7 @@ body.stash-fluent-mica.fluent-mica-pc-hide-tier.fluent-mica-pc-hide-tier .perfor
 
    The NAME is not restyled here. The back emits the front's own
    `.fluent-mica-pc-name-banner`, whose rule is a plain descendant selector, so it
-   inherits the identical treatment: top-left, Albert Sans 400, gender glyph,
+   inherits the identical treatment: top-left, Fluent type, gender glyph,
    the text-shadow stack, and the right quarter left clear for the sash.
 
    Everything else is sized in `cqw` against the card's inline-size container,
@@ -1455,12 +1367,8 @@ body.stash-fluent-mica .fluent-mica-cb-portrait {
         0 3px 10px rgba(0, 0, 0, 0.5),
         inset 0 0 0 1px rgba(255, 255, 255, 0.06);
 }
-/* Same display font as the front of the card (Concert One). !important beats
-   the universal `*:not(code){font-family:...}` rule in 01_tokens. Bigger, with
-   the front's neon-tube glow chain, tier-tinted via --seal. Long names step
-   down in size (refractFitDossierCats) and then ellipsize; the padding and
-   the matching negative margin keep the clip box clear of the glow, which
-   would otherwise be cut into a rectangle. */
+/* The back uses the same Fluent type and restrained text shadow as the
+   front. Long names step down in size and then ellipsize. */
 body.stash-fluent-mica .fluent-mica-cb-name {
     flex: 0 1 auto;
     min-width: 0;
@@ -1468,24 +1376,15 @@ body.stash-fluent-mica .fluent-mica-cb-name {
     text-overflow: ellipsis;
     padding: 0.35em 0.3em;
     margin: -0.35em -0.3em;
-    font-family: "Concert One", "Segoe UI", system-ui, -apple-system, sans-serif !important;
+    font-family: var(--theme-font-stack) !important;
     font-size: 1.34rem;
-    font-weight: 400;
-    letter-spacing: 0.01em;
+    font-weight: 600;
+    letter-spacing: 0;
     line-height: 1.05;
     white-space: nowrap;
     color: #fff;
     -webkit-text-fill-color: #fff;
-    /* Glow via text-shadow, NOT filter: a filter makes the name its own
-       stacking context, which Chromium mis-composites under the tier holo
-       overlay's mix-blend-mode and the name vanishes entirely on the holo
-       tiers (gold/diamond/legendary/perfect). text-shadow gives the same neon
-       glow without creating that stacking context. */
-    text-shadow:
-        0 1px 2px rgba(0, 0, 0, 0.92),
-        0 0 3px rgba(255, 255, 255, 0.55),
-        0 0 8px rgba(var(--seal-rgb), 0.7),
-        0 0 16px rgba(var(--seal-rgb), 0.4);
+    text-shadow: 0 1px 2px rgba(0, 0, 0, 0.72);
 }
 /* Gender "type" glyph before the name (cloned from the card's native icon).
    Sized up to sit next to the headline name. NO filter override: the base

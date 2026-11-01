@@ -4274,8 +4274,8 @@
            frames, halos and animations (Bronze -> Perfect) and the tier ribbon
            are "extravagant". Drives `.fluent-mica-flourish-tiers`.
 
-       Both default to the shipped look (Classic + Minimal). Only the non-
-       default emits a class, so an untouched install carries neither.
+       The performer dossier remains the default layout, while rating flourishes
+       default to Minimal for Fluent 2. Only non-default choices emit classes.
        Scene card style stays its own setting; the two card types have always
        had independent layouts and merging them would lose combinations. */
     function storedPreviewKind() {
@@ -4291,11 +4291,8 @@
         try { return localStorage.getItem(CUSTOMISER_OPEN_KEY) !== "0"; }
         catch (e) { return true; }
     }
-    /* Defaults are REFRACT and EXTRAVAGANT. They were Classic and Minimal,
-       which on a fresh install hid the entire back/flip story -- the customiser
-       had no Back button, no dossier, no slot chips, no performer-page control,
-       all gated on the Refract layout -- and left the "Name" chip a no-op.
-       Anyone with a stored value keeps it; only the never-set case moves. */
+    /* The dossier layout keeps the Refract base geometry. Rating effects use
+       Fluent's restrained treatment by default; saved Extravagant choices stay. */
     function getPerfCardStyle() {
         try {
             return localStorage.getItem(PERF_CARD_STYLE_KEY) === "classic" ? "classic" : "refract";
@@ -4303,8 +4300,8 @@
     }
     function getFlourish() {
         try {
-            return localStorage.getItem(FLOURISH_KEY) === "minimal" ? "minimal" : "extravagant";
-        } catch (e) { return "extravagant"; }
+            return localStorage.getItem(FLOURISH_KEY) === "extravagant" ? "extravagant" : "minimal";
+        } catch (e) { return "minimal"; }
     }
     function applyCardModeClasses() {
         if (!document.body) { return; }
@@ -6928,7 +6925,7 @@
         /* Reuse the FRONT's own name banner rather than approximating it. Its
            rule is a plain descendant selector, so the same markup inside the
            back inherits the identical treatment: left-aligned at the very top
-           edge, Albert Sans 400, the gender glyph, the text-shadow stack, and
+           edge, Fluent type, the gender glyph, the text-shadow stack, and
            the right quarter left clear for the tier sash. Centring a bold copy
            of it, as the first pass did, was not a mirror of anything. */
         var srcBanner = card.querySelector(".fluent-mica-pc-name-banner");
@@ -9220,8 +9217,8 @@
                             if (row.scrollWidth <= pcAvail + 1) { break; }
                         }
                     }
-                    /* Name banner — Concert One is moderately wide;
-                       step font-size down through the ladder until the
+                    /* Name banner — step the Fluent font-size down through
+                       the ladder until the
                        text fits the left 3/4 of the banner. */
                     if (bannerInner) {
                         var sizes = [1.25, 1.1, 0.95, 0.85, 0.75, 0.7];

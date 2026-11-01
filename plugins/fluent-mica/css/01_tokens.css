@@ -1,44 +1,23 @@
 /* ───────────────────────────────────────────────────────────────────
-   Stash Theme — iOS Liquid Glass
-   Minimalist dark theme, glass surfaces, orange accent only.
-   Targets Stash + Bootstrap 5.
+   Fluent Mica tokens layered over Refract's Stash layout.
+   These first-paint defaults match the final Fluent 2 layer so delayed
+   assets do not briefly show the previous theme styling.
    ─────────────────────────────────────────────────────────────────── */
 
-/* Albert Sans Variable — self-hosted from /fonts/. Single variable
-   file covers weights 100–900 (and italic counterpart). Stash exposes
-   plugin static files under `/plugin/fluent-mica/assets/<path>` (the
-   `ui.assets./: .` mapping in fluent-mica.yml — the `/assets/` segment is
-   added by Stash, not us). The plain `/plugin/fluent-mica/<path>` route
-   only serves the CSS/JS files listed in the manifest — everything else
-   404s, which is why the original v1.10.2 was silently falling back to
-   system-ui until we tested with Moirai One on 2026-05-20. */
-@font-face {
-    font-family: "Albert Sans";
-    src: url("/plugin/fluent-mica/assets/fonts/AlbertSans-Variable.woff2") format("woff2");
-    font-weight: 100 900;
-    font-style: normal;
-    font-display: block;
-}
-@font-face {
-    font-family: "Albert Sans";
-    src: url("/plugin/fluent-mica/assets/fonts/AlbertSans-Variable-Italic.woff2") format("woff2");
-    font-weight: 100 900;
-    font-style: italic;
-    font-display: block;
-}
-
 body.stash-fluent-mica {
-    --theme-font-stack: "Albert Sans", system-ui, sans-serif;
-    --bg-0: #0a0a0a;
-    --bg-1: #111;
-    --text: rgba(255, 255, 255, 0.92);
-    --text-muted: rgba(255, 255, 255, 0.55);
+    --theme-font-stack: "Segoe UI Variable", "Segoe UI", system-ui, sans-serif;
+    --mica-base: #202020;
+    --mica-elevated: #292929;
+    --bg-0: #171717;
+    --bg-1: #202020;
+    --text: rgba(255, 255, 255, 0.94);
+    --text-muted: rgba(255, 255, 255, 0.66);
 
-    --glass-bg: rgba(255, 255, 255, 0.06);
-    --glass-bg-strong: rgba(255, 255, 255, 0.10);
-    --glass-border: rgba(255, 255, 255, 0.12);
-    --glass-border-bright: rgba(255, 255, 255, 0.22);
-    --glass-blur: blur(24px);             /* legacy alias — equals --glass-blur-xl */
+    --glass-bg: rgba(39, 39, 39, 0.90);
+    --glass-bg-strong: rgba(48, 48, 48, 0.96);
+    --glass-border: rgba(255, 255, 255, 0.09);
+    --glass-border-bright: rgba(255, 255, 255, 0.17);
+    --glass-blur: blur(26px) saturate(135%);
 
     /* Backdrop blur tiers. Each unique backdrop-filter expression compiles
        to its own HLSL shader on Windows Chromium / D3D11; consolidating
@@ -46,14 +25,14 @@ body.stash-fluent-mica {
        stops the HLSLCompiler recompile churn on home-page navigation. */
     --glass-blur-xs:      blur(6px);
     --glass-blur-sm:      blur(10px);
-    --glass-blur-md:      blur(14px);
-    --glass-blur-lg:      blur(20px);
-    --glass-blur-xl:      blur(24px);
+    --glass-blur-md:      blur(16px) saturate(135%);
+    --glass-blur-lg:      blur(22px) saturate(140%);
+    --glass-blur-xl:      blur(26px) saturate(140%);
     --glass-blur-2xl:     blur(32px);
     --glass-blur-sm-sat:  blur(10px) saturate(140%);
-    --glass-blur-md-sat:  blur(14px) saturate(140%);
-    --glass-blur-lg-sat:  blur(20px) saturate(140%);
-    --glass-blur-xl-sat:  blur(24px) saturate(140%);
+    --glass-blur-md-sat:  blur(16px) saturate(135%);
+    --glass-blur-lg-sat:  blur(22px) saturate(140%);
+    --glass-blur-xl-sat:  blur(26px) saturate(140%);
     --glass-blur-2xl-sat: blur(32px) saturate(140%);
 
     --glass-shadow: 0 10px 40px rgba(0, 0, 0, 0.45);
@@ -62,12 +41,12 @@ body.stash-fluent-mica {
        so light-mode (14_light.css) can swap to soft light variants in
        one place rather than per-selector. Composites that include
        accent halos compose `var(--shadow-X)` with inline accent layers. */
-    --shadow-xs: 0 1px 4px rgba(0, 0, 0, 0.35);
-    --shadow-sm: 0 2px 10px rgba(0, 0, 0, 0.25);
-    --shadow-md: 0 4px 24px rgba(0, 0, 0, 0.25);
-    --shadow-lg: 0 8px 26px rgba(0, 0, 0, 0.32);
-    --shadow-xl: 0 12px 40px rgba(0, 0, 0, 0.55);
-    --shadow-2xl: 0 24px 60px rgba(0, 0, 0, 0.55);
+    --shadow-xs: 0 1px 3px rgba(0, 0, 0, 0.28);
+    --shadow-sm: 0 2px 8px rgba(0, 0, 0, 0.25);
+    --shadow-md: 0 4px 18px rgba(0, 0, 0, 0.28);
+    --shadow-lg: 0 8px 28px rgba(0, 0, 0, 0.34);
+    --shadow-xl: 0 12px 38px rgba(0, 0, 0, 0.42);
+    --shadow-2xl: 0 22px 56px rgba(0, 0, 0, 0.48);
 
     /* Inset track shadow — used on player/scrubber grooves where a
        dark dent + bright top-rim creates the "carved" look. */
@@ -75,21 +54,14 @@ body.stash-fluent-mica {
         inset 0 1px 2px rgba(0, 0, 0, 0.45),
         0 1px 0 rgba(255, 255, 255, 0.05);
 
-    /* Navbar composite — depth drop + hairline + inner highlight, plus
-       a tighter accent glow halo so it doesn't extend past the
-       viewport's left/right edges (where Stash's main wrapper / body
-       overflow-x clipping cuts the wide far-halo layer off
-       asymmetrically). Keeps the close + mid layers for the
-       illuminated feel without the visible cutoff. */
+    /* Mica navbar elevation: soft depth, hairline, and a top highlight. */
     --shadow-navbar:
-        0 12px 36px rgba(0, 0, 0, 0.5),
-        0 0 0 1px rgba(0, 0, 0, 0.25),
-        inset 0 1px 0 rgba(255, 255, 255, 0.06),
-        0 0 18px rgba(var(--accent-rgb), 0.28),
-        0 0 40px rgba(var(--accent-rgb), 0.16);
+        0 8px 28px rgba(0, 0, 0, 0.38),
+        0 0 0 1px rgba(0, 0, 0, 0.22),
+        inset 0 1px 0 rgba(255, 255, 255, 0.07);
 
-    --radius: 16px;
-    --radius-sm: 12px;
+    --radius: 8px;
+    --radius-sm: 4px;
     --radius-pill: 9999px;
 
     /* Type scale. Root is 14px. Before this existed the performer header
@@ -112,8 +84,8 @@ body.stash-fluent-mica {
     --accent-bright: #2899f5;
     --accent-light: #c7e0f4;
     --accent-rgb: 0, 120, 212;
-    --accent-glow: rgba(var(--accent-rgb), 0.28);
-    --accent-tint: rgba(var(--accent-rgb), 0.12);
+    --accent-glow: rgba(var(--accent-rgb), 0.18);
+    --accent-tint: rgba(var(--accent-rgb), 0.14);
 
     --nav-btn-size: 2.4rem;
     --nav-icon-size: 1rem;
@@ -126,12 +98,15 @@ body.stash-fluent-mica {
     --bs-card-bg: var(--glass-bg);
     --bs-border-color: var(--glass-border);
     --bs-border-color-translucent: var(--glass-border);
+    --bs-border-radius: 4px;
+    --bs-border-radius-sm: 2px;
+    --bs-border-radius-lg: 6px;
 
     /* Override Bootstrap's blue link defaults */
     --bs-link-color: rgba(255, 255, 255, 0.85);
     --bs-link-color-rgb: 255, 255, 255;
     --bs-link-hover-color: var(--accent-bright);
-    --bs-link-hover-color-rgb: 251, 146, 60;
+    --bs-link-hover-color-rgb: 40, 153, 245;
 
     /* Override Bootstrap table color variables */
     --bs-table-color: var(--text);
@@ -143,19 +118,19 @@ body.stash-fluent-mica {
     --bs-table-border-color: rgba(255, 255, 255, 0.06);
 
     /* Override Bootstrap popover variables at body level so they cascade everywhere */
-    --bs-popover-bg: rgba(20, 20, 24, 0.97);
-    --bs-popover-border-color: rgba(255, 255, 255, 0.12);
-    --bs-popover-border-radius: 12px;
-    --bs-popover-inner-border-radius: 11px;
-    --bs-popover-body-color: rgba(255, 255, 255, 0.92);
-    --bs-popover-header-bg: rgba(255, 255, 255, 0.05);
-    --bs-popover-header-color: rgba(255, 255, 255, 0.92);
+    --bs-popover-bg: rgba(43, 43, 43, 0.96);
+    --bs-popover-border-color: var(--glass-border-bright);
+    --bs-popover-border-radius: var(--radius-sm);
+    --bs-popover-inner-border-radius: 3px;
+    --bs-popover-body-color: var(--text);
+    --bs-popover-header-bg: rgba(255, 255, 255, 0.045);
+    --bs-popover-header-color: var(--text);
 
     color: var(--text);
     background:
-        radial-gradient(120% 80% at 20% 0%, rgba(255, 255, 255, 0.04) 0%, transparent 55%),
-        radial-gradient(100% 60% at 100% 30%, rgba(var(--accent-rgb), 0.04) 0%, transparent 50%),
-        linear-gradient(180deg, var(--bg-1) 0%, var(--bg-0) 100%);
+        radial-gradient(110% 85% at 8% -12%, rgba(255, 255, 255, 0.055), transparent 55%),
+        radial-gradient(95% 72% at 100% 8%, rgba(var(--accent-rgb), 0.09), transparent 58%),
+        linear-gradient(145deg, #242424 0%, #1b1b1b 52%, #202020 100%);
     background-attachment: fixed;
 
     font-family: var(--theme-font-stack);

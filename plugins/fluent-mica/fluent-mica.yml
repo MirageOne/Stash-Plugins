@@ -1,6 +1,6 @@
 name: Fluent Mica
 description: Fluent 2 dark theme based on Refract, with Mica backgrounds and Acrylic surfaces.
-version: 1.0.0
+version: 1.0.1
 url: https://github.com/MirageOne/Stasher
 ui:
   assets:

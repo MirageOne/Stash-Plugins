@@ -211,6 +211,11 @@ body.stash-noir-theme .noir-home-spotlight__arrow:focus-visible {
     background: var(--accent);
 }
 
+body.stash-noir-theme .noir-home-spotlight__toggle:disabled {
+    opacity: 0.48;
+    cursor: not-allowed;
+}
+
 body.stash-noir-theme .noir-home-spotlight__indicators {
     display: flex;
     align-items: center;
@@ -666,6 +671,19 @@ body.stash-noir-theme .sidebar-pane-content > .row.justify-content-center {
         flex-basis: 34px;
         width: 34px;
         height: 34px;
+    }
+
+    body.stash-noir-theme .noir-home-spotlight__controls {
+        gap: 3px;
+        padding: 3px;
+    }
+
+    body.stash-noir-theme .noir-home-spotlight__indicator {
+        width: 17px;
+    }
+
+    body.stash-noir-theme .noir-home-spotlight__count {
+        min-width: 30px;
     }
 }
 

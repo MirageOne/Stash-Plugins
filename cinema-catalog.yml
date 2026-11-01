@@ -1,6 +1,6 @@
 name: Cinema Catalog
 description: A dark, media-first Stash theme with responsive navigation and a configurable accent palette.
-version: 0.1.1
+version: 0.1.2
 url: https://github.com/MirageOne/Stasher
 ui:
   css:

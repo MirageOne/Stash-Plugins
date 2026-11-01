@@ -194,8 +194,8 @@
         }
         return R.createElement("div", { className: "setting noir-theme-support" },
             R.createElement("div", { className: "sub-heading" },
-                "A Fluent 2 adaptation of ",
-                link("https://github.com/ordureconnoisseur/stash-refract", "Refract Theme"),
+                "Noir is a dark Fluent 2-inspired theme built on ",
+                link("https://github.com/ordureconnoisseur/stash-refract", "Refract"),
                 " (AGPL-3.0)."));
     }
 
@@ -2676,7 +2676,24 @@
                 dangerouslySetInnerHTML: { __html: lightOn ? SUN_ICON_SVG : MOON_ICON_SVG }
             }));
 
-            return R.createElement("div", { className: "plugin-settings" },
+            return R.createElement("div", { className: "plugin-settings noir-theme-settings-panel" },
+                R.createElement("div", { className: "noir-theme-settings-intro" },
+                    R.createElement("span", {
+                        className: "noir-theme-settings-mark",
+                        dangerouslySetInnerHTML: { __html: ARCHIVE_MONOGRAM_SVG }
+                    }),
+                    R.createElement("div", { className: "noir-theme-settings-intro-copy" },
+                        R.createElement("span", { className: "noir-theme-settings-kicker" }, "NOIR THEME SETTINGS"),
+                        R.createElement("h2", null, "Make Noir yours"),
+                        R.createElement("p", null, "Set your accent, shape navigation, and fine-tune the way your library looks.")
+                    )
+                ),
+                R.createElement("section", { className: "noir-theme-settings-group noir-theme-settings-appearance" },
+                    R.createElement("div", { className: "noir-theme-settings-group-heading" },
+                    R.createElement("div", null,
+                        R.createElement("h3", null, "Appearance"),
+                        R.createElement("p", null, "Accent color and display options."))
+                    ),
                 R.createElement("div", { className: "setting", id: "plugin-noir-theme-accent" },
                     R.createElement("div", null,
                         R.createElement("h3", null, "Accent color"),
@@ -2687,9 +2704,9 @@
                 ),
                 R.createElement("div", { className: "setting", id: "plugin-noir-theme-lite-mode" },
                     R.createElement("div", null,
-                        R.createElement("h3", null, "Lite mode"),
+                        R.createElement("h3", null, "Reduce visual effects"),
                         R.createElement("div", { className: "sub-heading" },
-                            "Strip backdrop-blur + hover glow halos + card tilt (the GPU-heavy bits). Animations, shadows, and the performer carousel stay. Recommended if the home page feels janky on Chrome / Edge / Brave.")
+                            "Reduce blur, hover glows, and card tilt to lower rendering work on slower devices. Other theme features stay enabled.")
                     ),
                     R.createElement("div", { className: "noir-theme-setting-control" },
                         R.createElement("div", { className: "custom-control custom-switch" },
@@ -2705,6 +2722,7 @@
                                 htmlFor: "noir-theme-lite-mode-toggle"
                             })
                         )
+                    )
                     )
                 ),
                 /* == Card customiser ==
@@ -2726,9 +2744,9 @@
                     onToggle: function (e) { setCustomiserOpenPref(e.currentTarget.open); }
                 },
                     R.createElement("summary", { className: "noir-theme-suggestion-summary noir-theme-customiser-header" },
-                        R.createElement("h3", null, "Card customiser"),
+                        R.createElement("h3", null, "Card appearance"),
                         R.createElement("div", { className: "sub-heading" },
-                            "Everything that changes how cards look, around a live preview.")
+                            "Preview and adjust scene and performer cards.")
                     ),
                     R.createElement("div", { className: "noir-theme-suggestion-body noir-theme-cc-body" },
                         /* == Corner touch ==================================
@@ -2869,6 +2887,12 @@
                         )
                     )
                 ),
+                R.createElement("section", { className: "noir-theme-settings-group noir-theme-settings-navigation" },
+                    R.createElement("div", { className: "noir-theme-settings-group-heading" },
+                    R.createElement("div", null,
+                        R.createElement("h3", null, "Navigation"),
+                        R.createElement("p", null, "Choose how Stash routes appear on desktop and mobile."))
+                    ),
                 R.createElement("div", { className: "setting noir-theme-sidebar-settings", id: "plugin-noir-theme-sidebar-config" },
                     R.createElement("div", null,
                         R.createElement("h3", null, "Desktop sidebar"),
@@ -2894,19 +2918,20 @@
                     R.createElement("div", null,
                         R.createElement("h3", null, "Mobile dock"),
                         R.createElement("div", { className: "sub-heading" },
-                            "Choose which icons sit in the bottom bar on narrow screens; lit icons are shown, up to six. Plugin buttons included. The burger is always last, and everything stays reachable from its drawer.")
+                            "Choose up to six destinations for the bottom bar. Hidden destinations remain available from the menu.")
                     ),
                     R.createElement(DockConfigGrid)
+                    )
                 ),
                 /* ── The Suggestion Box ─────────────────────────────────────
                    A collapsed-by-default drawer of opt-in features that run
                    against the theme's defaults but get requested often.
                    Native <details> so it stays hidden until clicked open. */
-                R.createElement("details", { className: "noir-theme-suggestion-box" },
+                R.createElement("details", { className: "noir-theme-suggestion-box noir-theme-advanced-options" },
                     R.createElement("summary", { className: "noir-theme-suggestion-summary" },
-                        R.createElement("h3", null, "The Suggestion Box"),
+                        R.createElement("h3", null, "Advanced options"),
                         R.createElement("div", { className: "sub-heading" },
-                            "Things I'd never pick myself. But you asked, so here they are. Enable at your own aesthetic risk.")
+                            "Optional controls for player, plugin, and navigation behavior.")
                     ),
                     R.createElement("div", { className: "noir-theme-suggestion-body" },
                         R.createElement("div", { className: "setting", id: "plugin-noir-theme-studio-banner" },

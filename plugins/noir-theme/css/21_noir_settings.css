@@ -1,0 +1,249 @@
+/* Noir's settings surface: compact, grouped, and consistent with the
+   charcoal / violet theme instead of Stash's generic plugin form. */
+body.stash-noir-theme #noir-theme-settings-section {
+    scroll-margin-top: 1rem;
+}
+
+body.stash-noir-theme #noir-theme-settings-section > h1 {
+    margin: 0 0 0.8rem !important;
+    padding: 0 !important;
+    border: 0 !important;
+    color: #f4f2f7 !important;
+    font-size: 1.35rem !important;
+    font-weight: 720 !important;
+    letter-spacing: -0.035em !important;
+    line-height: 1.2 !important;
+    text-transform: none !important;
+}
+
+body.stash-noir-theme #noir-theme-settings-section > .card {
+    padding: 0 !important;
+    border: 0 !important;
+    background: transparent !important;
+    box-shadow: none !important;
+}
+
+body.stash-noir-theme #noir-theme-settings-section .noir-theme-settings-panel {
+    display: flex !important;
+    flex-direction: column !important;
+    gap: 0.85rem !important;
+    padding: 0 !important;
+}
+
+body.stash-noir-theme #noir-theme-settings-section .noir-theme-settings-intro {
+    display: flex;
+    align-items: center;
+    gap: 1rem;
+    padding: 1rem 1.2rem;
+    border: 1px solid rgba(var(--accent-rgb), 0.24);
+    border-radius: 14px;
+    background:
+        radial-gradient(70% 150% at 0% 0%, rgba(var(--accent-rgb), 0.15), transparent 72%),
+        linear-gradient(145deg, rgba(30, 30, 37, 0.96), rgba(20, 21, 26, 0.96));
+    box-shadow: 0 12px 28px rgba(0, 0, 0, 0.18);
+}
+
+body.stash-noir-theme #noir-theme-settings-section .noir-theme-settings-mark {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    flex: 0 0 3.25rem;
+    width: 3.25rem;
+    height: 3.25rem;
+    border: 1px solid rgba(var(--accent-rgb), 0.3);
+    border-radius: 12px;
+    color: #f4f2f7;
+    background: rgba(var(--accent-rgb), 0.12);
+}
+
+body.stash-noir-theme #noir-theme-settings-section .noir-theme-settings-mark .noir-theme-archive-mark {
+    width: 2.1rem;
+    height: 2.1rem;
+}
+
+body.stash-noir-theme #noir-theme-settings-section .noir-theme-settings-intro-copy {
+    min-width: 0;
+}
+
+body.stash-noir-theme #noir-theme-settings-section .noir-theme-settings-kicker {
+    display: block;
+    margin: 0 0 0.25rem;
+    color: var(--accent-bright);
+    font-size: 0.68rem;
+    font-weight: 750;
+    letter-spacing: 0.13em;
+}
+
+body.stash-noir-theme #noir-theme-settings-section .noir-theme-settings-intro h2 {
+    margin: 0;
+    color: #f7f5fa;
+    font-size: clamp(1.15rem, 2vw, 1.45rem);
+    font-weight: 700;
+    letter-spacing: -0.025em;
+    line-height: 1.2;
+}
+
+body.stash-noir-theme #noir-theme-settings-section .noir-theme-settings-intro p {
+    margin: 0.35rem 0 0;
+    color: var(--text-muted);
+    font-size: 0.82rem;
+    line-height: 1.45;
+}
+
+body.stash-noir-theme #noir-theme-settings-section .noir-theme-settings-group {
+    min-width: 0;
+    padding: 0.95rem 1.1rem 0.5rem;
+    border: 1px solid var(--glass-border);
+    border-radius: 14px;
+    background: linear-gradient(145deg, rgba(27, 28, 33, 0.94), rgba(20, 21, 25, 0.94));
+    box-shadow: 0 10px 26px rgba(0, 0, 0, 0.14);
+}
+
+body.stash-noir-theme #noir-theme-settings-section .noir-theme-settings-group-heading {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 1rem;
+    margin: 0 0 0.35rem;
+    padding: 0 0 0.7rem;
+    border-bottom: 1px solid rgba(var(--accent-rgb), 0.2);
+}
+
+body.stash-noir-theme #noir-theme-settings-section .noir-theme-settings-group-heading h3 {
+    margin: 0;
+    color: #f3f1f7;
+    font-size: 0.95rem;
+    font-weight: 680;
+    letter-spacing: -0.01em;
+}
+
+body.stash-noir-theme #noir-theme-settings-section .noir-theme-settings-group-heading p {
+    margin: 0.2rem 0 0;
+    color: var(--text-muted);
+    font-size: 0.78rem;
+    line-height: 1.4;
+}
+
+body.stash-noir-theme #noir-theme-settings-section .noir-theme-settings-group > .setting {
+    display: flex !important;
+    align-items: center;
+    gap: 1.25rem;
+    margin: 0 !important;
+    padding: 0.85rem 0 !important;
+    border: 0 !important;
+    border-bottom: 1px solid rgba(255, 255, 255, 0.065) !important;
+    background: transparent !important;
+}
+
+body.stash-noir-theme #noir-theme-settings-section .noir-theme-settings-group > .setting:last-child {
+    border-bottom: 0 !important;
+    padding-bottom: 0.55rem !important;
+}
+
+body.stash-noir-theme #noir-theme-settings-section .noir-theme-settings-group .setting > div:first-child {
+    flex: 1 1 auto;
+    min-width: 0;
+}
+
+body.stash-noir-theme #noir-theme-settings-section .noir-theme-settings-group .setting h3 {
+    margin: 0 0 0.2rem;
+    color: var(--text);
+    font-size: 0.87rem;
+    font-weight: 620;
+}
+
+body.stash-noir-theme #noir-theme-settings-section .noir-theme-settings-group .sub-heading {
+    color: var(--text-muted);
+    font-size: 0.76rem;
+    line-height: 1.45;
+}
+
+body.stash-noir-theme #noir-theme-settings-section .noir-theme-settings-group .noir-theme-accent-swatches {
+    flex: 0 0 auto;
+    gap: 0.55rem !important;
+}
+
+body.stash-noir-theme #noir-theme-settings-section .noir-theme-settings-group .noir-theme-sidebar-settings,
+body.stash-noir-theme #noir-theme-settings-section .noir-theme-settings-group .noir-theme-dock-config-setting {
+    display: block !important;
+}
+
+body.stash-noir-theme #noir-theme-settings-section .noir-theme-sidebar-collapse-setting {
+    margin: 0.75rem 0;
+    padding: 0.65rem 0.75rem;
+    border: 1px solid rgba(255, 255, 255, 0.065);
+    border-radius: 9px;
+    background: rgba(255, 255, 255, 0.025);
+}
+
+body.stash-noir-theme #noir-theme-settings-section .noir-theme-settings-panel > .noir-theme-suggestion-box {
+    margin: 0 !important;
+    border-color: var(--glass-border-bright);
+    border-radius: 14px;
+    background: linear-gradient(145deg, rgba(27, 28, 33, 0.88), rgba(20, 21, 25, 0.9));
+}
+
+body.stash-noir-theme #noir-theme-settings-section .noir-theme-settings-panel > .noir-theme-suggestion-box[open] {
+    border-color: rgba(var(--accent-rgb), 0.34);
+}
+
+body.stash-noir-theme #noir-theme-settings-section .noir-theme-settings-panel > .noir-theme-suggestion-box > summary {
+    padding: 1rem 2.5rem 1rem 1.1rem;
+}
+
+body.stash-noir-theme #noir-theme-settings-section .noir-theme-support {
+    justify-content: center;
+    margin: 0 !important;
+    padding: 0.35rem 0 0;
+    border: 0 !important;
+    color: var(--text-muted);
+    text-align: center;
+}
+
+@media (max-width: 768px) {
+    body.stash-noir-theme #noir-theme-settings-section .noir-theme-settings-panel {
+        gap: 0.65rem !important;
+    }
+
+    body.stash-noir-theme #noir-theme-settings-section .noir-theme-settings-intro {
+        gap: 0.75rem;
+        padding: 0.85rem;
+    }
+
+    body.stash-noir-theme #noir-theme-settings-section .noir-theme-settings-mark {
+        flex-basis: 2.75rem;
+        width: 2.75rem;
+        height: 2.75rem;
+        border-radius: 10px;
+    }
+
+    body.stash-noir-theme #noir-theme-settings-section .noir-theme-settings-mark .noir-theme-archive-mark {
+        width: 1.8rem;
+        height: 1.8rem;
+    }
+
+    body.stash-noir-theme #noir-theme-settings-section .noir-theme-settings-intro p {
+        font-size: 0.76rem;
+    }
+
+    body.stash-noir-theme #noir-theme-settings-section .noir-theme-settings-group {
+        padding: 0.75rem 0.85rem 0.4rem;
+    }
+
+    body.stash-noir-theme #noir-theme-settings-section .noir-theme-settings-group > .setting {
+        display: block !important;
+    }
+
+    body.stash-noir-theme #noir-theme-settings-section .noir-theme-settings-group .noir-theme-accent-swatches,
+    body.stash-noir-theme #noir-theme-settings-section .noir-theme-settings-group .noir-theme-setting-control {
+        justify-content: flex-start !important;
+        margin: 0.65rem 0 0 !important;
+    }
+}
+
+@media (prefers-reduced-motion: reduce) {
+    body.stash-noir-theme #noir-theme-settings-section .noir-theme-settings-panel * {
+        scroll-behavior: auto !important;
+        transition-duration: 0.01ms !important;
+    }
+}

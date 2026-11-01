@@ -1,0 +1,623 @@
+/* ───────────────────────────────────────────────────────────────────
+   Noir page compositions — video-first home and performer profiles.
+   Stash owns the page controls and data; these styles give its live
+   sections the larger editorial hierarchy shown in the Noir mockup.
+   ─────────────────────────────────────────────────────────────────── */
+
+/* Home spotlight is built from the first native scene card. The card's
+   screenshot and destination stay linked to Stash, while this wide hero
+   gives the newest video the visual priority of a streaming home page. */
+body.stash-noir-theme .noir-home-spotlight {
+    position: relative;
+    isolation: isolate;
+    display: flex;
+    align-items: flex-end;
+    min-height: clamp(330px, 37vw, 470px);
+    margin: 8px 0 2rem;
+    border: 1px solid rgba(var(--accent-rgb), 0.25);
+    border-radius: 18px;
+    overflow: hidden;
+    background:
+        radial-gradient(900px 420px at 92% 12%, rgba(var(--accent-rgb), 0.22), transparent 60%),
+        linear-gradient(120deg, #1b1c22, #111216 72%);
+    box-shadow:
+        0 20px 54px rgba(0, 0, 0, 0.35),
+        0 0 54px -28px rgba(var(--accent-rgb), 0.65);
+}
+
+body.stash-noir-theme .noir-home-spotlight__image {
+    position: absolute;
+    inset: 0;
+    z-index: -2;
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    object-position: center 36%;
+    opacity: 0.64;
+    filter: saturate(0.8);
+}
+
+body.stash-noir-theme .noir-home-spotlight::after {
+    content: "";
+    position: absolute;
+    inset: 0;
+    z-index: -1;
+    pointer-events: none;
+    background:
+        linear-gradient(90deg,
+            rgba(12, 13, 16, 0.96) 0%,
+            rgba(12, 13, 16, 0.82) 35%,
+            rgba(12, 13, 16, 0.34) 75%,
+            rgba(12, 13, 16, 0.52) 100%),
+        linear-gradient(0deg, rgba(12, 13, 16, 0.82), transparent 45%);
+}
+
+body.stash-noir-theme .noir-home-spotlight__content {
+    position: relative;
+    max-width: 760px;
+    padding: clamp(24px, 4vw, 52px);
+    color: #fff;
+}
+
+body.stash-noir-theme .noir-home-spotlight__eyebrow {
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+    margin-bottom: 15px;
+    color: var(--accent-bright);
+    font-size: 0.75rem;
+    font-weight: 750;
+    letter-spacing: 0.15em;
+    text-transform: uppercase;
+}
+
+body.stash-noir-theme .noir-home-spotlight__eyebrow::before {
+    content: "";
+    width: 22px;
+    height: 2px;
+    border-radius: 2px;
+    background: currentColor;
+}
+
+body.stash-noir-theme .noir-home-spotlight h1 {
+    max-width: 720px;
+    margin: 0 0 14px;
+    color: #fff;
+    font-size: clamp(2rem, 4.3vw, 3.7rem);
+    font-weight: 750;
+    letter-spacing: -0.04em;
+    line-height: 1.02;
+    text-shadow: 0 2px 24px rgba(0, 0, 0, 0.4);
+}
+
+body.stash-noir-theme .noir-home-spotlight__meta {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 8px;
+    margin: 0 0 24px;
+    color: rgba(255, 255, 255, 0.78);
+    font-size: 0.9rem;
+}
+
+body.stash-noir-theme .noir-home-spotlight__meta span {
+    padding: 6px 10px;
+    border: 1px solid rgba(255, 255, 255, 0.12);
+    border-radius: var(--radius-pill);
+    background: rgba(12, 13, 16, 0.42);
+    -webkit-backdrop-filter: var(--glass-blur-sm);
+    backdrop-filter: var(--glass-blur-sm);
+}
+
+body.stash-noir-theme .noir-home-spotlight__actions {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 10px;
+}
+
+body.stash-noir-theme .noir-home-spotlight__actions a {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    gap: 10px;
+    min-height: 46px;
+    padding: 0 20px;
+    border: 1px solid transparent;
+    border-radius: 9px;
+    text-decoration: none;
+    font-weight: 700;
+    transition: transform 0.15s ease, background 0.15s ease;
+}
+
+body.stash-noir-theme .noir-home-spotlight__actions .primary {
+    color: #fff !important;
+    background: var(--accent) !important;
+    box-shadow: 0 8px 24px rgba(var(--accent-rgb), 0.3);
+}
+
+body.stash-noir-theme .noir-home-spotlight__actions .secondary {
+    color: #fff !important;
+    border-color: rgba(255, 255, 255, 0.18);
+    background: rgba(20, 21, 26, 0.56);
+    -webkit-backdrop-filter: var(--glass-blur-sm);
+    backdrop-filter: var(--glass-blur-sm);
+}
+
+body.stash-noir-theme .noir-home-spotlight__actions a:hover {
+    transform: translateY(-1px);
+}
+
+/* Streaming-service scale section labels make the native, user-configured
+   recommendation rows read as distinct shelves beneath the spotlight. */
+body.stash-noir-theme .recommendation-row-head h2 {
+    color: rgba(255, 255, 255, 0.94) !important;
+    font-size: 1.05rem !important;
+    font-weight: 700 !important;
+    letter-spacing: -0.01em !important;
+    text-transform: none !important;
+}
+
+/* The hero replaces its own card in the first scene shelf. Keep the
+   remaining carousel slides in place; only the duplicate slide collapses
+   to zero width, so the native arrows and card actions remain available. */
+body.stash-noir-theme .recommendations-container .scene-recommendations .slick-slide.noir-home-spotlight-excluded {
+    flex: 0 0 0 !important;
+    width: 0 !important;
+    min-width: 0 !important;
+    max-width: 0 !important;
+    margin: 0 !important;
+    padding: 0 !important;
+    overflow: hidden !important;
+}
+
+body.stash-noir-theme .recommendations-container .scene-recommendations .slick-slide.noir-home-spotlight-excluded > *,
+body.stash-noir-theme .recommendations-container .scene-recommendations .scene-card.noir-home-spotlight-excluded {
+    display: none !important;
+}
+
+body.stash-noir-theme .recommendations-container .scene-recommendations.noir-home-spotlight-empty-after-featured {
+    display: none !important;
+}
+
+/* Performer identity becomes a soft image-backed profile hero. The image
+   is heavily shaded for legible metadata; the original portrait, rating,
+   favorite, edit actions and tabs remain Stash-owned controls. */
+body.stash-noir-theme #performer-page .detail-header.noir-theme-performer-hero {
+    position: relative !important;
+    isolation: isolate;
+    overflow: hidden !important;
+    border-color: rgba(var(--accent-rgb), 0.3) !important;
+    background-image:
+        radial-gradient(80% 120% at 95% 0%, rgba(var(--accent-rgb), 0.16), transparent 58%),
+        linear-gradient(90deg,
+            rgba(19, 20, 24, 0.96) 0%,
+            rgba(19, 20, 24, 0.88) 55%,
+            rgba(19, 20, 24, 0.94) 100%),
+        linear-gradient(0deg, rgba(15, 16, 19, 0.9), rgba(15, 16, 19, 0.4)),
+        var(--noir-profile-backdrop, none) !important;
+    background-size: cover !important;
+    background-position: center, center, center, center 28% !important;
+    box-shadow:
+        0 18px 48px rgba(0, 0, 0, 0.34),
+        0 0 48px -20px rgba(var(--accent-rgb), 0.45) !important;
+}
+
+body.stash-noir-theme #performer-page .detail-header .detail-container {
+    position: relative;
+    z-index: 1;
+}
+
+@media (min-width: 901px) {
+    body.stash-noir-theme #performer-page .detail-header-image img.performer {
+        width: 190px !important;
+        max-width: 190px !important;
+        height: auto !important;
+    }
+}
+
+@media (max-width: 900px) {
+    body.stash-noir-theme #performer-page .detail-header-image img.performer {
+        width: 145px !important;
+        max-width: 145px !important;
+        height: auto !important;
+    }
+}
+
+/* At tablet widths Stash's desktop split becomes too tight, but hiding
+   the details panel leaves the scene without its metadata or tabs. Stack
+   the native player first and restore the native detail panel below it.
+   Phones have their own tighter spacing in 12_mobile.css. */
+@media (min-width: 769px) and (max-width: 1199.98px) {
+    body.stash-noir-theme .main.container-fluid:has(> .row > .scene-tabs) {
+        padding: 4.25rem 0 0 !important;
+    }
+
+    body.stash-noir-theme .main.container-fluid > .row:has(> .scene-tabs) {
+        display: grid !important;
+        grid-template-columns: minmax(0, 1fr) !important;
+        grid-template-rows: auto auto !important;
+        grid-template-areas: "player" "details" !important;
+        gap: 16px !important;
+        height: auto !important;
+        min-height: 0 !important;
+        max-height: none !important;
+        padding: 16px !important;
+        overflow: visible !important;
+    }
+
+    body.stash-noir-theme .main.container-fluid > .row:has(> .scene-tabs) > .scene-divider {
+        display: none !important;
+    }
+
+    body.stash-noir-theme .main.container-fluid > .row:has(> .scene-tabs) > .scene-player-container {
+        grid-area: player !important;
+        height: auto !important;
+        max-height: none !important;
+    }
+
+    body.stash-noir-theme .scene-player-container .VideoPlayer {
+        height: auto !important;
+        max-height: none !important;
+    }
+
+    body.stash-noir-theme .video-wrapper,
+    body.stash-noir-theme div.video-wrapper {
+        flex: 0 0 auto !important;
+        aspect-ratio: 16 / 9 !important;
+        height: auto !important;
+        max-height: none !important;
+    }
+
+    body.stash-noir-theme .main.container-fluid > .row:has(> .scene-tabs) > .scene-tabs {
+        display: block !important;
+        grid-area: details !important;
+        height: auto !important;
+        min-height: 0 !important;
+        max-height: none !important;
+        overflow: visible !important;
+    }
+
+    body.stash-noir-theme .scene-tabs .tab-content,
+    body.stash-noir-theme .scene-tabs .tab-pane.active.show {
+        display: block !important;
+        min-height: 0 !important;
+        flex: initial !important;
+    }
+}
+
+/* Lock the scene page's small-screen reading order explicitly. The scene
+   DOM can place its metadata before the player for the desktop split; grid
+   areas keep the video first as the layout collapses to one column. */
+@media (max-width: 768px) {
+    body.stash-noir-theme .main.container-fluid > .row:has(> .scene-tabs) {
+        grid-template-areas: "player" "details" !important;
+    }
+
+    body.stash-noir-theme .main.container-fluid > .row:has(> .scene-tabs) > .scene-player-container {
+        grid-area: player !important;
+    }
+
+    body.stash-noir-theme .main.container-fluid > .row:has(> .scene-tabs) > .scene-tabs {
+        grid-area: details !important;
+    }
+}
+
+@media (min-width: 1200px) {
+    body.stash-noir-theme .main.container-fluid > .row:has(> .scene-tabs) {
+        grid-template-areas: "player details" !important;
+    }
+
+    body.stash-noir-theme .main.container-fluid > .row:has(> .scene-tabs) > .scene-tabs {
+        grid-area: details !important;
+    }
+
+    body.stash-noir-theme .main.container-fluid > .row:has(> .scene-tabs) > .scene-player-container {
+        grid-area: player !important;
+    }
+
+    body.stash-noir-theme .main.container-fluid > .row:has(> .scene-tabs.collapsed) {
+        grid-template-columns: minmax(0, 1fr) 2rem !important;
+        grid-template-areas: "player ." !important;
+        column-gap: 0 !important;
+        padding-right: 0 !important;
+    }
+
+    body.stash-noir-theme .main.container-fluid > .row:has(> .scene-tabs.collapsed) > .scene-player-container {
+        grid-column: 1 !important;
+    }
+
+    body.stash-noir-theme .main.container-fluid > .row:has(> .scene-tabs.collapsed) .scene-divider {
+        right: 1rem !important;
+        left: auto !important;
+        transform: translateX(50%) !important;
+    }
+}
+
+/* Images and galleries follow the same content-first reading order as
+   scenes: the artwork occupies the generous left column while its native
+   metadata stays in a compact right rail. Stash renders these siblings in
+   detail-first DOM order, so explicit grid areas are needed to preserve the
+   visual order without moving or rebuilding any native controls. */
+@media (min-width: 1200px) {
+    body.stash-noir-theme .main.container-fluid > .row:has(> .image-tabs) {
+        grid-template-columns: minmax(0, 1fr) minmax(0, clamp(385px, 22.5vw, 405px)) !important;
+        grid-template-rows: minmax(0, 1fr) !important;
+        grid-template-areas: "image details" !important;
+    }
+
+    body.stash-noir-theme .main.container-fluid > .row:has(> .image-tabs) > .image-container {
+        grid-area: image !important;
+        min-width: 0 !important;
+        min-height: 0 !important;
+    }
+
+    body.stash-noir-theme .main.container-fluid > .row:has(> .image-tabs) > .image-tabs {
+        grid-area: details !important;
+    }
+
+    body.stash-noir-theme .main.container-fluid > .row:has(> .image-tabs.collapsed) {
+        grid-template-columns: minmax(0, 1fr) 2rem !important;
+        grid-template-areas: "image ." !important;
+        column-gap: 0 !important;
+        padding-right: 0 !important;
+    }
+
+    body.stash-noir-theme .main.container-fluid > .row:has(> .image-tabs.collapsed) > .image-container {
+        grid-column: 1 !important;
+    }
+
+    body.stash-noir-theme .main.container-fluid > .row:has(> .image-tabs.collapsed) .scene-divider {
+        right: 1rem !important;
+        left: auto !important;
+        transform: translateX(50%) !important;
+    }
+
+    body.stash-noir-theme .main.container-fluid > .row:has(> .gallery-container) {
+        grid-template-columns: minmax(0, 1fr) minmax(0, clamp(385px, 22.5vw, 405px)) !important;
+        grid-template-rows: minmax(0, 1fr) !important;
+        grid-template-areas: "content details" !important;
+    }
+
+    body.stash-noir-theme .main.container-fluid > .row:has(> .gallery-container) > .gallery-container {
+        grid-area: content !important;
+        min-width: 0 !important;
+    }
+
+    body.stash-noir-theme .main.container-fluid > .row:has(> .gallery-container) > .gallery-tabs {
+        grid-area: details !important;
+    }
+
+    /* Sparse galleries should start at the content edge like the scene
+       shelves, rather than leaving a lone thumbnail stranded in the middle
+       of a wide pane. Stash's native size selector still controls its card
+       dimensions and density. */
+    body.stash-noir-theme .gallery-container .image-list > .row.justify-content-center {
+        justify-content: flex-start !important;
+    }
+}
+
+/* The tablet and phone layouts keep artwork first, then restore the full
+   native detail panel underneath. This prevents an image page from silently
+   losing its tabs when the two-column desktop rail no longer fits. */
+@media (max-width: 1199.98px) {
+    body.stash-noir-theme .main.container-fluid > .row:has(> .image-tabs) {
+        grid-template-columns: minmax(0, 1fr) !important;
+        grid-template-rows: auto auto !important;
+        grid-template-areas: "image" "details" !important;
+        height: auto !important;
+        max-height: none !important;
+        min-height: 0 !important;
+        gap: 14px !important;
+        overflow: visible !important;
+    }
+
+    body.stash-noir-theme .main.container-fluid > .row:has(> .image-tabs) > .image-container {
+        grid-area: image !important;
+        height: auto !important;
+        min-height: 240px !important;
+        max-height: 72vh !important;
+        aspect-ratio: 16 / 9 !important;
+    }
+
+    body.stash-noir-theme .main.container-fluid > .row:has(> .image-tabs) > .image-tabs {
+        grid-area: details !important;
+        display: block !important;
+        height: auto !important;
+        max-height: none !important;
+        min-height: 0 !important;
+        overflow: visible !important;
+    }
+
+    body.stash-noir-theme .main.container-fluid > .row:has(> .gallery-container) {
+        grid-template-columns: minmax(0, 1fr) !important;
+        grid-template-rows: auto auto !important;
+        grid-template-areas: "content" "details" !important;
+    }
+
+    body.stash-noir-theme .main.container-fluid > .row:has(> .gallery-container) > .gallery-container {
+        grid-area: content !important;
+    }
+
+    body.stash-noir-theme .main.container-fluid > .row:has(> .gallery-container) > .gallery-tabs {
+        grid-area: details !important;
+    }
+}
+
+/* Native Stash entity grids center a single result in the available page
+   width. For Noir's left-rail layout, start those scene, image, gallery,
+   performer, studio, tag, group, and marker cards at the content edge so
+   sparse libraries still read like intentional browse pages. */
+body.stash-noir-theme .sidebar-pane-content > .row.justify-content-center {
+    justify-content: flex-start !important;
+}
+
+/* Stash's settings rail is a tall vertical list on desktop. On phones it
+   would push the selected settings page hundreds of pixels below the fold,
+   so make the section picker a compact, horizontally scrollable tab row. */
+@media (max-width: 767.98px) {
+    body.stash-noir-theme #settings-menu-container,
+    body.stash-noir-theme #settings-menu-container + [class*="col-"] {
+        flex: 0 0 100% !important;
+        width: 100% !important;
+        max-width: 100% !important;
+        margin-left: 0 !important;
+    }
+
+    body.stash-noir-theme #settings-menu-container .nav.nav-pills.flex-column {
+        flex-direction: row !important;
+        flex-wrap: nowrap !important;
+        gap: 0.35rem;
+        width: 100%;
+        max-height: none;
+        margin: 0;
+        padding: 0.35rem;
+        overflow-x: auto;
+        overflow-y: hidden;
+        border: 1px solid var(--glass-border);
+        border-radius: 10px;
+        background: rgba(25, 26, 31, 0.92);
+        scrollbar-width: thin;
+        scrollbar-color: var(--accent) transparent;
+    }
+
+    body.stash-noir-theme #settings-menu-container .nav.nav-pills.flex-column > .nav-item {
+        flex: 0 0 auto;
+        width: auto !important;
+    }
+
+    body.stash-noir-theme #settings-menu-container .nav.nav-pills.flex-column .nav-link {
+        width: auto !important;
+        white-space: nowrap;
+    }
+
+    body.stash-noir-theme #settings-menu-container .nav.nav-pills.flex-column > .nav-item:has(.nav-link.active) {
+        order: -1;
+    }
+
+    body.stash-noir-theme #settings-menu-container + .col-xl,
+    body.stash-noir-theme #settings-menu-container + [class*="col-"] {
+        margin-top: 0.6rem;
+    }
+}
+
+@media (max-width: 600px) {
+    body.stash-noir-theme .noir-home-spotlight {
+        min-height: 365px;
+        margin: 0 0 1.45rem;
+        border-radius: 14px;
+    }
+
+    body.stash-noir-theme .noir-home-spotlight__image {
+        object-position: 56% center;
+        opacity: 0.52;
+    }
+
+    body.stash-noir-theme .noir-home-spotlight::after {
+        background:
+            linear-gradient(0deg,
+                rgba(12, 13, 16, 0.97) 0%,
+                rgba(12, 13, 16, 0.75) 50%,
+                rgba(12, 13, 16, 0.15) 100%),
+            linear-gradient(90deg, rgba(12, 13, 16, 0.25), transparent);
+    }
+
+    body.stash-noir-theme .noir-home-spotlight__content {
+        padding: 20px 18px 22px;
+    }
+
+    body.stash-noir-theme .noir-home-spotlight h1 {
+        font-size: 2rem;
+    }
+
+    body.stash-noir-theme .noir-home-spotlight__meta {
+        gap: 6px;
+        margin-bottom: 16px;
+        font-size: 0.78rem;
+    }
+
+    body.stash-noir-theme .noir-home-spotlight__meta span {
+        padding: 5px 8px;
+    }
+
+    body.stash-noir-theme .noir-home-spotlight__actions a {
+        min-height: 42px;
+        padding: 0 14px;
+        font-size: 0.9rem;
+    }
+}
+
+@media (prefers-reduced-motion: reduce) {
+    body.stash-noir-theme .noir-home-spotlight__actions a {
+        transition: none;
+    }
+}
+
+/* Noir uses the left rail as the desktop navigation. Retire the wide,
+   duplicate Stash navbar; keep only optional utility controls (for example
+   global search or the light-mode switch) as unframed actions at the upper
+   right. Stats and Settings already live in the sidebar footer. */
+@media (min-width: 901px) {
+    body.stash-noir-theme.noir-theme-sidebar-ready nav.top-nav.navbar {
+        top: 12px !important;
+        left: auto !important;
+        right: 12px !important;
+        bottom: auto !important;
+        width: auto !important;
+        min-width: 0 !important;
+        max-width: calc(100vw - var(--noir-theme-sidebar-width) - 24px) !important;
+        height: auto !important;
+        min-height: 0 !important;
+        max-height: none !important;
+        padding: 0 !important;
+        background: transparent !important;
+        border: 0 !important;
+        border-radius: 0 !important;
+        box-shadow: none !important;
+        -webkit-backdrop-filter: none !important;
+        backdrop-filter: none !important;
+        overflow: visible !important;
+        pointer-events: none !important;
+    }
+
+    body.stash-noir-theme.noir-theme-sidebar-ready nav.top-nav .navbar-brand,
+    body.stash-noir-theme.noir-theme-sidebar-ready nav.top-nav .navbar-collapse > .navbar-nav:first-of-type,
+    body.stash-noir-theme.noir-theme-sidebar-ready nav.top-nav .nav-menu-toggle,
+    body.stash-noir-theme.noir-theme-sidebar-ready nav.top-nav .noir-theme-burger,
+    body.stash-noir-theme.noir-theme-sidebar-ready nav.top-nav .noir-theme-mobile-new {
+        display: none !important;
+    }
+
+    body.stash-noir-theme.noir-theme-sidebar-ready nav.top-nav .navbar-collapse {
+        display: flex !important;
+        flex: 0 0 auto !important;
+        width: auto !important;
+        min-width: 0 !important;
+        height: auto !important;
+        padding: 0 !important;
+        pointer-events: auto !important;
+    }
+
+    body.stash-noir-theme.noir-theme-sidebar-ready nav.top-nav .navbar-buttons {
+        display: flex !important;
+        flex: 0 0 auto !important;
+        width: auto !important;
+        min-width: 0 !important;
+        height: auto !important;
+        min-height: 0 !important;
+        max-height: none !important;
+        margin: 0 !important;
+        pointer-events: auto !important;
+    }
+
+    body.stash-noir-theme.noir-theme-sidebar-ready nav.top-nav .navbar-buttons > a[href="/stats"],
+    body.stash-noir-theme.noir-theme-sidebar-ready nav.top-nav .navbar-buttons > a[href="/settings"] {
+        display: none !important;
+    }
+
+    body.stash-noir-theme.noir-theme-sidebar-ready .main.container-fluid {
+        padding-top: 12px !important;
+    }
+
+    body.stash-noir-theme.noir-theme-sidebar-ready .main.container-fluid:has(> .row > :is(.scene-tabs, .image-tabs)) {
+        padding: 12px 0 0 !important;
+    }
+}

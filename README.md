@@ -18,7 +18,7 @@ Reload plugins, then install any listed plugin from **Available Plugins**. New p
 
 ## Manual install
 
-For example, [download the Cinema Catalog manual archive](packages/cinema-catalog/0.1.2-manual.zip), extract the included plugin folder into Stash's configured plugins directory, then enable it in **Settings → Plugins**. Each plugin's README links to its current manual archive.
+For example, [download the Cinema Catalog manual archive](packages/cinema-catalog/0.1.3-manual.zip), extract the included plugin folder into Stash's configured plugins directory, then enable it in **Settings → Plugins**. Each plugin's README links to its current manual archive.
 
 ## Repository layout
 

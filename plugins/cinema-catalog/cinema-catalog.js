@@ -115,6 +115,151 @@
     });
   }
 
+  function routePathFromHref(href) {
+    if (!href || href.indexOf("javascript:") === 0 || href.charAt(0) === "#") return "";
+    try {
+      var url = new URL(href, window.location.href);
+      if (url.origin !== window.location.origin) return "";
+      return url.pathname.replace(/\/+$/, "") || "/";
+    } catch (e) {
+      return "";
+    }
+  }
+
+  function markActiveNavigation() {
+    var nav = document.querySelector("nav.top-nav.navbar, nav.top-nav");
+    if (!nav) return;
+
+    var routeLinks = nav.querySelectorAll(".navbar-collapse > .navbar-nav:first-of-type a[href]");
+    var currentPath = window.location.pathname.replace(/\/+$/, "") || "/";
+    var best = null;
+    var i;
+
+    for (i = 0; i < routeLinks.length; i += 1) {
+      routeLinks[i].classList.remove("stash-cinema-active");
+      var path = routePathFromHref(routeLinks[i].getAttribute("href"));
+      if (!path || path === "/") continue;
+      if ((currentPath === path || currentPath.indexOf(path + "/") === 0) &&
+          (!best || path.length > best.path.length)) {
+        best = { link: routeLinks[i], path: path };
+      }
+    }
+
+    var markedItems = nav.querySelectorAll(".navbar-collapse > .navbar-nav:first-of-type > [data-rb-event-key].stash-cinema-active");
+    for (i = 0; i < markedItems.length; i += 1) {
+      markedItems[i].classList.remove("stash-cinema-active");
+    }
+
+    if (best) {
+      best.link.classList.add("stash-cinema-active");
+      var item = best.link.closest("[data-rb-event-key]");
+      if (item && nav.contains(item)) item.classList.add("stash-cinema-active");
+    }
+  }
+
+  function getNavigationElements() {
+    var nav = document.querySelector("nav.top-nav.navbar, nav.top-nav");
+    if (!nav) return null;
+    var collapse = nav.querySelector(".navbar-collapse");
+    if (!collapse) return null;
+    var toggle = nav.querySelector(".nav-menu-toggle") || nav.querySelector(".navbar-toggler");
+    return { nav: nav, collapse: collapse, toggle: toggle };
+  }
+
+  function syncMobileNavigation() {
+    var elements = getNavigationElements();
+    if (!elements || !document.body) return false;
+    var open = elements.collapse.classList.contains("show") ||
+      elements.collapse.classList.contains("collapsing");
+    document.body.classList.toggle("cinema-menu-open", open);
+    if (elements.toggle) elements.toggle.setAttribute("aria-expanded", open ? "true" : "false");
+    markActiveNavigation();
+    return open;
+  }
+
+  function closeMobileNavigation() {
+    var elements = getNavigationElements();
+    if (!elements) return;
+    if ((elements.collapse.classList.contains("show") || elements.collapse.classList.contains("collapsing")) && elements.toggle) {
+      elements.toggle.click();
+    } else {
+      document.body.classList.remove("cinema-menu-open");
+    }
+  }
+
+  function bindStashLocationEvent() {
+    var api = window.PluginApi;
+    if (window.__stashCinemaCatalogLocationBound || !api || !api.Event || !api.Event.addEventListener) return;
+    window.__stashCinemaCatalogLocationBound = true;
+    api.Event.addEventListener("stash:location", function () {
+      closeMobileNavigation();
+      window.setTimeout(markActiveNavigation, 0);
+    });
+  }
+
+  function bindNavigationElement() {
+    var elements = getNavigationElements();
+    if (!elements || !document.body) return false;
+
+    var scrim = document.querySelector(".cinema-menu-scrim");
+    if (!scrim) {
+      scrim = document.createElement("div");
+      scrim.className = "cinema-menu-scrim";
+      scrim.setAttribute("aria-hidden", "true");
+      scrim.addEventListener("click", closeMobileNavigation);
+      document.body.appendChild(scrim);
+    }
+
+    if (!elements.collapse.__stashCinemaCatalogBound) {
+      elements.collapse.__stashCinemaCatalogBound = true;
+      var stateObserver = new MutationObserver(syncMobileNavigation);
+      stateObserver.observe(elements.collapse, { attributes: true, attributeFilter: ["class"] });
+    }
+
+    if (!document.body.__stashCinemaCatalogNavObserver) {
+      document.body.__stashCinemaCatalogNavObserver = new MutationObserver(function () {
+        bindNavigationElement();
+      });
+      document.body.__stashCinemaCatalogNavObserver.observe(document.body, { childList: true, subtree: true });
+    }
+
+    if (!window.__stashCinemaCatalogNavGlobalEvents) {
+      window.__stashCinemaCatalogNavGlobalEvents = true;
+      document.addEventListener("click", function (event) {
+        var target = event.target;
+        if (!target || !target.closest) return;
+
+        var routeLink = target.closest("nav.top-nav .navbar-collapse > .navbar-nav:first-of-type a[href]");
+        var utilityAction = target.closest("nav.top-nav > .navbar-buttons a[href], nav.top-nav > .navbar-buttons button:not(.nav-menu-toggle):not(.navbar-toggler)");
+        var link = routeLink || utilityAction;
+        if (!link || link.target === "_blank") return;
+        if (!routePathFromHref(link.getAttribute("href")) && !utilityAction) return;
+
+        window.setTimeout(closeMobileNavigation, 80);
+      }, true);
+
+      document.addEventListener("keydown", function (event) {
+        if (event.key === "Escape" && document.body.classList.contains("cinema-menu-open")) {
+          closeMobileNavigation();
+        }
+      });
+      window.addEventListener("popstate", function () {
+        closeMobileNavigation();
+        window.setTimeout(markActiveNavigation, 0);
+      });
+    }
+
+    bindStashLocationEvent();
+    syncMobileNavigation();
+    return true;
+  }
+
+  function registerNavigation() {
+    if (!bindNavigationElement()) {
+      window.setTimeout(registerNavigation, 100);
+    }
+  }
+
   function createSettingsPanel(React) {
     return function CinemaCatalogSettingsPanel() {
       var state = React.useState(readLocalAccent());
@@ -199,5 +344,6 @@
 
   applyAccent(readLocalAccent());
   loadServerAccent();
+  registerNavigation();
   registerSettingsPatch();
 }());

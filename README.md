@@ -4,7 +4,7 @@ This repository hosts independent Stash plugins. Each plugin keeps its manifest,
 
 ## Available plugins
 
-- [Cinema Catalog](plugins/cinema-catalog/README.md) — a dark, media-first theme with a desktop sidebar, mobile drawer, and configurable Fluent-inspired accent colors.
+- [Fluent Mica](plugins/fluent-mica/README.md) — a Fluent 2 theme with a dark Mica foundation, Acrylic surfaces, Refract-based layout, and configurable Fluent accent colors.
 
 ## Install from Stash
 
@@ -18,13 +18,13 @@ Reload plugins, then install any listed plugin from **Available Plugins**. New p
 
 ## Manual install
 
-For example, [download the Cinema Catalog manual archive](packages/cinema-catalog/0.1.3-manual.zip), extract the included plugin folder into Stash's configured plugins directory, then enable it in **Settings → Plugins**. Each plugin's README links to its current manual archive.
+For example, [download the Fluent Mica manual archive](packages/fluent-mica/1.0.0-manual.zip), extract the included plugin folder into Stash's configured plugins directory, then enable it in **Settings → Plugins**. Each plugin's README links to its current manual archive.
 
 ## Repository layout
 
 ```text
-index.yml                         # shared Stash package source index
-plugins/<plugin-id>/              # plugin manifest, UI assets, and README
+index.yml                                   # shared Stash package source index
+plugins/<plugin-id>/                       # plugin manifest, assets, and README
 packages/<plugin-id>/<version>.zip          # flat archive for Stash's installer
 packages/<plugin-id>/<version>-manual.zip   # folder-wrapped manual install
 ```

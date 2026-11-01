@@ -1,0 +1,210 @@
+/* Fluent 2 dark Mica foundation and Acrylic surface tokens.
+   The Refract layout and component rules stay intact; this layer changes
+   material, color, type, and control shape. */
+html:has(body.stash-fluent-mica) {
+    color-scheme: dark;
+    background-color: #202020 !important;
+}
+
+body.stash-fluent-mica {
+    --theme-font-stack: "Segoe UI Variable", "Segoe UI", system-ui, sans-serif;
+    --mica-base: #202020;
+    --mica-elevated: #292929;
+    --bg-0: #171717;
+    --bg-1: #202020;
+    --text: rgba(255, 255, 255, 0.94);
+    --text-muted: rgba(255, 255, 255, 0.66);
+
+    --glass-bg: rgba(39, 39, 39, 0.76);
+    --glass-bg-strong: rgba(48, 48, 48, 0.92);
+    --glass-border: rgba(255, 255, 255, 0.09);
+    --glass-border-bright: rgba(255, 255, 255, 0.17);
+    --glass-blur: blur(26px) saturate(135%);
+    --glass-blur-xs: blur(6px) saturate(125%);
+    --glass-blur-sm: blur(10px) saturate(130%);
+    --glass-blur-md: blur(16px) saturate(135%);
+    --glass-blur-lg: blur(22px) saturate(140%);
+    --glass-blur-xl: blur(26px) saturate(140%);
+    --glass-blur-2xl: blur(32px) saturate(145%);
+    --glass-blur-sm-sat: blur(10px) saturate(130%);
+    --glass-blur-md-sat: blur(16px) saturate(135%);
+    --glass-blur-lg-sat: blur(22px) saturate(140%);
+    --glass-blur-xl-sat: blur(26px) saturate(140%);
+    --glass-blur-2xl-sat: blur(32px) saturate(145%);
+
+    --glass-shadow: 0 8px 30px rgba(0, 0, 0, 0.36);
+    --shadow-xs: 0 1px 3px rgba(0, 0, 0, 0.28);
+    --shadow-sm: 0 2px 8px rgba(0, 0, 0, 0.25);
+    --shadow-md: 0 4px 18px rgba(0, 0, 0, 0.28);
+    --shadow-lg: 0 8px 28px rgba(0, 0, 0, 0.34);
+    --shadow-xl: 0 12px 38px rgba(0, 0, 0, 0.42);
+    --shadow-2xl: 0 22px 56px rgba(0, 0, 0, 0.48);
+    --shadow-navbar:
+        0 8px 28px rgba(0, 0, 0, 0.38),
+        0 0 0 1px rgba(0, 0, 0, 0.22),
+        inset 0 1px 0 rgba(255, 255, 255, 0.07);
+
+    --radius: 10px;
+    --radius-sm: 6px;
+    --radius-pill: 9999px;
+    --nav-gap: 0.28rem;
+    --nav-btn-size: 2.55rem;
+    --nav-icon-size: 1.05rem;
+
+    --accent: #0078d4;
+    --accent-bright: #2899f5;
+    --accent-light: #c7e0f4;
+    --accent-rgb: 0, 120, 212;
+    --accent-glow: rgba(var(--accent-rgb), 0.2);
+    --accent-tint: rgba(var(--accent-rgb), 0.14);
+
+    --bs-body-bg: var(--bg-0);
+    --bs-body-color: var(--text);
+    --bs-body-font-family: var(--theme-font-stack);
+    --bs-font-sans-serif: var(--theme-font-stack);
+    --bs-card-bg: var(--glass-bg);
+    --bs-border-color: var(--glass-border);
+    --bs-border-color-translucent: var(--glass-border);
+    --bs-border-radius: 6px;
+    --bs-border-radius-sm: 4px;
+    --bs-border-radius-lg: 8px;
+    --bs-primary: var(--accent);
+    --bs-primary-rgb: 0, 120, 212;
+    --bs-focus-ring-color: rgba(var(--accent-rgb), 0.38);
+    --bs-link-color: rgba(255, 255, 255, 0.9);
+    --bs-link-color-rgb: 255, 255, 255;
+    --bs-link-hover-color: var(--accent-bright);
+    --bs-link-hover-color-rgb: 40, 153, 245;
+    --bs-table-color: var(--text);
+    --bs-table-bg: transparent;
+    --bs-table-striped-color: var(--text);
+    --bs-table-striped-bg: rgba(255, 255, 255, 0.025);
+    --bs-table-hover-color: #fff;
+    --bs-table-hover-bg: rgba(255, 255, 255, 0.055);
+    --bs-table-border-color: rgba(255, 255, 255, 0.075);
+    --bs-popover-bg: rgba(43, 43, 43, 0.94);
+    --bs-popover-border-color: var(--glass-border-bright);
+    --bs-popover-border-radius: var(--radius-sm);
+    --bs-popover-inner-border-radius: 5px;
+    --bs-popover-body-color: var(--text);
+    --bs-popover-header-bg: rgba(255, 255, 255, 0.045);
+    --bs-popover-header-color: var(--text);
+
+    color: var(--text);
+    background:
+        radial-gradient(110% 85% at 8% -12%, rgba(255, 255, 255, 0.055), transparent 55%),
+        radial-gradient(95% 72% at 100% 8%, rgba(var(--accent-rgb), 0.09), transparent 58%),
+        linear-gradient(145deg, #242424 0%, #1b1b1b 52%, #202020 100%) !important;
+    background-attachment: fixed !important;
+    font-family: var(--theme-font-stack) !important;
+}
+
+body.stash-fluent-mica,
+body.stash-fluent-mica *:not(code):not(pre):not(kbd):not(samp) {
+    font-family: var(--theme-font-stack) !important;
+}
+
+body.stash-fluent-mica.fluent-mica-orange { --accent: #d83b01; --accent-bright: #f7630c; --accent-light: #f9c7a5; --accent-rgb: 216, 59, 1; --bs-primary-rgb: 216, 59, 1; --bs-link-hover-color-rgb: 247, 99, 12; }
+body.stash-fluent-mica.fluent-mica-blue   { --accent: #0078d4; --accent-bright: #2899f5; --accent-light: #c7e0f4; --accent-rgb: 0, 120, 212; --bs-primary-rgb: 0, 120, 212; --bs-link-hover-color-rgb: 40, 153, 245; }
+body.stash-fluent-mica.fluent-mica-pink   { --accent: #e3008c; --accent-bright: #ff4db8; --accent-light: #ffd6ee; --accent-rgb: 227, 0, 140; --bs-primary-rgb: 227, 0, 140; --bs-link-hover-color-rgb: 255, 77, 184; }
+body.stash-fluent-mica.fluent-mica-red    { --accent: #d13438; --accent-bright: #e7484e; --accent-light: #f4c7c9; --accent-rgb: 209, 52, 56; --bs-primary-rgb: 209, 52, 56; --bs-link-hover-color-rgb: 231, 72, 78; }
+body.stash-fluent-mica.fluent-mica-yellow { --accent: #f2c811; --accent-bright: #ffd335; --accent-light: #fff4ce; --accent-rgb: 242, 200, 17; --bs-primary-rgb: 242, 200, 17; --bs-link-hover-color-rgb: 255, 211, 53; }
+body.stash-fluent-mica.fluent-mica-purple { --accent: #8764b8; --accent-bright: #a78bdb; --accent-light: #e3d8f7; --accent-rgb: 135, 100, 184; --bs-primary-rgb: 135, 100, 184; --bs-link-hover-color-rgb: 167, 139, 219; }
+body.stash-fluent-mica.fluent-mica-green  { --accent: #107c10; --accent-bright: #13a10e; --accent-light: #dff6dd; --accent-rgb: 16, 124, 16; --bs-primary-rgb: 16, 124, 16; --bs-link-hover-color-rgb: 19, 161, 14; }
+body.stash-fluent-mica.fluent-mica-teal   { --accent: #038387; --accent-bright: #00b7c3; --accent-light: #9ad5d6; --accent-rgb: 3, 131, 135; --bs-primary-rgb: 3, 131, 135; --bs-link-hover-color-rgb: 0, 183, 195; }
+
+body.stash-fluent-mica.fluent-mica-light.fluent-mica-orange { --accent: #c43600; --accent-bright: #d83b01; --accent-light: #f9c7a5; --accent-rgb: 196, 54, 0; --bs-primary-rgb: 196, 54, 0; --bs-link-hover-color-rgb: 216, 59, 1; }
+body.stash-fluent-mica.fluent-mica-light.fluent-mica-blue   { --accent: #0067b8; --accent-bright: #0078d4; --accent-light: #c7e0f4; --accent-rgb: 0, 103, 184; --bs-primary-rgb: 0, 103, 184; --bs-link-hover-color-rgb: 0, 120, 212; }
+body.stash-fluent-mica.fluent-mica-light.fluent-mica-pink   { --accent: #c9007b; --accent-bright: #e3008c; --accent-light: #ffd6ee; --accent-rgb: 201, 0, 123; --bs-primary-rgb: 201, 0, 123; --bs-link-hover-color-rgb: 227, 0, 140; }
+body.stash-fluent-mica.fluent-mica-light.fluent-mica-red    { --accent: #b02b30; --accent-bright: #d13438; --accent-light: #f4c7c9; --accent-rgb: 176, 43, 48; --bs-primary-rgb: 176, 43, 48; --bs-link-hover-color-rgb: 209, 52, 56; }
+body.stash-fluent-mica.fluent-mica-light.fluent-mica-yellow { --accent: #806600; --accent-bright: #9b7e00; --accent-light: #fff4ce; --accent-rgb: 128, 102, 0; --bs-primary-rgb: 128, 102, 0; --bs-link-hover-color-rgb: 155, 126, 0; }
+body.stash-fluent-mica.fluent-mica-light.fluent-mica-purple { --accent: #6b4e96; --accent-bright: #8764b8; --accent-light: #e3d8f7; --accent-rgb: 107, 78, 150; --bs-primary-rgb: 107, 78, 150; --bs-link-hover-color-rgb: 135, 100, 184; }
+body.stash-fluent-mica.fluent-mica-light.fluent-mica-green  { --accent: #0b5a0b; --accent-bright: #107c10; --accent-light: #dff6dd; --accent-rgb: 11, 90, 11; --bs-primary-rgb: 11, 90, 11; --bs-link-hover-color-rgb: 16, 124, 16; }
+body.stash-fluent-mica.fluent-mica-light.fluent-mica-teal   { --accent: #026d70; --accent-bright: #038387; --accent-light: #d9f0f0; --accent-rgb: 2, 109, 112; --bs-primary-rgb: 2, 109, 112; --bs-link-hover-color-rgb: 3, 131, 135; }
+
+body.stash-fluent-mica nav.top-nav.navbar {
+    background: rgba(38, 38, 38, 0.78) !important;
+    border-color: var(--glass-border) !important;
+    -webkit-backdrop-filter: blur(26px) saturate(140%);
+    backdrop-filter: blur(26px) saturate(140%);
+}
+
+body.stash-fluent-mica :is(.dropdown-menu, .popover, .modal-content, .toast, .react-select__menu, .react-datepicker, .package-manager .card) {
+    background-color: var(--glass-bg-strong) !important;
+    border-color: var(--glass-border-bright) !important;
+    -webkit-backdrop-filter: var(--glass-blur-md);
+    backdrop-filter: var(--glass-blur-md);
+    border-radius: var(--radius) !important;
+    box-shadow: var(--shadow-lg) !important;
+}
+
+body.stash-fluent-mica :is(.btn, .form-control, .form-select, .text-input, input, select, textarea) {
+    border-radius: var(--radius-sm);
+}
+
+body.stash-fluent-mica :is(a, button, input, select, textarea, [tabindex]):focus-visible {
+    outline: 2px solid var(--accent-bright) !important;
+    outline-offset: 2px;
+}
+
+@media (prefers-reduced-motion: reduce) {
+    body.stash-fluent-mica *,
+    body.stash-fluent-mica *::before,
+    body.stash-fluent-mica *::after {
+        scroll-behavior: auto !important;
+        animation-duration: 0.01ms !important;
+        animation-iteration-count: 1 !important;
+        transition-duration: 0.01ms !important;
+    }
+}
+
+/* Keep mobile routes self-identifying: Refract's icon grid and dock now
+   show their actual Stash labels alongside the icons. */
+body.stash-fluent-mica .fluent-mica-mobile-drawer .fluent-mica-drawer-tile {
+    aspect-ratio: auto;
+    min-height: 84px;
+    padding: 10px 6px;
+    flex-direction: column;
+    gap: 7px;
+}
+body.stash-fluent-mica .fluent-mica-mobile-drawer .fluent-mica-drawer-tile-icon {
+    width: 24px;
+    height: 24px;
+    flex: 0 0 24px;
+}
+body.stash-fluent-mica .fluent-mica-mobile-drawer .fluent-mica-drawer-tile-label {
+    max-width: 100%;
+    color: var(--text-muted);
+    font-size: 0.68rem;
+    font-weight: 600;
+    line-height: 1.15;
+    text-align: center;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+    overflow: hidden;
+}
+body.stash-fluent-mica .fluent-mica-mobile-drawer .fluent-mica-drawer-tile.is-active .fluent-mica-drawer-tile-label {
+    color: var(--text);
+}
+body.stash-fluent-mica .fluent-mica-mobile-dock .fluent-mica-dock-item {
+    height: 3.35rem;
+    margin-bottom: 0;
+    flex-direction: column;
+    gap: 3px;
+}
+body.stash-fluent-mica .fluent-mica-mobile-dock .fluent-mica-dock-item svg {
+    width: 1.15rem;
+    height: 1.15rem;
+    flex: 0 0 auto;
+}
+body.stash-fluent-mica .fluent-mica-mobile-dock .fluent-mica-dock-label {
+    max-width: 100%;
+    color: currentColor;
+    font-size: 0.56rem;
+    font-weight: 600;
+    line-height: 1;
+    text-align: center;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+    overflow: hidden;
+}

@@ -1,9 +1,9 @@
-- id: cinema-catalog
-  name: Cinema Catalog
-  version: 0.1.3
-  date: "2026-11-01 01:01:52"
-  path: packages/cinema-catalog/0.1.3.zip
-  sha256: f038b5813e16463bcb6fa65d611238240422eb6b69dc0b15aae06bf17e0fe444
+- id: fluent-mica
+  name: Fluent Mica
+  version: 1.0.0
+  date: "2026-10-31 21:36:30"
+  path: packages/fluent-mica/1.0.0.zip
+  sha256: 7f128c9790c5b6f1aa6a83eec3bfcfbf2f2073f2fba4f3c0b8ec50edf5999023
   requires: []
   metadata:
-    description: A dark glass Stash theme using Stash's live menu routes, a responsive sidebar, mobile drawer, and configurable accent colors.
+    description: Fluent 2 dark Mica and Acrylic Stash theme based on Refract's tested page layout.

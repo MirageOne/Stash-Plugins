@@ -5,6 +5,7 @@ This repository hosts independent Stash plugins. Each plugin keeps its manifest,
 ## Available plugins
 
 - [Fluent Mica](plugins/fluent-mica/README.md) — a Fluent 2 theme with a dark Mica foundation, Acrylic surfaces, Refract-based layout, and configurable Fluent accent colors.
+- [Library Doctor](plugins/library-doctor/README.md) — a read-only audit for scene metadata, file references, generated files, and organization.
 
 ## Install from Stash
 
@@ -18,7 +19,12 @@ Reload plugins, then install any listed plugin from **Available Plugins**. New p
 
 ## Manual install
 
-For example, [download the Fluent Mica manual archive](packages/fluent-mica/1.0.4-manual.zip), extract the included plugin folder into Stash's configured plugins directory, then enable it in **Settings → Plugins**. Each plugin's README links to its current manual archive.
+Download a plugin's manual archive, extract its included plugin folder into Stash's configured plugins directory, then enable it in **Settings → Plugins**.
+
+- [Fluent Mica manual archive](packages/fluent-mica/1.0.4-manual.zip)
+- [Library Doctor manual archive](packages/library-doctor/1.0.0-manual.zip)
+
+Each plugin's README links to its current manual archive.
 
 ## Repository layout
 

@@ -1,0 +1,147 @@
+<!doctype html>
+<html lang="en">
+<head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <meta name="color-scheme" content="dark">
+    <title>Library Doctor</title>
+    <link rel="stylesheet" href="styles.css">
+</head>
+<body>
+    <main class="ld-shell">
+        <header class="ld-header">
+            <div class="ld-brand-row">
+                <a class="ld-back" href="/scenes" aria-label="Back to Stash scenes">
+                    <svg viewBox="0 0 24 24" aria-hidden="true"><path d="m14.5 5-7 7 7 7"/></svg>
+                    <span>Stash</span>
+                </a>
+                <span class="ld-brand-divider" aria-hidden="true"></span>
+                <span class="ld-brand-name">Library Doctor</span>
+            </div>
+            <div class="ld-header-actions">
+                <button id="ld-export" class="ld-button ld-button-secondary" type="button" disabled>
+                    <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M12 3v11m0 0 4-4m-4 4-4-4M5 15v4a2 2 0 0 0 2 2h10a2 2 0 0 0 2-2v-4"/></svg>
+                    Export CSV
+                </button>
+                <button id="ld-scan" class="ld-button ld-button-primary" type="button">
+                    <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M4 12a8 8 0 1 0 2.34-5.66L4 8.7M4 4v4.7h4.7M12 8v4l2.5 1.5"/></svg>
+                    Run library check
+                </button>
+            </div>
+        </header>
+
+        <section class="ld-intro" aria-labelledby="ld-title">
+            <div>
+                <p class="ld-eyebrow">LIBRARY MAINTENANCE</p>
+                <h1 id="ld-title">A healthier library, one check at a time.</h1>
+                <p class="ld-subtitle">Find scenes that may need metadata or generated files. Review each result in Stash before making changes.</p>
+            </div>
+            <div class="ld-readonly-note">
+                <span class="ld-readonly-dot" aria-hidden="true"></span>
+                Read-only scan · No library changes
+            </div>
+        </section>
+
+        <section class="ld-progress-card" id="ld-progress-card" hidden aria-live="polite">
+            <div class="ld-progress-copy">
+                <strong id="ld-progress-title">Checking scenes…</strong>
+                <span id="ld-progress-detail">Preparing scan</span>
+            </div>
+            <button id="ld-cancel" class="ld-button ld-button-quiet" type="button">Cancel</button>
+            <div class="ld-progress-track" role="progressbar" aria-label="Library check progress" aria-valuemin="0" aria-valuemax="100" aria-valuenow="0">
+                <span id="ld-progress-bar"></span>
+            </div>
+        </section>
+
+        <div id="ld-error" class="ld-error" role="alert" hidden></div>
+
+        <section id="ld-summary" class="ld-summary" hidden aria-label="Scan summary">
+            <article class="ld-stat-card">
+                <span class="ld-stat-label">Scenes checked</span>
+                <strong id="ld-count-scenes">0</strong>
+                <span class="ld-stat-caption">from your current library</span>
+            </article>
+            <article class="ld-stat-card">
+                <span class="ld-stat-label">Need review</span>
+                <strong id="ld-count-flagged">0</strong>
+                <span class="ld-stat-caption">scenes with one or more flags</span>
+            </article>
+            <article class="ld-stat-card">
+                <span class="ld-stat-label">Missing file reference</span>
+                <strong id="ld-count-files">0</strong>
+                <span class="ld-stat-caption">check the scene's media record</span>
+            </article>
+            <article class="ld-stat-card">
+                <span class="ld-stat-label">Metadata gaps</span>
+                <strong id="ld-count-metadata">0</strong>
+                <span class="ld-stat-caption">title, date, people, studio, or tags</span>
+            </article>
+        </section>
+
+        <section id="ld-findings" class="ld-findings" hidden aria-labelledby="ld-findings-title">
+            <div class="ld-findings-heading">
+                <div>
+                    <p class="ld-eyebrow">AUDIT RESULTS</p>
+                    <h2 id="ld-findings-title">Scenes to review</h2>
+                    <p id="ld-scan-time" class="ld-scan-time"></p>
+                </div>
+                <label class="ld-search">
+                    <svg viewBox="0 0 24 24" aria-hidden="true"><circle cx="10.8" cy="10.8" r="6.5"/><path d="m16 16 4.5 4.5"/></svg>
+                    <input id="ld-search" type="search" placeholder="Search scenes" autocomplete="off">
+                </label>
+            </div>
+
+            <div id="ld-filters" class="ld-filters" role="group" aria-label="Filter findings">
+                <button class="ld-filter is-active" type="button" data-filter="all">All <span>0</span></button>
+                <button class="ld-filter" type="button" data-filter="files">File references <span>0</span></button>
+                <button class="ld-filter" type="button" data-filter="metadata">Metadata <span>0</span></button>
+                <button class="ld-filter" type="button" data-filter="generated">Generated files <span>0</span></button>
+                <button class="ld-filter" type="button" data-filter="organization">Organization <span>0</span></button>
+                <button class="ld-filter" type="button" data-filter="review">Review flags <span>0</span></button>
+            </div>
+
+            <div class="ld-table-wrap">
+                <table class="ld-table">
+                    <thead>
+                        <tr><th scope="col">Scene</th><th scope="col">Studio</th><th scope="col">Date</th><th scope="col">Findings</th><th scope="col"><span class="ld-visually-hidden">Open</span></th></tr>
+                    </thead>
+                    <tbody id="ld-rows"></tbody>
+                </table>
+                <div id="ld-empty-results" class="ld-empty-results" hidden>
+                    <span class="ld-empty-icon" aria-hidden="true">✓</span>
+                    <strong>No scenes match this view</strong>
+                    <span>Try another filter or search term.</span>
+                </div>
+            </div>
+
+            <div class="ld-pagination">
+                <span id="ld-result-range">0 results</span>
+                <div class="ld-page-controls">
+                    <button id="ld-page-prev" class="ld-page-button" type="button" aria-label="Previous page" disabled>‹</button>
+                    <span id="ld-page-status">1 of 1</span>
+                    <button id="ld-page-next" class="ld-page-button" type="button" aria-label="Next page" disabled>›</button>
+                </div>
+            </div>
+        </section>
+
+        <section id="ld-empty-state" class="ld-empty-state" aria-labelledby="ld-empty-title">
+            <div class="ld-empty-art" aria-hidden="true">
+                <svg viewBox="0 0 96 96" fill="none"><path d="M22 16h35l18 18v43a5 5 0 0 1-5 5H27a5 5 0 0 1-5-5V21a5 5 0 0 1 5-5Z"/><path d="M57 17v18h17M34 51h28M34 62h19"/><circle cx="65" cy="66" r="16"/><path d="m76 78 9 9m-20-22v8m-4-4h8"/></svg>
+            </div>
+            <p class="ld-eyebrow">START WITH A QUICK AUDIT</p>
+            <h2 id="ld-empty-title">Your library check is ready.</h2>
+            <p>The scan checks scene file references, metadata, generated artwork, organization status, and repeated titles. It does not edit or delete anything.</p>
+            <button class="ld-button ld-button-primary" type="button" data-start-scan>
+                <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M4 12a8 8 0 1 0 2.34-5.66L4 8.7M4 4v4.7h4.7M12 8v4l2.5 1.5"/></svg>
+                Run first check
+            </button>
+        </section>
+
+        <footer class="ld-footer">
+            <span>Library Doctor only reads Stash library data.</span>
+            <span id="ld-footer-version">v1.0.0</span>
+        </footer>
+    </main>
+    <script src="app.js"></script>
+</body>
+</html>

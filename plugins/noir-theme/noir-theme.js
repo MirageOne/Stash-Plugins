@@ -373,17 +373,17 @@
             );
         }
 
-        /* Desktop sidebar items use the same route/action catalogue as the
-           live sidebar. By saving exclusions instead of an allow-list,
-           plugin buttons installed later remain visible by default. */
+        /* Desktop sidebar items use the core routes and supported action
+           shortcuts. Plugin page links stay in Stash's top bar, where their
+           source icons already live. */
         function SidebarConfigGrid() {
-            var candSt = R.useState(refractDockCandidates);
+            var candSt = R.useState(refractSidebarCandidates);
             var cands = candSt[0], setCands = candSt[1];
             var hiddenSt = R.useState(getSidebarHiddenItems);
             var hidden = hiddenSt[0], setHidden = hiddenSt[1];
             R.useEffect(function () {
                 var timer = setInterval(function () {
-                    var next = refractDockCandidates();
+                    var next = refractSidebarCandidates();
                     var oldSig = cands.map(function (x) { return x.key + "~" + x.label; }).join("|");
                     var nextSig = next.map(function (x) { return x.key + "~" + x.label; }).join("|");
                     if (oldSig !== nextSig) { setCands(next); }
@@ -2897,7 +2897,7 @@
                     R.createElement("div", null,
                         R.createElement("h3", null, "Desktop sidebar"),
                         R.createElement("div", { className: "sub-heading" },
-                            "Choose which Stash and plugin buttons appear in the desktop sidebar. New plugin links appear automatically.")),
+                            "Choose which Stash routes and action shortcuts appear in the desktop sidebar. Plugin page links stay in the top bar.")),
                     R.createElement("div", { className: "noir-theme-sidebar-collapse-setting" },
                         R.createElement("span", null, "Start collapsed"),
                         R.createElement("div", { className: "custom-control custom-switch" },
@@ -5287,10 +5287,20 @@
                 href: href || null,
                 actionSelector: t.getAttribute("data-action-selector") || null,
                 target: t.getAttribute("target") || null,
-                aliases: t.getAttribute("data-aliases") || ""
+                aliases: t.getAttribute("data-aliases") || "",
+                pluginTile: t.hasAttribute("data-plugin-tile")
             });
         }
         return out;
+    }
+
+    /* Plugin route tiles mirror links that already have icons in Stash's
+       top navigation. Keep them in the mobile drawer/dock, where the desktop
+       top bar is unavailable, but avoid duplicating them in the desktop rail. */
+    function refractSidebarCandidates() {
+        return refractDockCandidates().filter(function (item) {
+            return !item.pluginTile;
+        });
     }
 
     function refractDockItemsFromSelection() {
@@ -5500,10 +5510,9 @@
     }
 
     /* ── Desktop Archive sidebar ──────────────────────────────────────
-       Build the wide-screen navigation from the same live tile registry
-       as the mobile drawer. That keeps Stash routes, disabled menu items,
-       plugin links and proxy actions in sync instead of maintaining a
-       second hard-coded menu. */
+       Build the wide-screen navigation from the live drawer registry while
+       keeping plugin page links in the top bar. Stash routes and supported
+       proxy actions stay synchronized with the mobile navigation. */
     function getSidebarHiddenItems() {
         try {
             var raw = localStorage.getItem(SIDEBAR_HIDDEN_ITEMS_KEY);
@@ -5579,7 +5588,7 @@
         var drawer = document.querySelector(".noir-theme-mobile-drawer");
         if (!drawer) { return false; }
 
-        var candidates = refractDockCandidates();
+        var candidates = refractSidebarCandidates();
         var hidden = getSidebarHiddenItems();
         var visible = candidates.filter(function (item) { return hidden.indexOf(desktopSidebarItemKey(item)) === -1; });
         var signature = visible.map(function (item) {

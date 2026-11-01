@@ -1,9 +1,9 @@
 - id: fluent-mica
   name: Fluent Mica
-  version: 1.0.2
-  date: "2026-11-01 02:02:54"
-  path: packages/fluent-mica/1.0.2.zip
-  sha256: b86a43e3a4cbb703ef81089fbbcb181846c478ed8f88f8f7680dffcaac63d7ff
+  version: 1.0.3
+  date: "2026-11-01 02:08:39"
+  path: packages/fluent-mica/1.0.3.zip
+  sha256: e19a92113ef5fad3cda3fdba2e7a88ab2c11d565f84fef5b991a2b7cff4b186a
   requires: []
   metadata:
-    description: Fluent 2 Stash theme with smooth scrolling, one-column mobile scenes, and larger desktop videos.
+    description: Fluent 2 Stash theme with smooth scrolling, responsive scenes, compact performer nameplates, stable pagination, and accent colors.

@@ -8,8 +8,10 @@ Scene video cards use one full-width column on mobile. Desktop scene lists use w
 
 Scrolling uses a lighter Acrylic blur and cards no longer lift or animate large shadows as they pass under the pointer. Performer titles use a consistent size with ellipsis for long names, and favorites use a compact, always-visible heart instead of floating heart particles.
 
+Performer nameplates now size to the title instead of filling the card, while long names stop before the favorite control. Pagination page counts stay on one line at narrow widths.
+
 The quick accent picker is in **Settings → Plugins → Fluent Mica**. Full theme settings are also available in **Settings → Interface → Fluent Mica**. The theme starts in dark mode; Refract's optional light and Lite modes remain available.
 
-Install from the repository source in the root README or [download the 1.0.2 manual archive](../../packages/fluent-mica/1.0.2-manual.zip) and extract the `fluent-mica/` directory into Stash's configured plugins directory. Enable Fluent Mica after installation. Disable other full-app themes while using it so their global styles do not conflict.
+Install from the repository source in the root README or [download the 1.0.3 manual archive](../../packages/fluent-mica/1.0.3-manual.zip) and extract the `fluent-mica/` directory into Stash's configured plugins directory. Enable Fluent Mica after installation. Disable other full-app themes while using it so their global styles do not conflict.
 
 Fluent Mica is distributed under [AGPL-3.0](./LICENSE). The upstream license is included with this derivative.

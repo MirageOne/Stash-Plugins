@@ -496,3 +496,57 @@ body.stash-fluent-mica .fluent-mica-cb-tierchip {
         margin: 0 !important;
     }
 }
+
+/* Keep the performer title plate close to its text. The previous full-width
+   strip looked like a large opaque box on short names and competed with the
+   favorite control. Let it size to the title, cap long names before the heart,
+   and use a restrained Acrylic edge. */
+body.stash-fluent-mica.fluent-mica-perf-layout-card .performer-card .fluent-mica-pc-name-banner {
+    right: auto !important;
+    width: max-content !important;
+    max-width: calc(100% - 4rem) !important;
+    min-width: 0 !important;
+    box-sizing: border-box !important;
+    padding: 0.45rem 0.7rem !important;
+    background: rgba(24, 24, 28, 0.86) !important;
+    border: 1px solid var(--glass-border) !important;
+    border-top: 0 !important;
+    border-left: 0 !important;
+    border-radius: 0 0 10px 0 !important;
+    box-shadow: none !important;
+}
+
+/* Keep the page position ("1 of 15") on one line inside the floating pager.
+   Stash can constrain the page-count trigger at narrow widths; an explicit
+   intrinsic width and non-shrinking flex basis prevent the count from
+   breaking into two rows and colliding with the adjacent page controls. */
+body.stash-fluent-mica .pagination {
+    flex-wrap: nowrap !important;
+    white-space: nowrap !important;
+    width: max-content !important;
+    max-width: calc(100vw - 2rem) !important;
+}
+body.stash-fluent-mica .pagination > * {
+    flex: 0 0 auto !important;
+    min-width: max-content !important;
+}
+body.stash-fluent-mica .pagination :is(button, a, .btn, .page-link) {
+    flex: 0 0 auto !important;
+    white-space: nowrap !important;
+}
+body.stash-fluent-mica .pagination .page-count,
+body.stash-fluent-mica .pagination button.page-count {
+    display: inline-flex !important;
+    align-items: center !important;
+    justify-content: center !important;
+    width: max-content !important;
+    min-width: max-content !important;
+    max-width: none !important;
+    flex: 0 0 auto !important;
+    white-space: nowrap !important;
+    font-variant-numeric: tabular-nums !important;
+}
+body.stash-fluent-mica .pagination .page-count > * {
+    flex: 0 0 auto !important;
+    white-space: nowrap !important;
+}

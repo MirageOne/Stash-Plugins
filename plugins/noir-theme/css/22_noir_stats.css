@@ -1,0 +1,367 @@
+/* Noir statistics dashboard: compact library totals with two useful charts. */
+body.stash-noir-theme.stash-route-stats .main.container-fluid > .mt-5.noir-theme-stats-page {
+    width: 100%;
+    max-width: 1510px;
+    margin: 1.25rem auto 2rem !important;
+    padding: 0 1.35rem 2rem;
+    box-sizing: border-box;
+}
+
+body.stash-noir-theme.stash-route-stats .noir-theme-stats-page > div.col.row.stats {
+    display: none !important;
+}
+
+body.stash-noir-theme .noir-theme-stats-dashboard {
+    display: flex;
+    flex-direction: column;
+    gap: 1rem;
+    width: 100%;
+    color: var(--text);
+}
+
+body.stash-noir-theme .noir-theme-stats-title {
+    margin: 0 0 0.1rem !important;
+    color: var(--text) !important;
+    font-size: 1.42rem !important;
+    font-weight: 650 !important;
+    line-height: 1.2;
+    letter-spacing: -0.025em;
+}
+
+body.stash-noir-theme .noir-theme-stats-cards {
+    display: grid;
+    grid-template-columns: repeat(4, minmax(0, 1fr));
+    gap: 0.75rem;
+}
+
+body.stash-noir-theme .noir-theme-stat-card {
+    display: flex;
+    flex-direction: column;
+    align-items: flex-start;
+    min-width: 0;
+    min-height: 6.15rem;
+    padding: 0.78rem 0.85rem 0.72rem;
+    color: var(--text) !important;
+    text-decoration: none !important;
+    background: linear-gradient(145deg, #171a20 0%, #12151a 100%);
+    border: 1px solid rgba(255, 255, 255, 0.075);
+    border-radius: 8px;
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.16);
+    transition: border-color 150ms ease, background-color 150ms ease;
+}
+
+body.stash-noir-theme .noir-theme-stat-card:hover {
+    color: #fff !important;
+    background: linear-gradient(145deg, #1a1e25 0%, #14171d 100%);
+    border-color: rgba(var(--accent-rgb), 0.42);
+}
+
+body.stash-noir-theme .noir-theme-stat-card__icon {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    width: 1.05rem;
+    height: 1.05rem;
+    margin-bottom: 0.38rem;
+    color: var(--accent-bright);
+}
+
+body.stash-noir-theme .noir-theme-stat-card__icon svg {
+    display: block;
+    width: 100%;
+    height: 100%;
+    fill: none;
+    stroke: currentColor;
+    stroke-width: 1.7;
+    stroke-linecap: round;
+    stroke-linejoin: round;
+}
+
+body.stash-noir-theme .noir-theme-stat-card__label {
+    overflow: hidden;
+    max-width: 100%;
+    color: var(--text-muted);
+    font-size: 0.72rem;
+    font-weight: 550;
+    line-height: 1.15;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+}
+
+body.stash-noir-theme .noir-theme-stat-card__value {
+    display: block;
+    margin-top: 0.26rem;
+    color: #f5f6f8;
+    font-size: clamp(1.28rem, 1.8vw, 1.62rem);
+    font-weight: 680;
+    line-height: 1.12;
+    letter-spacing: -0.035em;
+    font-variant-numeric: tabular-nums;
+}
+
+body.stash-noir-theme .noir-theme-stats-charts {
+    display: grid;
+    grid-template-columns: minmax(0, 1.1fr) minmax(0, 0.9fr);
+    gap: 0.8rem;
+}
+
+body.stash-noir-theme .noir-theme-stats-chart-panel {
+    min-width: 0;
+    padding: 0.95rem 1rem 0.9rem;
+    background: #14171c;
+    border: 1px solid rgba(255, 255, 255, 0.075);
+    border-radius: 8px;
+}
+
+body.stash-noir-theme .noir-theme-stats-chart-header {
+    display: flex;
+    align-items: baseline;
+    justify-content: space-between;
+    gap: 0.8rem;
+    margin-bottom: 0.8rem;
+}
+
+body.stash-noir-theme .noir-theme-stats-chart-header h2 {
+    margin: 0 !important;
+    color: var(--text) !important;
+    font-size: 0.94rem !important;
+    font-weight: 620 !important;
+    line-height: 1.25;
+}
+
+body.stash-noir-theme .noir-theme-stats-chart-header > span {
+    max-width: 48%;
+    color: var(--text-muted);
+    font-size: 0.67rem;
+    line-height: 1.3;
+    text-align: right;
+}
+
+body.stash-noir-theme .noir-theme-stats-year-wrap {
+    display: grid;
+    grid-template-columns: 2.6rem minmax(0, 1fr);
+    gap: 0.55rem;
+    align-items: stretch;
+    height: 12.4rem;
+}
+
+body.stash-noir-theme .noir-theme-stats-year-axis {
+    display: flex;
+    flex-direction: column;
+    justify-content: space-between;
+    padding: 0.1rem 0 1.25rem;
+    color: var(--text-muted);
+    font-size: 0.62rem;
+    line-height: 1;
+    text-align: right;
+    font-variant-numeric: tabular-nums;
+}
+
+body.stash-noir-theme .noir-theme-stats-year-plot {
+    position: relative;
+    min-width: 0;
+    height: 100%;
+    background-image: linear-gradient(to bottom, rgba(255, 255, 255, 0.085) 1px, transparent 1px);
+    background-size: 100% 25%;
+    background-repeat: repeat;
+    border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+}
+
+body.stash-noir-theme .noir-theme-stats-year-columns {
+    position: absolute;
+    inset: 0 0 0.05rem;
+    display: grid;
+    gap: clamp(0.2rem, 1.2vw, 0.8rem);
+}
+
+body.stash-noir-theme .noir-theme-stats-year-column {
+    display: grid;
+    grid-template-rows: 1.05rem minmax(0, 1fr) 1.2rem;
+    min-width: 0;
+    align-items: end;
+    text-align: center;
+}
+
+body.stash-noir-theme .noir-theme-stats-year-value {
+    overflow: hidden;
+    color: var(--text-muted);
+    font-size: 0.59rem;
+    line-height: 1;
+    text-overflow: clip;
+    white-space: nowrap;
+    font-variant-numeric: tabular-nums;
+}
+
+body.stash-noir-theme .noir-theme-stats-year-track {
+    display: flex;
+    align-items: flex-end;
+    justify-content: center;
+    width: 100%;
+    height: 100%;
+}
+
+body.stash-noir-theme .noir-theme-stats-year-bar {
+    display: block;
+    width: min(64%, 1.4rem);
+    min-height: 0;
+    background: linear-gradient(180deg, var(--accent-bright), var(--accent));
+    border-radius: 3px 3px 0 0;
+    box-shadow: 0 0 10px rgba(var(--accent-rgb), 0.16);
+}
+
+body.stash-noir-theme .noir-theme-stats-year-label {
+    align-self: end;
+    color: var(--text-muted);
+    font-size: 0.62rem;
+    line-height: 1;
+    font-variant-numeric: tabular-nums;
+}
+
+body.stash-noir-theme .noir-theme-stats-resolution-list {
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    gap: 0.78rem;
+    min-height: 12.4rem;
+}
+
+body.stash-noir-theme .noir-theme-stats-resolution-row {
+    display: grid;
+    grid-template-columns: 3.15rem minmax(0, 1fr) minmax(0, 7rem);
+    align-items: center;
+    gap: 0.6rem;
+    min-width: 0;
+}
+
+body.stash-noir-theme .noir-theme-stats-resolution-label,
+body.stash-noir-theme .noir-theme-stats-resolution-count {
+    color: var(--text-muted);
+    font-size: 0.68rem;
+    line-height: 1.2;
+    font-variant-numeric: tabular-nums;
+}
+
+body.stash-noir-theme .noir-theme-stats-resolution-count {
+    color: rgba(255, 255, 255, 0.82);
+    text-align: right;
+    white-space: nowrap;
+}
+
+body.stash-noir-theme .noir-theme-stats-resolution-meter {
+    display: block;
+    overflow: hidden;
+    width: 100%;
+    height: 0.55rem;
+    background: rgba(255, 255, 255, 0.075);
+    border-radius: 999px;
+}
+
+body.stash-noir-theme .noir-theme-stats-resolution-fill {
+    display: block;
+    height: 100%;
+    min-width: 2px;
+    background: linear-gradient(90deg, var(--accent), var(--accent-bright));
+    border-radius: inherit;
+}
+
+body.stash-noir-theme .noir-theme-stats-empty {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    min-height: 12.4rem;
+    margin: 0;
+    padding: 1rem;
+    color: var(--text-muted);
+    font-size: 0.8rem;
+    text-align: center;
+}
+
+body.stash-noir-theme .noir-theme-stats-extra {
+    color: var(--text-muted);
+    background: #14171c;
+    border: 1px solid rgba(255, 255, 255, 0.075);
+    border-radius: 8px;
+}
+
+body.stash-noir-theme .noir-theme-stats-extra > summary {
+    padding: 0.75rem 0.95rem;
+    color: var(--text-muted);
+    cursor: pointer;
+    font-size: 0.76rem;
+    font-weight: 550;
+}
+
+body.stash-noir-theme .noir-theme-stats-extra[open] > summary {
+    color: var(--text);
+    border-bottom: 1px solid rgba(255, 255, 255, 0.07);
+}
+
+body.stash-noir-theme .noir-theme-stats-extra-grid {
+    display: grid;
+    grid-template-columns: repeat(4, minmax(0, 1fr));
+    gap: 0.55rem;
+    padding: 0.75rem 0.95rem 0.9rem;
+}
+
+body.stash-noir-theme .noir-theme-stats-extra-item {
+    display: flex;
+    flex-direction: column;
+    gap: 0.2rem;
+    min-width: 0;
+}
+
+body.stash-noir-theme .noir-theme-stats-extra-item > span {
+    color: var(--text-muted);
+    font-size: 0.66rem;
+}
+
+body.stash-noir-theme .noir-theme-stats-extra-item > strong {
+    color: var(--text);
+    font-size: 0.9rem;
+    font-weight: 600;
+    font-variant-numeric: tabular-nums;
+}
+
+@media (max-width: 1050px) {
+    body.stash-noir-theme.stash-route-stats .main.container-fluid > .mt-5.noir-theme-stats-page {
+        padding-right: 1rem;
+        padding-left: 1rem;
+    }
+
+    body.stash-noir-theme .noir-theme-stats-charts {
+        grid-template-columns: minmax(0, 1fr);
+    }
+}
+
+@media (max-width: 700px) {
+    body.stash-noir-theme.stash-route-stats .main.container-fluid > .mt-5.noir-theme-stats-page {
+        margin-top: 0.75rem !important;
+        padding: 0 0.7rem 1.5rem;
+    }
+
+    body.stash-noir-theme .noir-theme-stats-title {
+        font-size: 1.25rem !important;
+    }
+
+    body.stash-noir-theme .noir-theme-stats-cards {
+        grid-template-columns: repeat(2, minmax(0, 1fr));
+        gap: 0.55rem;
+    }
+
+    body.stash-noir-theme .noir-theme-stat-card {
+        min-height: 5.8rem;
+        padding: 0.68rem 0.72rem;
+    }
+
+    body.stash-noir-theme .noir-theme-stats-chart-panel {
+        padding: 0.8rem 0.72rem;
+    }
+
+    body.stash-noir-theme .noir-theme-stats-extra-grid {
+        grid-template-columns: repeat(2, minmax(0, 1fr));
+    }
+}
+
+@media (prefers-reduced-motion: reduce) {
+    body.stash-noir-theme .noir-theme-stat-card { transition: none; }
+}

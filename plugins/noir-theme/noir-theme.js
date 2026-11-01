@@ -4577,6 +4577,342 @@
         return gqlXhr(JSON.stringify({ query: query, variables: variables }));
     }
 
+    /* ── Noir statistics dashboard ────────────────────────────────────
+       Keep Stash's own summary values as the source for entity totals,
+       then add the two library charts shown in the Noir page design. The
+       native rows remain mounted (visually hidden by the page CSS), so Stash
+       can update them normally and they still supply storage/playback data. */
+    var NOIR_STATS_CARDS = [
+        { key: "scenes", label: "Scenes", href: "/scenes", icon: "scenes" },
+        { key: "images", label: "Images", href: "/images", icon: "images" },
+        { key: "galleries", label: "Galleries", href: "/galleries", icon: "galleries" },
+        { key: "scene-markers", label: "Scene Markers", href: "/scenes/markers", icon: "markers" },
+        { key: "performers", label: "Performers", href: "/performers", icon: "performers" },
+        { key: "studios", label: "Studios", href: "/studios", icon: "studios" },
+        { key: "groups", label: "Groups", href: "/groups", icon: "groups" },
+        { key: "tags", label: "Tags", href: "/tags", icon: "tags" }
+    ];
+    var NOIR_STATS_ICONS = {
+        scenes: '<svg viewBox="0 0 24 24" aria-hidden="true"><rect x="3" y="4" width="18" height="16" rx="2"/><path d="m10 9 5 3-5 3z"/></svg>',
+        images: '<svg viewBox="0 0 24 24" aria-hidden="true"><rect x="3" y="3" width="18" height="18" rx="2"/><circle cx="8.5" cy="8.5" r="1.5"/><path d="m21 15-5-5L5 21"/></svg>',
+        galleries: '<svg viewBox="0 0 24 24" aria-hidden="true"><path d="m12 3 9 5-9 5-9-5 9-5z"/><path d="m3 12 9 5 9-5M3 16l9 5 9-5"/></svg>',
+        markers: '<svg viewBox="0 0 24 24" aria-hidden="true"><path d="M6 4h12v17l-6-4-6 4z"/><path d="M9 8h6"/></svg>',
+        performers: '<svg viewBox="0 0 24 24" aria-hidden="true"><circle cx="9" cy="8" r="3.5"/><path d="M2.5 20a6.5 6.5 0 0 1 13 0M16 5.5a3.5 3.5 0 0 1 0 6.8M18 14a5.5 5.5 0 0 1 3.5 5"/></svg>',
+        studios: '<svg viewBox="0 0 24 24" aria-hidden="true"><path d="M3 21h18M5 21V7l7-4 7 4v14M9 11h1m4 0h1m-6 4h1m4 0h1m-4 6v-4h2v4"/></svg>',
+        groups: '<svg viewBox="0 0 24 24" aria-hidden="true"><rect x="3" y="3" width="7" height="7" rx="1"/><rect x="14" y="3" width="7" height="7" rx="1"/><rect x="3" y="14" width="7" height="7" rx="1"/><rect x="14" y="14" width="7" height="7" rx="1"/></svg>',
+        tags: '<svg viewBox="0 0 24 24" aria-hidden="true"><path d="M20.6 13.4 13 21l-10-10V3h8z"/><circle cx="7.5" cy="7.5" r="1"/></svg>'
+    };
+    var NOIR_STATS_EXTRA_LABELS = [
+        "Scenes size", "Scenes duration", "Images size", "Total O-Count",
+        "Total Play Count", "Scenes Played", "Total Play Duration"
+    ];
+    var noirStatsDataState = { loading: false, ready: false, failed: false, scenes: [], markerCount: null };
+
+    function noirStatsNode(tag, className, text) {
+        var node = document.createElement(tag);
+        if (className) { node.className = className; }
+        if (text != null) { node.textContent = text; }
+        return node;
+    }
+
+    function noirStatsFormatCount(value) {
+        var n = Number(value);
+        if (!isFinite(n)) { return "—"; }
+        try { return new Intl.NumberFormat().format(n); }
+        catch (e) { return String(Math.round(n)); }
+    }
+
+    function noirStatsReadNative(root) {
+        var values = {};
+        var elements = root.querySelectorAll(".stats-element");
+        for (var i = 0; i < elements.length; i++) {
+            var heading = elements[i].querySelector(".heading");
+            var title = elements[i].querySelector(".title");
+            var label = heading ? (heading.textContent || "").replace(/\s+/g, " ").trim() : "";
+            if (!label || !title) { continue; }
+            values[label.toLowerCase()] = (title.textContent || "").replace(/\s+/g, " ").trim();
+        }
+        return values;
+    }
+
+    function noirStatsCreateCard(metric, value) {
+        var card = noirStatsNode("a", "noir-theme-stat-card");
+        card.href = metric.href;
+        card.setAttribute("data-noir-stat", metric.key);
+        card.setAttribute("aria-label", metric.label + ": " + value);
+        var icon = noirStatsNode("span", "noir-theme-stat-card__icon");
+        icon.innerHTML = NOIR_STATS_ICONS[metric.icon];
+        card.appendChild(icon);
+        card.appendChild(noirStatsNode("span", "noir-theme-stat-card__label", metric.label));
+        card.appendChild(noirStatsNode("strong", "noir-theme-stat-card__value", value));
+        return card;
+    }
+
+    function noirStatsCreatePanel(title, subtitle, chartClass) {
+        var panel = noirStatsNode("section", "noir-theme-stats-chart-panel");
+        panel.setAttribute("aria-label", title);
+        var header = noirStatsNode("div", "noir-theme-stats-chart-header");
+        header.appendChild(noirStatsNode("h2", "", title));
+        if (subtitle) { header.appendChild(noirStatsNode("span", "", subtitle)); }
+        panel.appendChild(header);
+        panel.appendChild(noirStatsNode("div", "noir-theme-stats-chart " + chartClass));
+        return panel;
+    }
+
+    function noirStatsBuildDashboard(root) {
+        var dashboard = noirStatsNode("section", "noir-theme-stats-dashboard");
+        dashboard.setAttribute("aria-label", "Library statistics");
+        dashboard.appendChild(noirStatsNode("h1", "noir-theme-stats-title", "Statistics"));
+
+        var cards = noirStatsNode("div", "noir-theme-stats-cards");
+        for (var i = 0; i < NOIR_STATS_CARDS.length; i++) {
+            var metric = NOIR_STATS_CARDS[i];
+            var value = metric.key === "scene-markers" ? "…" : "—";
+            cards.appendChild(noirStatsCreateCard(metric, value));
+        }
+        dashboard.appendChild(cards);
+
+        var charts = noirStatsNode("div", "noir-theme-stats-charts");
+        charts.appendChild(noirStatsCreatePanel("Scenes by Year", "Scene dates in your library", "noir-theme-stats-year-chart"));
+        charts.appendChild(noirStatsCreatePanel("Media Resolution (Scenes)", "Highest file resolution per scene", "noir-theme-stats-resolution-chart"));
+        dashboard.appendChild(charts);
+
+        var extras = document.createElement("details");
+        extras.className = "noir-theme-stats-extra";
+        extras.appendChild(noirStatsNode("summary", "", "Playback and storage details"));
+        extras.appendChild(noirStatsNode("div", "noir-theme-stats-extra-grid"));
+        dashboard.appendChild(extras);
+
+        safeInsertBefore(root, dashboard, root.firstChild);
+        root.classList.add("noir-theme-stats-page");
+        return dashboard;
+    }
+
+    function noirStatsUpdateSummary(dashboard, values) {
+        for (var i = 0; i < NOIR_STATS_CARDS.length; i++) {
+            var metric = NOIR_STATS_CARDS[i];
+            var card = dashboard.querySelector('[data-noir-stat="' + metric.key + '"]');
+            if (!card) { continue; }
+            var value = metric.key === "scene-markers"
+                ? (noirStatsDataState.markerCount == null
+                    ? (noirStatsDataState.ready ? "—" : "…")
+                    : noirStatsFormatCount(noirStatsDataState.markerCount))
+                : (values[metric.label.toLowerCase()] || "—");
+            var valueNode = card.querySelector(".noir-theme-stat-card__value");
+            if (valueNode && valueNode.textContent !== value) { valueNode.textContent = value; }
+            var accessible = metric.label + ": " + value;
+            if (card.getAttribute("aria-label") !== accessible) { card.setAttribute("aria-label", accessible); }
+        }
+
+        var extrasGrid = dashboard.querySelector(".noir-theme-stats-extra-grid");
+        if (extrasGrid) {
+            for (var e = 0; e < NOIR_STATS_EXTRA_LABELS.length; e++) {
+                var label = NOIR_STATS_EXTRA_LABELS[e];
+                var item = extrasGrid.querySelector('[data-extra-stat="' + e + '"]');
+                var extraValue = values[label.toLowerCase()] || "—";
+                if (!item) {
+                    item = noirStatsNode("div", "noir-theme-stats-extra-item");
+                    item.setAttribute("data-extra-stat", String(e));
+                    item.appendChild(noirStatsNode("span", "", label));
+                    item.appendChild(noirStatsNode("strong", "", extraValue));
+                    extrasGrid.appendChild(item);
+                } else {
+                    var extraValueNode = item.querySelector("strong");
+                    if (extraValueNode && extraValueNode.textContent !== extraValue) { extraValueNode.textContent = extraValue; }
+                }
+            }
+        }
+    }
+
+    function noirStatsRenderYearChart(container, scenes) {
+        container.textContent = "";
+        if (noirStatsDataState.failed) {
+            container.removeAttribute("role");
+            container.appendChild(noirStatsNode("p", "noir-theme-stats-empty", "Chart data could not be loaded. Reload this page to try again."));
+            return;
+        }
+        var byYear = {};
+        var latest = 0;
+        for (var i = 0; i < scenes.length; i++) {
+            var date = scenes[i] && scenes[i].date;
+            var match = String(date || "").match(/^(\d{4})/);
+            if (!match) { continue; }
+            var year = Number(match[1]);
+            if (year < 1900 || year > (new Date().getFullYear() + 1)) { continue; }
+            byYear[year] = (byYear[year] || 0) + 1;
+            if (year > latest) { latest = year; }
+        }
+        if (!latest) {
+            container.removeAttribute("role");
+            container.appendChild(noirStatsNode("p", "noir-theme-stats-empty", "No dated scenes to chart yet."));
+            return;
+        }
+
+        var years = [];
+        var peak = 0;
+        for (var y = latest - 6; y <= latest; y++) {
+            years.push(y);
+            peak = Math.max(peak, byYear[y] || 0);
+        }
+        container.setAttribute("role", "img");
+        container.setAttribute("aria-label", "Scenes by year: " + years.map(function (year) {
+            return year + ", " + noirStatsFormatCount(byYear[year] || 0) + " scenes";
+        }).join("; "));
+        var scale = Math.max(1, Math.ceil(peak / 4));
+        var axis = noirStatsNode("div", "noir-theme-stats-year-axis");
+        for (var tick = 4; tick >= 0; tick--) {
+            axis.appendChild(noirStatsNode("span", "", noirStatsFormatCount(scale * tick)));
+        }
+        var plot = noirStatsNode("div", "noir-theme-stats-year-plot");
+        var columns = noirStatsNode("div", "noir-theme-stats-year-columns");
+        columns.style.gridTemplateColumns = "repeat(" + years.length + ", minmax(0, 1fr))";
+        for (var c = 0; c < years.length; c++) {
+            var count = byYear[years[c]] || 0;
+            var column = noirStatsNode("div", "noir-theme-stats-year-column");
+            column.title = years[c] + ": " + noirStatsFormatCount(count) + (count === 1 ? " scene" : " scenes");
+            column.appendChild(noirStatsNode("span", "noir-theme-stats-year-value", count ? noirStatsFormatCount(count) : ""));
+            var track = noirStatsNode("div", "noir-theme-stats-year-track");
+            var bar = noirStatsNode("span", "noir-theme-stats-year-bar");
+            bar.style.height = count ? Math.max(2, (count / (scale * 4)) * 100) + "%" : "0%";
+            track.appendChild(bar);
+            column.appendChild(track);
+            column.appendChild(noirStatsNode("span", "noir-theme-stats-year-label", String(years[c])));
+            columns.appendChild(column);
+        }
+        plot.appendChild(columns);
+        var wrap = noirStatsNode("div", "noir-theme-stats-year-wrap");
+        wrap.appendChild(axis);
+        wrap.appendChild(plot);
+        container.appendChild(wrap);
+    }
+
+    function noirStatsResolutionGroup(scene) {
+        var files = scene && scene.files || [];
+        var bestArea = 0;
+        var bestDimension = 0;
+        for (var i = 0; i < files.length; i++) {
+            var width = Number(files[i] && files[i].width) || 0;
+            var height = Number(files[i] && files[i].height) || 0;
+            if (!width || !height) { continue; }
+            var area = width * height;
+            if (area > bestArea) {
+                bestArea = area;
+                bestDimension = Math.min(width, height);
+            }
+        }
+        if (!files.length) { return null; }
+        if (!bestDimension) { return "Other"; }
+        if (bestDimension >= 2160) { return "4K"; }
+        if (bestDimension >= 1440) { return "1440p"; }
+        if (bestDimension >= 1080) { return "1080p"; }
+        if (bestDimension >= 720) { return "720p"; }
+        if (bestDimension >= 480) { return "480p"; }
+        return "Other";
+    }
+
+    function noirStatsRenderResolutionChart(container, scenes) {
+        container.textContent = "";
+        if (noirStatsDataState.failed) {
+            container.removeAttribute("role");
+            container.appendChild(noirStatsNode("p", "noir-theme-stats-empty", "Chart data could not be loaded. Reload this page to try again."));
+            return;
+        }
+        var order = ["4K", "1440p", "1080p", "720p", "480p", "Other"];
+        var counts = {};
+        var total = 0;
+        for (var i = 0; i < scenes.length; i++) {
+            var group = noirStatsResolutionGroup(scenes[i]);
+            if (!group) { continue; }
+            counts[group] = (counts[group] || 0) + 1;
+            total++;
+        }
+        if (!total) {
+            container.removeAttribute("role");
+            container.appendChild(noirStatsNode("p", "noir-theme-stats-empty", "Resolution data appears when scenes have media files."));
+            return;
+        }
+        order.sort(function (a, b) { return (counts[b] || 0) - (counts[a] || 0); });
+        container.setAttribute("role", "img");
+        container.setAttribute("aria-label", "Media resolutions: " + order.filter(function (label) {
+            return !!counts[label];
+        }).map(function (label) {
+            return label + ", " + noirStatsFormatCount(counts[label]) + " scenes";
+        }).join("; "));
+        var list = noirStatsNode("div", "noir-theme-stats-resolution-list");
+        for (var j = 0; j < order.length; j++) {
+            var label = order[j];
+            var count = counts[label] || 0;
+            if (!count) { continue; }
+            var percent = (count / total) * 100;
+            var row = noirStatsNode("div", "noir-theme-stats-resolution-row");
+            row.setAttribute("aria-label", label + ": " + noirStatsFormatCount(count) + " scenes, " + percent.toFixed(1) + "%");
+            row.appendChild(noirStatsNode("span", "noir-theme-stats-resolution-label", label));
+            var meter = noirStatsNode("span", "noir-theme-stats-resolution-meter");
+            var fill = noirStatsNode("span", "noir-theme-stats-resolution-fill");
+            fill.style.width = percent + "%";
+            meter.appendChild(fill);
+            row.appendChild(meter);
+            row.appendChild(noirStatsNode("span", "noir-theme-stats-resolution-count",
+                noirStatsFormatCount(count) + " (" + percent.toFixed(1) + "%)"));
+            list.appendChild(row);
+        }
+        container.appendChild(list);
+    }
+
+    function noirStatsRenderCharts(dashboard) {
+        if (!noirStatsDataState.ready) { return; }
+        var yearChart = dashboard.querySelector(".noir-theme-stats-year-chart");
+        var resolutionChart = dashboard.querySelector(".noir-theme-stats-resolution-chart");
+        if (yearChart) { noirStatsRenderYearChart(yearChart, noirStatsDataState.scenes); }
+        if (resolutionChart) { noirStatsRenderResolutionChart(resolutionChart, noirStatsDataState.scenes); }
+    }
+
+    function noirStatsLoadChartData() {
+        if (noirStatsDataState.loading || noirStatsDataState.ready) { return; }
+        noirStatsDataState.loading = true;
+        gql('query NoirStatsDashboard { sceneData: findScenes(filter: { per_page: -1 }) { scenes { date files { width height } } } markerData: findSceneMarkers(filter: { per_page: 1 }) { count } }')
+            .then(function (result) {
+                var data = result && result.data || {};
+                if (!data.sceneData) { throw new Error("Scene statistics are unavailable"); }
+                noirStatsDataState.scenes = data.sceneData.scenes || [];
+                noirStatsDataState.markerCount = data.markerData && typeof data.markerData.count === "number"
+                    ? data.markerData.count : null;
+                noirStatsDataState.failed = false;
+            })
+            .catch(function () {
+                noirStatsDataState.failed = true;
+                noirStatsDataState.scenes = [];
+                noirStatsDataState.markerCount = null;
+            })
+            .then(function () {
+                noirStatsDataState.loading = false;
+                noirStatsDataState.ready = true;
+                initNoirStatsDashboard();
+            });
+    }
+
+    function initNoirStatsDashboard() {
+        var path = (window.location.pathname || "").replace(/\/+$/, "") || "/";
+        if (path !== "/stats") { return; }
+        var root = document.querySelector(".main.container-fluid .mt-5");
+        if (!root) { return; }
+        var nativeRows = root.querySelectorAll(":scope > .stats");
+        var hasNativeMetrics = false;
+        for (var r = 0; r < nativeRows.length; r++) {
+            if (nativeRows[r].querySelector(".stats-element")) { hasNativeMetrics = true; break; }
+        }
+        if (!hasNativeMetrics) { return; }
+        var dashboard = root.querySelector(".noir-theme-stats-dashboard");
+        if (!dashboard) { dashboard = noirStatsBuildDashboard(root); }
+        root.classList.add("noir-theme-stats-page");
+        noirStatsUpdateSummary(dashboard, noirStatsReadNative(root));
+        if (noirStatsDataState.ready && dashboard.getAttribute("data-chart-rendered") !== "1") {
+            noirStatsRenderCharts(dashboard);
+            dashboard.setAttribute("data-chart-rendered", "1");
+        }
+        else if (!noirStatsDataState.loading) { noirStatsLoadChartData(); }
+    }
+
     /* ── Server-side settings sync ──────────────────────────────────────
        refract settings live in localStorage for an instant, flash-free
        boot, but localStorage is per-origin and per-browser — so settings
@@ -11342,6 +11678,7 @@
                 nextTick(updateDesktopSidebarActive);
                 nextTick(stripRatingBannerToNumber);
                 nextTick(syncRoute);
+                nextTick(initNoirStatsDashboard);
                 nextTick(initSceneCards);
                 nextTick(initPerformerCards);
                 nextTick(initNoirHomeSpotlight);
@@ -11400,6 +11737,7 @@
         refractActiveTaskPoll();
         watchForReinjection();
         syncRoute();
+        initNoirStatsDashboard();
     }
 
     /* ── Scene Tagger: override Stash's scene-details centering via inline ── */
@@ -15802,6 +16140,7 @@
             try { injectPerformerCardFlip(); } catch (e) {}
             try { tagBulkDateInputGroups(); } catch (e) {}
             try { setupVideoFilterSwatches(); } catch (e) {}
+            try { initNoirStatsDashboard(); } catch (e) {}
         }
         function sched() {
             clearTimeout(_t);

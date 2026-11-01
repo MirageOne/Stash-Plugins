@@ -1,0 +1,557 @@
+/* Settings → Plugins: replace the remaining glass/glow controls in Stash's
+   native plugin list with Noir's solid charcoal and restrained violet UI. */
+
+body.stash-noir-theme .setting-section .setting-group:has(.st-toggle-injected) :is(button, .btn, a.btn),
+body.stash-noir-theme .setting-section .setting-group:has(> .setting.st-plugin-reload-row) :is(button, .btn, a.btn) {
+    border-radius: 4px !important;
+    box-shadow: none !important;
+    text-shadow: none !important;
+    -webkit-backdrop-filter: none !important;
+    backdrop-filter: none !important;
+    filter: none !important;
+    transform: none !important;
+    transition: color 130ms ease, background-color 130ms ease, border-color 130ms ease, outline-color 130ms ease !important;
+}
+
+body.stash-noir-theme .setting-section .setting-group:has(.st-toggle-injected) :is(.btn-primary, button.btn-primary, a.btn-primary),
+body.stash-noir-theme .setting-section .setting-group:has(> .setting.st-plugin-reload-row) :is(.btn-primary, button.btn-primary, a.btn-primary) {
+    color: var(--accent-bright) !important;
+    background: #25212e !important;
+    background-image: none !important;
+    border: 1px solid rgba(var(--accent-rgb), 0.28) !important;
+    box-shadow: none !important;
+}
+
+body.stash-noir-theme .setting-section .setting-group:has(.st-toggle-injected) :is(.btn-primary, button.btn-primary, a.btn-primary):hover,
+body.stash-noir-theme .setting-section .setting-group:has(> .setting.st-plugin-reload-row) :is(.btn-primary, button.btn-primary, a.btn-primary):hover {
+    color: #fff !important;
+    background: #30283e !important;
+    border-color: rgba(var(--accent-rgb), 0.55) !important;
+    box-shadow: none !important;
+}
+
+body.stash-noir-theme .setting-section .setting-group:has(.st-toggle-injected) :is(.btn-secondary, button.btn-secondary, a.btn-secondary),
+body.stash-noir-theme .setting-section .setting-group:has(> .setting.st-plugin-reload-row) :is(.btn-secondary, button.btn-secondary, a.btn-secondary) {
+    color: var(--text) !important;
+    background: #202127 !important;
+    background-image: none !important;
+    border: 1px solid rgba(255, 255, 255, 0.11) !important;
+    box-shadow: none !important;
+}
+
+body.stash-noir-theme .setting-section .setting-group:has(.st-toggle-injected) :is(.btn-secondary, button.btn-secondary, a.btn-secondary):hover,
+body.stash-noir-theme .setting-section .setting-group:has(> .setting.st-plugin-reload-row) :is(.btn-secondary, button.btn-secondary, a.btn-secondary):hover {
+    color: #fff !important;
+    background: #292b32 !important;
+    border-color: rgba(255, 255, 255, 0.2) !important;
+}
+
+body.stash-noir-theme .setting-section .setting-group:has(.st-toggle-injected) :is(button, .btn, a.btn):focus-visible,
+body.stash-noir-theme .setting-section .setting-group:has(> .setting.st-plugin-reload-row) :is(button, .btn, a.btn):focus-visible {
+    outline: 2px solid var(--accent-bright) !important;
+    outline-offset: 2px !important;
+    box-shadow: none !important;
+}
+
+/* The injected project links remain compact icon buttons, with an outline
+   and quiet hover fill instead of a luminous purple badge. */
+body.stash-noir-theme .setting-section .setting-group:has(.st-toggle-injected) h3 > a.st-title-link {
+    width: 1.55rem !important;
+    height: 1.45rem !important;
+    min-width: 1.55rem !important;
+    min-height: 1.45rem !important;
+    margin-left: 0.42rem !important;
+    padding: 0 !important;
+    color: var(--accent-bright) !important;
+    background: #24212d !important;
+    border: 1px solid rgba(var(--accent-rgb), 0.26) !important;
+    border-radius: 4px !important;
+    box-shadow: none !important;
+}
+
+body.stash-noir-theme .setting-section .setting-group:has(.st-toggle-injected) h3 > a.st-title-link:hover {
+    color: #fff !important;
+    background: #30283e !important;
+    border-color: rgba(var(--accent-rgb), 0.55) !important;
+    box-shadow: none !important;
+}
+
+body.stash-noir-theme .setting-section .setting-group:has(.st-toggle-injected) h3 > a.st-title-link svg,
+body.stash-noir-theme .setting-section .setting-group:has(.st-toggle-injected) .st-plugin-chevron svg,
+body.stash-noir-theme .setting-section .setting-group:has(> .setting.st-plugin-reload-row) .st-plugin-reload-btn svg {
+    filter: none !important;
+    box-shadow: none !important;
+}
+
+/* Flat icon-only controls: expand/collapse and Reload plugins. */
+body.stash-noir-theme .setting-section .setting-group:has(.st-toggle-injected) .st-plugin-chevron {
+    color: var(--text-muted) !important;
+    background: transparent !important;
+    background-image: none !important;
+    border: 0 !important;
+    border-radius: 3px !important;
+    box-shadow: none !important;
+}
+
+body.stash-noir-theme .setting-section .setting-group:has(.st-toggle-injected) .st-plugin-chevron:hover {
+    color: var(--accent-bright) !important;
+    background: rgba(255, 255, 255, 0.055) !important;
+    border: 0 !important;
+    box-shadow: none !important;
+}
+
+body.stash-noir-theme .setting-section .setting-group:has(> .setting.st-plugin-reload-row) .st-plugin-reload-btn {
+    display: inline-flex !important;
+    align-items: center !important;
+    justify-content: center !important;
+    width: 2.3rem !important;
+    height: 2.3rem !important;
+    min-width: 2.3rem !important;
+    min-height: 2.3rem !important;
+    padding: 0 !important;
+    color: var(--accent-bright) !important;
+    background: #202127 !important;
+    border: 1px solid rgba(255, 255, 255, 0.11) !important;
+    border-radius: 4px !important;
+    box-shadow: none !important;
+}
+
+body.stash-noir-theme .setting-section .setting-group:has(> .setting.st-plugin-reload-row) .st-plugin-reload-btn:hover {
+    color: #fff !important;
+    background: #292b32 !important;
+    border-color: rgba(var(--accent-rgb), 0.48) !important;
+    box-shadow: none !important;
+}
+
+/* Search field and clear action use an opaque charcoal surface, not the
+   rounded translucent input treatment used by the older theme. */
+body.stash-noir-theme .setting-section .setting-group:has(> .setting.st-plugin-reload-row) .st-plugin-search {
+    display: flex !important;
+    align-items: center !important;
+    min-height: 2.3rem !important;
+    padding: 0 0.35rem 0 0.7rem !important;
+    background: #191a20 !important;
+    border: 1px solid rgba(255, 255, 255, 0.11) !important;
+    border-radius: 4px !important;
+    box-shadow: none !important;
+    -webkit-backdrop-filter: none !important;
+    backdrop-filter: none !important;
+}
+
+body.stash-noir-theme .setting-section .setting-group:has(> .setting.st-plugin-reload-row) .st-plugin-search:focus-within {
+    border-color: rgba(var(--accent-rgb), 0.58) !important;
+    box-shadow: 0 0 0 2px rgba(var(--accent-rgb), 0.14) !important;
+}
+
+body.stash-noir-theme .setting-section .setting-group:has(> .setting.st-plugin-reload-row) .st-plugin-search-input {
+    min-height: 2.15rem !important;
+    padding: 0.35rem 0 !important;
+    color: var(--text) !important;
+    background: transparent !important;
+    border: 0 !important;
+    border-radius: 0 !important;
+    box-shadow: none !important;
+}
+
+body.stash-noir-theme .setting-section .setting-group:has(> .setting.st-plugin-reload-row) .st-plugin-search-input:focus {
+    color: #fff !important;
+    background: transparent !important;
+    border: 0 !important;
+    box-shadow: none !important;
+    outline: none !important;
+}
+
+body.stash-noir-theme .setting-section .setting-group:has(> .setting.st-plugin-reload-row) .st-plugin-search-clear {
+    display: inline-flex !important;
+    align-items: center !important;
+    justify-content: center !important;
+    width: 1.7rem !important;
+    height: 1.7rem !important;
+    padding: 0 !important;
+    color: var(--text-muted) !important;
+    background: transparent !important;
+    border: 0 !important;
+    border-radius: 3px !important;
+    box-shadow: none !important;
+}
+
+body.stash-noir-theme .setting-section .setting-group:has(> .setting.st-plugin-reload-row) .st-plugin-search-clear:hover {
+    color: #fff !important;
+    background: rgba(255, 255, 255, 0.07) !important;
+}
+
+/* Compact, square-corner Noir switches for every plugin enable control. */
+body.stash-noir-theme .setting-section .setting-group:has(.st-toggle-injected) .st-toggle-injected .custom-switch {
+    display: inline-flex !important;
+    align-items: center !important;
+    width: 2.3rem !important;
+    height: 1.3rem !important;
+    min-height: 1.3rem !important;
+    margin: 0 !important;
+    padding: 0 !important;
+}
+
+body.stash-noir-theme .setting-section .setting-group:has(.st-toggle-injected) .st-toggle-injected .custom-control-label {
+    display: block !important;
+    width: 2.3rem !important;
+    height: 1.3rem !important;
+    min-height: 1.3rem !important;
+    margin: 0 !important;
+    padding: 0 !important;
+    line-height: 1 !important;
+}
+
+body.stash-noir-theme .setting-section .setting-group:has(.st-toggle-injected) .st-toggle-injected .custom-control-label::before {
+    top: 50% !important;
+    left: 0 !important;
+    width: 2.3rem !important;
+    height: 1.3rem !important;
+    transform: translateY(-50%) !important;
+    background: #282a31 !important;
+    background-image: none !important;
+    border: 1px solid rgba(255, 255, 255, 0.16) !important;
+    border-radius: 4px !important;
+    box-shadow: none !important;
+    transition: background-color 130ms ease, border-color 130ms ease !important;
+}
+
+body.stash-noir-theme .setting-section .setting-group:has(.st-toggle-injected) .st-toggle-injected .custom-control-label::after {
+    top: 50% !important;
+    left: 0.18rem !important;
+    width: 0.82rem !important;
+    height: 0.82rem !important;
+    transform: translateY(-50%) !important;
+    background: #b6b8c1 !important;
+    background-image: none !important;
+    border: 0 !important;
+    border-radius: 3px !important;
+    box-shadow: none !important;
+    transition: transform 130ms ease, background-color 130ms ease !important;
+}
+
+body.stash-noir-theme .setting-section .setting-group:has(.st-toggle-injected) .st-toggle-injected .custom-control-input:checked ~ .custom-control-label::before {
+    background: var(--accent) !important;
+    border-color: var(--accent) !important;
+    box-shadow: none !important;
+}
+
+body.stash-noir-theme .setting-section .setting-group:has(.st-toggle-injected) .st-toggle-injected .custom-control-input:checked ~ .custom-control-label::after {
+    transform: translateY(-50%) translateX(1.12rem) !important;
+    background: #fff !important;
+    box-shadow: none !important;
+}
+
+body.stash-noir-theme .setting-section .setting-group:has(.st-toggle-injected) .st-toggle-injected .custom-control-input:focus-visible ~ .custom-control-label::before {
+    outline: 2px solid var(--accent-bright) !important;
+    outline-offset: 2px !important;
+    box-shadow: none !important;
+}
+
+body.stash-noir-theme .setting-section .setting-group:has(.st-toggle-injected) .st-toggle-injected .custom-control-input:disabled ~ .custom-control-label {
+    cursor: not-allowed !important;
+    opacity: 0.55;
+}
+
+@media (prefers-reduced-motion: reduce) {
+    body.stash-noir-theme .setting-section .setting-group:has(.st-toggle-injected) *,
+    body.stash-noir-theme .setting-section .setting-group:has(> .setting.st-plugin-reload-row) * {
+        transition: none !important;
+    }
+}
+
+/* Global control finish
+   ---------------------
+   Apply the Noir control language throughout Stash, including native pages,
+   modals, filters and third-party plugin screens. The repeated, nonexistent ID
+   branch gives these last-loaded rules enough weight to replace deeply scoped
+   Stash and plugin selectors that also contain element IDs. */
+body.stash-noir-theme {
+    --noir-control-surface: #202127;
+    --noir-control-surface-hover: #2a2c34;
+    --noir-control-border: rgba(255, 255, 255, 0.13);
+    --noir-control-muted: #c5c6ce;
+    --noir-control-focus: var(--accent-bright);
+    --noir-control-track: #292b32;
+    --noir-control-thumb: #c7c8d0;
+    --noir-control-success: #24513a;
+    --noir-control-success-hover: #2d6748;
+    --noir-control-success-border: #34734f;
+    --noir-control-success-text: #e6fff0;
+    --noir-control-info: #233e50;
+    --noir-control-info-hover: #2b4f66;
+    --noir-control-info-border: #315b75;
+    --noir-control-info-text: #e8f5ff;
+    --noir-control-warning: #51401e;
+    --noir-control-warning-hover: #675126;
+    --noir-control-warning-border: #79602a;
+    --noir-control-warning-text: #fff4d6;
+    --noir-control-danger: #51272e;
+    --noir-control-danger-hover: #68323b;
+    --noir-control-danger-border: #783841;
+    --noir-control-danger-text: #ffe9ec;
+}
+
+body.stash-noir-theme.noir-theme-light {
+    --noir-control-surface: #ffffff;
+    --noir-control-surface-hover: #f1eff6;
+    --noir-control-border: rgba(0, 0, 0, 0.16);
+    --noir-control-muted: #34323a;
+    --noir-control-focus: var(--accent);
+    --noir-control-track: #e9e8ed;
+    --noir-control-thumb: #ffffff;
+    --noir-control-success: #e8f5ec;
+    --noir-control-success-hover: #d5ecdd;
+    --noir-control-success-border: #9ec9ac;
+    --noir-control-success-text: #14532d;
+    --noir-control-info: #e8f3fa;
+    --noir-control-info-hover: #d6eaf6;
+    --noir-control-info-border: #a5c9dd;
+    --noir-control-info-text: #16435d;
+    --noir-control-warning: #fff5dc;
+    --noir-control-warning-hover: #f8e9be;
+    --noir-control-warning-border: #ddc887;
+    --noir-control-warning-text: #60470a;
+    --noir-control-danger: #fbeaec;
+    --noir-control-danger-hover: #f4d5d8;
+    --noir-control-danger-border: #ddb0b5;
+    --noir-control-danger-text: #76262e;
+}
+
+/* Remove the old blur, gradient, rounded glass and halo from every common
+   button shape. Leave custom sizing and icon layout to the owning component. */
+body.stash-noir-theme :is(button:not(.btn-close), .btn:not(.btn-close), a.btn:not(.btn-close), [role="button"]:not(.btn-close), .page-link, #noir-control-specificity#noir-control-specificity#noir-control-specificity) {
+    appearance: none !important;
+    -webkit-appearance: none !important;
+    background-image: none !important;
+    box-shadow: none !important;
+    filter: none !important;
+    text-shadow: none !important;
+    -webkit-backdrop-filter: none !important;
+    backdrop-filter: none !important;
+    transition: color 130ms ease, background-color 130ms ease, border-color 130ms ease, outline-color 130ms ease !important;
+}
+
+body.stash-noir-theme :is(button:not(.btn-close):not(.btn-circle):not(.rounded-circle), .btn:not(.btn-close):not(.btn-circle):not(.rounded-circle), a.btn:not(.btn-close):not(.btn-circle):not(.rounded-circle), [role="button"]:not(.btn-close):not(.btn-circle):not(.rounded-circle), .page-link, #noir-control-specificity#noir-control-specificity#noir-control-specificity) {
+    border-radius: 4px !important;
+}
+body.stash-noir-theme :is(.btn-circle, .rounded-circle, #noir-control-specificity#noir-control-specificity#noir-control-specificity) {
+    border-radius: 50% !important;
+}
+
+/* Neutral actions use a solid charcoal surface. Icon-only and text-only
+   buttons keep their quieter transparent treatment below. */
+body.stash-noir-theme :is(.btn:not(.btn-primary):not(.btn-success):not(.btn-info):not(.btn-warning):not(.btn-danger):not(.btn-link):not(.btn-close):not(.minimal), #noir-control-specificity#noir-control-specificity#noir-control-specificity) {
+    color: var(--noir-control-muted) !important;
+    background-color: var(--noir-control-surface) !important;
+    background-image: none !important;
+    border: 1px solid var(--noir-control-border) !important;
+}
+
+body.stash-noir-theme :is(.btn:not(.btn-primary):not(.btn-success):not(.btn-info):not(.btn-warning):not(.btn-danger):not(.btn-link):not(.btn-close):not(.minimal), #noir-control-specificity#noir-control-specificity#noir-control-specificity):hover:not(:disabled) {
+    color: var(--text) !important;
+    background-color: var(--noir-control-surface-hover) !important;
+    border-color: rgba(var(--accent-rgb), 0.42) !important;
+}
+
+/* Primary actions and selected view controls carry the accent as a clean,
+   solid fill; no gradient or bloom. */
+body.stash-noir-theme :is(.btn-primary:not(.minimal), #noir-control-specificity#noir-control-specificity#noir-control-specificity) {
+    color: #fff !important;
+    background-color: var(--accent) !important;
+    background-image: none !important;
+    border: 1px solid var(--accent) !important;
+}
+
+body.stash-noir-theme :is(.btn-primary:not(.minimal), #noir-control-specificity#noir-control-specificity#noir-control-specificity):hover:not(:disabled) {
+    color: #fff !important;
+    background-color: var(--accent-bright) !important;
+    border-color: var(--accent-bright) !important;
+}
+
+/* Outline variants stay quiet until hover, while preserving their purpose. */
+body.stash-noir-theme :is(.btn-outline-primary, .btn-outline-secondary, .btn-outline-info, .btn-outline-success, .btn-outline-warning, .btn-outline-danger, #noir-control-specificity#noir-control-specificity#noir-control-specificity) {
+    background-color: transparent !important;
+    background-image: none !important;
+}
+body.stash-noir-theme :is(.btn-outline-primary, #noir-control-specificity#noir-control-specificity#noir-control-specificity) {
+    color: var(--accent-bright) !important;
+    border: 1px solid rgba(var(--accent-rgb), 0.48) !important;
+}
+body.stash-noir-theme :is(.btn-outline-primary, #noir-control-specificity#noir-control-specificity#noir-control-specificity):hover:not(:disabled) {
+    color: #fff !important;
+    background-color: var(--accent) !important;
+    border-color: var(--accent) !important;
+}
+body.stash-noir-theme :is(.btn-outline-secondary, #noir-control-specificity#noir-control-specificity#noir-control-specificity) {
+    color: var(--noir-control-muted) !important;
+    border: 1px solid var(--noir-control-border) !important;
+}
+body.stash-noir-theme :is(.btn-outline-secondary, #noir-control-specificity#noir-control-specificity#noir-control-specificity):hover:not(:disabled) {
+    color: var(--text) !important;
+    background-color: var(--noir-control-surface-hover) !important;
+}
+body.stash-noir-theme :is(.btn-outline-info, .btn-outline-success, .btn-outline-warning, .btn-outline-danger, #noir-control-specificity#noir-control-specificity#noir-control-specificity) {
+    border-width: 1px !important;
+}
+
+/* Keep status actions recognizable without Fluent gradients or shadows. */
+body.stash-noir-theme :is(.btn-success:not(.minimal), #noir-control-specificity#noir-control-specificity#noir-control-specificity) {
+    color: var(--noir-control-success-text) !important;
+    background-color: var(--noir-control-success) !important;
+    border: 1px solid var(--noir-control-success-border) !important;
+}
+body.stash-noir-theme :is(.btn-success:not(.minimal), #noir-control-specificity#noir-control-specificity#noir-control-specificity):hover:not(:disabled) {
+    background-color: var(--noir-control-success-hover) !important;
+}
+body.stash-noir-theme :is(.btn-info:not(.minimal), #noir-control-specificity#noir-control-specificity#noir-control-specificity) {
+    color: var(--noir-control-info-text) !important;
+    background-color: var(--noir-control-info) !important;
+    border: 1px solid var(--noir-control-info-border) !important;
+}
+body.stash-noir-theme :is(.btn-info:not(.minimal), #noir-control-specificity#noir-control-specificity#noir-control-specificity):hover:not(:disabled) {
+    background-color: var(--noir-control-info-hover) !important;
+}
+body.stash-noir-theme :is(.btn-warning:not(.minimal), #noir-control-specificity#noir-control-specificity#noir-control-specificity) {
+    color: var(--noir-control-warning-text) !important;
+    background-color: var(--noir-control-warning) !important;
+    border: 1px solid var(--noir-control-warning-border) !important;
+}
+body.stash-noir-theme :is(.btn-warning:not(.minimal), #noir-control-specificity#noir-control-specificity#noir-control-specificity):hover:not(:disabled) {
+    background-color: var(--noir-control-warning-hover) !important;
+}
+body.stash-noir-theme :is(.btn-danger:not(.minimal), #noir-control-specificity#noir-control-specificity#noir-control-specificity) {
+    color: var(--noir-control-danger-text) !important;
+    background-color: var(--noir-control-danger) !important;
+    border: 1px solid var(--noir-control-danger-border) !important;
+}
+body.stash-noir-theme :is(.btn-danger:not(.minimal), #noir-control-specificity#noir-control-specificity#noir-control-specificity):hover:not(:disabled) {
+    background-color: var(--noir-control-danger-hover) !important;
+}
+
+/* Minimal actions such as favorite hearts remain icon-first and transparent. */
+body.stash-noir-theme :is(.btn.minimal, button.minimal, a.minimal.btn, #noir-control-specificity#noir-control-specificity#noir-control-specificity) {
+    color: var(--text-muted) !important;
+    background: transparent !important;
+    background-image: none !important;
+    border-color: transparent !important;
+    box-shadow: none !important;
+}
+body.stash-noir-theme :is(.btn.minimal, button.minimal, a.minimal.btn, #noir-control-specificity#noir-control-specificity#noir-control-specificity):hover:not(:disabled) {
+    color: var(--accent-bright) !important;
+    background-color: rgba(var(--accent-rgb), 0.10) !important;
+    border-color: transparent !important;
+}
+body.stash-noir-theme :is(.btn-link, a.btn-link, #noir-control-specificity#noir-control-specificity#noir-control-specificity) {
+    color: var(--accent-bright) !important;
+    background: transparent !important;
+    border-color: transparent !important;
+    text-decoration: none !important;
+}
+body.stash-noir-theme :is(.btn-link, a.btn-link, #noir-control-specificity#noir-control-specificity#noir-control-specificity):hover:not(:disabled) {
+    color: var(--accent-light) !important;
+    background-color: rgba(var(--accent-rgb), 0.08) !important;
+}
+
+/* Pagination controls are flat charcoal with a square, violet current page. */
+body.stash-noir-theme :is(.page-link, #noir-control-specificity#noir-control-specificity#noir-control-specificity) {
+    color: var(--noir-control-muted) !important;
+    background-color: transparent !important;
+    background-image: none !important;
+    border-color: transparent !important;
+}
+body.stash-noir-theme :is(.page-item.active .page-link, #noir-control-specificity#noir-control-specificity#noir-control-specificity) {
+    color: #fff !important;
+    background-color: var(--accent) !important;
+    border-color: var(--accent) !important;
+}
+body.stash-noir-theme :is(.page-link, #noir-control-specificity#noir-control-specificity#noir-control-specificity):hover:not(:disabled) {
+    color: var(--text) !important;
+    background-color: var(--noir-control-surface-hover) !important;
+}
+
+/* Keyboard focus remains obvious without relying on a glow. */
+body.stash-noir-theme :is(button, .btn, a.btn, [role="button"], .page-link, #noir-control-specificity#noir-control-specificity#noir-control-specificity):focus-visible {
+    outline: 2px solid var(--noir-control-focus) !important;
+    outline-offset: 2px !important;
+    box-shadow: none !important;
+}
+body.stash-noir-theme :is(button, .btn, a.btn, [role="button"], .page-link, #noir-control-specificity#noir-control-specificity#noir-control-specificity):focus:not(:focus-visible) {
+    outline: none !important;
+    box-shadow: none !important;
+}
+body.stash-noir-theme :is(button, .btn, a.btn, [role="button"], .page-link, #noir-control-specificity#noir-control-specificity#noir-control-specificity):disabled,
+body.stash-noir-theme :is(.btn.disabled, .page-link.disabled, #noir-control-specificity#noir-control-specificity#noir-control-specificity) {
+    cursor: not-allowed !important;
+    filter: none !important;
+    box-shadow: none !important;
+}
+
+/* Replace the theme's original liquid-glass custom switch with a solid track
+   and plain thumb everywhere, while preserving each component's dimensions. */
+body.stash-noir-theme .custom-switch :is(.custom-control-label, #noir-control-specificity#noir-control-specificity#noir-control-specificity)::before {
+    background: var(--noir-control-track) !important;
+    background-image: none !important;
+    border: 1px solid var(--noir-control-border) !important;
+    box-shadow: none !important;
+    transition: background-color 130ms ease, border-color 130ms ease !important;
+}
+body.stash-noir-theme .custom-switch :is(.custom-control-label, #noir-control-specificity#noir-control-specificity#noir-control-specificity)::after {
+    background: var(--noir-control-thumb) !important;
+    background-image: none !important;
+    box-shadow: none !important;
+    transition: transform 130ms ease, background-color 130ms ease !important;
+}
+body.stash-noir-theme .custom-switch .custom-control-input:checked ~ :is(.custom-control-label, #noir-control-specificity#noir-control-specificity#noir-control-specificity)::before {
+    background: var(--accent) !important;
+    border-color: var(--accent) !important;
+    box-shadow: none !important;
+}
+body.stash-noir-theme .custom-switch .custom-control-input:checked ~ :is(.custom-control-label, #noir-control-specificity#noir-control-specificity#noir-control-specificity)::after {
+    background: #fff !important;
+    box-shadow: none !important;
+}
+body.stash-noir-theme .custom-switch .custom-control-input:focus-visible ~ :is(.custom-control-label, #noir-control-specificity#noir-control-specificity#noir-control-specificity)::before {
+    outline: 2px solid var(--noir-control-focus) !important;
+    outline-offset: 2px !important;
+    box-shadow: none !important;
+}
+
+/* Bootstrap's alternate switch markup uses a radial shape for its thumb;
+   keep the shape but make both the track and thumb flat and unlit. */
+body.stash-noir-theme .form-switch :is(.form-check-input, #noir-control-specificity#noir-control-specificity#noir-control-specificity) {
+    background-color: var(--noir-control-track) !important;
+    background-image: radial-gradient(circle at 0.72rem 50%, var(--noir-control-thumb) 0 0.56rem, transparent 0.57rem) !important;
+    border: 1px solid var(--noir-control-border) !important;
+    box-shadow: none !important;
+    transition: background-color 130ms ease, border-color 130ms ease, background-position 130ms ease !important;
+}
+body.stash-noir-theme .form-switch :is(.form-check-input, #noir-control-specificity#noir-control-specificity#noir-control-specificity):checked {
+    background-color: var(--accent) !important;
+    background-image: radial-gradient(circle at calc(100% - 0.72rem) 50%, #fff 0 0.56rem, transparent 0.57rem) !important;
+    border-color: var(--accent) !important;
+    box-shadow: none !important;
+}
+body.stash-noir-theme .form-switch :is(.form-check-input, #noir-control-specificity#noir-control-specificity#noir-control-specificity):focus-visible {
+    outline: 2px solid var(--noir-control-focus) !important;
+    outline-offset: 2px !important;
+    box-shadow: none !important;
+}
+
+/* Keep the plugin refresh control low-emphasis while using the same flat
+   charcoal button language as the rest of the interface. */
+body.stash-noir-theme :is(.st-plugin-reload-btn, #noir-control-specificity#noir-control-specificity#noir-control-specificity) {
+    color: var(--accent-bright) !important;
+    background-color: var(--noir-control-surface) !important;
+    border: 1px solid var(--noir-control-border) !important;
+}
+body.stash-noir-theme :is(.st-plugin-reload-btn, #noir-control-specificity#noir-control-specificity#noir-control-specificity):hover:not(:disabled) {
+    color: #fff !important;
+    background-color: var(--noir-control-surface-hover) !important;
+    border-color: rgba(var(--accent-rgb), 0.48) !important;
+}
+
+@media (prefers-reduced-motion: reduce) {
+    body.stash-noir-theme :is(button, .btn, a.btn, [role="button"], .page-link, .custom-switch *, .form-switch *, #noir-control-specificity#noir-control-specificity#noir-control-specificity) {
+        transition: none !important;
+    }
+}

@@ -1,30 +1,36 @@
-# Cinema Catalog Theme for Stash
+# Stash Plugins
 
-A dark, media-first UI theme for Stash. It keeps Stash's existing routes and controls, brings the main navigation into a desktop sidebar, and presents it as a slide-out drawer on mobile. Media cards remain image-led, with compact metadata and visible progress indicators.
+This repository hosts independent Stash plugins. Each plugin keeps its manifest, UI assets, and plugin-specific documentation in its own directory under `plugins/`. The root `index.yml` is the shared package source for all plugins in the repository.
 
-The theme ships with Fluent-inspired Blue as its default accent. Change it in **Settings → Plugins → Cinema Catalog**. Blue, Teal, Green, Yellow, Orange, Red, Pink, and Purple are available. The selection applies immediately, is cached locally, and is also saved to Stash's UI configuration when GraphQL settings are available.
+## Available plugins
+
+- [Cinema Catalog](plugins/cinema-catalog/README.md) — a dark, media-first theme with a desktop sidebar, mobile drawer, and configurable Fluent-inspired accent colors.
 
 ## Install from Stash
 
-In Stash, open **Settings → Plugins → Add source**, name it **Cinema Catalog**, and use this package index URL:
+Add the repository once in Stash under **Settings → Plugins → Add source**. Use **MirageOne Stash Plugins** as the source name and this index URL:
 
 ```text
 https://raw.githubusercontent.com/MirageOne/Stasher/main/index.yml
 ```
 
-Reload the plugin list, then install **Cinema Catalog** from **Available Plugins**. The index verifies the downloadable package with SHA-256.
+Reload plugins, then install any listed plugin from **Available Plugins**. New plugins added to the shared index will appear under the same source.
 
 ## Manual install
 
-Download `dist/cinema-catalog-theme.zip` and extract the `cinema-catalog` folder into Stash's configured plugins directory. Restart Stash or reload its plugin list, then enable **Cinema Catalog** in **Settings → Plugins**.
+For example, [download the Cinema Catalog manual archive](packages/cinema-catalog/0.1.2-manual.zip), extract the included plugin folder into Stash's configured plugins directory, then enable it in **Settings → Plugins**. Each plugin's README links to its current manual archive.
 
-The plugin is UI-only; it has no server executable or database migration. To remove it, disable and uninstall it from **Settings → Plugins**, or delete its folder after a manual install.
+## Repository layout
 
-## Package contents
+```text
+index.yml                         # shared Stash package source index
+plugins/<plugin-id>/              # plugin manifest, UI assets, and README
+packages/<plugin-id>/<version>.zip          # flat archive for Stash's installer
+packages/<plugin-id>/<version>-manual.zip   # folder-wrapped manual install
+```
 
-- `cinema-catalog.yml` — Stash plugin manifest.
-- `cinema-catalog.css` — dark catalog styling, desktop sidebar, mobile drawer, cards, controls, and accent palette.
-- `cinema-catalog.js` — palette picker in plugin settings and accent persistence.
-- `index.yml` — package source index for Stash's plugin manager.
-- `dist/cinema-catalog-stash-plugin.zip` — flat package archive used by the plugin manager.
-- `dist/cinema-catalog-theme.zip` — folder-wrapped archive for manual installation.
+Each Stash package index entry points to a flat archive under `packages/<plugin-id>/`. Keep package archives versioned so existing installs can be compared with newer index entries. The manual archive includes a top-level `<plugin-id>/` directory for direct extraction.
+
+## Adding another plugin
+
+Create `plugins/<plugin-id>/` for the plugin manifest, assets, and README. Add a Stash-installable flat ZIP at `packages/<plugin-id>/<version>.zip` and, if desired, a folder-wrapped manual ZIP beside it. Then append an entry for that plugin to the root `index.yml`, using a unique ID and the flat ZIP's SHA-256. Keep all plugin package entries in this one index so users only need to add the repository source once.

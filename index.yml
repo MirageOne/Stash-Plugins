@@ -2,7 +2,7 @@
   name: Cinema Catalog
   version: 0.1.2
   date: "2026-11-01 00:31:44"
-  path: dist/cinema-catalog-stash-plugin.zip
+  path: packages/cinema-catalog/0.1.2.zip
   sha256: a131d17b7b3675352784ec1e8cf75702d842638f5d880b9f5b2c384d2326d360
   requires: []
   metadata:

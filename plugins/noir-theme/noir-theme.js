@@ -8911,23 +8911,27 @@
             var activeIndex = 0;
             var motionQuery = window.matchMedia ? window.matchMedia("(prefers-reduced-motion: reduce)") : null;
             var autoplayPausedByUser = false;
+            var autoplayMotionOverride = false;
             var autoplayToggle = document.createElement("button");
 
             function isAutoplayPaused() {
-                return autoplayPausedByUser || !!(motionQuery && motionQuery.matches);
+                return autoplayPausedByUser || (!!(motionQuery && motionQuery.matches) && !autoplayMotionOverride);
             }
 
             function updateAutoplayToggle() {
                 var motionReduced = !!(motionQuery && motionQuery.matches);
                 var paused = isAutoplayPaused();
-                autoplayToggle.disabled = motionReduced;
+                autoplayToggle.disabled = false;
                 autoplayToggle.setAttribute("aria-pressed", paused ? "true" : "false");
-                autoplayToggle.setAttribute("aria-label", motionReduced
-                    ? "Automatic advance is disabled by your reduced motion preference"
-                    : (paused ? "Resume automatic slide changes" : "Pause automatic slide changes"));
-                autoplayToggle.title = motionReduced
-                    ? "Automatic advance is disabled by your reduced motion preference"
-                    : (paused ? "Resume automatic slide changes" : "Pause automatic slide changes");
+                var label = paused
+                    ? (motionReduced
+                        ? "Enable automatic slide changes despite reduced motion preference"
+                        : "Resume automatic slide changes")
+                    : (motionReduced && autoplayMotionOverride
+                        ? "Pause automatic slide changes (overriding reduced motion preference)"
+                        : "Pause automatic slide changes");
+                autoplayToggle.setAttribute("aria-label", label);
+                autoplayToggle.title = label;
                 var path = autoplayToggle.querySelector("path");
                 if (path) {
                     path.setAttribute("d", paused
@@ -8994,7 +8998,13 @@
             autoplayIcon.appendChild(autoplayPath);
             autoplayToggle.appendChild(autoplayIcon);
             autoplayToggle.addEventListener("click", function () {
-                autoplayPausedByUser = !autoplayPausedByUser;
+                if (isAutoplayPaused()) {
+                    autoplayPausedByUser = false;
+                    autoplayMotionOverride = !!(motionQuery && motionQuery.matches);
+                } else {
+                    autoplayPausedByUser = true;
+                    autoplayMotionOverride = false;
+                }
                 updateAutoplayToggle();
                 if (isAutoplayPaused()) { clearAutoplayTimer(); }
                 else { scheduleAutoplay(); }

@@ -9,15 +9,21 @@
     --sgg-muted: #a5a5ad;
     --sgg-subtle: #777780;
     --sgg-accent: #0078d4;
+    --sgg-accent-bright: #2899f5;
+    --sgg-accent-light: #c7e0f4;
+    --sgg-accent-rgb: 0,120,212;
     --sgg-accent-soft: rgba(0,120,212,.16);
     --sgg-green: #4cc38a;
     --sgg-red: #f07575;
-    font-family: "Segoe UI", system-ui, -apple-system, BlinkMacSystemFont, sans-serif;
+    --sgg-radius: 14px;
+    --sgg-radius-sm: 8px;
+    --sgg-font: "Segoe UI", system-ui, -apple-system, BlinkMacSystemFont, sans-serif;
+    font-family: var(--sgg-font);
     background: var(--sgg-bg);
     color: var(--sgg-text);
 }
 * { box-sizing: border-box; }
-body { min-width: 320px; min-height: 100vh; margin: 0; background: radial-gradient(ellipse at 18% 0%, rgba(0,120,212,.09), transparent 36rem), radial-gradient(ellipse at 98% 40%, rgba(115,88,180,.045), transparent 32rem), var(--sgg-bg); color: var(--sgg-text); }
+body { min-width: 320px; min-height: 100vh; margin: 0; background: radial-gradient(ellipse at 18% 0%, rgba(var(--sgg-accent-rgb),.09), transparent 36rem), radial-gradient(ellipse at 98% 40%, rgba(var(--sgg-accent-rgb),.045), transparent 32rem), var(--sgg-bg); color: var(--sgg-text); }
 button, input, select { font: inherit; }
 button, select { color: inherit; }
 [hidden] { display: none !important; }
@@ -37,21 +43,21 @@ h1, h2, p { margin-top: 0; }
 .sgg-subtitle { max-width: 760px; margin: 0; color: var(--sgg-muted); font-size: .94rem; line-height: 1.55; }
 .sgg-workflow-note { display: inline-flex; align-items: center; gap: 8px; flex: 0 0 auto; margin-bottom: 3px; padding: 9px 12px; border: 1px solid var(--sgg-border); border-radius: 999px; background: rgba(255,255,255,.025); color: var(--sgg-muted); font-size: .76rem; white-space: nowrap; }
 .sgg-workflow-dot { width: 7px; height: 7px; border-radius: 50%; background: var(--sgg-green); box-shadow: 0 0 10px rgba(76,195,138,.45); }
-.sgg-controls-card, .sgg-library-section { border: 1px solid var(--sgg-border); border-radius: 14px; background: var(--sgg-surface); box-shadow: 0 12px 36px rgba(0,0,0,.12); }
+.sgg-controls-card, .sgg-library-section { border: 1px solid var(--sgg-border); border-radius: var(--sgg-radius); background: var(--sgg-surface); box-shadow: 0 12px 36px rgba(0,0,0,.12); }
 .sgg-controls-card { padding: 20px; }
 .sgg-card-heading { display: flex; justify-content: space-between; align-items: flex-start; gap: 22px; }
 .sgg-card-heading h2, .sgg-library-heading h2 { margin: 0 0 5px; font-size: 1.25rem; letter-spacing: -.025em; }
 .sgg-card-heading p:not(.sgg-eyebrow) { margin: 0; color: var(--sgg-muted); font-size: .82rem; line-height: 1.5; }
 .sgg-frame-count { display: grid; flex: 0 0 190px; gap: 6px; }
 .sgg-frame-count > label, .sgg-field > span { color: var(--sgg-muted); font-size: .73rem; font-weight: 700; letter-spacing: .04em; }
-.sgg-count-input { display: grid; grid-template-columns: 38px minmax(0,1fr) 38px; min-height: 42px; overflow: hidden; border: 1px solid var(--sgg-border-strong); border-radius: 9px; background: #1b1b1f; }
+.sgg-count-input { display: grid; grid-template-columns: 38px minmax(0,1fr) 38px; min-height: 42px; overflow: hidden; border: 1px solid var(--sgg-border-strong); border-radius: var(--sgg-radius-sm); background: var(--sgg-surface-strong); }
 .sgg-count-input button { border: 0; background: transparent; color: var(--sgg-muted); font-size: 1.2rem; cursor: pointer; }
 .sgg-count-input button:hover { background: rgba(255,255,255,.06); color: var(--sgg-text); }
 .sgg-count-input input { min-width: 0; width: 100%; border: 0; outline: 0; background: transparent; color: var(--sgg-text); font-size: 1rem; font-weight: 700; text-align: center; font-variant-numeric: tabular-nums; }
 .sgg-frame-count small, .sgg-field small { color: var(--sgg-subtle); font-size: .68rem; line-height: 1.45; }
 .sgg-settings-grid { display: grid; grid-template-columns: repeat(2,minmax(0,1fr)); gap: 14px; margin-top: 22px; }
 .sgg-field { display: grid; align-content: start; gap: 7px; min-width: 0; }
-.sgg-field select { width: 100%; min-height: 42px; padding: 0 11px; border: 1px solid var(--sgg-border-strong); border-radius: 8px; outline: 0; background: #202024; color: var(--sgg-text); font-size: .84rem; }
+.sgg-field select { width: 100%; min-height: 42px; padding: 0 11px; border: 1px solid var(--sgg-border-strong); border-radius: var(--sgg-radius-sm); outline: 0; background: var(--sgg-surface-strong); color: var(--sgg-text); font-size: .84rem; }
 .sgg-field select:focus, .sgg-count-input:focus-within, .sgg-search:focus-within { border-color: var(--sgg-accent); box-shadow: 0 0 0 3px var(--sgg-accent-soft); }
 .sgg-static-choice { display: flex; align-items: center; min-height: 42px; padding: 0 11px; border: 1px solid var(--sgg-border); border-radius: 8px; background: rgba(255,255,255,.025); color: var(--sgg-text); font-size: .82rem; }
 .sgg-action-row { display: flex; align-items: center; justify-content: space-between; gap: 18px; margin-top: 21px; padding-top: 17px; border-top: 1px solid var(--sgg-border); }

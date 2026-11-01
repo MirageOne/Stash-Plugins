@@ -12,6 +12,6 @@ Performer nameplates now size to the title instead of filling the card, while lo
 
 The quick accent picker is in **Settings → Plugins → Fluent Mica**. Full theme settings are also available in **Settings → Interface → Fluent Mica**. The theme starts in dark mode; Refract's optional light and Lite modes remain available.
 
-Install from the repository source in the root README or [download the 1.0.4 manual archive](../../packages/fluent-mica/1.0.4-manual.zip) and extract the `fluent-mica/` directory into Stash's configured plugins directory. Enable Fluent Mica after installation. Disable other full-app themes while using it so their global styles do not conflict.
+Install from the repository source in the root README or [download the 1.0.5 manual archive](../../packages/fluent-mica/1.0.5-manual.zip) and extract the `fluent-mica/` directory into Stash's configured plugins directory. Enable Fluent Mica after installation. Disable other full-app themes while using it so their global styles do not conflict.
 
 Fluent Mica is distributed under [AGPL-3.0](./LICENSE). The upstream license is included with this derivative.

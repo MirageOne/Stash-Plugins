@@ -103,6 +103,7 @@
         var attempts = 0;
         function attempt() {
             try {
+                var THEME_ID = "noir-theme";
                 var cs = getComputedStyle(document.body);
                 var a = cs.getPropertyValue("--accent").trim();
                 var b = cs.getPropertyValue("--accent-bright").trim();
@@ -122,6 +123,30 @@
                 if (t) { localStorage.setItem("mv.theme.accentTint", t); }
                 if (r) { localStorage.setItem("mv.theme.accentRgb", r); }
 
+                /* Standalone plugin pages do not inherit Stash's theme CSS.
+                   Publish the resolved surface and type tokens so same-origin
+                   plugin windows can mirror the active theme and accent. */
+                if (a) {
+                    var tokenNames = [
+                        "--accent", "--accent-bright", "--accent-light", "--accent-tint", "--accent-rgb",
+                        "--theme-base", "--theme-elevated", "--bg-0", "--bg-1",
+                        "--glass-bg", "--glass-bg-strong", "--glass-border", "--glass-border-bright",
+                        "--text", "--text-muted", "--theme-font-stack", "--radius", "--radius-sm"
+                    ];
+                    var tokens = {};
+                    tokenNames.forEach(function (name) {
+                        var value = cs.getPropertyValue(name).trim();
+                        if (value) { tokens[name] = value; }
+                    });
+                    localStorage.setItem("stash.theme.tokens.v1", JSON.stringify({
+                        version: 1,
+                        theme: THEME_ID,
+                        updatedAt: Date.now(),
+                        colorScheme: cs.colorScheme || getComputedStyle(document.documentElement).colorScheme || "dark",
+                        tokens: tokens
+                    }));
+                }
+
                 /* Locate Refract's plugin asset prefix by introspecting
                    the URL of Stash's bundled CSS endpoint for this plugin.
                    Stash injects ONE <link> per plugin, served at
@@ -129,7 +154,6 @@
                    individual asset files at /plugin/<id>/assets/<path>.
                    We rewrite the bundle URL to point at our standalone
                    multiview-player.css that lives in css/. */
-                var REFRACT_PLUGIN_ID = "noir-theme";
                 var refractStyleUrl = null;
                 var links = document.querySelectorAll('link[rel="stylesheet"]');
                 for (var i = 0; i < links.length; i++) {
@@ -4226,6 +4250,7 @@
         if (!document.body) { return; }
         document.body.classList.toggle("noir-theme-light", !!on);
         refractApplyThemeColorMeta(!!on);
+        broadcastAccentToPlugins();
     }
     applyLightModeClass(isLightModeEnabled());
 
@@ -5534,9 +5559,9 @@
             sidebar.setAttribute("aria-label", "Primary navigation");
             sidebar.innerHTML =
                 '<div class="noir-theme-sidebar-brand-row">' +
-                    '<a class="noir-theme-sidebar-brand" href="/" aria-label="Noir home" title="Noir home">' +
+                    '<a class="noir-theme-sidebar-brand" href="/" aria-label="Stash home" title="Stash home">' +
                         '<span class="noir-theme-sidebar-brand-mark">' + ARCHIVE_MONOGRAM_SVG + '</span>' +
-                        '<span class="noir-theme-sidebar-brand-name">Noir</span>' +
+                        '<span class="noir-theme-sidebar-brand-name">Stash</span>' +
                     '</a>' +
                     '<button class="noir-theme-sidebar-collapse" type="button" aria-label="Collapse sidebar" title="Collapse sidebar" aria-pressed="false">' +
                         '<svg viewBox="0 0 24 24" aria-hidden="true"><path d="m14.5 5-7 7 7 7"/></svg>' +
@@ -5644,9 +5669,9 @@
             header = document.createElement("header");
             header.className = "noir-theme-mobile-header";
             header.innerHTML =
-                '<a class="noir-theme-mobile-brand" href="/" aria-label="Noir home" title="Noir home">' +
+                '<a class="noir-theme-mobile-brand" href="/" aria-label="Stash home" title="Stash home">' +
                     '<span class="noir-theme-mobile-brand-mark">' + ARCHIVE_MONOGRAM_SVG + '</span>' +
-                    '<span class="noir-theme-mobile-brand-name">Noir</span>' +
+                    '<span class="noir-theme-mobile-brand-name">Stash</span>' +
                 '</a>' +
                 '<div class="noir-theme-mobile-header-actions">' +
                     '<button class="noir-theme-mobile-search" type="button" aria-label="Search" title="Search" hidden>' +

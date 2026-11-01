@@ -107,15 +107,65 @@
     }
 
     function setAccent() {
+        var root = document.documentElement;
+        var tokenMap = {
+            "--ld-bg": "--bg-0",
+            "--ld-surface": "--glass-bg",
+            "--ld-surface-strong": "--glass-bg-strong",
+            "--ld-border": "--glass-border",
+            "--ld-border-strong": "--glass-border-bright",
+            "--ld-text": "--text",
+            "--ld-muted": "--text-muted",
+            "--ld-subtle": "--text-muted",
+            "--ld-accent": "--accent",
+            "--ld-accent-soft": "--accent-tint",
+            "--ld-accent-bright": "--accent-bright",
+            "--ld-accent-light": "--accent-light",
+            "--ld-accent-rgb": "--accent-rgb",
+            "--ld-font": "--theme-font-stack",
+            "--ld-radius": "--radius",
+            "--ld-radius-sm": "--radius-sm"
+        };
         try {
-            var key = localStorage.getItem("fluent-mica.accent");
-            if (key && ACCENTS[key]) {
-                document.documentElement.style.setProperty("--ld-accent", ACCENTS[key]);
-                var rgb = ACCENTS[key].match(/[0-9a-f]{2}/gi).map(function (v) { return parseInt(v, 16); }).join(", ");
-                document.documentElement.style.setProperty("--ld-accent-soft", "rgba(" + rgb + ", 0.16)");
+            var snapshot = JSON.parse(localStorage.getItem("stash.theme.tokens.v1") || "null");
+            var tokens = snapshot && snapshot.version === 1 && snapshot.tokens && typeof snapshot.tokens === "object"
+                ? snapshot.tokens : null;
+            if (tokens) {
+                Object.keys(tokenMap).forEach(function (target) {
+                    var value = tokens[tokenMap[target]];
+                    if (typeof value === "string" && value) root.style.setProperty(target, value);
+                    else root.style.removeProperty(target);
+                });
+                if (snapshot.theme) root.setAttribute("data-stash-theme", String(snapshot.theme));
+                root.style.colorScheme = snapshot.colorScheme || "dark";
+                return;
+            }
+
+            /* Compatibility with earlier theme releases that shared only
+               the accent values through the multiview handoff. */
+            var sharedAccent = localStorage.getItem("mv.theme.accent");
+            var sharedTint = localStorage.getItem("mv.theme.accentTint");
+            var sharedRgb = localStorage.getItem("mv.theme.accentRgb");
+            if (sharedAccent) root.style.setProperty("--ld-accent", sharedAccent);
+            if (sharedTint) root.style.setProperty("--ld-accent-soft", sharedTint);
+            if (sharedRgb) root.style.setProperty("--ld-accent-rgb", sharedRgb);
+            var legacyKey = localStorage.getItem("fluent-mica.accent");
+            if (!sharedAccent && legacyKey && ACCENTS[legacyKey]) {
+                var rgb = ACCENTS[legacyKey].match(/[0-9a-f]{2}/gi).map(function (v) { return parseInt(v, 16); }).join(", ");
+                root.style.setProperty("--ld-accent", ACCENTS[legacyKey]);
+                root.style.setProperty("--ld-accent-rgb", rgb);
+                root.style.setProperty("--ld-accent-soft", "rgba(" + rgb + ", 0.16)");
             }
         } catch (e) { /* the default Fluent blue remains usable */ }
     }
+
+    window.addEventListener("storage", function (event) {
+        if (event.key === "stash.theme.tokens.v1" || event.key === "mv.theme.accent" ||
+                event.key === "mv.theme.accentTint" || event.key === "mv.theme.accentRgb" ||
+                event.key === "fluent-mica.accent" || event.key === "noir-theme.accent") {
+            setAccent();
+        }
+    });
 
     function queryScenes(page, signal) {
         return fetch("/graphql", {

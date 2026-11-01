@@ -1,45 +1,45 @@
 - id: fluent-mica
   name: Fluent Mica
-  version: 1.0.4
-  date: "2026-11-01 02:12:26"
-  path: packages/fluent-mica/1.0.4.zip
-  sha256: 8f0c7492c517557b72746f4d27548b0b2e1649305fc51ad199eb461b4e37a470
+  version: 1.0.5
+  date: "2026-11-01 16:34:55"
+  path: packages/fluent-mica/1.0.5.zip
+  sha256: 46257e2deacc56e5a92b4b154024f090acaddd0afaf28118746f3bdaf953c6f1
   requires: []
   metadata:
     description: Fluent 2 Stash theme with smooth scrolling, responsive scenes, compact performer nameplates, stable pagination, and accent colors.
 - id: noir-theme
   name: Noir
-  version: 1.0.5
-  date: "2026-11-01 16:07:12"
-  path: packages/noir-theme/1.0.5.zip
-  sha256: 60546cff362c0d98a26d86d651c7dece8b2b09bd5e422c4435357e9cdf9e7f88
+  version: 1.0.7
+  date: "2026-11-01 16:38:42"
+  path: packages/noir-theme/1.0.7.zip
+  sha256: 2ee27db4c44e29d63d12f5ee08f54ee76418de9b9a853b80f95a402eb2cc0f33
   requires: []
   metadata:
     description: Dark Fluent 2-inspired theme with video-first home and scene pages, content-first image and gallery details, image-backed performer profiles, a collapsible sidebar, and responsive navigation.
 - id: library-doctor
   name: Library Doctor
-  version: 1.6.1
-  date: "2026-11-01 10:52:59"
-  path: packages/library-doctor/1.6.1.zip
-  sha256: e8977b8a961f9a88a7ce2b7a4def9e18e130aba6da23670aded8c795096ec929
+  version: 1.6.2
+  date: "2026-11-01 16:34:55"
+  path: packages/library-doctor/1.6.2.zip
+  sha256: 853b911425428356961d029482036fea3ab3125e999108a6a90a111f11e649c7
   requires: []
   metadata:
     description: Health checks, FFmpeg encoding audit and re-encoding, metadata assistance, scraping, tagging, and duplicate or alternate-version review.
 - id: scene-gallery-generator
   name: Scene Gallery Generator
-  version: 1.0.0
-  date: "2026-11-01 11:48:57"
-  path: packages/scene-gallery-generator/1.0.0.zip
-  sha256: 266665f9a032eb406f494f5c58338106975df6aa24d4c1850b8832021aecefb8
+  version: 1.0.1
+  date: "2026-11-01 16:34:55"
+  path: packages/scene-gallery-generator/1.0.1.zip
+  sha256: b72df90ba31f303926ab1a43cad0b05defca02d6a69200cce34b4212f5dd001f
   requires: []
   metadata:
     description: Choose 1–30 still frames per scene, then create linked galleries with matching metadata using FFmpeg.
 - id: stash-downloader
   name: Stash Downloader
-  version: 0.6.1
-  date: "2026-11-01 10:46:21"
-  path: packages/stash-downloader/0.6.1.zip
-  sha256: c3a4b3ccd9807b9566aa9a253ab7d85f077f096030a822e7548f3568b3f12dbb
+  version: 0.6.2
+  date: "2026-11-01 16:36:42"
+  path: packages/stash-downloader/0.6.2.zip
+  sha256: 171aa9504b0d64e959fb18e99eede6f9ee64719bdb04e881e3ba79a65f083672
   requires: []
   metadata:
     description: Server-side image and video downloads with yt-dlp, proxy settings, library-aware imports, and metadata extraction.

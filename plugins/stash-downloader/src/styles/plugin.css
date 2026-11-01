@@ -9,8 +9,8 @@
 
 :root {
   --stash-card-bg: var(--glass-bg, rgba(39, 39, 39, 0.92));
-  --stash-header-bg: var(--mica-elevated, #292929);
-  --stash-input-bg: var(--mica-base, #202020);
+  --stash-header-bg: var(--mica-elevated, var(--theme-elevated, #292929));
+  --stash-input-bg: var(--mica-base, var(--theme-base, #202020));
   --stash-border: var(--glass-border, rgba(255, 255, 255, 0.09));
   --stash-muted: var(--text-muted, rgba(255, 255, 255, 0.66));
   --stash-text: var(--text, rgba(255, 255, 255, 0.94));
@@ -85,7 +85,7 @@
 .stash-downloader-plugin .form-control,
 .stash-downloader-plugin .form-select {
   color: var(--text, rgba(255, 255, 255, 0.94));
-  background-color: var(--mica-base, #202020);
+  background-color: var(--mica-base, var(--theme-base, #202020));
   border-color: var(--glass-border, rgba(255, 255, 255, 0.09));
 }
 

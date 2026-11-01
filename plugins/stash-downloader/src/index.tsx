@@ -22,11 +22,13 @@ function injectStyles() {
   const style = document.createElement('style');
   style.id = styleId;
   style.textContent = `${pluginStyles}\n
-    /* Fluent's yellow accent is bright on the dark theme; use dark button text. */
-    body.stash-fluent-mica.fluent-mica-yellow:not(.fluent-mica-light) .stash-downloader-plugin {
+    /* Yellow accent is bright on a dark theme; use dark button text. */
+    body.stash-fluent-mica.fluent-mica-yellow:not(.fluent-mica-light) .stash-downloader-plugin,
+    body.stash-noir-theme.noir-theme-yellow:not(.noir-theme-light) .stash-downloader-plugin {
       --accent-contrast: #201f1e;
     }
-    body.stash-fluent-mica.fluent-mica-yellow:not(.fluent-mica-light) .stash-downloader-plugin :is(.btn-primary:not(.minimal), .bg-primary) {
+    body.stash-fluent-mica.fluent-mica-yellow:not(.fluent-mica-light) .stash-downloader-plugin :is(.btn-primary:not(.minimal), .bg-primary),
+    body.stash-noir-theme.noir-theme-yellow:not(.noir-theme-light) .stash-downloader-plugin :is(.btn-primary:not(.minimal), .bg-primary) {
       color: var(--accent-contrast) !important;
     }
   `;

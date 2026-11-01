@@ -30,16 +30,67 @@
     function escapeText(value) { return String(value == null ? "" : value); }
 
     function setAccent() {
-        var accents = { orange: "#d83b01", blue: "#0078d4", pink: "#e3008c", red: "#d13438", yellow: "#f2c811", purple: "#8764b8", green: "#107c10", teal: "#038387" };
+        var root = document.documentElement;
+        var tokenMap = {
+            "--sgg-bg": "--bg-0",
+            "--sgg-surface": "--glass-bg",
+            "--sgg-surface-strong": "--glass-bg-strong",
+            "--sgg-border": "--glass-border",
+            "--sgg-border-strong": "--glass-border-bright",
+            "--sgg-text": "--text",
+            "--sgg-muted": "--text-muted",
+            "--sgg-subtle": "--text-muted",
+            "--sgg-accent": "--accent",
+            "--sgg-accent-soft": "--accent-tint",
+            "--sgg-accent-bright": "--accent-bright",
+            "--sgg-accent-light": "--accent-light",
+            "--sgg-accent-rgb": "--accent-rgb",
+            "--sgg-font": "--theme-font-stack",
+            "--sgg-radius": "--radius",
+            "--sgg-radius-sm": "--radius-sm"
+        };
+        var fallbackAccents = { orange: "#d83b01", blue: "#0078d4", pink: "#e3008c", red: "#d13438", yellow: "#f2c811", purple: "#8764b8", green: "#107c10", teal: "#038387" };
         try {
-            var key = localStorage.getItem("fluent-mica.accent");
-            if (!key || !accents[key]) return;
-            var color = accents[key];
-            document.documentElement.style.setProperty("--sgg-accent", color);
-            var rgb = color.match(/[0-9a-f]{2}/gi).map(function (part) { return parseInt(part, 16); }).join(",");
-            document.documentElement.style.setProperty("--sgg-accent-soft", "rgba(" + rgb + ",.16)");
+            var snapshot = JSON.parse(localStorage.getItem("stash.theme.tokens.v1") || "null");
+            var tokens = snapshot && snapshot.version === 1 && snapshot.tokens && typeof snapshot.tokens === "object"
+                ? snapshot.tokens : null;
+            if (tokens) {
+                Object.keys(tokenMap).forEach(function (target) {
+                    var value = tokens[tokenMap[target]];
+                    if (typeof value === "string" && value) root.style.setProperty(target, value);
+                    else root.style.removeProperty(target);
+                });
+                if (snapshot.theme) root.setAttribute("data-stash-theme", String(snapshot.theme));
+                root.style.colorScheme = snapshot.colorScheme || "dark";
+                return;
+            }
+
+            /* Compatibility with earlier theme releases that shared only
+               the accent values through the multiview handoff. */
+            var sharedAccent = localStorage.getItem("mv.theme.accent");
+            var sharedTint = localStorage.getItem("mv.theme.accentTint");
+            var sharedRgb = localStorage.getItem("mv.theme.accentRgb");
+            if (sharedAccent) root.style.setProperty("--sgg-accent", sharedAccent);
+            if (sharedTint) root.style.setProperty("--sgg-accent-soft", sharedTint);
+            if (sharedRgb) root.style.setProperty("--sgg-accent-rgb", sharedRgb);
+            var legacyKey = localStorage.getItem("fluent-mica.accent");
+            if (!sharedAccent && legacyKey && fallbackAccents[legacyKey]) {
+                var color = fallbackAccents[legacyKey];
+                var rgb = color.match(/[0-9a-f]{2}/gi).map(function (part) { return parseInt(part, 16); }).join(",");
+                root.style.setProperty("--sgg-accent", color);
+                root.style.setProperty("--sgg-accent-rgb", rgb);
+                root.style.setProperty("--sgg-accent-soft", "rgba(" + rgb + ",.16)");
+            }
         } catch (error) { /* Keep the default Fluent blue. */ }
     }
+
+    window.addEventListener("storage", function (event) {
+        if (event.key === "stash.theme.tokens.v1" || event.key === "mv.theme.accent" ||
+                event.key === "mv.theme.accentTint" || event.key === "mv.theme.accentRgb" ||
+                event.key === "fluent-mica.accent" || event.key === "noir-theme.accent") {
+            setAccent();
+        }
+    });
 
     function graphQLRequest(query, variables) {
         return fetch("/graphql", {

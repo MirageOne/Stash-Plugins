@@ -16,6 +16,6 @@ Run a scan to see counts, filter findings, search by scene title, studio, perfor
 
 **Duplicate & Version Review** groups scenes with matching normalized titles, compares their studio, date, performers, duration, and file size, and labels possible copies or alternate encodes for review. Matching titles alone do not prove two scenes are duplicates. Marking a group reviewed is saved in the current browser; Library Doctor does not delete, merge, or reorganize scenes.
 
-Install from the repository source in the root README or download [the 1.6.1 manual archive](../../packages/library-doctor/1.6.1-manual.zip) and extract the `library-doctor/` directory into Stash's configured plugins directory. Enable the plugin in **Settings → Plugins**. Reload the plugin page after updating so its versioned assets load.
+Install from the repository source in the root README or download [the 1.6.2 manual archive](../../packages/library-doctor/1.6.2-manual.zip) and extract the `library-doctor/` directory into Stash's configured plugins directory. Enable the plugin in **Settings → Plugins**. Reload the plugin page after updating so its versioned assets load.
 
-The dashboard uses the Fluent accent selected in Fluent Mica when available and falls back to Fluent blue.
+The dashboard mirrors the active Fluent Mica or Noir theme, including its surfaces, typography, borders, and accent color.

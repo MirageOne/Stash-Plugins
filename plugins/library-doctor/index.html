@@ -5,7 +5,7 @@
     <meta name="viewport" content="width=device-width, initial-scale=1">
     <meta name="color-scheme" content="dark">
     <title>Library Doctor</title>
-    <link rel="stylesheet" href="styles.css?v=1.3.1">
+    <link rel="stylesheet" href="styles.css?v=1.4.0">
 </head>
 <body>
     <main class="ld-shell">
@@ -34,7 +34,7 @@
             <div>
                 <p class="ld-eyebrow">LIBRARY MAINTENANCE</p>
                 <h1 id="ld-title">A healthier library, one check at a time.</h1>
-                <p class="ld-subtitle">Find library gaps, review filename-based metadata suggestions, and compare possible duplicate or alternate-version scenes.</p>
+                <p class="ld-subtitle">Find library gaps, scrape missing metadata from configured sources, and review possible duplicates or alternate versions.</p>
             </div>
             <div class="ld-workflow-note">
                 <span class="ld-workflow-dot" aria-hidden="true"></span>
@@ -63,6 +63,7 @@
             <button class="ld-workspace-tab is-active" type="button" data-workspace="health" aria-pressed="true">Health Check <span id="ld-tab-health-count">—</span></button>
             <button class="ld-workspace-tab" type="button" data-workspace="metadata" aria-pressed="false">Metadata Assistant <span id="ld-tab-metadata-count">0</span></button>
             <button class="ld-workspace-tab" type="button" data-workspace="duplicates" aria-pressed="false">Duplicate &amp; Version Review <span id="ld-tab-duplicates-count">0</span></button>
+            <button class="ld-workspace-tab" type="button" data-workspace="scrape" aria-pressed="false">Scrape &amp; Auto-Tag <span id="ld-tab-scrape-count">0</span></button>
         </nav>
 
         <div id="ld-health-workspace" class="ld-workspace-panel" data-workspace-panel="health">
@@ -178,6 +179,47 @@
             </section>
         </section>
 
+        <section id="ld-scrape-workspace" class="ld-workspace-panel ld-scrape-workspace" data-workspace-panel="scrape" hidden aria-labelledby="ld-scrape-heading">
+            <div class="ld-module-heading">
+                <div>
+                    <p class="ld-eyebrow">SCRAPE &amp; AUTO-TAG</p>
+                    <h2 id="ld-scrape-heading">Fill gaps from configured scene scrapers</h2>
+                    <p>Uses Stash's configured scene and Stash-box sources in order. A unique fingerprint match can fill a missing title or date and add tags; multiple matches wait for your review. Scenes with existing tags are included when title or date is missing.</p>
+                </div>
+                <button id="ld-scrape-refresh" class="ld-button ld-button-secondary" type="button">Reload scrapers</button>
+            </div>
+            <div class="ld-scrape-controls">
+                <label class="ld-scrape-provider">
+                    <span>Configured metadata sources</span>
+                    <select id="ld-scrape-source" disabled><option value="">Open this workspace to load sources</option></select>
+                </label>
+                <label class="ld-scrape-create-tags">
+                    <input id="ld-scrape-create-tags" type="checkbox" checked>
+                    <span>Create missing tags from applied matches</span>
+                </label>
+                <button id="ld-scrape-run" class="ld-button ld-button-primary" type="button" disabled>Scrape scenes with metadata gaps</button>
+            </div>
+            <p id="ld-scrape-source-status" class="ld-scrape-source-status">Run Health Check, then load Stash's configured identify sources.</p>
+            <p id="ld-scrape-remaining" class="ld-scrape-remaining">Run Health Check before scraping scenes.</p>
+            <div id="ld-scrape-progress" class="ld-scrape-progress" hidden aria-live="polite">
+                <div class="ld-scrape-progress-copy"><strong>Scraping scenes with metadata gaps</strong><span id="ld-scrape-progress-detail"></span></div>
+                <div id="ld-scrape-progress-track" class="ld-progress-track" role="progressbar" aria-label="Scrape progress" aria-valuemin="0" aria-valuemax="100" aria-valuenow="0"><span id="ld-scrape-progress-bar"></span></div>
+            </div>
+            <div class="ld-scrape-stats" aria-label="Scrape results">
+                <article><span>Scenes updated</span><strong id="ld-scrape-count-applied">0</strong></article>
+                <article><span>Tags added</span><strong id="ld-scrape-count-tags">0</strong></article>
+                <article><span>Need review</span><strong id="ld-scrape-count-review">0</strong></article>
+                <article><span>No match</span><strong id="ld-scrape-count-no-match">0</strong></article>
+                <article><span>Errors</span><strong id="ld-scrape-count-errors">0</strong></article>
+            </div>
+            <div id="ld-scrape-empty" class="ld-module-empty">Run Health Check before scraping scenes.</div>
+            <div id="ld-scrape-results" class="ld-scrape-results" hidden>
+                <h3>Matches to review</h3>
+                <div id="ld-scrape-list" class="ld-scrape-list"></div>
+            </div>
+            <p class="ld-scrape-safety-note">Only scenes missing a title, date, or tags are scraped. Sources are tried in configured order. A single fingerprint result is applied automatically; ambiguous results wait here for your choice. Existing tags are merged, not replaced. Undo removes scene changes, but newly created tag records remain in Stash.</p>
+        </section>
+
         <dialog id="ld-fix-dialog" class="ld-fix-dialog" aria-labelledby="ld-fix-heading">
             <div class="ld-fix-dialog-content">
                 <div class="ld-fix-dialog-heading">
@@ -220,10 +262,10 @@
         </dialog>
 
         <footer class="ld-footer">
-            <span>Only selected title and date fields are changed; recent fixes can be undone this session.</span>
-            <span id="ld-footer-version">v1.3.1</span>
+            <span>Guided fixes and scraper updates can be undone this session; created tag records remain.</span>
+            <span id="ld-footer-version">v1.4.0</span>
         </footer>
     </main>
-    <script src="app.js?v=1.3.1"></script>
+    <script src="app.js?v=1.4.0"></script>
 </body>
 </html>

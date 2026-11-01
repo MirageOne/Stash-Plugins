@@ -3,9 +3,14 @@
 
     var PAGE_SIZE = 50;
     var SCAN_PAGE_SIZE = 200;
+    var SCRAPE_BATCH_SIZE = 25;
     var REVIEWED_DUPLICATES_KEY = "library-doctor.reviewedDuplicates";
-    var FRESH_SCENE_QUERY = "query LibraryDoctorFreshScene($id: ID!) { findScene(id: $id) { id title date } }";
-    var UPDATE_SCENE_MUTATION = "mutation LibraryDoctorUpdateScene($input: SceneUpdateInput!) { sceneUpdate(input: $input) { id title date } }";
+    var FRESH_SCENE_QUERY = "query LibraryDoctorFreshScene($id: ID!) { findScene(id: $id) { id title date tags { id name } } }";
+    var UPDATE_SCENE_MUTATION = "mutation LibraryDoctorUpdateScene($input: SceneUpdateInput!) { sceneUpdate(input: $input) { id title date tags { id name } } }";
+    var SCRAPERS_QUERY = "query LibraryDoctorScrapers { listScrapers(types: [SCENE]) { id name } configuration { general { stashBoxes { name endpoint } } defaults { identify { sources { source { scraper_id stash_box_endpoint stash_box_index } } } } } }";
+    var SCRAPE_SCENES_QUERY = "query LibraryDoctorScrapeScenes($source: ScraperSourceInput!, $input: ScrapeMultiScenesInput!) { scrapeMultiScenes(source: $source, input: $input) { title date tags { stored_id name } } }";
+    var TAG_CATALOG_QUERY = "query LibraryDoctorTagCatalog($page: Int!, $perPage: Int!) { findTags(filter: { page: $page, per_page: $perPage }) { count tags { id name aliases } } }";
+    var TAG_CREATE_MUTATION = "mutation LibraryDoctorCreateTag($input: TagCreateInput!) { tagCreate(input: $input) { id name aliases } }";
     var QUERY = "query LibraryDoctorScenes($page: Int!, $perPage: Int!) { " +
         "findScenes(filter: { page: $page, per_page: $perPage, sort: \"title\", direction: ASC }) { " +
         "count scenes { id title date organized files { id path size duration } " +
@@ -31,6 +36,15 @@
     var undoStack = [];
     var reviewedDuplicateKeys = loadReviewedDuplicateKeys();
     var showReviewedDuplicates = false;
+    var scrapers = [];
+    var scrapersLoaded = false;
+    var scrapersLoading = false;
+    var tagCatalog = null;
+    var tagCatalogPromise = null;
+    var scrapeEntries = [];
+    var scrapeAttempted = Object.create(null);
+    var scrapeStats = { total: 0, processed: 0, exact: 0, applied: 0, review: 0, noMatch: 0, errors: 0, tagsAdded: 0, tagsCreated: 0 };
+    var scrapeBusy = false;
     var els = {};
 
     var ACCENTS = {
@@ -160,7 +174,9 @@
             organized: source.organized,
             studio: source.studio && source.studio.name ? String(source.studio.name).trim() : "",
             performers: Array.isArray(source.performers) ? source.performers.map(function (p) { return p && p.name ? String(p.name).trim() : ""; }).filter(Boolean) : [],
-            tags: Array.isArray(source.tags) ? source.tags.length : 0,
+            tags: Array.isArray(source.tags) ? source.tags.map(function (tag) {
+                return { id: String(tag && tag.id || ""), name: String(tag && tag.name || "").trim() };
+            }).filter(function (tag) { return !!tag.id; }) : [],
             files: files,
             paths: source.paths || {},
             _doctorIssues: []
@@ -172,7 +188,7 @@
         if (!scene.date) { addIssue(scene, "Missing date", "metadata"); }
         if (!scene.performers.length) { addIssue(scene, "No performers", "metadata"); }
         if (!scene.studio) { addIssue(scene, "No studio", "metadata"); }
-        if (!scene.tags) { addIssue(scene, "No tags", "metadata"); }
+        if (!scene.tags.length) { addIssue(scene, "No tags", "metadata"); }
         if (!scene.paths.screenshot) { addIssue(scene, "No screenshot", "generated"); }
         if (!scene.paths.preview) { addIssue(scene, "No preview", "generated"); }
         if (scene.organized === false) { addIssue(scene, "Unorganized", "organization"); }
@@ -468,6 +484,470 @@
             return hasIssue(scene, "Missing title") || hasIssue(scene, "Missing date");
         }).length.toLocaleString();
         els.duplicatesTabCount.textContent = buildDuplicateGroups(results).length.toLocaleString();
+        els.scrapeTabCount.textContent = results.filter(hasScrapeGaps).length.toLocaleString();
+        updateScrapeControls();
+    }
+
+    function updateScrapeControls() {
+        var selection = String(els.scrapeSource.value || "");
+        var needingScrape = results.filter(hasScrapeGaps);
+        var remaining = scrapeTargets(selection).length;
+        var hasSources = getSelectedScrapers(selection).length > 0;
+        els.scrapeRun.disabled = scrapeBusy || !!scanController || !lastScanDate || !hasSources || !needingScrape.length;
+        els.scrapeRun.textContent = scrapeBusy ? "Scraping…" : (remaining
+            ? "Scrape " + remaining.toLocaleString() + " scenes with metadata gaps"
+            : (needingScrape.length ? "Retry " + needingScrape.length.toLocaleString() + " unresolved scenes" : "No metadata gaps to scrape"));
+        if (scrapeBusy) {
+            els.scrapeRemaining.textContent = "Checking " + scrapeStats.processed.toLocaleString() + " of " + scrapeStats.total.toLocaleString() + " scenes…";
+        } else if (!lastScanDate) {
+            els.scrapeRemaining.textContent = "Run Health Check before scraping scenes.";
+        } else if (!hasSources) {
+            els.scrapeRemaining.textContent = "Configure scene identify sources in Stash under Settings → Metadata Providers.";
+        } else if (!needingScrape.length) {
+            els.scrapeRemaining.textContent = "Every scanned scene has a title, date, and at least one tag.";
+        } else if (!remaining) {
+            els.scrapeRemaining.textContent = needingScrape.length.toLocaleString() + " scenes still have missing metadata; retry the selected source set or choose another source.";
+        } else {
+            els.scrapeRemaining.textContent = remaining.toLocaleString() + " scenes with missing title, date, or tags have not been checked with this source set.";
+        }
+    }
+
+    function hasScrapeGaps(scene) {
+        return !scene.title || !scene.date || !scene.tags.length;
+    }
+
+    function scrapeAttemptKey(sourceSet, sceneId) { return String(sourceSet) + ":" + String(sceneId); }
+
+    function scrapeTargets(sourceSet) {
+        return results.filter(function (scene) {
+            return hasScrapeGaps(scene) && !scrapeAttempted[scrapeAttemptKey(sourceSet, scene.id)];
+        });
+    }
+
+    function getSelectedScrapers(selection) {
+        if (!scrapers.length) { return []; }
+        if (!selection || selection === "all") { return scrapers.slice(); }
+        var index = Number(selection);
+        return isFinite(index) && index >= 0 && index < scrapers.length ? [scrapers[index]] : [];
+    }
+
+    function loadScrapers(force) {
+        if (scrapersLoading || (scrapersLoaded && !force)) { return Promise.resolve(scrapers); }
+        scrapersLoading = true;
+        els.scrapeSource.disabled = true;
+        els.scrapeSource.replaceChildren();
+        var loadingOption = document.createElement("option");
+        loadingOption.value = "";
+        loadingOption.textContent = "Loading configured sources…";
+        els.scrapeSource.appendChild(loadingOption);
+        els.scrapeSourceStatus.textContent = "Loading the scene identify sources configured in Stash.";
+        return graphQLRequest(SCRAPERS_QUERY, {}).then(function (data) {
+            var scraperNames = Object.create(null);
+            (Array.isArray(data.listScrapers) ? data.listScrapers : []).forEach(function (scraper) {
+                scraperNames[String(scraper.id)] = scraper.name;
+            });
+            var boxes = data.configuration && data.configuration.general && Array.isArray(data.configuration.general.stashBoxes)
+                ? data.configuration.general.stashBoxes : [];
+            var boxNames = Object.create(null);
+            boxes.forEach(function (box) { boxNames[String(box.endpoint)] = box.name; });
+            var defaults = data.configuration && data.configuration.defaults && data.configuration.defaults.identify;
+            scrapers = defaults && Array.isArray(defaults.sources) ? defaults.sources.map(function (item) {
+                var source = item && item.source;
+                if (!source) { return null; }
+                var id = source.scraper_id ? String(source.scraper_id) : "";
+                var endpoint = source.stash_box_endpoint ? String(source.stash_box_endpoint) : "";
+                var stashBoxIndex = source.stash_box_index == null ? null : Number(source.stash_box_index);
+                if (!id && !endpoint && stashBoxIndex == null) { return null; }
+                return {
+                    source: id ? { scraper_id: id } : (endpoint ? { stash_box_endpoint: endpoint } : { stash_box_index: stashBoxIndex }),
+                    name: id ? (scraperNames[id] || ("Scene scraper " + id)) : (endpoint
+                        ? (boxNames[endpoint] || endpoint)
+                        : ((boxes[stashBoxIndex] && boxes[stashBoxIndex].name) || ("Stash-box " + (stashBoxIndex + 1))))
+                };
+            }).filter(Boolean) : [];
+            scrapersLoaded = true;
+            els.scrapeSource.replaceChildren();
+            if (!scrapers.length) {
+                var empty = document.createElement("option");
+                empty.value = "";
+                empty.textContent = "No identify sources configured";
+                els.scrapeSource.appendChild(empty);
+                els.scrapeSourceStatus.textContent = "Configure scene scrapers or Stash-box sources in Settings → Metadata Providers → Identify, then reload this list.";
+            } else {
+                var allOption = document.createElement("option");
+                allOption.value = "all";
+                allOption.textContent = "All configured sources, in order (" + scrapers.length.toLocaleString() + ")";
+                els.scrapeSource.appendChild(allOption);
+                scrapers.forEach(function (scraper) {
+                    var option = document.createElement("option");
+                    option.value = String(scrapers.indexOf(scraper));
+                    option.textContent = scraper.name;
+                    els.scrapeSource.appendChild(option);
+                });
+                els.scrapeSource.value = "all";
+                els.scrapeSourceStatus.textContent = scrapers.length.toLocaleString() + " configured source" + (scrapers.length === 1 ? " is" : "s are") + " available in Stash's configured order.";
+            }
+            return scrapers;
+        }).catch(function (error) {
+            scrapersLoaded = false;
+            scrapers = [];
+            els.scrapeSource.replaceChildren();
+            var failed = document.createElement("option");
+            failed.value = "";
+            failed.textContent = "Could not load configured sources";
+            els.scrapeSource.appendChild(failed);
+            els.scrapeSourceStatus.textContent = "Could not load configured Stash sources: " + (error && error.message ? error.message : String(error));
+            return [];
+        }).then(function (loaded) {
+            scrapersLoading = false;
+            els.scrapeSource.disabled = !loaded.length;
+            updateScrapeControls();
+            return loaded;
+        });
+    }
+
+    function addTagToCatalog(tag) {
+        if (!tagCatalog || !tag || !tag.id) { return; }
+        [tag.name].concat(Array.isArray(tag.aliases) ? tag.aliases : []).forEach(function (name) {
+            var key = normalizeTitle(name);
+            if (!key) { return; }
+            if (!tagCatalog[key]) { tagCatalog[key] = []; }
+            if (!tagCatalog[key].some(function (item) { return String(item.id) === String(tag.id); })) {
+                tagCatalog[key].push({ id: String(tag.id), name: String(tag.name || name), aliases: tag.aliases || [] });
+            }
+        });
+    }
+
+    function loadTagCatalog() {
+        if (tagCatalogPromise) { return tagCatalogPromise; }
+        if (tagCatalog) { return Promise.resolve(tagCatalog); }
+        tagCatalog = Object.create(null);
+        var pageSize = 200;
+        var page = 1;
+        var count = Infinity;
+        function loadPage() {
+            return graphQLRequest(TAG_CATALOG_QUERY, { page: page, perPage: pageSize }).then(function (data) {
+                var result = data.findTags || {};
+                count = Number(result.count) || 0;
+                var tags = Array.isArray(result.tags) ? result.tags : [];
+                tags.forEach(addTagToCatalog);
+                if (!tags.length || page * pageSize >= count) { return tagCatalog; }
+                page += 1;
+                return loadPage();
+            });
+        }
+        tagCatalogPromise = loadPage().catch(function (error) {
+            tagCatalog = null;
+            tagCatalogPromise = null;
+            throw error;
+        });
+        return tagCatalogPromise;
+    }
+
+    function resolveScrapedTags(scrapedTags, createMissing) {
+        var unique = [];
+        var seenNames = Object.create(null);
+        (Array.isArray(scrapedTags) ? scrapedTags : []).forEach(function (tag) {
+            var name = String(tag && tag.name || "").trim();
+            var key = normalizeTitle(name);
+            if (!key || name.length > 120 || seenNames[key]) { return; }
+            seenNames[key] = true;
+            unique.push({ id: tag && tag.stored_id ? String(tag.stored_id) : "", name: name });
+        });
+        var state = { ids: [], created: [], skipped: [] };
+        function include(id) {
+            var value = String(id || "");
+            if (value && state.ids.indexOf(value) === -1) { state.ids.push(value); }
+        }
+        function process(index) {
+            if (index >= unique.length) { return Promise.resolve(state); }
+            var tag = unique[index];
+            if (tag.id) {
+                include(tag.id);
+                return process(index + 1);
+            }
+            return loadTagCatalog().then(function (catalog) {
+                var matches = catalog[normalizeTitle(tag.name)] || [];
+                if (matches.length === 1) {
+                    include(matches[0].id);
+                    return process(index + 1);
+                }
+                if (matches.length > 1 || !createMissing) {
+                    state.skipped.push(tag.name);
+                    return process(index + 1);
+                }
+                return graphQLRequest(TAG_CREATE_MUTATION, { input: { name: tag.name } }).then(function (data) {
+                    var created = data.tagCreate;
+                    if (!created || !created.id) { throw new Error("Stash did not confirm creation of the tag “" + tag.name + "”."); }
+                    addTagToCatalog(created);
+                    include(created.id);
+                    state.created.push(String(created.name || tag.name));
+                    return process(index + 1);
+                }).catch(function () {
+                    state.skipped.push(tag.name);
+                    return process(index + 1);
+                });
+            });
+        }
+        return process(0);
+    }
+
+    function scrapeCandidateUpdates(scene, candidate, createMissingTags) {
+        var title = String(candidate && candidate.title || "").trim();
+        var date = String(candidate && candidate.date || "").trim();
+        return graphQLRequest(FRESH_SCENE_QUERY, { id: scene.id }).then(function (data) {
+            var latest = data.findScene;
+            if (!latest) { throw new Error("Stash no longer has this scene. Run a new library check."); }
+            scene.title = String(latest.title || "").trim();
+            scene.date = String(latest.date || "").trim();
+            scene.tags = (Array.isArray(latest.tags) ? latest.tags : []).map(function (tag) {
+                return { id: String(tag.id), name: String(tag.name || "").trim() };
+            });
+            scene._doctorIssues = scene._doctorIssues.filter(function (issue) {
+                return issue.label !== "Missing title" && issue.label !== "Missing date" && issue.label !== "No tags";
+            });
+            if (!scene.title) { addIssue(scene, "Missing title", "metadata"); }
+            if (!scene.date) { addIssue(scene, "Missing date", "metadata"); }
+            if (!scene.tags.length) { addIssue(scene, "No tags", "metadata"); }
+            var updates = {};
+            if (!scene.title && title) { updates.title = title.slice(0, 500); }
+            if (!scene.date && validDate(date)) { updates.date = date; }
+            return resolveScrapedTags(candidate && candidate.tags, createMissingTags).then(function (tagState) {
+                var existing = scene.tags.map(function (tag) { return String(tag.id); });
+                var additions = tagState.ids.filter(function (id) { return existing.indexOf(id) === -1; });
+                if (additions.length) { updates.tag_ids = additions; }
+                var result = {
+                    tagsAdded: additions.length,
+                    tagsCreated: tagState.created.length,
+                    skippedTags: tagState.skipped,
+                    titleFilled: !!updates.title,
+                    dateFilled: !!updates.date
+                };
+                if (!Object.keys(updates).length) { return result; }
+                return updateScene(scene, updates, { render: false }).then(function () { return result; });
+            });
+        });
+    }
+
+    function renderScrapeResults() {
+        var unresolved = scrapeEntries.filter(function (entry) { return entry.status === "review" || entry.status === "error"; });
+        els.scrapeList.replaceChildren.apply(els.scrapeList, unresolved.map(function (entry) {
+            var card = document.createElement("article");
+            card.className = "ld-scrape-card";
+            var heading = document.createElement("div");
+            heading.className = "ld-scrape-card-heading";
+            var title = document.createElement("h3");
+            title.textContent = entry.scene.title || fileBasename(entry.scene.files[0] && entry.scene.files[0].path) || "Untitled scene";
+            var status = document.createElement("span");
+            status.className = "ld-scrape-status";
+            status.textContent = entry.status === "review"
+                ? entry.candidates.length.toLocaleString() + " matches from " + entry.sourceName + " · review required"
+                : "Could not scrape";
+            heading.append(title, status);
+            var file = document.createElement("p");
+            file.className = "ld-scrape-file";
+            file.textContent = fileBasename(entry.scene.files[0] && entry.scene.files[0].path) || "File name unavailable";
+            card.append(heading, file);
+            if (entry.status === "error") {
+                var error = document.createElement("p");
+                error.className = "ld-scrape-error";
+                error.textContent = entry.message;
+                card.appendChild(error);
+            } else {
+                var matches = document.createElement("div");
+                matches.className = "ld-scrape-matches";
+                entry.candidates.forEach(function (candidate, index) {
+                    var match = document.createElement("div");
+                    match.className = "ld-scrape-match";
+                    var details = document.createElement("div");
+                    var matchTitle = document.createElement("strong");
+                    matchTitle.textContent = candidate.title || "Untitled scraper result";
+                    var meta = document.createElement("span");
+                    meta.textContent = [candidate.date, (Array.isArray(candidate.tags) ? candidate.tags : []).map(function (tag) { return tag.name; }).filter(Boolean).join(", ")].filter(Boolean).join(" · ") || "No date or tags returned";
+                    details.append(matchTitle, meta);
+                    var apply = document.createElement("button");
+                    apply.className = "ld-fix-button";
+                    apply.type = "button";
+                    apply.textContent = "Apply this match";
+                    apply.disabled = scrapeBusy;
+                    apply.addEventListener("click", function () { applyScrapeReview(entry, candidate, apply); });
+                    match.append(details, apply);
+                    matches.appendChild(match);
+                });
+                card.appendChild(matches);
+            }
+            return card;
+        }));
+        els.scrapeResults.hidden = unresolved.length === 0;
+        els.scrapeEmpty.hidden = unresolved.length > 0;
+        if (scrapeStats.processed) {
+            els.scrapeEmpty.textContent = scrapeStats.applied.toLocaleString() + " unique matches applied · " + scrapeStats.noMatch.toLocaleString() + " with no match · " + scrapeStats.review.toLocaleString() + " awaiting review · " + scrapeStats.errors.toLocaleString() + " errors.";
+        } else if (!lastScanDate) {
+            els.scrapeEmpty.textContent = "Run Health Check before scraping scenes.";
+        } else if (!results.length) {
+            els.scrapeEmpty.textContent = "No scenes were found in the latest health check.";
+        } else if (!results.some(hasScrapeGaps)) {
+            els.scrapeEmpty.textContent = "Every scanned scene has a title, date, and at least one tag.";
+        } else {
+            els.scrapeEmpty.textContent = "No unresolved matches. Run a scrape to fill missing tags and metadata.";
+        }
+        els.scrapeCountApplied.textContent = scrapeStats.applied.toLocaleString();
+        els.scrapeCountTags.textContent = scrapeStats.tagsAdded.toLocaleString();
+        els.scrapeCountReview.textContent = scrapeStats.review.toLocaleString();
+        els.scrapeCountNoMatch.textContent = scrapeStats.noMatch.toLocaleString();
+        els.scrapeCountErrors.textContent = scrapeStats.errors.toLocaleString();
+    }
+
+    function applyScrapeReview(entry, candidate, button) {
+        if (entry.status !== "review") { return; }
+        button.disabled = true;
+        button.textContent = "Applying…";
+        scrapeCandidateUpdates(entry.scene, candidate, els.scrapeCreateTags.checked).then(function (applied) {
+            entry.status = "applied";
+            scrapeStats.review = Math.max(0, scrapeStats.review - 1);
+            if (applied.tagsAdded || applied.titleFilled || applied.dateFilled) { scrapeStats.applied += 1; }
+            scrapeStats.tagsAdded += applied.tagsAdded;
+            scrapeStats.tagsCreated += applied.tagsCreated;
+            render();
+            showStatus("Applied the selected scraper match to “" + (entry.scene.title || "scene") + "”. Undo removes its scene tags and restores fields; created tag records remain.", true);
+        }).catch(function (error) {
+            entry.status = "error";
+            entry.message = error && error.message ? error.message : String(error);
+            scrapeStats.review = Math.max(0, scrapeStats.review - 1);
+            scrapeStats.errors += 1;
+            renderScrapeResults();
+        });
+    }
+
+    function scrapeMetadataGaps() {
+        if (scrapeBusy) { return; }
+        var sourceSet = String(els.scrapeSource.value || "all");
+        var selectedSources = getSelectedScrapers(sourceSet);
+        var needingScrape = results.filter(hasScrapeGaps);
+        var targets = scrapeTargets(sourceSet);
+        if (!targets.length && needingScrape.length) {
+            targets = needingScrape;
+            targets.forEach(function (scene) { delete scrapeAttempted[scrapeAttemptKey(sourceSet, scene.id)]; });
+        }
+        if (!selectedSources.length || !targets.length || !lastScanDate) { updateScrapeControls(); return; }
+        scrapeBusy = true;
+        els.scan.disabled = true;
+        els.export.disabled = true;
+        els.undo.disabled = true;
+        scrapeEntries = [];
+        scrapeStats = { total: targets.length, processed: 0, exact: 0, applied: 0, review: 0, noMatch: 0, errors: 0, tagsAdded: 0, tagsCreated: 0 };
+        els.scrapeProgress.hidden = false;
+        els.scrapeProgressBar.style.width = "0%";
+        els.scrapeProgressTrack.setAttribute("aria-valuenow", "0");
+        els.scrapeProgressDetail.textContent = "Preparing fingerprint lookups.";
+        updateScrapeControls();
+        renderScrapeResults();
+        var createMissingTags = els.scrapeCreateTags.checked;
+        var offset = 0;
+
+        function processBatch() {
+            var batch = targets.slice(offset, offset + SCRAPE_BATCH_SIZE);
+            if (!batch.length) { finish(); return Promise.resolve(); }
+            batch.forEach(function (scene) { scrapeAttempted[scrapeAttemptKey(sourceSet, scene.id)] = true; });
+            els.scrapeProgressDetail.textContent = "Checking scenes " + (offset + 1).toLocaleString() + "–" + Math.min(offset + batch.length, targets.length).toLocaleString() + " of " + targets.length.toLocaleString() + " against configured sources.";
+            var sourceErrors = Object.create(null);
+
+            function recordError(scene, sourceName, error) {
+                if (!sourceErrors[scene.id]) { sourceErrors[scene.id] = []; }
+                sourceErrors[scene.id].push(sourceName + ": " + (error && error.message ? error.message : String(error)));
+            }
+
+            function trySource(sourceIndex, pending) {
+                if (!pending.length) { return Promise.resolve(); }
+                if (sourceIndex >= selectedSources.length) {
+                    pending.forEach(function (scene) {
+                        if (sourceErrors[scene.id] && sourceErrors[scene.id].length) {
+                            scrapeEntries.push({ scene: scene, candidates: [], status: "error", message: sourceErrors[scene.id].join(" · ") });
+                            scrapeStats.errors += 1;
+                        } else {
+                            scrapeStats.noMatch += 1;
+                        }
+                    });
+                    return Promise.resolve();
+                }
+                var scraper = selectedSources[sourceIndex];
+                return graphQLRequest(SCRAPE_SCENES_QUERY, {
+                    source: scraper.source,
+                    input: { scene_ids: pending.map(function (scene) { return scene.id; }) }
+                }).then(function (data) {
+                    var groups = Array.isArray(data.scrapeMultiScenes) ? data.scrapeMultiScenes : [];
+                    var retryWithNextSource = [];
+                    var uniqueMatches = [];
+                    pending.forEach(function (scene, index) {
+                        var candidates = Array.isArray(groups[index]) ? groups[index] : [];
+                        if (!candidates.length) {
+                            retryWithNextSource.push(scene);
+                        } else if (candidates.length > 1) {
+                            scrapeEntries.push({ scene: scene, candidates: candidates, status: "review", sourceName: scraper.name });
+                            scrapeStats.review += 1;
+                        } else {
+                            uniqueMatches.push({ scene: scene, candidate: candidates[0] });
+                        }
+                    });
+                    return uniqueMatches.reduce(function (chain, match) {
+                        return chain.then(function () {
+                            scrapeStats.exact += 1;
+                            return scrapeCandidateUpdates(match.scene, match.candidate, createMissingTags).then(function (applied) {
+                                if (applied.tagsAdded || applied.titleFilled || applied.dateFilled) { scrapeStats.applied += 1; }
+                                scrapeStats.tagsAdded += applied.tagsAdded;
+                                scrapeStats.tagsCreated += applied.tagsCreated;
+                            }).catch(function (error) {
+                                scrapeEntries.push({
+                                    scene: match.scene,
+                                    candidates: [],
+                                    status: "error",
+                                    message: scraper.name + ": " + (error && error.message ? error.message : String(error))
+                                });
+                                scrapeStats.errors += 1;
+                            });
+                        });
+                    }, Promise.resolve()).then(function () {
+                        return trySource(sourceIndex + 1, retryWithNextSource);
+                    });
+                }).catch(function (error) {
+                    pending.forEach(function (scene) { recordError(scene, scraper.name, error); });
+                    return trySource(sourceIndex + 1, pending);
+                });
+            }
+
+            return trySource(0, batch).then(function () {
+                offset += batch.length;
+                scrapeStats.processed = offset;
+                var percent = Math.round((offset / targets.length) * 100);
+                els.scrapeProgressBar.style.width = percent + "%";
+                els.scrapeProgressTrack.setAttribute("aria-valuenow", String(percent));
+                renderScrapeResults();
+                updateScrapeControls();
+                render();
+                if (offset < targets.length) {
+                    return new Promise(function (resolve) { window.setTimeout(resolve, 0); }).then(processBatch);
+                }
+                finish();
+            });
+        }
+
+        function finish() {
+            scrapeBusy = false;
+            els.scan.disabled = !!scanController;
+            els.export.disabled = !results.length;
+            els.undo.disabled = !undoStack.length || !!scanController;
+            els.undo.hidden = !undoStack.length;
+            els.scrapeProgress.hidden = true;
+            results.forEach(function (scene) {
+                scene._doctorIssues = scene._doctorIssues.filter(function (issue) { return issue.kind !== "review"; });
+            });
+            markRepeatedTitles(results);
+            renderScrapeResults();
+            render();
+            showStatus("Scrape complete: " + scrapeStats.applied.toLocaleString() + " scenes updated, " + scrapeStats.review.toLocaleString() + " need review, " + scrapeStats.noMatch.toLocaleString() + " had no match.", undoStack.length > 0);
+        }
+
+        processBatch();
     }
 
     function hasIssue(scene, label) {
@@ -561,47 +1041,75 @@
         pendingFixScene = null;
     }
 
-    function updateScene(scene, updates) {
+    function updateScene(scene, updates, options) {
+        var settings = options || {};
         var before = {};
-        Object.keys(updates).forEach(function (field) { before[field] = String(scene[field] || ""); });
+        var input = { id: scene.id };
+        Object.keys(updates).forEach(function (field) {
+            if (field !== "tag_ids") { before[field] = String(scene[field] || ""); }
+        });
         return graphQLRequest(FRESH_SCENE_QUERY, { id: scene.id }).then(function (data) {
             var latest = data.findScene;
             if (!latest) { throw new Error("Stash no longer has this scene. Run a new library check."); }
-            var changedSinceScan = Object.keys(updates).some(function (field) {
-                return String(latest[field] || "").trim() !== String(scene[field] || "").trim();
+            var changedSinceScan = ["title", "date"].some(function (field) {
+                return Object.prototype.hasOwnProperty.call(updates, field)
+                    && String(latest[field] || "").trim() !== String(scene[field] || "").trim();
             });
             if (changedSinceScan) {
                 throw new Error("This scene changed after the check. Close this dialog and run the check again before applying a fix.");
             }
-            var input = { id: scene.id };
-            Object.keys(updates).forEach(function (field) { input[field] = updates[field]; });
+            Object.keys(updates).forEach(function (field) {
+                if (field !== "tag_ids") { input[field] = updates[field]; }
+            });
+            if (Object.prototype.hasOwnProperty.call(updates, "tag_ids")) {
+                before.tag_ids = (Array.isArray(latest.tags) ? latest.tags : []).map(function (tag) { return String(tag.id); });
+                input.tag_ids = before.tag_ids.slice();
+                updates.tag_ids.forEach(function (id) {
+                    var value = String(id);
+                    if (input.tag_ids.indexOf(value) === -1) { input.tag_ids.push(value); }
+                });
+            }
             return graphQLRequest(UPDATE_SCENE_MUTATION, { input: input });
         }).then(function (data) {
             var updated = data.sceneUpdate;
             if (!updated || String(updated.id) !== scene.id) {
                 throw new Error("Stash did not confirm the updated scene. Run a new library check to verify its state.");
             }
-            scene.title = updated.title == null ? (updates.title || scene.title) : String(updated.title).trim();
-            scene.date = updated.date == null ? (updates.date || scene.date) : String(updated.date).trim();
+            if (updated.title != null) { scene.title = String(updated.title).trim(); }
+            else if (updates.title) { scene.title = updates.title; }
+            if (updated.date != null) { scene.date = String(updated.date).trim(); }
+            else if (updates.date) { scene.date = updates.date; }
+            if (Array.isArray(updated.tags)) {
+                scene.tags = updated.tags.map(function (tag) { return { id: String(tag.id), name: String(tag.name || "").trim() }; });
+            }
             var undo = { id: scene.id, sceneLabel: scene.title || "Untitled scene", before: before, after: {} };
-            Object.keys(updates).forEach(function (field) { undo.after[field] = scene[field]; });
+            Object.keys(updates).forEach(function (field) {
+                undo.after[field] = field === "tag_ids" ? scene.tags.map(function (tag) { return String(tag.id); }) : scene[field];
+            });
             undoStack.push(undo);
             if (undoStack.length > 20) { undoStack.shift(); }
             scene._doctorIssues = scene._doctorIssues.filter(function (issue) {
                 return !(issue.label === "Missing title" && scene.title)
-                    && !(issue.label === "Missing date" && scene.date);
+                    && !(issue.label === "Missing date" && scene.date)
+                    && !(issue.label === "No tags" && scene.tags.length);
             });
             results.forEach(function (item) {
                 item._doctorIssues = item._doctorIssues.filter(function (issue) { return issue.kind !== "review"; });
             });
             markRepeatedTitles(results);
-            render();
+            if (settings.render !== false) { render(); }
             return scene;
         });
     }
 
+    function sameIds(left, right) {
+        var a = (Array.isArray(left) ? left : []).map(String).sort();
+        var b = (Array.isArray(right) ? right : []).map(String).sort();
+        return a.length === b.length && a.every(function (id, index) { return id === b[index]; });
+    }
+
     function undoLastFix() {
-        if (undoingFix || !undoStack.length) { return; }
+        if (undoingFix || scrapeBusy || !undoStack.length) { return; }
         var undo = undoStack[undoStack.length - 1];
         undoingFix = true;
         clearError();
@@ -613,13 +1121,16 @@
             var latest = data.findScene;
             if (!latest) { throw new Error("Stash no longer has this scene. The change was not undone."); }
             var changedSinceFix = Object.keys(undo.after).some(function (field) {
+                if (field === "tag_ids") {
+                    return !sameIds((Array.isArray(latest.tags) ? latest.tags : []).map(function (tag) { return tag.id; }), undo.after.tag_ids);
+                }
                 return String(latest[field] || "").trim() !== String(undo.after[field] || "").trim();
             });
             if (changedSinceFix) {
                 throw new Error("This field changed after Library Doctor updated it. The change was not undone to avoid overwriting newer work.");
             }
             var input = { id: undo.id };
-            Object.keys(undo.before).forEach(function (field) { input[field] = undo.before[field]; });
+            Object.keys(undo.before).forEach(function (field) { input[field === "tag_ids" ? "tag_ids" : field] = undo.before[field]; });
             return graphQLRequest(UPDATE_SCENE_MUTATION, { input: input });
         }).then(function (data) {
             var updated = data.sceneUpdate;
@@ -630,6 +1141,12 @@
             var scene = results.filter(function (item) { return item.id === undo.id; })[0];
             if (scene) {
                 Object.keys(undo.before).forEach(function (field) {
+                    if (field === "tag_ids") {
+                        scene.tags = (Array.isArray(updated.tags) ? updated.tags : []).map(function (tag) { return { id: String(tag.id), name: String(tag.name || "").trim() }; });
+                        scene._doctorIssues = scene._doctorIssues.filter(function (issue) { return issue.label !== "No tags"; });
+                        if (!scene.tags.length) { addIssue(scene, "No tags", "metadata"); }
+                        return;
+                    }
                     scene[field] = updated[field] == null ? "" : String(updated[field]).trim();
                     var issueLabel = field === "title" ? "Missing title" : "Missing date";
                     scene._doctorIssues = scene._doctorIssues.filter(function (issue) { return issue.label !== issueLabel; });
@@ -641,7 +1158,9 @@
                 markRepeatedTitles(results);
                 render();
             }
-            var fieldNames = Object.keys(undo.before).map(function (field) { return field === "title" ? "title" : "date"; });
+            var fieldNames = Object.keys(undo.before).map(function (field) {
+                return field === "title" ? "title" : (field === "date" ? "date" : "tags");
+            });
             showStatus("Undid the " + fieldNames.join(" and ") + " update for “" + undo.sceneLabel + "”.", undoStack.length > 0);
         }).catch(function (error) {
             showError("Could not undo this fix: " + (error && error.message ? error.message : String(error)));
@@ -660,7 +1179,7 @@
     }
 
     function applyFix() {
-        if (applyingFix || undoingFix || !pendingFixScene) { return; }
+        if (applyingFix || undoingFix || scrapeBusy || !pendingFixScene) { return; }
         var state = readFixUpdates();
         if (state.error) { updateFixPreview(); return; }
         var scene = pendingFixScene;
@@ -725,7 +1244,7 @@
     }
 
     function scan() {
-        if (scanController) { return; }
+        if (scanController || scrapeBusy) { return; }
         setWorkspace("health");
         scanController = new AbortController();
         var controller = scanController;
@@ -734,6 +1253,12 @@
         var page = 1;
         completeScan = false;
         results = [];
+        lastScanDate = null;
+        scrapeEntries = [];
+        scrapeAttempted = Object.create(null);
+        scrapeStats = { total: 0, processed: 0, exact: 0, applied: 0, review: 0, noMatch: 0, errors: 0, tagsAdded: 0, tagsCreated: 0 };
+        tagCatalog = null;
+        tagCatalogPromise = null;
         currentPage = 1;
         els.summary.hidden = true;
         els.findings.hidden = true;
@@ -744,6 +1269,9 @@
         els.scan.disabled = true;
         els.export.disabled = true;
         els.undo.disabled = true;
+        els.scrapeProgress.hidden = true;
+        renderScrapeResults();
+        updateScrapeControls();
         clearError();
         setProgress(0, "Connecting to Stash");
         els.rows.replaceChildren();
@@ -935,6 +1463,7 @@
         renderFilters();
         renderMetadataQueue();
         renderDuplicateGroups();
+        renderScrapeResults();
         updateWorkspaceCounts();
 
         var filtered = currentItems();
@@ -1008,8 +1537,17 @@
             scanTitle: byId("ld-progress-title"), scanTime: byId("ld-scan-time"), resultRange: byId("ld-result-range"),
             pageStatus: byId("ld-page-status"), pagePrev: byId("ld-page-prev"), pageNext: byId("ld-page-next"),
             healthTabCount: byId("ld-tab-health-count"), metadataTabCount: byId("ld-tab-metadata-count"),
-            duplicatesTabCount: byId("ld-tab-duplicates-count"), metadataEmpty: byId("ld-metadata-empty"),
+            duplicatesTabCount: byId("ld-tab-duplicates-count"), scrapeTabCount: byId("ld-tab-scrape-count"), metadataEmpty: byId("ld-metadata-empty"),
             metadataList: byId("ld-metadata-list"),
+            scrapeSource: byId("ld-scrape-source"), scrapeSourceStatus: byId("ld-scrape-source-status"),
+            scrapeRemaining: byId("ld-scrape-remaining"), scrapeRefresh: byId("ld-scrape-refresh"),
+            scrapeCreateTags: byId("ld-scrape-create-tags"), scrapeRun: byId("ld-scrape-run"),
+            scrapeProgress: byId("ld-scrape-progress"), scrapeProgressDetail: byId("ld-scrape-progress-detail"),
+            scrapeProgressBar: byId("ld-scrape-progress-bar"), scrapeProgressTrack: byId("ld-scrape-progress-track"),
+            scrapeCountApplied: byId("ld-scrape-count-applied"), scrapeCountTags: byId("ld-scrape-count-tags"),
+            scrapeCountReview: byId("ld-scrape-count-review"), scrapeCountNoMatch: byId("ld-scrape-count-no-match"),
+            scrapeCountErrors: byId("ld-scrape-count-errors"), scrapeEmpty: byId("ld-scrape-empty"),
+            scrapeResults: byId("ld-scrape-results"), scrapeList: byId("ld-scrape-list"),
             status: byId("ld-status"), statusMessage: byId("ld-status-message"), undo: byId("ld-undo"),
             duplicateReview: byId("ld-duplicate-review"), duplicateCount: byId("ld-duplicate-count"),
             duplicateToggle: byId("ld-duplicate-toggle-reviewed"),
@@ -1025,7 +1563,9 @@
         setWorkspace(currentWorkspace);
         document.querySelectorAll(".ld-workspace-tab[data-workspace]").forEach(function (tab) {
             tab.addEventListener("click", function () {
-                setWorkspace(tab.getAttribute("data-workspace"));
+                var workspace = tab.getAttribute("data-workspace");
+                setWorkspace(workspace);
+                if (workspace === "scrape") { loadScrapers(); }
             });
         });
         els.scan.addEventListener("click", scan);
@@ -1046,6 +1586,9 @@
             showReviewedDuplicates = !showReviewedDuplicates;
             renderDuplicateGroups();
         });
+        els.scrapeRefresh.addEventListener("click", function () { loadScrapers(true); });
+        els.scrapeSource.addEventListener("change", updateScrapeControls);
+        els.scrapeRun.addEventListener("click", scrapeMetadataGaps);
         els.fixTitleChoice.addEventListener("change", function () {
             els.fixTitle.disabled = !els.fixTitleChoice.checked;
             updateFixPreview();

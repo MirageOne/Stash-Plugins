@@ -289,6 +289,13 @@ body.stash-noir-theme {
     --noir-control-danger-hover: #68323b;
     --noir-control-danger-border: #783841;
     --noir-control-danger-text: #ffe9ec;
+    --noir-package-surface: #17181d;
+    --noir-package-table: #101114;
+    --noir-package-header: #1b1c21;
+    --noir-package-row: #141519;
+    --noir-package-row-alt: #18191e;
+    --noir-package-border: #303137;
+    --noir-package-chip: #23242a;
 }
 
 body.stash-noir-theme.noir-theme-light {
@@ -315,6 +322,13 @@ body.stash-noir-theme.noir-theme-light {
     --noir-control-danger-hover: #f4d5d8;
     --noir-control-danger-border: #ddb0b5;
     --noir-control-danger-text: #76262e;
+    --noir-package-surface: #ffffff;
+    --noir-package-table: #fafafa;
+    --noir-package-header: #eeeeef;
+    --noir-package-row: #ffffff;
+    --noir-package-row-alt: #f6f6f7;
+    --noir-package-border: rgba(0, 0, 0, 0.14);
+    --noir-package-chip: #f1f1f3;
 }
 
 /* Remove the old blur, gradient, rounded glass and halo from every common
@@ -549,6 +563,133 @@ body.stash-noir-theme :is(.st-plugin-reload-btn, #noir-control-specificity#noir-
     color: #fff !important;
     background-color: var(--noir-control-surface-hover) !important;
     border-color: rgba(var(--accent-rgb), 0.48) !important;
+}
+
+/* Settings → Plugins package manager. Replace its older translucent cards,
+   blurred table shell, violet headers and pill versions with opaque charcoal,
+   square borders and quiet neutral row states. The specificity branch keeps
+   these styles above Stash's deeply scoped settings-card rules. */
+body.stash-noir-theme :is(.package-manager, #noir-control-specificity#noir-control-specificity#noir-control-specificity) {
+    color: var(--text) !important;
+    background: var(--noir-package-surface) !important;
+    border: 1px solid var(--noir-package-border) !important;
+    border-radius: 4px !important;
+    box-shadow: none !important;
+    -webkit-backdrop-filter: none !important;
+    backdrop-filter: none !important;
+}
+body.stash-noir-theme :is(.package-manager, #noir-control-specificity#noir-control-specificity#noir-control-specificity) .card {
+    color: var(--text) !important;
+    background: var(--noir-package-surface) !important;
+    border: 1px solid var(--noir-package-border) !important;
+    border-radius: 4px !important;
+    box-shadow: none !important;
+    -webkit-backdrop-filter: none !important;
+    backdrop-filter: none !important;
+}
+body.stash-noir-theme :is(.package-manager, #noir-control-specificity#noir-control-specificity#noir-control-specificity) .card-header,
+body.stash-noir-theme :is(.package-manager, #noir-control-specificity#noir-control-specificity#noir-control-specificity) .card-body {
+    color: var(--text) !important;
+    background: var(--noir-package-surface) !important;
+    border-color: var(--noir-package-border) !important;
+    box-shadow: none !important;
+}
+body.stash-noir-theme :is(.package-manager, #noir-control-specificity#noir-control-specificity#noir-control-specificity) table {
+    background: transparent !important;
+    border: 0 !important;
+    border-radius: 0 !important;
+    box-shadow: none !important;
+}
+body.stash-noir-theme :is(.package-manager-table-container, #noir-control-specificity#noir-control-specificity#noir-control-specificity) {
+    background: var(--noir-package-table) !important;
+    border: 1px solid var(--noir-package-border) !important;
+    border-radius: 4px !important;
+    box-shadow: none !important;
+    -webkit-backdrop-filter: none !important;
+    backdrop-filter: none !important;
+    scrollbar-color: #555861 transparent;
+}
+body.stash-noir-theme :is(.package-manager-table-container, #noir-control-specificity#noir-control-specificity#noir-control-specificity) .table {
+    background: transparent !important;
+    border-collapse: collapse !important;
+    border-spacing: 0 !important;
+}
+body.stash-noir-theme :is(.package-manager-table-container, #noir-control-specificity#noir-control-specificity#noir-control-specificity) .table thead tr:first-child th {
+    color: var(--text-muted) !important;
+    background: var(--noir-package-header) !important;
+    border: 0 !important;
+    border-bottom: 1px solid var(--noir-package-border) !important;
+    border-radius: 0 !important;
+    -webkit-backdrop-filter: none !important;
+    backdrop-filter: none !important;
+}
+body.stash-noir-theme :is(.package-manager-table-container, #noir-control-specificity#noir-control-specificity#noir-control-specificity) .table tbody tr,
+body.stash-noir-theme :is(.package-manager-table-container, #noir-control-specificity#noir-control-specificity#noir-control-specificity) .table tbody tr:nth-child(odd) {
+    color: var(--text) !important;
+    background: var(--noir-package-row) !important;
+    border: 0 !important;
+    border-bottom: 1px solid var(--noir-package-border) !important;
+    box-shadow: none !important;
+}
+body.stash-noir-theme :is(.package-manager-table-container, #noir-control-specificity#noir-control-specificity#noir-control-specificity) .table tbody tr:nth-child(even) {
+    background: var(--noir-package-row-alt) !important;
+}
+body.stash-noir-theme :is(.package-manager-table-container, #noir-control-specificity#noir-control-specificity#noir-control-specificity) .table tbody tr:hover {
+    color: var(--text) !important;
+    background: var(--noir-control-surface-hover) !important;
+}
+body.stash-noir-theme :is(.package-manager-table-container, #noir-control-specificity#noir-control-specificity#noir-control-specificity) .table td,
+body.stash-noir-theme :is(.package-manager-table-container, #noir-control-specificity#noir-control-specificity#noir-control-specificity) .table th {
+    color: var(--text) !important;
+    border-color: var(--noir-package-border) !important;
+    border-radius: 0 !important;
+}
+body.stash-noir-theme :is(.package-manager-table-container, #noir-control-specificity#noir-control-specificity#noir-control-specificity) .package-version {
+    color: var(--text-muted) !important;
+    background: var(--noir-package-chip) !important;
+    border: 1px solid var(--noir-package-border) !important;
+    border-radius: 3px !important;
+    box-shadow: none !important;
+}
+body.stash-noir-theme :is(.package-manager, #noir-control-specificity#noir-control-specificity#noir-control-specificity) :is(input, select, textarea, .form-control, .form-select) {
+    color: var(--text) !important;
+    background: var(--noir-control-surface) !important;
+    border: 1px solid var(--noir-control-border) !important;
+    border-radius: 4px !important;
+    box-shadow: none !important;
+}
+body.stash-noir-theme :is(.package-manager, #noir-control-specificity#noir-control-specificity#noir-control-specificity) :is(input, select, textarea, .form-control, .form-select):focus {
+    border-color: var(--noir-control-focus) !important;
+    outline: 2px solid rgba(var(--accent-rgb), 0.18) !important;
+    outline-offset: 0 !important;
+    box-shadow: none !important;
+}
+body.stash-noir-theme :is(.package-manager-table-container, #noir-control-specificity#noir-control-specificity#noir-control-specificity) input[type="checkbox"],
+body.stash-noir-theme :is(.package-manager-table-container, #noir-control-specificity#noir-control-specificity#noir-control-specificity) input[type="checkbox"].form-check-input {
+    border-radius: 3px !important;
+    border-color: var(--noir-control-border) !important;
+    background-color: var(--noir-control-surface) !important;
+    box-shadow: none !important;
+}
+body.stash-noir-theme :is(.package-manager-table-container, #noir-control-specificity#noir-control-specificity#noir-control-specificity) input[type="checkbox"]:checked {
+    border-color: var(--accent) !important;
+    background-color: var(--accent) !important;
+    box-shadow: none !important;
+}
+body.stash-noir-theme :is(.package-manager-table-container, #noir-control-specificity#noir-control-specificity#noir-control-specificity) .source-collapse .btn {
+    color: var(--text-muted) !important;
+    background: transparent !important;
+    border: 0 !important;
+    box-shadow: none !important;
+    -webkit-backdrop-filter: none !important;
+    backdrop-filter: none !important;
+}
+body.stash-noir-theme :is(.package-manager-table-container, #noir-control-specificity#noir-control-specificity#noir-control-specificity) .source-collapse .btn:hover {
+    color: var(--text) !important;
+    background: var(--noir-package-row-alt) !important;
+}
+body.stash-noir-theme :is(.package-manager-table-container, #noir-control-specificity#noir-control-specificity#noir-control-specificity) .table tbody tr.add-package-source:hover {
+    background: var(--noir-package-row-alt) !important;
 }
 
 @media (prefers-reduced-motion: reduce) {

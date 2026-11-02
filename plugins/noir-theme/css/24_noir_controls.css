@@ -1090,23 +1090,15 @@ body.stash-noir-theme #noir-theme-settings-section .noir-theme-settings-group .s
     line-height: 1.5 !important;
 }
 
-/* Accent colors are declared against data attributes rather than inline
-   styles so later important button rules cannot erase the palette. */
+/* Accent colors follow the fixed palette order in both swatch rows. Target
+   the buttons directly so inline legacy backgrounds and Stash's button reset
+   cannot erase their colors. */
 body.stash-noir-theme .noir-theme-accent-swatch:not(.noir-theme-light-toggle) {
     background-image: none !important;
     border-radius: 3px !important;
     box-shadow: none !important;
     transform: none !important;
 }
-
-body.stash-noir-theme :is(#noir-theme-settings-section, .noir-theme-plugin-settings) button.noir-theme-accent-swatch[data-noir-accent="blue"] { background: #0078d4 !important; }
-body.stash-noir-theme :is(#noir-theme-settings-section, .noir-theme-plugin-settings) button.noir-theme-accent-swatch[data-noir-accent="teal"] { background: #038387 !important; }
-body.stash-noir-theme :is(#noir-theme-settings-section, .noir-theme-plugin-settings) button.noir-theme-accent-swatch[data-noir-accent="green"] { background: #107c10 !important; }
-body.stash-noir-theme :is(#noir-theme-settings-section, .noir-theme-plugin-settings) button.noir-theme-accent-swatch[data-noir-accent="yellow"] { background: #f2c811 !important; }
-body.stash-noir-theme :is(#noir-theme-settings-section, .noir-theme-plugin-settings) button.noir-theme-accent-swatch[data-noir-accent="orange"] { background: #d83b01 !important; }
-body.stash-noir-theme :is(#noir-theme-settings-section, .noir-theme-plugin-settings) button.noir-theme-accent-swatch[data-noir-accent="red"] { background: #d13438 !important; }
-body.stash-noir-theme :is(#noir-theme-settings-section, .noir-theme-plugin-settings) button.noir-theme-accent-swatch[data-noir-accent="pink"] { background: #e3008c !important; }
-body.stash-noir-theme :is(#noir-theme-settings-section, .noir-theme-plugin-settings) button.noir-theme-accent-swatch[data-noir-accent="purple"] { background: #8b5cf6 !important; }
 
 body.stash-noir-theme .noir-theme-accent-swatch:not(.noir-theme-light-toggle).is-active {
     border: 2px solid var(--noir-settings-selected-text, #fff) !important;

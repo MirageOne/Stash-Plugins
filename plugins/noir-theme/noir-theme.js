@@ -2644,7 +2644,6 @@
                     key: preset,
                     type: "button",
                     className: "noir-theme-accent-swatch" + (preset === accent ? " is-active" : ""),
-                    "data-noir-accent": preset,
                     title: label,
                     "aria-label": label,
                     onClick: function () { pick(preset); }
@@ -3109,7 +3108,6 @@
                     key: preset,
                     type: "button",
                     className: "noir-theme-accent-swatch" + (active ? " is-active" : ""),
-                    "data-noir-accent": preset,
                     title: label,
                     "aria-label": label + " accent",
                     "aria-pressed": active ? "true" : "false",

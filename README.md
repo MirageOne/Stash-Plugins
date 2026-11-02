@@ -25,7 +25,7 @@ Reload plugins, then install any listed plugin from **Available Plugins**. New p
 Download a plugin's manual archive, extract its included plugin folder into Stash's configured plugins directory, then enable it in **Settings → Plugins**.
 
 - [Fluent Mica manual archive](packages/fluent-mica/1.0.5-manual.zip)
-- [Noir manual archive](packages/noir-theme/1.1.19-manual.zip)
+- [Noir manual archive](packages/noir-theme/1.1.20-manual.zip)
 - [Library Doctor manual archive](packages/library-doctor/1.6.4-manual.zip)
 - [Scene Gallery Generator manual archive](packages/scene-gallery-generator/1.0.2-manual.zip)
 - [Stash Downloader manual archive](packages/stash-downloader/0.6.2-manual.zip)

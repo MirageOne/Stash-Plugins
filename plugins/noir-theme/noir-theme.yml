@@ -1,6 +1,6 @@
 name: Noir
 description: Dark, video-first Stash theme with flat charcoal and violet styling, a collapsible sidebar, and readable statistics dashboards.
-version: 1.1.19
+version: 1.1.20
 url: https://github.com/MirageOne/Stasher
 ui:
   assets:
@@ -32,6 +32,7 @@ ui:
     - css/22_noir_stats.css
     - css/23_noir_settings_menu.css
     - css/24_noir_controls.css
+    - css/25_noir_palette.css
 settings:
   accent:
     displayName: Accent color

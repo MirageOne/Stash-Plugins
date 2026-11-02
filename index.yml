@@ -9,10 +9,10 @@
     description: Fluent 2 Stash theme with smooth scrolling, responsive scenes, compact performer nameplates, stable pagination, and accent colors.
 - id: noir-theme
   name: Noir
-  version: 1.1.19
-  date: "2026-11-02 02:59:17"
-  path: packages/noir-theme/1.1.19.zip
-  sha256: 36565a9c884197a4a7a1ac2d4923dd10fcdb1b5c741d2d84f01dc7ceb0fbaf9e
+  version: 1.1.20
+  date: "2026-11-02 03:06:56"
+  path: packages/noir-theme/1.1.20.zip
+  sha256: 446eca2340e53fac30723c1c5646530580e27b4c23f9539c839e1cb6732c66a7
   requires: []
   metadata:
     description: Dark video-first Stash theme with charcoal/violet styling, solid route icons, readable statistics and logs, and flat theme settings and controls.

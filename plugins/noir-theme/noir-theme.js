@@ -59,17 +59,6 @@
     var ACCENT_STORAGE_KEY = "noir-theme.accent";
     var SIDEBAR_COLLAPSED_KEY = "noir-theme.sidebarCollapsed";
     var SIDEBAR_HIDDEN_ITEMS_KEY = "noir-theme.sidebarHiddenItems";
-    var REFRACT_SWATCH_COLORS = {
-        orange: "#d83b01",
-        blue: "#0078d4",
-        pink: "#e3008c",
-        red: "#d13438",
-        yellow: "#f2c811",
-        purple: "#8b5cf6",
-        green: "#107c10",
-        teal: "#038387"
-    };
-
     function getStoredAccent() {
         try {
             var v = localStorage.getItem(ACCENT_STORAGE_KEY);
@@ -2655,7 +2644,7 @@
                     key: preset,
                     type: "button",
                     className: "noir-theme-accent-swatch" + (preset === accent ? " is-active" : ""),
-                    style: { "--noir-theme-swatch-color": REFRACT_SWATCH_COLORS[preset] },
+                    "data-noir-accent": preset,
                     title: label,
                     "aria-label": label,
                     onClick: function () { pick(preset); }
@@ -3120,7 +3109,7 @@
                     key: preset,
                     type: "button",
                     className: "noir-theme-accent-swatch" + (active ? " is-active" : ""),
-                    style: { "--noir-theme-swatch-color": REFRACT_SWATCH_COLORS[preset] },
+                    "data-noir-accent": preset,
                     title: label,
                     "aria-label": label + " accent",
                     "aria-pressed": active ? "true" : "false",

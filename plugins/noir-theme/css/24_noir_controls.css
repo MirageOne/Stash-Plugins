@@ -782,3 +782,140 @@ body.stash-noir-theme :is(#settings-container, .settings-container, .settings, [
         transition: none !important;
     }
 }
+
+/* Settings → Tasks and Logs use the same flat charcoal surfaces as the
+   rest of Noir. Keep the queue heading outside its single bordered card. */
+body.stash-noir-theme #tasks-panel .tasks-panel-queue {
+    background: transparent !important;
+    border: 0 !important;
+    border-radius: 0 !important;
+    box-shadow: none !important;
+    -webkit-backdrop-filter: none !important;
+    backdrop-filter: none !important;
+}
+body.stash-noir-theme #tasks-panel .tasks-panel-queue:hover {
+    border-color: transparent !important;
+    box-shadow: none !important;
+}
+body.stash-noir-theme #tasks-panel .tasks-panel-queue .job-table.card {
+    background: var(--noir-package-surface) !important;
+    border: 1px solid var(--noir-package-border) !important;
+    border-radius: 6px !important;
+    box-shadow: none !important;
+}
+body.stash-noir-theme #tasks-panel .tasks-panel-queue .job-table.card:hover {
+    background: var(--noir-package-surface) !important;
+    border-color: var(--noir-package-border) !important;
+    box-shadow: none !important;
+}
+
+/* The log-level row is a compact settings card. Target the row by its
+   select control so this remains stable across the Logs page markup. */
+body.stash-noir-theme #settings-container:has(:is(.logs-viewer, .log-viewer, .log-pane)) :is(.form-group, .form-row, .log-level, .log-level-control):has(select),
+body.stash-noir-theme #settings-container:has(:is(.logs-viewer, .log-viewer, .log-pane)) div:has(> label):has(> select) {
+    display: flex !important;
+    align-items: center !important;
+    justify-content: space-between !important;
+    gap: 1rem !important;
+    width: 100% !important;
+    min-width: 0 !important;
+    box-sizing: border-box !important;
+    padding: 0.8rem 0.95rem !important;
+    color: var(--text) !important;
+    background: var(--noir-package-surface) !important;
+    border: 1px solid var(--noir-package-border) !important;
+    border-radius: 6px !important;
+    box-shadow: none !important;
+}
+body.stash-noir-theme #settings-container:has(:is(.logs-viewer, .log-viewer, .log-pane)) :is(.form-group, .form-row, .log-level, .log-level-control):has(select) > label,
+body.stash-noir-theme #settings-container:has(:is(.logs-viewer, .log-viewer, .log-pane)) div:has(> label):has(> select) > label {
+    margin: 0 !important;
+    color: var(--text) !important;
+    font-size: 1.125rem !important;
+    font-weight: 600 !important;
+}
+body.stash-noir-theme #settings-container:has(:is(.logs-viewer, .log-viewer, .log-pane)) select {
+    flex: 0 0 auto !important;
+    min-width: 6rem !important;
+    max-width: 100% !important;
+    color: var(--text) !important;
+    background-color: var(--noir-control-surface) !important;
+    border: 1px solid var(--noir-control-border) !important;
+    border-radius: 4px !important;
+    box-shadow: none !important;
+}
+body.stash-noir-theme #settings-container:has(:is(.logs-viewer, .log-viewer, .log-pane)) select:focus {
+    border-color: var(--noir-control-focus) !important;
+    outline: 2px solid rgba(var(--accent-rgb), 0.18) !important;
+    outline-offset: 0 !important;
+}
+
+/* Keep long log messages inside the page width. Rows with timestamp,
+   severity and message columns use flex so wrapped text stays under its
+   own message column instead of jumping back to the left edge. */
+body.stash-noir-theme :is(.logs-viewer, .log-viewer, .log-pane) {
+    width: 100% !important;
+    max-width: 100% !important;
+    min-width: 0 !important;
+    box-sizing: border-box !important;
+    overflow-x: auto !important;
+    overflow-wrap: anywhere !important;
+    white-space: pre-wrap !important;
+    color: var(--text) !important;
+    background: transparent !important;
+    border: 0 !important;
+    border-radius: 0 !important;
+    box-shadow: none !important;
+    -webkit-backdrop-filter: none !important;
+    backdrop-filter: none !important;
+    font-size: var(--fs-sm) !important;
+    line-height: 1.5 !important;
+}
+body.stash-noir-theme :is(.logs-viewer, .log-viewer, .log-pane) :is(pre, code, [class*="message"]) {
+    max-width: 100% !important;
+    min-width: 0 !important;
+    white-space: pre-wrap !important;
+    overflow-wrap: anywhere !important;
+    word-break: break-word !important;
+    font-family: inherit !important;
+}
+body.stash-noir-theme :is(.logs-viewer, .log-viewer, .log-pane) > :is(div, li):has(> :nth-child(3)):not(:has(> :nth-child(4))) {
+    display: flex !important;
+    align-items: flex-start !important;
+    gap: 0.75rem !important;
+    width: 100% !important;
+    max-width: 100% !important;
+    min-width: 0 !important;
+    overflow-wrap: anywhere !important;
+    white-space: normal !important;
+}
+body.stash-noir-theme :is(.logs-viewer, .log-viewer, .log-pane) > :is(div, li):has(> :nth-child(3)):not(:has(> :nth-child(4))) > :is(:nth-child(1), :nth-child(2)) {
+    flex: 0 0 auto !important;
+    white-space: nowrap !important;
+}
+body.stash-noir-theme :is(.logs-viewer, .log-viewer, .log-pane) > :is(div, li):has(> :nth-child(3)):not(:has(> :nth-child(4))) > :nth-child(3) {
+    flex: 1 1 0 !important;
+    min-width: 0 !important;
+    max-width: 100% !important;
+    overflow-wrap: anywhere !important;
+    word-break: break-word !important;
+    white-space: pre-wrap !important;
+}
+body.stash-noir-theme :is(.logs-viewer, .log-viewer, .log-pane) :is(.text-warning, .log-level-warning, .log-warning) {
+    color: #f2b84b !important;
+    font-weight: 600 !important;
+}
+body.stash-noir-theme :is(.logs-viewer, .log-viewer, .log-pane) :is(.text-info, .log-info, [class*="info"]) {
+    color: var(--noir-control-muted) !important;
+}
+
+@media (max-width: 640px) {
+    body.stash-noir-theme #settings-container:has(:is(.logs-viewer, .log-viewer, .log-pane)) :is(.form-group, .form-row, .log-level, .log-level-control):has(select),
+    body.stash-noir-theme #settings-container:has(:is(.logs-viewer, .log-viewer, .log-pane)) div:has(> label):has(> select) {
+        align-items: stretch !important;
+        flex-direction: column !important;
+    }
+    body.stash-noir-theme #settings-container:has(:is(.logs-viewer, .log-viewer, .log-pane)) select {
+        width: 100% !important;
+    }
+}

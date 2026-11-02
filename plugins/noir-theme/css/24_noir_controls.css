@@ -354,15 +354,16 @@ body.stash-noir-theme :is(.btn:not(.btn-primary):not(.btn-success):not(.btn-info
 }
 
 /* Primary actions and selected view controls carry the accent as a clean,
-   solid fill; no gradient or bloom. */
-body.stash-noir-theme :is(.btn-primary:not(.minimal), #noir-control-specificity#noir-control-specificity#noir-control-specificity) {
+   solid fill; no gradient or bloom. Plugin chevrons keep their icon-only
+   treatment even though their injected markup uses btn-primary. */
+body.stash-noir-theme :is(.btn-primary:not(.minimal):not(.st-plugin-chevron), #noir-control-specificity#noir-control-specificity#noir-control-specificity) {
     color: #fff !important;
     background-color: var(--accent) !important;
     background-image: none !important;
     border: 1px solid var(--accent) !important;
 }
 
-body.stash-noir-theme :is(.btn-primary:not(.minimal), #noir-control-specificity#noir-control-specificity#noir-control-specificity):hover:not(:disabled) {
+body.stash-noir-theme :is(.btn-primary:not(.minimal):not(.st-plugin-chevron), #noir-control-specificity#noir-control-specificity#noir-control-specificity):hover:not(:disabled) {
     color: #fff !important;
     background-color: var(--accent-bright) !important;
     border-color: var(--accent-bright) !important;

@@ -881,50 +881,63 @@ body.stash-noir-theme :is(.logs-viewer, .log-viewer, .log-pane) :is(pre, code, [
     word-break: break-word !important;
     font-family: inherit !important;
 }
-body.stash-noir-theme :is(.logs-viewer, .log-viewer, .log-pane) > :is(div, li):has(> :nth-child(3)):not(:has(> :nth-child(4))) {
+/* noir-theme.js marks actual three-column log entries after verifying their
+   timestamp and severity values. This avoids relying on Stash's unstable
+   wrapper class names. */
+body.stash-noir-theme .noir-theme-log-row {
     display: flex !important;
     align-items: flex-start !important;
-    gap: 0.8rem !important;
+    gap: 0.75rem !important;
     width: 100% !important;
     max-width: 100% !important;
     min-width: 0 !important;
-    overflow: visible !important;
     box-sizing: border-box !important;
-    margin: 0 0 0.2rem 0 !important;
-    padding: 0.25rem 0.45rem !important;
+    margin: 0.15rem 0 !important;
+    padding: 0.35rem 0.55rem !important;
     color: var(--text) !important;
-    background: var(--noir-package-row) !important;
-    border: 0 !important;
-    border-bottom: 1px solid var(--noir-package-border) !important;
-    border-radius: 3px !important;
+    background: var(--noir-package-surface) !important;
+    border: 1px solid var(--noir-package-border) !important;
+    border-left: 3px solid var(--noir-package-border) !important;
+    border-radius: 4px !important;
     overflow-wrap: anywhere !important;
     white-space: normal !important;
     font-size: 0.86rem !important;
     line-height: 1.4 !important;
 }
-body.stash-noir-theme :is(.logs-viewer, .log-viewer, .log-pane) > :is(div, li):has(> :nth-child(3)):not(:has(> :nth-child(4))):nth-child(even) {
-    background: var(--noir-package-row-alt) !important;
+body.stash-noir-theme .noir-theme-log-row.noir-theme-log-warning {
+    border-left-color: #f2b84b !important;
 }
-body.stash-noir-theme :is(.logs-viewer, .log-viewer, .log-pane) > :is(div, li):has(> :nth-child(3)):not(:has(> :nth-child(4))) > :is(:nth-child(1), :nth-child(2)) {
-    flex: 0 0 auto !important;
+body.stash-noir-theme .noir-theme-log-row.noir-theme-log-info {
+    border-left-color: var(--accent) !important;
+}
+body.stash-noir-theme .noir-theme-log-time {
+    flex: 0 0 11.2rem !important;
+    width: 11.2rem !important;
+    min-width: 11.2rem !important;
+    max-width: none !important;
+    overflow: visible !important;
+    color: var(--text-muted) !important;
+    font-size: 0.8rem !important;
+    font-variant-numeric: tabular-nums !important;
     white-space: nowrap !important;
 }
-body.stash-noir-theme :is(.logs-viewer, .log-viewer, .log-pane) > :is(div, li):has(> :nth-child(3)):not(:has(> :nth-child(4))) > :nth-child(1) {
-    width: max-content !important;
-    min-width: 10rem !important;
-    max-width: none !important;
-    margin-left: 0 !important;
-    padding-left: 0.2rem !important;
-    overflow: visible !important;
-    text-overflow: clip !important;
-    text-indent: 0 !important;
-    direction: ltr !important;
-    text-align: left !important;
-    color: var(--text-muted) !important;
+body.stash-noir-theme .noir-theme-log-severity {
+    flex: 0 0 3.5rem !important;
+    min-width: 3.5rem !important;
+    padding: 0.08rem 0.3rem !important;
+    color: var(--noir-control-muted) !important;
+    background: rgba(255, 255, 255, 0.055) !important;
+    border-radius: 3px !important;
     font-size: 0.78rem !important;
-    font-variant-numeric: tabular-nums !important;
+    font-weight: 700 !important;
+    text-align: center !important;
+    white-space: nowrap !important;
 }
-body.stash-noir-theme :is(.logs-viewer, .log-viewer, .log-pane) > :is(div, li):has(> :nth-child(3)):not(:has(> :nth-child(4))) > :nth-child(3) {
+body.stash-noir-theme .noir-theme-log-warning .noir-theme-log-severity {
+    color: #f2b84b !important;
+    background: rgba(242, 184, 75, 0.12) !important;
+}
+body.stash-noir-theme .noir-theme-log-message {
     flex: 1 1 0 !important;
     min-width: 0 !important;
     max-width: 100% !important;
@@ -932,26 +945,10 @@ body.stash-noir-theme :is(.logs-viewer, .log-viewer, .log-pane) > :is(div, li):h
     word-break: break-word !important;
     white-space: pre-wrap !important;
 }
-body.stash-noir-theme :is(.logs-viewer, .log-viewer, .log-pane) > :is(div, li):has(> :nth-child(3)):not(:has(> :nth-child(4))):has(:is(.text-warning, .log-level-warning, .log-warning)) > :nth-child(2) {
-    padding: 0.05rem 0.3rem !important;
-    color: #f2b84b !important;
-    background: rgba(242, 184, 75, 0.1) !important;
-    border-radius: 3px !important;
-    font-weight: 700 !important;
-}
-body.stash-noir-theme :is(.logs-viewer, .log-viewer, .log-pane) > :is(div, li):has(> :nth-child(3)):not(:has(> :nth-child(4))):has(:is(.text-info, .log-level-info, .log-info)) > :nth-child(2) {
-    padding: 0.05rem 0.3rem !important;
-    color: var(--noir-control-muted) !important;
-    background: rgba(255, 255, 255, 0.055) !important;
-    border-radius: 3px !important;
-    font-weight: 600 !important;
-}
-body.stash-noir-theme :is(.logs-viewer, .log-viewer, .log-pane) :is(.text-warning, .log-level-warning, .log-warning) {
-    color: #f2b84b !important;
-    font-weight: 600 !important;
-}
-body.stash-noir-theme :is(.logs-viewer, .log-viewer, .log-pane) :is(.text-info, .log-info, [class*="info"]) {
-    color: var(--noir-control-muted) !important;
+
+/* Fallback for Stash builds whose entries do not yet receive Noir classes. */
+body.stash-noir-theme :is(.logs-viewer, .log-viewer, .log-pane) > :is(div, li):has(> :nth-child(3)):not(:has(> :nth-child(4))):nth-child(even) {
+    background: var(--noir-package-row-alt) !important;
 }
 
 @media (max-width: 640px) {
@@ -962,5 +959,13 @@ body.stash-noir-theme :is(.logs-viewer, .log-viewer, .log-pane) :is(.text-info, 
     }
     body.stash-noir-theme #settings-container:has(:is(.logs-viewer, .log-viewer, .log-pane)) select {
         width: 100% !important;
+    }
+    body.stash-noir-theme .noir-theme-log-row {
+        flex-wrap: wrap !important;
+    }
+    body.stash-noir-theme .noir-theme-log-time {
+        flex-basis: 10rem !important;
+        width: 10rem !important;
+        min-width: 10rem !important;
     }
 }

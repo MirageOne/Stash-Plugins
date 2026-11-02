@@ -15310,6 +15310,49 @@
     }
     setupTaskQueuePercent(); /* initial pass; re-runs via consolidated watcher */
 
+    /* Logs page: identify real timestamp / severity / message rows by their
+       contents instead of depending on Stash's wrapper class names. Normalize
+       two-digit years (26-11-01) to four digits and mark each row for Noir's
+       layout. Idempotent, so the consolidated DOM watcher can safely rerun it. */
+    function setupNoirLogRows() {
+        var root = document.querySelector("#configuration-tabs-tabpane-logs") ||
+            document.querySelector(".logs-viewer, .log-viewer, .log-pane") ||
+            document.querySelector("#settings-container") || document.body;
+        var rows = root.querySelectorAll("div, li, tr");
+        for (var i = 0; i < rows.length; i++) {
+            var row = rows[i];
+            if (row.children.length < 2) { continue; }
+            var timestamp = row.children[0];
+            var level = row.children[1];
+            var message = row.children.length > 2 ? row.children[2] : null;
+            var stampText = (timestamp.textContent || "").trim();
+            if (!/^(?:\d{2}|\d{4})-\d{2}-\d{2}\s+\d{2}:\d{2}:\d{2}$/.test(stampText)) { continue; }
+
+            if (/^\d{2}-/.test(stampText)) {
+                var walker = document.createTreeWalker(timestamp, 4);
+                var textNode = walker.nextNode();
+                while (textNode && !(textNode.nodeValue || "").trim()) {
+                    textNode = walker.nextNode();
+                }
+                if (textNode) {
+                    textNode.nodeValue = textNode.nodeValue.replace(
+                        /^(\s*)(\d{2}-\d{2}-\d{2})(?=\s|$)/,
+                        function (_, leading, date) { return leading + "20" + date; }
+                    );
+                }
+            }
+
+            row.classList.add("noir-theme-log-row");
+            timestamp.classList.add("noir-theme-log-time");
+            level.classList.add("noir-theme-log-severity");
+            if (message) { message.classList.add("noir-theme-log-message"); }
+            var severity = (level.textContent || "").trim().toLowerCase();
+            row.classList.toggle("noir-theme-log-warning", severity === "warning" || severity === "warn");
+            row.classList.toggle("noir-theme-log-info", severity === "info");
+        }
+    }
+    setupNoirLogRows(); /* initial pass; re-runs when the log list updates */
+
     /* Task Queue per-row expand: each job row is fixed at 110px so
        the card grows with job count not subtask churn. A chevron in
        the bottom-right of rows that have subtasks toggles a
@@ -16124,6 +16167,7 @@
             try { setupTaskPluginGroups(); } catch (e) {}
             try { setupNativeTaskGroups(); } catch (e) {}
             try { setupTaskQueuePercent(); } catch (e) {}
+            try { setupNoirLogRows(); } catch (e) {}
             try { setupTaskJobChevrons(); } catch (e) {}
             try { injectNavLightToggle(); } catch (e) {}
             try { injectInterfaceLightToggleSetting(); } catch (e) {}

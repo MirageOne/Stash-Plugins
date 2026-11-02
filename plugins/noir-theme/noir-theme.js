@@ -2655,7 +2655,7 @@
                     key: preset,
                     type: "button",
                     className: "noir-theme-accent-swatch" + (preset === accent ? " is-active" : ""),
-                    style: { backgroundColor: REFRACT_SWATCH_COLORS[preset] },
+                    style: { "--noir-theme-swatch-color": REFRACT_SWATCH_COLORS[preset] },
                     title: label,
                     "aria-label": label,
                     onClick: function () { pick(preset); }
@@ -3120,7 +3120,7 @@
                     key: preset,
                     type: "button",
                     className: "noir-theme-accent-swatch" + (active ? " is-active" : ""),
-                    style: { backgroundColor: REFRACT_SWATCH_COLORS[preset] },
+                    style: { "--noir-theme-swatch-color": REFRACT_SWATCH_COLORS[preset] },
                     title: label,
                     "aria-label": label + " accent",
                     "aria-pressed": active ? "true" : "false",
@@ -5551,18 +5551,18 @@
     ];
 
     var MOBILE_NAV_ICONS = {
-        discover:   '<svg width="1em" height="1em" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="10.8" cy="10.8" r="6.8"/><path d="m16 16 5 5"/></svg>',
-        scenes:     '<svg width="1em" height="1em" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><path d="M10 8l6 4-6 4z" fill="currentColor" stroke="none"/></svg>',
-        images:     '<svg width="1em" height="1em" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="3" width="18" height="18" rx="2"/><circle cx="9" cy="9" r="1.6" fill="currentColor" stroke="none"/><path d="M21 16l-5-5-9 9"/></svg>',
-        groups:     '<svg width="1em" height="1em" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="8.5" cy="9" r="5"/><circle cx="15.5" cy="9" r="5"/><circle cx="12" cy="15.5" r="5"/></svg>',
-        galleries:  '<svg width="1em" height="1em" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="7" width="14" height="14" rx="2"/><rect x="7" y="3" width="14" height="14" rx="2" opacity="0.55"/></svg>',
-        markers:    '<svg width="1em" height="1em" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 2C8 2 5 5 5 9c0 5.5 7 13 7 13s7-7.5 7-13c0-4-3-7-7-7z"/><circle cx="12" cy="9" r="2.5" fill="currentColor" stroke="none"/></svg>',
-        performers: '<svg width="1em" height="1em" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="8" r="4"/><path d="M4 21c0-4 4-6 8-6s8 2 8 6"/></svg>',
-        studios:    '<svg width="1em" height="1em" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="6" cy="6" r="3"/><circle cx="13" cy="6" r="3"/><rect x="2.5" y="9.5" width="15" height="9" rx="1.5"/><path d="M17.5 12.5L21.5 11L21.5 17L17.5 15.5Z"/></svg>',
-        tags:       '<svg width="1em" height="1em" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M20.6 13.4l-7.2 7.2a2 2 0 01-2.8 0L3 13V3h10l7.6 7.6a2 2 0 010 2.8z"/><circle cx="7.5" cy="7.5" r="1.5" fill="currentColor" stroke="none"/></svg>',
-        stats:      '<svg width="1em" height="1em" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M4 20V10M10 20V4M16 20v-7M22 20H2"/></svg>',
-        settings:   '<svg width="1em" height="1em" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="3"/><path d="M19.4 15a1.65 1.65 0 00.33 1.82l.06.06a2 2 0 01-2.83 2.83l-.06-.06a1.65 1.65 0 00-1.82-.33 1.65 1.65 0 00-1 1.51V21a2 2 0 01-4 0v-.09A1.65 1.65 0 009 19.4a1.65 1.65 0 00-1.82.33l-.06.06a2 2 0 01-2.83-2.83l.06-.06a1.65 1.65 0 00.33-1.82 1.65 1.65 0 00-1.51-1H3a2 2 0 010-4h.09A1.65 1.65 0 004.6 9a1.65 1.65 0 00-.33-1.82l-.06-.06a2 2 0 012.83-2.83l.06.06a1.65 1.65 0 001.82.33H9a1.65 1.65 0 001-1.51V3a2 2 0 014 0v.09a1.65 1.65 0 001 1.51 1.65 1.65 0 001.82-.33l.06-.06a2 2 0 012.83 2.83l-.06.06a1.65 1.65 0 00-.33 1.82V9a1.65 1.65 0 001.51 1H21a2 2 0 010 4h-.09a1.65 1.65 0 00-1.51 1z"/></svg>',
-        library:    '<svg width="1em" height="1em" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="4" width="7" height="16" rx="1.5"/><rect x="14" y="4" width="7" height="16" rx="1.5"/><path d="M6 8h1M17 8h1M6 12h1M17 12h1"/></svg>'
+        discover:   '<svg width="1em" height="1em" viewBox="0 0 24 24" fill="currentColor" aria-hidden="true"><path fill-rule="evenodd" d="M10.5 2a8.5 8.5 0 1 0 5.35 15.11l4.03 4.03a1.5 1.5 0 0 0 2.12-2.12l-4.03-4.03A8.5 8.5 0 0 0 10.5 2Zm0 3a5.5 5.5 0 1 1 0 11 5.5 5.5 0 0 1 0-11Z"/></svg>',
+        scenes:     '<svg width="1em" height="1em" viewBox="0 0 24 24" fill="currentColor" aria-hidden="true"><path d="M6 3.8c0-1.1 1.2-1.7 2.1-1.1l13 7.8a1.7 1.7 0 0 1 0 2.9l-13 7.8A1.4 1.4 0 0 1 6 20V3.8Z"/></svg>',
+        images:     '<svg width="1em" height="1em" viewBox="0 0 24 24" fill="currentColor" aria-hidden="true"><path fill-rule="evenodd" d="M3 3h18v18H3V3Zm2 2v14h14V5H5Z"/><circle cx="9" cy="9" r="1.7"/><path d="m5 17 4.4-4.7a1 1 0 0 1 1.45 0l2.15 2.3 1.45-1.55a1 1 0 0 1 1.45 0L19 17v2H5v-2Z"/></svg>',
+        groups:     '<svg width="1em" height="1em" viewBox="0 0 24 24" fill="currentColor" aria-hidden="true"><circle cx="9" cy="7" r="4"/><circle cx="17" cy="8" r="3.3"/><path d="M1.5 20c0-4 3.1-6.7 7.5-6.7 3.5 0 6.2 1.7 7.1 4.6V21h-14.6v-1Zm13.9-5.1c.6-.2 1.3-.3 2-.3 3.4 0 5.5 2.1 5.5 5.2V21h-3.6v-1c0-2.1-1.4-4-3.9-5.1Z"/></svg>',
+        galleries:  '<svg width="1em" height="1em" viewBox="0 0 24 24" fill="currentColor" aria-hidden="true"><path d="M7 2h13a2 2 0 0 1 2 2v13h-2V4H7V2Z"/><path fill-rule="evenodd" d="M4 6h13a2 2 0 0 1 2 2v12a2 2 0 0 1-2 2H4a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2Zm0 2v12h13V8H4Z"/><path d="m4 17 3.3-3.7a1 1 0 0 1 1.5 0l1.4 1.6 1.1-1.2a1 1 0 0 1 1.5 0L17 17v2H4v-2Z"/></svg>',
+        markers:    '<svg width="1em" height="1em" viewBox="0 0 24 24" fill="currentColor" aria-hidden="true"><path fill-rule="evenodd" d="M12 22s8-7.4 8-14a8 8 0 1 0-16 0c0 6.6 8 14 8 14Zm0-9a4 4 0 1 0 0-8 4 4 0 0 0 0 8Z"/></svg>',
+        performers: '<svg width="1em" height="1em" viewBox="0 0 24 24" fill="currentColor" aria-hidden="true"><circle cx="12" cy="7.2" r="5"/><path d="M2 22v-1.2c0-5 4.1-8 10-8s10 3 10 8V22H2Z"/></svg>',
+        studios:    '<svg width="1em" height="1em" viewBox="0 0 24 24" fill="currentColor" aria-hidden="true"><path fill-rule="evenodd" d="M3 21V5l9-3 9 3v16h-7v-6h-4v6H3Zm3-2h2v-2H6v2Zm0-5h2v-2H6v2Zm0-5h2V7H6v2Zm10 10h2v-2h-2v2Zm0-5h2v-2h-2v2Zm0-5h2V7h-2v2Z"/></svg>',
+        tags:       '<svg width="1em" height="1em" viewBox="0 0 24 24" fill="currentColor" aria-hidden="true"><path fill-rule="evenodd" d="M3 3h9.2a2 2 0 0 1 1.4.6l7.8 7.8a2 2 0 0 1 0 2.8l-6.6 6.6a2 2 0 0 1-2.8 0l-8.4-8.4A2 2 0 0 1 3 11V3Zm3 3v4.6l7.4 7.4 5.6-5.6L11.8 6H6Z"/><circle cx="8.2" cy="8.2" r="1.3"/></svg>',
+        stats:      '<svg width="1em" height="1em" viewBox="0 0 24 24" fill="currentColor" aria-hidden="true"><path d="M3 12h4v9H3v-9Zm7-8h4v17h-4V4Zm7 5h4v12h-4V9ZM2 21h20v2H2v-2Z"/></svg>',
+        settings:   '<svg width="1em" height="1em" viewBox="0 0 24 24" fill="currentColor" aria-hidden="true"><path fill-rule="evenodd" d="M19.4 13.3a7.5 7.5 0 0 0 0-2.6l2-1.5-2-3.5-2.3 1a7.7 7.7 0 0 0-2.2-1.3L14.5 3h-5l-.4 2.4a7.7 7.7 0 0 0-2.2 1.3l-2.3-1-2 3.5 2 1.5a7.5 7.5 0 0 0 0 2.6l-2 1.5 2 3.5 2.3-1a7.7 7.7 0 0 0 2.2 1.3l.4 2.4h5l.4-2.4a7.7 7.7 0 0 0 2.2-1.3l2.3 1 2-3.5-2-1.5ZM12 15.5a3.5 3.5 0 1 1 0-7 3.5 3.5 0 0 1 0 7Z"/></svg>',
+        library:    '<svg width="1em" height="1em" viewBox="0 0 24 24" fill="currentColor" aria-hidden="true"><path d="M3 3h4v18H3V3Zm7 0h4v18h-4V3Zm7 0h4v18h-4V3ZM2 21h20v2H2v-2Z"/></svg>'
     };
 
     /* Mobile bottom dock — iOS-style fixed pill bar with the essential

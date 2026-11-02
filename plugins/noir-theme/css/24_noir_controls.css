@@ -1090,6 +1090,21 @@ body.stash-noir-theme #noir-theme-settings-section .noir-theme-settings-group .s
     line-height: 1.5 !important;
 }
 
+/* Accent swatches carry their palette through a custom property so the
+   important button reset cannot paint over the actual color. */
+body.stash-noir-theme .noir-theme-accent-swatch:not(.noir-theme-light-toggle) {
+    background-color: var(--noir-theme-swatch-color) !important;
+    background-image: none !important;
+    border-radius: 3px !important;
+    box-shadow: none !important;
+    transform: none !important;
+}
+
+body.stash-noir-theme .noir-theme-accent-swatch:not(.noir-theme-light-toggle).is-active {
+    border: 2px solid var(--noir-settings-selected-text, #fff) !important;
+    box-shadow: inset 0 0 0 1px var(--noir-settings-surface, #17191e) !important;
+}
+
 body.stash-noir-theme #noir-theme-settings-section :is(input:not([type="checkbox"]):not([type="radio"]), select, textarea, .form-control) {
     color: var(--noir-settings-text) !important;
     color-scheme: dark;
@@ -1340,28 +1355,30 @@ body.stash-noir-theme #noir-theme-settings-section .noir-theme-dock-grid-item {
     width: 2.65rem !important;
     height: 2.65rem !important;
     color: var(--noir-settings-muted) !important;
-    background: var(--noir-settings-control) !important;
-    border: 1px solid var(--noir-settings-control-border) !important;
+    background: transparent !important;
+    border: 1px solid transparent !important;
     border-radius: 3px !important;
     box-shadow: none !important;
     transform: none !important;
 }
 
 body.stash-noir-theme #noir-theme-settings-section .noir-theme-dock-grid-item svg {
+    display: block !important;
     width: 1.35rem !important;
     height: 1.35rem !important;
+    overflow: visible !important;
 }
 
 body.stash-noir-theme #noir-theme-settings-section .noir-theme-dock-grid-item:hover {
     color: var(--noir-settings-selected-text) !important;
     background: var(--noir-settings-hover) !important;
-    border-color: var(--noir-settings-hover-border) !important;
+    border-color: transparent !important;
 }
 
 body.stash-noir-theme #noir-theme-settings-section .noir-theme-dock-grid-item.is-active {
-    color: var(--noir-settings-selected-text) !important;
-    background: var(--noir-settings-selected) !important;
-    border-color: var(--noir-settings-selected-border) !important;
+    color: var(--accent-bright) !important;
+    background: rgba(var(--accent-rgb), 0.12) !important;
+    border-color: transparent !important;
     box-shadow: none !important;
 }
 

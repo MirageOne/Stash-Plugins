@@ -688,60 +688,50 @@ body.stash-noir-theme.noir-theme-light .favorite-button.favorite {
 
 
 /* ═══════ 26. Custom switch (Bootstrap custom-switch + form-switch) ═
-   Dark-mode switches use a white-on-dark gradient track + heavy drop
-   shadow that goes invisible on white pages. Re-paint with a soft
-   neutral track, dark knob shadow, and tighter accent halo so the
-   switch reads cleanly on white without the bloom that dominates the
-   dark-mode look. */
+   Keep light-mode switches consistent with Noir's flat square controls. */
 
-/* OFF state — neutral grey track, white knob with crisp shadow */
+/* OFF state — neutral grey track with a squared white thumb. */
 body.stash-noir-theme.noir-theme-light .custom-switch .custom-control-label::before {
-    background: linear-gradient(180deg, rgba(0, 0, 0, 0.06) 0%, rgba(0, 0, 0, 0.10) 100%) !important;
+    background: #e9e8ed !important;
+    background-image: none !important;
     border: 1px solid rgba(0, 0, 0, 0.14) !important;
-    box-shadow:
-        inset 0 1px 2px rgba(0, 0, 0, 0.08),
-        0 1px 2px rgba(0, 0, 0, 0.04) !important;
+    border-radius: 4px !important;
+    box-shadow: none !important;
 }
 body.stash-noir-theme.noir-theme-light .custom-switch .custom-control-label::after {
-    background: linear-gradient(180deg, #ffffff 0%, #f3f4f6 100%) !important;
-    box-shadow:
-        0 1px 3px rgba(0, 0, 0, 0.20),
-        0 1px 1px rgba(0, 0, 0, 0.08),
-        0 0 0 1px rgba(0, 0, 0, 0.06) inset !important;
+    background: #fff !important;
+    border-radius: 3px !important;
+    box-shadow: none !important;
 }
 
-/* ON state — accent-tinted track, accent knob, much tighter halo */
+/* ON state — solid accent track and white thumb. */
 body.stash-noir-theme.noir-theme-light .custom-switch .custom-control-input:checked ~ .custom-control-label::before {
-    background: linear-gradient(180deg, rgba(var(--accent-rgb), 0.16) 0%, rgba(var(--accent-rgb), 0.24) 100%) !important;
-    border-color: rgba(var(--accent-rgb), 0.40) !important;
-    box-shadow:
-        inset 0 1px 2px rgba(var(--accent-rgb), 0.10),
-        0 0 0 3px rgba(var(--accent-rgb), 0.10) !important;
+    background: var(--accent) !important;
+    border-color: var(--accent) !important;
+    box-shadow: none !important;
 }
 body.stash-noir-theme.noir-theme-light .custom-switch .custom-control-input:checked ~ .custom-control-label::after {
-    background: linear-gradient(180deg, var(--accent-bright) 0%, var(--accent) 100%) !important;
-    box-shadow:
-        0 1px 4px rgba(0, 0, 0, 0.22),
-        0 0 0 1px rgba(255, 255, 255, 0.35) inset !important;
+    background: #fff !important;
+    box-shadow: none !important;
 }
 
-/* Same treatment for Bootstrap 5 .form-switch (different markup —
-   single .form-check-input with radial-gradient knob). */
+/* Same squared treatment for Bootstrap 5 .form-switch. */
 body.stash-noir-theme.noir-theme-light .form-switch .form-check-input {
     background-color: rgba(0, 0, 0, 0.06) !important;
     border: 1px solid rgba(0, 0, 0, 0.14) !important;
-    background-image: radial-gradient(circle at 0.72rem 50%, #ffffff 0 0.56rem, transparent 0.57rem) !important;
-    box-shadow:
-        inset 0 1px 2px rgba(0, 0, 0, 0.08),
-        0 1px 2px rgba(0, 0, 0, 0.04) !important;
+    border-radius: 4px !important;
+    background-image: linear-gradient(#fff, #fff) !important;
+    background-position: left 0.22rem center !important;
+    background-size: 1rem 1rem !important;
+    background-repeat: no-repeat !important;
+    box-shadow: none !important;
 }
 body.stash-noir-theme.noir-theme-light .form-switch .form-check-input:checked {
-    background-color: rgba(var(--accent-rgb), 0.20) !important;
-    border-color: rgba(var(--accent-rgb), 0.40) !important;
-    background-image: radial-gradient(circle at calc(100% - 0.72rem) 50%, var(--accent) 0 0.56rem, transparent 0.57rem) !important;
-    box-shadow:
-        inset 0 1px 2px rgba(var(--accent-rgb), 0.10),
-        0 0 0 3px rgba(var(--accent-rgb), 0.10) !important;
+    background-color: var(--accent) !important;
+    border-color: var(--accent) !important;
+    background-image: linear-gradient(#fff, #fff) !important;
+    background-position: right 0.22rem center !important;
+    box-shadow: none !important;
 }
 
 /* ═══════════════════════════════════════════════════════════════════════

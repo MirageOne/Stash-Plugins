@@ -501,18 +501,19 @@ body.stash-noir-theme :is(.btn.disabled, .page-link.disabled, #noir-control-spec
     box-shadow: none !important;
 }
 
-/* Replace the theme's original liquid-glass custom switch with a solid track
-   and plain thumb everywhere, while preserving each component's dimensions. */
+/* Use the same square Noir track and thumb for every Stash switch control. */
 body.stash-noir-theme .custom-switch :is(.custom-control-label, #noir-control-specificity#noir-control-specificity#noir-control-specificity)::before {
     background: var(--noir-control-track) !important;
     background-image: none !important;
     border: 1px solid var(--noir-control-border) !important;
+    border-radius: 4px !important;
     box-shadow: none !important;
     transition: background-color 130ms ease, border-color 130ms ease !important;
 }
 body.stash-noir-theme .custom-switch :is(.custom-control-label, #noir-control-specificity#noir-control-specificity#noir-control-specificity)::after {
     background: var(--noir-control-thumb) !important;
     background-image: none !important;
+    border-radius: 3px !important;
     box-shadow: none !important;
     transition: transform 130ms ease, background-color 130ms ease !important;
 }
@@ -525,24 +526,32 @@ body.stash-noir-theme .custom-switch .custom-control-input:checked ~ :is(.custom
     background: #fff !important;
     box-shadow: none !important;
 }
+body.stash-noir-theme .setting-section .setting-group:has(.st-toggle-injected) .st-toggle-injected .custom-switch .custom-control-input:checked ~ :is(.custom-control-label, #noir-control-specificity#noir-control-specificity#noir-control-specificity)::after {
+    transform: translateY(-50%) translateX(1.12rem) !important;
+}
 body.stash-noir-theme .custom-switch .custom-control-input:focus-visible ~ :is(.custom-control-label, #noir-control-specificity#noir-control-specificity#noir-control-specificity)::before {
     outline: 2px solid var(--noir-control-focus) !important;
     outline-offset: 2px !important;
     box-shadow: none !important;
 }
 
-/* Bootstrap's alternate switch markup uses a radial shape for its thumb;
-   keep the shape but make both the track and thumb flat and unlit. */
+/* Bootstrap's alternate switch markup draws its thumb as a background image;
+   use a small square image and square off the track in both states. */
 body.stash-noir-theme .form-switch :is(.form-check-input, #noir-control-specificity#noir-control-specificity#noir-control-specificity) {
     background-color: var(--noir-control-track) !important;
-    background-image: radial-gradient(circle at 0.72rem 50%, var(--noir-control-thumb) 0 0.56rem, transparent 0.57rem) !important;
+    background-image: linear-gradient(var(--noir-control-thumb), var(--noir-control-thumb)) !important;
+    background-position: left 0.22rem center !important;
+    background-size: 1rem 1rem !important;
+    background-repeat: no-repeat !important;
     border: 1px solid var(--noir-control-border) !important;
+    border-radius: 4px !important;
     box-shadow: none !important;
     transition: background-color 130ms ease, border-color 130ms ease, background-position 130ms ease !important;
 }
 body.stash-noir-theme .form-switch :is(.form-check-input, #noir-control-specificity#noir-control-specificity#noir-control-specificity):checked {
     background-color: var(--accent) !important;
-    background-image: radial-gradient(circle at calc(100% - 0.72rem) 50%, #fff 0 0.56rem, transparent 0.57rem) !important;
+    background-image: linear-gradient(#fff, #fff) !important;
+    background-position: right 0.22rem center !important;
     border-color: var(--accent) !important;
     box-shadow: none !important;
 }

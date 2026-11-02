@@ -2336,7 +2336,7 @@ body.stash-noir-theme .form-check input[type="checkbox"]:not(.form-switch input)
     box-shadow: 0 0 8px rgba(var(--accent-rgb), 0.45) !important;
 }
 
-/* Liquid-glass toggles — larger, more tactile (Bootstrap custom-switch + form-switch). */
+/* Noir settings switches — flat tracks and squared thumbs. */
 body.stash-noir-theme .custom-switch,
 body.stash-noir-theme .form-switch {
     min-height: 2.45rem;
@@ -2351,13 +2351,10 @@ body.stash-noir-theme .custom-switch .custom-control-label::before {
     left: -3.35rem !important;
     width: 2.95rem !important;
     height: 1.72rem !important;
-    border-radius: 999px !important;
-    background: linear-gradient(180deg, rgba(255, 255, 255, 0.14) 0%, rgba(255, 255, 255, 0.05) 100%) !important;
-    border: 1px solid var(--glass-border) !important;
-    box-shadow:
-        inset 0 1px 0 rgba(255, 255, 255, 0.22),
-        inset 0 -1px 0 rgba(0, 0, 0, 0.28),
-        0 6px 18px rgba(0, 0, 0, 0.28) !important;
+    border-radius: 4px !important;
+    background: var(--noir-control-track) !important;
+    border: 1px solid var(--noir-control-border) !important;
+    box-shadow: none !important;
 }
 
 body.stash-noir-theme .custom-switch .custom-control-label::after {
@@ -2365,60 +2362,48 @@ body.stash-noir-theme .custom-switch .custom-control-label::after {
     left: calc(-3.35rem + 3px) !important;
     width: 1.22rem !important;
     height: 1.22rem !important;
-    border-radius: 50% !important;
-    background: linear-gradient(180deg, rgba(255, 255, 255, 0.95) 0%, rgba(220, 224, 232, 0.82) 100%) !important;
-    box-shadow:
-        0 2px 6px rgba(0, 0, 0, 0.38),
-        0 0 0 1px rgba(255, 255, 255, 0.4) inset !important;
+    border-radius: 3px !important;
+    background: var(--noir-control-thumb) !important;
+    box-shadow: none !important;
     transform: none !important;
     transition: transform 0.22s ease, background 0.22s ease, box-shadow 0.22s ease !important;
 }
 
 body.stash-noir-theme .custom-switch .custom-control-input:checked ~ .custom-control-label::before {
-    background: linear-gradient(180deg, rgba(255, 255, 255, 0.22) 0%, rgba(255, 255, 255, 0.10) 100%) !important;
-    border-color: rgba(255, 255, 255, 0.32) !important;
-    box-shadow:
-        inset 0 1px 0 rgba(255, 255, 255, 0.18),
-        0 0 18px rgba(var(--accent-rgb), 0.42),
-        0 0 0 1px rgba(var(--accent-rgb), 0.22) !important;
+    background: var(--accent) !important;
+    border-color: var(--accent) !important;
+    box-shadow: none !important;
 }
 body.stash-noir-theme .custom-switch .custom-control-input:checked ~ .custom-control-label::after {
-    transform: translateX(1.18rem) !important;
-    background: linear-gradient(180deg, var(--accent-bright) 0%, var(--accent) 100%) !important;
-    box-shadow:
-        0 2px 8px rgba(0, 0, 0, 0.35),
-        0 0 14px rgba(var(--accent-rgb), 0.5),
-        0 0 0 1px rgba(255, 255, 255, 0.35) inset !important;
+    transform: translateX(1.53rem) !important;
+    background: #fff !important;
+    box-shadow: none !important;
 }
 
 body.stash-noir-theme .form-switch .form-check-input {
     width: 3.05rem !important;
     height: 1.78rem !important;
     margin-top: 0.08rem;
-    border-radius: 999px !important;
-    border: 1px solid var(--glass-border) !important;
-    background-color: rgba(255, 255, 255, 0.07) !important;
-    background-image: radial-gradient(circle at 0.72rem 50%, rgba(240, 242, 248, 0.96) 0 0.56rem, transparent 0.57rem) !important;
-    box-shadow:
-        inset 0 1px 0 rgba(255, 255, 255, 0.2),
-        inset 0 -1px 0 rgba(0, 0, 0, 0.22),
-        0 6px 18px rgba(0, 0, 0, 0.26) !important;
-    transition: background-color 0.22s ease, border-color 0.22s ease, box-shadow 0.22s ease, background-position 0.22s ease !important;
+    border-radius: 4px !important;
+    border: 1px solid var(--noir-control-border) !important;
+    background-color: var(--noir-control-track) !important;
+    background-image: linear-gradient(var(--noir-control-thumb), var(--noir-control-thumb)) !important;
+    background-position: left 0.22rem center !important;
+    background-size: 1rem 1rem !important;
+    background-repeat: no-repeat !important;
+    box-shadow: none !important;
+    transition: background-color 130ms ease, border-color 130ms ease, background-position 130ms ease !important;
 }
 body.stash-noir-theme .form-switch .form-check-input:focus {
     border-color: rgba(var(--accent-rgb), 0.45) !important;
-    box-shadow:
-        0 0 0 3px rgba(var(--accent-rgb), 0.14),
-        inset 0 1px 0 rgba(255, 255, 255, 0.2) !important;
+    box-shadow: none !important;
 }
 body.stash-noir-theme .form-switch .form-check-input:checked {
-    border-color: rgba(var(--accent-rgb), 0.55) !important;
-    background-color: rgba(var(--accent-rgb), 0.26) !important;
-    background-image: radial-gradient(circle at calc(100% - 0.72rem) 50%, #ffd1ad 0 0.56rem, transparent 0.57rem) !important;
-    box-shadow:
-        inset 0 1px 0 rgba(255, 220, 190, 0.28),
-        0 0 18px rgba(var(--accent-rgb), 0.4),
-        0 0 0 1px rgba(var(--accent-rgb), 0.2) !important;
+    border-color: var(--accent) !important;
+    background-color: var(--accent) !important;
+    background-image: linear-gradient(#fff, #fff) !important;
+    background-position: right 0.22rem center !important;
+    box-shadow: none !important;
 }
 
 body.stash-noir-theme .btn.btn-secondary,

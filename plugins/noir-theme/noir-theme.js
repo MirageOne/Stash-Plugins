@@ -56,6 +56,16 @@
 
     var REFRACT_PRESETS = ["blue", "teal", "green", "yellow", "orange", "red", "pink", "purple"];
     var REFRACT_PRESETS_ALL = ["blue", "teal", "green", "yellow", "orange", "red", "pink", "purple"];
+    var REFRACT_SWATCH_COLORS = {
+        blue: "#0078d4",
+        teal: "#038387",
+        green: "#107c10",
+        yellow: "#f2c811",
+        orange: "#d83b01",
+        red: "#d13438",
+        pink: "#e3008c",
+        purple: "#8b5cf6"
+    };
     var ACCENT_STORAGE_KEY = "noir-theme.accent";
     var SIDEBAR_COLLAPSED_KEY = "noir-theme.sidebarCollapsed";
     var SIDEBAR_HIDDEN_ITEMS_KEY = "noir-theme.sidebarHiddenItems";
@@ -2647,7 +2657,17 @@
                     title: label,
                     "aria-label": label,
                     onClick: function () { pick(preset); }
-                });
+                }, R.createElement("span", {
+                    "aria-hidden": true,
+                    style: {
+                        display: "block",
+                        width: "100%",
+                        height: "100%",
+                        backgroundColor: REFRACT_SWATCH_COLORS[preset],
+                        borderRadius: "1px",
+                        pointerEvents: "none"
+                    }
+                }));
             });
             /* Light/dark mode toggle — sun (light on) / moon (light off)
                glyph sitting alongside the accent swatches. Sun-gradient
@@ -3117,7 +3137,17 @@
                         scheduleServerSync();
                         setSelected(preset);
                     }
-                });
+                }, R.createElement("span", {
+                    "aria-hidden": true,
+                    style: {
+                        display: "block",
+                        width: "100%",
+                        height: "100%",
+                        backgroundColor: REFRACT_SWATCH_COLORS[preset],
+                        borderRadius: "1px",
+                        pointerEvents: "none"
+                    }
+                }));
             });
 
             return R.createElement("div", { className: "plugin-settings noir-theme-plugin-settings" },

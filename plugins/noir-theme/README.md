@@ -12,6 +12,6 @@ Scrolling uses reduced blur and cards no longer lift or animate large shadows as
 
 The quick accent picker is in **Settings → Plugins → Noir**. Full theme settings are also available in **Settings → Interface → Noir**, including sidebar collapse, sidebar destinations, mobile dock items, and existing card and player options. The theme starts in dark mode; optional light and Lite modes remain available.
 
-Install from the repository source in the root README or [download the 1.1.20 manual archive](../../packages/noir-theme/1.1.20-manual.zip) and extract the `noir-theme/` directory into Stash’s configured plugins directory. Enable Noir after installation. Disable other full-app themes while using it so their global styles do not conflict.
+Install from the repository source in the root README or [download the 1.1.21 manual archive](../../packages/noir-theme/1.1.21-manual.zip) and extract the `noir-theme/` directory into Stash’s configured plugins directory. Enable Noir after installation. Disable other full-app themes while using it so their global styles do not conflict.
 
 Noir is distributed under [AGPL-3.0](./LICENSE). The upstream license is included with this derivative.

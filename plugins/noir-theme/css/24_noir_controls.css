@@ -692,6 +692,82 @@ body.stash-noir-theme :is(.package-manager-table-container, #noir-control-specif
     background: var(--noir-package-row-alt) !important;
 }
 
+/* Settings action buttons share one low-emphasis charcoal treatment across
+   every tab. Semantic variants use only a quiet text/border cue; selection and
+   keyboard focus carry the violet accent. Keep Troubleshooting's real mode
+   state and existing icon-only controls on their dedicated rules above. */
+body.stash-noir-theme :is(#settings-container, .settings-container, .settings, [id^="configuration-tabs-tabpane-"], #settings-menu-container, #stash-table, #setting-dialog, .package-manager, #noir-control-specificity#noir-control-specificity#noir-control-specificity) :is(button, .btn, a.btn, [role="button"], #noir-control-specificity#noir-control-specificity#noir-control-specificity):not(.btn-close):not(.btn-link):not(.minimal):not(.st-plugin-chevron):not(.st-plugin-reload-btn):not(.troubleshooting-mode-button .btn):not(.source-collapse .btn) {
+    appearance: none !important;
+    -webkit-appearance: none !important;
+    color: var(--noir-control-muted) !important;
+    background: var(--noir-control-surface) !important;
+    background-image: none !important;
+    border: 1px solid var(--noir-control-border) !important;
+    border-radius: 4px !important;
+    box-shadow: none !important;
+    text-shadow: none !important;
+    filter: none !important;
+    -webkit-backdrop-filter: none !important;
+    backdrop-filter: none !important;
+    transform: none !important;
+    transition: color 130ms ease, background-color 130ms ease, border-color 130ms ease, outline-color 130ms ease !important;
+}
+body.stash-noir-theme :is(#settings-container, .settings-container, .settings, [id^="configuration-tabs-tabpane-"], #settings-menu-container, #stash-table, #setting-dialog, .package-manager, #noir-control-specificity#noir-control-specificity#noir-control-specificity) :is(button, .btn, a.btn, [role="button"], #noir-control-specificity#noir-control-specificity#noir-control-specificity):not(.btn-close):not(.btn-link):not(.minimal):not(.st-plugin-chevron):not(.st-plugin-reload-btn):not(.troubleshooting-mode-button .btn):not(.source-collapse .btn):hover:not(:disabled) {
+    color: var(--text) !important;
+    background: var(--noir-control-surface-hover) !important;
+    background-image: none !important;
+    border-color: rgba(255, 255, 255, 0.22) !important;
+    box-shadow: none !important;
+}
+body.stash-noir-theme :is(#settings-container, .settings-container, .settings, [id^="configuration-tabs-tabpane-"], #settings-menu-container, #stash-table, #setting-dialog, .package-manager, #noir-control-specificity#noir-control-specificity#noir-control-specificity) :is(button, .btn, a.btn, [role="button"], #noir-control-specificity#noir-control-specificity#noir-control-specificity):not(.btn-close):not(.btn-link):not(.minimal):not(.st-plugin-chevron):not(.st-plugin-reload-btn):not(.troubleshooting-mode-button .btn):not(.source-collapse .btn):is(.active, [aria-pressed="true"]) {
+    color: var(--accent-bright) !important;
+    background: rgba(var(--accent-rgb), 0.12) !important;
+    background-image: none !important;
+    border-color: rgba(var(--accent-rgb), 0.4) !important;
+    box-shadow: none !important;
+}
+body.stash-noir-theme :is(#settings-container, .settings-container, .settings, [id^="configuration-tabs-tabpane-"], #settings-menu-container, #stash-table, #setting-dialog, .package-manager, #noir-control-specificity#noir-control-specificity#noir-control-specificity) :is(button, .btn, a.btn, [role="button"], #noir-control-specificity#noir-control-specificity#noir-control-specificity):not(.btn-close):not(.btn-link):not(.minimal):not(.st-plugin-chevron):not(.st-plugin-reload-btn):not(.troubleshooting-mode-button .btn):not(.source-collapse .btn).btn-primary {
+    color: var(--accent-bright) !important;
+    border-color: rgba(var(--accent-rgb), 0.38) !important;
+}
+body.stash-noir-theme :is(#settings-container, .settings-container, .settings, [id^="configuration-tabs-tabpane-"], #settings-menu-container, #stash-table, #setting-dialog, .package-manager, #noir-control-specificity#noir-control-specificity#noir-control-specificity) :is(button, .btn, a.btn, [role="button"], #noir-control-specificity#noir-control-specificity#noir-control-specificity):not(.btn-close):not(.btn-link):not(.minimal):not(.st-plugin-chevron):not(.st-plugin-reload-btn):not(.troubleshooting-mode-button .btn):not(.source-collapse .btn).btn-primary:hover:not(:disabled) {
+    color: #fff !important;
+    border-color: rgba(var(--accent-rgb), 0.55) !important;
+}
+body.stash-noir-theme :is(#settings-container, .settings-container, .settings, [id^="configuration-tabs-tabpane-"], #settings-menu-container, #stash-table, #setting-dialog, .package-manager, #noir-control-specificity#noir-control-specificity#noir-control-specificity) :is(button, .btn, a.btn, [role="button"], #noir-control-specificity#noir-control-specificity#noir-control-specificity):not(.btn-close):not(.btn-link):not(.minimal):not(.st-plugin-chevron):not(.st-plugin-reload-btn):not(.troubleshooting-mode-button .btn):not(.source-collapse .btn).btn-danger {
+    color: #dda0a8 !important;
+    border-color: rgba(181, 82, 96, 0.42) !important;
+}
+body.stash-noir-theme :is(#settings-container, .settings-container, .settings, [id^="configuration-tabs-tabpane-"], #settings-menu-container, #stash-table, #setting-dialog, .package-manager, #noir-control-specificity#noir-control-specificity#noir-control-specificity) :is(button, .btn, a.btn, [role="button"], #noir-control-specificity#noir-control-specificity#noir-control-specificity):not(.btn-close):not(.btn-link):not(.minimal):not(.st-plugin-chevron):not(.st-plugin-reload-btn):not(.troubleshooting-mode-button .btn):not(.source-collapse .btn).btn-danger:hover:not(:disabled) {
+    color: #f0b1b8 !important;
+    border-color: rgba(210, 105, 120, 0.62) !important;
+}
+body.stash-noir-theme :is(#settings-container, .settings-container, .settings, [id^="configuration-tabs-tabpane-"], #settings-menu-container, #stash-table, #setting-dialog, .package-manager, #noir-control-specificity#noir-control-specificity#noir-control-specificity) :is(button, .btn, a.btn, [role="button"], #noir-control-specificity#noir-control-specificity#noir-control-specificity):not(.btn-close):not(.btn-link):not(.minimal):not(.st-plugin-chevron):not(.st-plugin-reload-btn):not(.troubleshooting-mode-button .btn):not(.source-collapse .btn).btn-success {
+    color: var(--noir-control-success-text) !important;
+    border-color: var(--noir-control-success-border) !important;
+}
+body.stash-noir-theme :is(#settings-container, .settings-container, .settings, [id^="configuration-tabs-tabpane-"], #settings-menu-container, #stash-table, #setting-dialog, .package-manager, #noir-control-specificity#noir-control-specificity#noir-control-specificity) :is(button, .btn, a.btn, [role="button"], #noir-control-specificity#noir-control-specificity#noir-control-specificity):not(.btn-close):not(.btn-link):not(.minimal):not(.st-plugin-chevron):not(.st-plugin-reload-btn):not(.troubleshooting-mode-button .btn):not(.source-collapse .btn).btn-info {
+    color: var(--noir-control-info-text) !important;
+    border-color: var(--noir-control-info-border) !important;
+}
+body.stash-noir-theme :is(#settings-container, .settings-container, .settings, [id^="configuration-tabs-tabpane-"], #settings-menu-container, #stash-table, #setting-dialog, .package-manager, #noir-control-specificity#noir-control-specificity#noir-control-specificity) :is(button, .btn, a.btn, [role="button"], #noir-control-specificity#noir-control-specificity#noir-control-specificity):not(.btn-close):not(.btn-link):not(.minimal):not(.st-plugin-chevron):not(.st-plugin-reload-btn):not(.troubleshooting-mode-button .btn):not(.source-collapse .btn).btn-warning {
+    color: var(--noir-control-warning-text) !important;
+    border-color: var(--noir-control-warning-border) !important;
+}
+body.stash-noir-theme :is(#settings-container, .settings-container, .settings, [id^="configuration-tabs-tabpane-"], #settings-menu-container, #stash-table, #setting-dialog, .package-manager, #noir-control-specificity#noir-control-specificity#noir-control-specificity) :is(button, .btn, a.btn, [role="button"], #noir-control-specificity#noir-control-specificity#noir-control-specificity):not(.btn-close):not(.btn-link):not(.minimal):not(.st-plugin-chevron):not(.st-plugin-reload-btn):not(.troubleshooting-mode-button .btn):not(.source-collapse .btn):focus-visible {
+    outline: 2px solid var(--noir-control-focus) !important;
+    outline-offset: 2px !important;
+    box-shadow: none !important;
+}
+body.stash-noir-theme :is(#settings-container, .settings-container, .settings, [id^="configuration-tabs-tabpane-"], #settings-menu-container, #stash-table, #setting-dialog, .package-manager, #noir-control-specificity#noir-control-specificity#noir-control-specificity) :is(button, .btn, a.btn, [role="button"], #noir-control-specificity#noir-control-specificity#noir-control-specificity):not(.btn-close):not(.btn-link):not(.minimal):not(.st-plugin-chevron):not(.st-plugin-reload-btn):not(.troubleshooting-mode-button .btn):not(.source-collapse .btn):disabled {
+    color: var(--text-muted) !important;
+    background: var(--noir-control-surface) !important;
+    border-color: var(--noir-control-border) !important;
+    opacity: 0.5 !important;
+    cursor: not-allowed !important;
+    box-shadow: none !important;
+}
+
 @media (prefers-reduced-motion: reduce) {
     body.stash-noir-theme :is(button, .btn, a.btn, [role="button"], .page-link, .custom-switch *, .form-switch *, #noir-control-specificity#noir-control-specificity#noir-control-specificity) {
         transition: none !important;

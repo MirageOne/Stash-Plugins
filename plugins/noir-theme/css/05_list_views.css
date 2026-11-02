@@ -563,55 +563,57 @@ body.stash-noir-theme .nav.nav-pills.flex-column hr {
    highest-specificity match in the original cascade was the same. */
 body.stash-noir-theme :is(#settings-container, .settings-container, .settings, [id^="configuration-tabs-tabpane-"]) .btn.btn-secondary,
 body.stash-noir-theme [id^="configuration-tabs-tabpane-"] button.mr-2.btn.btn-secondary {
-    background: var(--glass-bg) !important;
+    background: #202127 !important;
     background-image: none !important;
-    border: 1px solid var(--glass-border) !important;
-    color: var(--text) !important;
-    border-radius: var(--radius-sm) !important;
+    border: 1px solid rgba(255, 255, 255, 0.13) !important;
+    color: #c5c6ce !important;
+    border-radius: 4px !important;
     box-shadow: none !important;
 }
 body.stash-noir-theme :is(#settings-container, .settings-container, .settings, [id^="configuration-tabs-tabpane-"]) .btn.btn-secondary:hover {
-    background: var(--glass-bg-strong) !important;
-    border-color: var(--glass-border-bright) !important;
+    background: #2a2c34 !important;
+    border-color: rgba(255, 255, 255, 0.22) !important;
     color: #fff !important;
 }
 body.stash-noir-theme :is(#settings-container, .settings-container, .settings, [id^="configuration-tabs-tabpane-"]) .btn.btn-secondary:is(:active, .active) {
-    background: var(--accent-tint) !important;
-    border-color: var(--accent-glow) !important;
+    background: rgba(var(--accent-rgb), 0.12) !important;
+    border-color: rgba(var(--accent-rgb), 0.36) !important;
     color: var(--accent-bright) !important;
-    box-shadow: 0 0 10px rgba(var(--accent-rgb), 0.26) !important;
+    box-shadow: none !important;
 }
 
-/* Settings danger buttons: align with liquid-glass orange accent language. */
+/* Settings actions use solid charcoal controls; preserve danger meaning with
+   text and a quiet border rather than a colored glass fill. */
 body.stash-noir-theme :is(#settings-container, .settings-container, .settings, [id^="configuration-tabs-tabpane-"]) .btn.btn-danger {
-    background: var(--accent-tint) !important;
+    background: #202127 !important;
     background-image: none !important;
-    border: 1px solid var(--accent-glow) !important;
-    color: var(--accent-bright) !important;
-    border-radius: var(--radius-sm) !important;
-    box-shadow: 0 0 10px rgba(var(--accent-rgb), 0.22) !important;
+    border: 1px solid rgba(181, 82, 96, 0.42) !important;
+    color: #dda0a8 !important;
+    border-radius: 4px !important;
+    box-shadow: none !important;
 }
 body.stash-noir-theme :is(#settings-container, .settings-container, .settings, [id^="configuration-tabs-tabpane-"]) .btn.btn-danger:hover {
-    background: rgba(var(--accent-rgb), 0.2) !important;
-    border-color: rgba(var(--accent-rgb), 0.55) !important;
-    color: var(--accent-light) !important;
-    box-shadow: 0 0 14px rgba(var(--accent-rgb), 0.32) !important;
+    background: #2a2c34 !important;
+    border-color: rgba(210, 105, 120, 0.65) !important;
+    color: #f0b1b8 !important;
+    box-shadow: none !important;
 }
 
-/* Settings content: primary/action buttons and generic controls. */
+/* Settings primary actions share the charcoal treatment; violet marks them
+   through text and a restrained border. */
 body.stash-noir-theme :is(#settings-container, .settings-container, .settings, [id^="configuration-tabs-tabpane-"], #stash-table) .btn.btn-primary {
-    background: var(--accent-tint) !important;
+    background: #202127 !important;
     background-image: none !important;
-    border: 1px solid var(--accent-glow) !important;
+    border: 1px solid rgba(var(--accent-rgb), 0.34) !important;
     color: var(--accent-bright) !important;
-    border-radius: var(--radius-sm) !important;
-    box-shadow: 0 0 10px rgba(var(--accent-rgb), 0.24) !important;
+    border-radius: 4px !important;
+    box-shadow: none !important;
 }
 body.stash-noir-theme :is(#settings-container, .settings-container, .settings, [id^="configuration-tabs-tabpane-"], #stash-table) .btn.btn-primary:hover {
-    background: rgba(var(--accent-rgb), 0.2) !important;
+    background: #2a2c34 !important;
     border-color: rgba(var(--accent-rgb), 0.55) !important;
-    color: var(--accent-light) !important;
-    box-shadow: 0 0 14px rgba(var(--accent-rgb), 0.32) !important;
+    color: #fff !important;
+    box-shadow: none !important;
 }
 
 /* Beat late-loading Bootstrap .btn-primary (blue) on settings content + dialogs — do not use
@@ -619,22 +621,22 @@ body.stash-noir-theme :is(#settings-container, .settings-container, .settings, [
    Troubleshooting (overlap/stacking with Advanced). Scope to #settings-container only. */
 body.stash-noir-theme :is(#configuration-tabs #settings-container, #settings-container .form-group, .modal-body .form-group, .modal-body, #setting-dialog) :is(.btn.btn-primary, button.btn-primary),
 body.stash-noir-theme #settings-container button.mr-3.btn.btn-primary {
-    background: var(--accent-tint) !important;
-    background-color: var(--accent-tint) !important;
+    background: #202127 !important;
+    background-color: #202127 !important;
     background-image: none !important;
-    border: 1px solid var(--accent-glow) !important;
+    border: 1px solid rgba(var(--accent-rgb), 0.34) !important;
     color: var(--accent-bright) !important;
-    border-radius: var(--radius-sm) !important;
-    box-shadow: 0 0 10px rgba(var(--accent-rgb), 0.24) !important;
+    border-radius: 4px !important;
+    box-shadow: none !important;
 }
 body.stash-noir-theme :is(#configuration-tabs #settings-container, #settings-container .form-group, .modal-body .form-group, .modal-body, #setting-dialog) :is(.btn.btn-primary, button.btn-primary):hover,
 body.stash-noir-theme #settings-container button.mr-3.btn.btn-primary:hover {
-    background: rgba(var(--accent-rgb), 0.2) !important;
-    background-color: rgba(var(--accent-rgb), 0.2) !important;
+    background: #2a2c34 !important;
+    background-color: #2a2c34 !important;
     background-image: none !important;
     border-color: rgba(var(--accent-rgb), 0.55) !important;
-    color: var(--accent-light) !important;
-    box-shadow: 0 0 14px rgba(var(--accent-rgb), 0.32) !important;
+    color: #fff !important;
+    box-shadow: none !important;
 }
 
 body.stash-noir-theme :is(#settings-container, .settings-container, .settings, [id^="configuration-tabs-tabpane-"]) .card,

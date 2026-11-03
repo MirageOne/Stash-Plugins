@@ -618,7 +618,14 @@ body.filmroom-active .filmroom-mobile-drawer { display: none; }
   body.filmroom-active.filmroom-drawer-open .filmroom-mobile-sheet { transform: translateY(0); }
   body.filmroom-active .filmroom-mobile-sheet-heading { display: flex; align-items: center; justify-content: space-between; margin-bottom: 12px; color: var(--fr-text); font-size: 15px; }
   body.filmroom-active .filmroom-mobile-close { width: 32px; height: 32px; border: 1px solid var(--fr-line); border-radius: 4px; background: var(--fr-surface-raised); color: var(--fr-text); font-size: 20px; }
-  body.filmroom-active .filmroom-mobile-sheet-link { min-height: 42px; display: flex; align-items: center; gap: 11px; border-bottom: 1px solid var(--fr-line); color: var(--fr-muted); text-decoration: none; }
+  body.filmroom-active .filmroom-mobile-nav-section { margin: 0; }
+  body.filmroom-active .filmroom-mobile-nav-section + .filmroom-mobile-nav-section { margin-top: 12px; }
+  body.filmroom-active .filmroom-mobile-nav-section-heading { margin: 0 0 4px; color: var(--fr-quiet); font-size: 10px; font-weight: 740; line-height: 16px; letter-spacing: .08em; }
+  body.filmroom-active .filmroom-mobile-sheet-link { box-sizing: border-box; min-height: 46px; display: flex; align-items: center; gap: 11px; padding: 0 10px; border-bottom: 1px solid var(--fr-line); color: var(--fr-muted); text-decoration: none; }
+  body.filmroom-active .filmroom-mobile-sheet-link .filmroom-nav-icon { width: 18px; height: 18px; flex: 0 0 18px; display: grid; place-items: center; }
+  body.filmroom-active .filmroom-mobile-sheet-link .filmroom-nav-icon svg { display: block; width: 18px; height: 18px; }
+  body.filmroom-active .filmroom-mobile-sheet .filmroom-mobile-sheet-link .filmroom-nav-label { display: block; flex: 1 1 auto; min-width: 0; overflow: hidden; font-size: 14px; line-height: 1.25; text-overflow: ellipsis; white-space: nowrap; }
+  body.filmroom-active .filmroom-mobile-sheet > .filmroom-theme-nav-item { margin-top: 12px; }
   body.filmroom-active .filmroom-mobile-sheet-link.is-active { color: var(--fr-accent); }
   html[data-filmroom-theme="active"] .filmroom-home-hero { min-height: 440px; align-items: flex-end; }
   html[data-filmroom-theme="active"] .filmroom-home-hero::after { background: linear-gradient(0deg, rgba(7,10,13,.94), rgba(7,10,13,.58) 45%, rgba(7,10,13,.04)); }

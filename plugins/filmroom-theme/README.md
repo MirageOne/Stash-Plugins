@@ -10,7 +10,7 @@ Theme preferences are stored in the current browser. The login page is served ou
 
 Copy this directory into Stash's configured `plugins/` directory, reload plugins in **Settings → Plugins**, then enable **Filmroom Theme**. Disable other full-app theme plugins while testing it so global styles do not conflict.
 
-For a packaged manual install, download [Filmroom Theme 0.1.4](../../packages/filmroom-theme/0.1.4-manual.zip) and extract its `filmroom-theme/` folder into the configured plugins directory.
+For a packaged manual install, download [Filmroom Theme 0.1.5](../../packages/filmroom-theme/0.1.5-manual.zip) and extract its `filmroom-theme/` folder into the configured plugins directory.
 
 ## Screenshots
 
@@ -46,7 +46,7 @@ The mobile dock always has four items: three destinations you choose in Theme se
 
 ## Visual audit
 
-The current UI was checked in a live Stash 0.32.0 instance at desktop and mobile widths. The audit covered the home carousel and Continue Watching shelf, scene filters and zoom, statistics cards and charts, theme settings, native settings and logs, navigation, and the light/dark appearance. Search, carousel navigation, accent changes, card layout, the three-destination mobile dock and its More menu, reduced effects, and sidebar collapse were exercised in the browser. Library mutations, playback, detail pages, and server settings stay on Stash's native routes and APIs.
+The current UI was checked in a live Stash 0.32.0 instance at desktop and mobile widths. The audit covered the home carousel and Continue Watching shelf, scene filters and zoom, statistics cards and charts, theme settings, native settings and logs, navigation, and the light/dark appearance. Search, carousel navigation, accent changes, card layout, the three-destination mobile dock and its More menu, flyout labels with the desktop rail collapsed, reduced effects, and sidebar collapse were exercised in the browser. Library mutations, playback, detail pages, and server settings stay on Stash's native routes and APIs.
 
 The library in the screenshots contains fictional, non-explicit demo clips.
 

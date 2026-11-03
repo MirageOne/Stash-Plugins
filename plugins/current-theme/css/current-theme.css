@@ -1355,3 +1355,21 @@ html[data-current-theme="active"] body.current-active .current-carousel-arrow:fo
   outline: 2px solid var(--current-accent-button) !important;
   outline-offset: 2px;
 }
+
+/* Plugin toolbar actions can supply oversized inline icon dimensions. Keep the
+   glyph compact while the existing button provides the full click target. */
+body.current-active nav.top-nav .navbar-buttons svg,
+body.current-active nav.top-nav .navbar-buttons img {
+  width: 18px !important;
+  height: 18px !important;
+  min-width: 18px !important;
+  min-height: 18px !important;
+  max-width: 18px !important;
+  max-height: 18px !important;
+  flex: 0 0 18px;
+  object-fit: contain;
+}
+body.current-active nav.top-nav .navbar-buttons i {
+  font-size: 18px !important;
+  line-height: 1 !important;
+}

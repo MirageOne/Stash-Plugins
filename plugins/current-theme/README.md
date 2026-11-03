@@ -12,7 +12,7 @@ Theme preferences are stored in the current browser. The login page is served ou
 
 Copy this directory into Stash's configured `plugins/` directory, reload plugins in **Settings → Plugins**, then enable **Current Theme**. Disable other full-app theme plugins while testing it so global styles do not conflict.
 
-For a packaged manual install, download [Current Theme 0.1.10](../../packages/current-theme/0.1.10-manual.zip) and extract its `current-theme/` folder into the configured plugins directory.
+For a packaged manual install, download [Current Theme 0.1.11](../../packages/current-theme/0.1.11-manual.zip) and extract its `current-theme/` folder into the configured plugins directory.
 
 ## Screenshots
 

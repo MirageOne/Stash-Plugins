@@ -758,7 +758,9 @@ body.current-active .current-mobile-drawer { display: none; }
   html[data-current-theme="active"] .item-list-container .filtered-list-toolbar { clear: both; padding: 11px !important; }
   html[data-current-theme="active"] .item-list-container .filtered-list-toolbar .search-term-input { flex: 1 1 100%; width: 100%; }
   html[data-current-theme="active"] .item-list-container .filtered-list-toolbar > .list-operations { margin-left: 0 !important; }
-  html[data-current-theme="active"] .item-list-container .filtered-list-toolbar > .list-operations + .btn-group { margin-left: auto !important; }
+  /* When the toolbar wraps on narrow screens, keep its adjacent action groups
+     together on the left instead of sending the second group to the far edge. */
+  html[data-current-theme="active"] .item-list-container .filtered-list-toolbar > .list-operations + .btn-group { margin-left: 0 !important; }
   html[data-current-theme="active"] .item-list-container .filtered-list-toolbar .zoom-slider-container { flex: 1 1 80px; }
   html[data-current-theme="active"] .current-setting-row { align-items: flex-start; }
   html[data-current-theme="active"] .current-accent-row { flex-direction: column; }

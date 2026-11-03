@@ -43,12 +43,12 @@
   requires: []
   metadata:
     description: Server-side image and video downloads with yt-dlp, proxy settings, library-aware imports, and metadata extraction.
-- id: filmroom-theme
-  name: Filmroom Theme
-  version: 0.1.5
-  date: "2026-11-03 19:27:15"
-  path: packages/filmroom-theme/0.1.5.zip
-  sha256: 390390a54541c06a90055750fff18ae6f1e4b4bf8115e4244ccc72147694ca84
+- id: current-theme
+  name: Current Theme
+  version: 0.1.6
+  date: "2026-11-03 20:08:58"
+  path: packages/current-theme/0.1.6.zip
+  sha256: 5b63c61d2a20563e4873b20e3c54b6015968a1fb19514394e55d6db90f7efdc8
   requires: []
   metadata:
-    description: Video-first Stash theme with a new-arrivals carousel, Continue Watching, a customizable four-item mobile dock with a More menu, light and dark modes, and seven accent colors.
+    description: Current is a video-first Stash theme with a new-arrivals carousel, Continue Watching, a customizable four-item mobile dock with a More menu, light and dark modes, and seven accent colors.

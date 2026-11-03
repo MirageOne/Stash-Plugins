@@ -1,9 +1,9 @@
 (function () {
   "use strict";
 
-  var PLUGIN_ROUTE = "/plugin/filmroom-theme";
-  var PREFERENCES_KEY = "filmroom.preferences.v1";
-  var PREFERENCES_EVENT = "filmroom:preferences-changed";
+  var PLUGIN_ROUTE = "/plugin/current-theme";
+  var PREFERENCES_KEY = "current-theme.preferences.v1";
+  var PREFERENCES_EVENT = "current-theme:preferences-changed";
   var DEFAULT_PREFERENCES = {
     mode: "dark",
     accent: "violet",
@@ -87,15 +87,15 @@
 
   function applyPreferences(preferences) {
     var root = document.documentElement;
-    root.setAttribute("data-filmroom-theme", "active");
+    root.setAttribute("data-current-theme", "active");
     var mode = resolveMode(preferences.mode);
-    root.setAttribute("data-filmroom-mode", mode);
-    root.setAttribute("data-filmroom-accent", preferences.accent);
-    root.setAttribute("data-filmroom-card-style", preferences.cardStyle);
+    root.setAttribute("data-current-mode", mode);
+    root.setAttribute("data-current-accent", preferences.accent);
+    root.setAttribute("data-current-card-style", preferences.cardStyle);
     if (document.body) {
-      document.body.classList.add("filmroom-active");
-      document.body.classList.toggle("filmroom-sidebar-collapsed", preferences.sidebarCollapsed);
-      document.body.classList.toggle("filmroom-reduced-effects", preferences.reduceEffects);
+      document.body.classList.add("current-active");
+      document.body.classList.toggle("current-sidebar-collapsed", preferences.sidebarCollapsed);
+      document.body.classList.toggle("current-reduced-effects", preferences.reduceEffects);
     }
     updateModeButton(mode);
     updateSidebarState(preferences.sidebarCollapsed);
@@ -106,26 +106,28 @@
       (ICONS[name] || ICONS.scenes) + "</svg>";
   }
 
+  var CURRENT_MARK = '<svg viewBox="0 0 32 32" fill="none" aria-hidden="true"><path d="M4.5 11.2C9.5 4.3 18.2 3.4 25.8 8.8"/><path d="M27.5 20.8c-5 6.9-13.7 7.8-21.3 2.4"/><path d="M6.5 16h6M19.5 16h6"/><rect x="13.5" y="13.5" width="5" height="5" rx="1.5" fill="var(--current-surface)" stroke="none"/></svg>';
+
   function updateModeButton(mode) {
-    var button = document.querySelector(".filmroom-mode-toggle");
+    var button = document.querySelector(".current-mode-toggle");
     if (!button) { return; }
-    if (button.getAttribute("data-filmroom-mode") === mode) { return; }
+    if (button.getAttribute("data-current-mode") === mode) { return; }
     var nextLabel = mode === "dark" ? "Switch to light mode" : "Switch to dark mode";
     button.setAttribute("aria-label", nextLabel);
     button.setAttribute("title", nextLabel);
     button.setAttribute("aria-pressed", mode === "light" ? "true" : "false");
-    button.setAttribute("data-filmroom-mode", mode);
+    button.setAttribute("data-current-mode", mode);
     button.innerHTML = icon(mode === "dark" ? "sun" : "moon");
   }
 
   function installTopbarBrand(navbar) {
-    if (navbar.querySelector(".filmroom-topbar-brand")) { return true; }
+    if (navbar.querySelector(".current-topbar-brand")) { return true; }
     var brand = document.createElement("a");
-    brand.className = "filmroom-topbar-brand";
+    brand.className = "current-topbar-brand";
     brand.href = "/";
-    brand.setAttribute("data-filmroom-route", "/");
-    brand.setAttribute("aria-label", "Filmroom home");
-    brand.innerHTML = '<span class="filmroom-brand-mark">F</span><span>Filmroom</span>';
+    brand.setAttribute("data-current-route", "/");
+    brand.setAttribute("aria-label", "Current home");
+    brand.innerHTML = '<span class="current-brand-mark">' + CURRENT_MARK + '</span><span>Current</span>';
     brand.addEventListener("click", function (event) { navigateFromLink(event, brand); });
     navbar.insertBefore(brand, navbar.firstChild);
     return true;
@@ -136,7 +138,7 @@
       "/": "Home", "/scenes": "Scenes", "/images": "Images", "/galleries": "Galleries",
       "/performers": "Performers", "/studios": "Studios", "/groups": "Groups", "/tags": "Tags",
       "/scenes/markers": "Scene markers", "/stats": "Statistics", "/settings": "Settings",
-      "/plugin/filmroom-theme": "Theme settings"
+      "/plugin/current-theme": "Theme settings"
     };
     if (path.indexOf("/scenes/") === 0) { return "Scene details"; }
     if (path.indexOf("/images/") === 0) { return "Image details"; }
@@ -159,34 +161,34 @@
   }
 
   function refreshTopbarContext() {
-    var context = document.querySelector(".filmroom-topbar-context");
+    var context = document.querySelector(".current-topbar-context");
     if (!context) { return; }
     var path = window.location.pathname || "/";
-    var crumb = context.querySelector(".filmroom-breadcrumb-current");
+    var crumb = context.querySelector(".current-breadcrumb-current");
     var label = topbarLabel(path);
     // The topbar has a MutationObserver that refreshes route state. Replacing
     // this text node when the label is already current retriggers that observer
-    // forever on SPA routes such as Filmroom's settings page.
+    // forever on SPA routes such as Current's settings page.
     if (crumb && crumb.textContent !== label) { crumb.textContent = label; }
-    var input = context.querySelector(".filmroom-global-search-input");
+    var input = context.querySelector(".current-global-search-input");
     if (input && document.activeElement !== input) {
       input.value = path === "/scenes" ? new URLSearchParams(window.location.search).get("q") || "" : "";
     }
   }
 
   function installTopbarContext(navbar) {
-    var context = navbar.querySelector(".filmroom-topbar-context");
+    var context = navbar.querySelector(".current-topbar-context");
     if (!context) {
       context = document.createElement("div");
-      context.className = "filmroom-topbar-context";
-      context.innerHTML = '<div class="filmroom-breadcrumb"><a href="/" data-filmroom-route="/">Library</a><span aria-hidden="true">/</span><strong class="filmroom-breadcrumb-current"></strong></div><form class="filmroom-global-search" role="search"><span class="filmroom-search-icon">' + icon("search") + '</span><input class="filmroom-global-search-input" type="search" aria-label="Search your library" placeholder="Search your library"><kbd>Ctrl K</kbd></form>';
-      var input = context.querySelector(".filmroom-global-search-input");
-      context.querySelector(".filmroom-global-search").addEventListener("submit", function (event) {
+      context.className = "current-topbar-context";
+      context.innerHTML = '<div class="current-breadcrumb"><a href="/" data-current-route="/">Library</a><span aria-hidden="true">/</span><strong class="current-breadcrumb-current"></strong></div><form class="current-global-search" role="search"><span class="current-search-icon">' + icon("search") + '</span><input class="current-global-search-input" type="search" aria-label="Search your library" placeholder="Search your library"><kbd>Ctrl K</kbd></form>';
+      var input = context.querySelector(".current-global-search-input");
+      context.querySelector(".current-global-search").addEventListener("submit", function (event) {
         event.preventDefault();
         submitGlobalSearch(input.value);
       });
-      context.querySelector(".filmroom-breadcrumb").addEventListener("click", function (event) {
-        var route = event.target.closest("[data-filmroom-route]");
+      context.querySelector(".current-breadcrumb").addEventListener("click", function (event) {
+        var route = event.target.closest("[data-current-route]");
         if (route) { navigateFromLink(event, route); }
       });
       navbar.insertBefore(context, navbar.querySelector(".navbar-buttons") || null);
@@ -198,11 +200,11 @@
     var navbar = document.querySelector("nav.top-nav");
     var actions = navbar && navbar.querySelector(".navbar-buttons");
     if (!actions) { return false; }
-    var button = actions.querySelector(".filmroom-mode-toggle");
+    var button = actions.querySelector(".current-mode-toggle");
     if (!button) {
       button = document.createElement("button");
       button.type = "button";
-      button.className = "btn minimal filmroom-mode-toggle";
+      button.className = "btn minimal current-mode-toggle";
       button.addEventListener("click", function () {
         var preferences = readPreferences();
         savePreferences({ mode: resolveMode(preferences.mode) === "dark" ? "light" : "dark" });
@@ -281,18 +283,18 @@
     var link = document.createElement("a");
     link.className = className;
     link.href = item.href;
-    link.setAttribute("data-filmroom-route", item.href);
+    link.setAttribute("data-current-route", item.href);
     link.setAttribute("aria-label", item.label);
     link.title = item.label;
-    link.innerHTML = '<span class="filmroom-nav-icon">' + icon(item.icon) + "</span><span class=\"filmroom-nav-label\"></span>";
-    link.querySelector(".filmroom-nav-label").textContent = item.label;
+    link.innerHTML = '<span class="current-nav-icon">' + icon(item.icon) + "</span><span class=\"current-nav-label\"></span>";
+    link.querySelector(".current-nav-label").textContent = item.label;
     return link;
   }
 
   function updateSidebarState(collapsed) {
     if (!document.body) { return; }
-    document.body.classList.toggle("filmroom-sidebar-collapsed", Boolean(collapsed));
-    var button = document.querySelector(".filmroom-sidebar-collapse");
+    document.body.classList.toggle("current-sidebar-collapsed", Boolean(collapsed));
+    var button = document.querySelector(".current-sidebar-collapse");
     if (button) {
       button.setAttribute("aria-pressed", collapsed ? "true" : "false");
       button.setAttribute("aria-label", collapsed ? "Expand navigation" : "Collapse navigation");
@@ -306,7 +308,7 @@
     if (parsed.search) { return path === parsed.pathname && search === parsed.search; }
     if (item.href === "/settings") { return path === "/settings" && !search; }
     if (item.href === "/") { return path === "/"; }
-    if (item.href === "/plugin/filmroom-theme") { return path.indexOf(item.href) === 0; }
+    if (item.href === "/plugin/current-theme") { return path.indexOf(item.href) === 0; }
     if (item.href === "/scenes" && path.indexOf("/scenes/markers") === 0) { return false; }
     return path === item.href || path.indexOf(item.href + "/") === 0;
   }
@@ -314,14 +316,14 @@
   function updateActiveNavigation() {
     var path = window.location.pathname || "/";
     var search = window.location.search || "";
-    var links = document.querySelectorAll("[data-filmroom-route]");
+    var links = document.querySelectorAll("[data-current-route]");
     for (var i = 0; i < links.length; i++) {
-      var active = itemIsActive({ href: links[i].getAttribute("data-filmroom-route") }, path, search);
+      var active = itemIsActive({ href: links[i].getAttribute("data-current-route") }, path, search);
       links[i].classList.toggle("is-active", active);
       if (active) { links[i].setAttribute("aria-current", "page"); }
       else { links[i].removeAttribute("aria-current"); }
     }
-    var mobileMore = document.querySelector(".filmroom-mobile-more");
+    var mobileMore = document.querySelector(".current-mobile-more");
     if (mobileMore) {
       var isDocked = readPreferences().mobileDock.some(function (href) { return itemIsActive({ href: href }, path, search); });
       mobileMore.classList.toggle("is-active", !isDocked);
@@ -330,8 +332,8 @@
 
   function openMobileDrawer(open) {
     if (!document.body) { return; }
-    document.body.classList.toggle("filmroom-drawer-open", Boolean(open));
-    var trigger = document.querySelector(".filmroom-mobile-more");
+    document.body.classList.toggle("current-drawer-open", Boolean(open));
+    var trigger = document.querySelector(".current-mobile-more");
     if (trigger) { trigger.setAttribute("aria-expanded", open ? "true" : "false"); }
   }
 
@@ -342,54 +344,54 @@
     var sections = navigationSections(primary);
     var signature = items.map(function (item) { return item.href + ":" + item.label; }).join("|");
 
-    var sidebar = document.querySelector(".filmroom-sidebar");
+    var sidebar = document.querySelector(".current-sidebar");
     if (!sidebar) {
       sidebar = document.createElement("aside");
-      sidebar.className = "filmroom-sidebar";
+      sidebar.className = "current-sidebar";
       sidebar.setAttribute("aria-label", "Primary navigation");
-      sidebar.innerHTML = '<div class="filmroom-sidebar-brand-row"><a class="filmroom-brand" href="/" data-filmroom-route="/" aria-label="Filmroom home"><span class="filmroom-brand-mark">F</span><span class="filmroom-brand-name">Filmroom</span></a><button type="button" class="filmroom-sidebar-collapse" aria-label="Collapse navigation" aria-pressed="false" title="Collapse navigation">' + icon("collapse") + "</button></div><nav class=\"filmroom-sidebar-nav\" aria-label=\"Filmroom sections\"><div class=\"filmroom-sidebar-primary\"></div><div class=\"filmroom-sidebar-footer\"></div></nav>";
+      sidebar.innerHTML = '<div class="current-sidebar-brand-row"><a class="current-brand" href="/" data-current-route="/" aria-label="Current home"><span class="current-brand-mark">' + CURRENT_MARK + '</span><span class="current-brand-name">Current</span></a><button type="button" class="current-sidebar-collapse" aria-label="Collapse navigation" aria-pressed="false" title="Collapse navigation">' + icon("collapse") + "</button></div><nav class=\"current-sidebar-nav\" aria-label=\"Current sections\"><div class=\"current-sidebar-primary\"></div><div class=\"current-sidebar-footer\"></div></nav>";
       document.body.appendChild(sidebar);
       sidebar.addEventListener("click", function (event) {
-        var collapse = event.target.closest(".filmroom-sidebar-collapse");
+        var collapse = event.target.closest(".current-sidebar-collapse");
         if (collapse) {
           event.preventDefault();
-          savePreferences({ sidebarCollapsed: !document.body.classList.contains("filmroom-sidebar-collapsed") });
+          savePreferences({ sidebarCollapsed: !document.body.classList.contains("current-sidebar-collapsed") });
           return;
         }
-        var route = event.target.closest("[data-filmroom-route]");
+        var route = event.target.closest("[data-current-route]");
         if (route) { navigateFromLink(event, route); }
       });
     }
 
     if (sidebar.getAttribute("data-signature") !== signature) {
-      var primaryHost = sidebar.querySelector(".filmroom-sidebar-primary");
-      var footerHost = sidebar.querySelector(".filmroom-sidebar-footer");
+      var primaryHost = sidebar.querySelector(".current-sidebar-primary");
+      var footerHost = sidebar.querySelector(".current-sidebar-footer");
       primaryHost.textContent = "";
       footerHost.textContent = "";
       sections.forEach(function (section) {
         var group = document.createElement("section");
-        group.className = "filmroom-nav-section";
+        group.className = "current-nav-section";
         var heading = document.createElement("h2");
-        heading.className = "filmroom-nav-section-heading";
+        heading.className = "current-nav-section-heading";
         heading.textContent = section.label;
         group.appendChild(heading);
-        section.items.forEach(function (item) { group.appendChild(makeRouteLink(item, "filmroom-nav-item")); });
+        section.items.forEach(function (item) { group.appendChild(makeRouteLink(item, "current-nav-item")); });
         primaryHost.appendChild(group);
       });
-      footerHost.appendChild(makeRouteLink({ href: PLUGIN_ROUTE, label: "Theme settings", icon: "sun" }, "filmroom-nav-item filmroom-theme-nav-item"));
+      footerHost.appendChild(makeRouteLink({ href: PLUGIN_ROUTE, label: "Theme settings", icon: "sun" }, "current-nav-item current-theme-nav-item"));
       sidebar.setAttribute("data-signature", signature);
     }
 
-    var dock = document.querySelector(".filmroom-mobile-dock");
+    var dock = document.querySelector(".current-mobile-dock");
     if (!dock) {
       dock = document.createElement("nav");
-      dock.className = "filmroom-mobile-dock";
+      dock.className = "current-mobile-dock";
       dock.setAttribute("aria-label", "Quick navigation");
       document.body.appendChild(dock);
       dock.addEventListener("click", function (event) {
-        var more = event.target.closest(".filmroom-mobile-more");
-        if (more) { event.preventDefault(); openMobileDrawer(!document.body.classList.contains("filmroom-drawer-open")); return; }
-        var route = event.target.closest("[data-filmroom-route]");
+        var more = event.target.closest(".current-mobile-more");
+        if (more) { event.preventDefault(); openMobileDrawer(!document.body.classList.contains("current-drawer-open")); return; }
+        var route = event.target.closest("[data-current-route]");
         if (route) { navigateFromLink(event, route); }
       });
     }
@@ -397,26 +399,26 @@
     var dockSignature = signature + "|" + mobileDock.join(",");
     if (dock.getAttribute("data-dock-preferences") !== dockSignature) {
       dock.textContent = "";
-      mobileDock.map(function (href) { return primary.filter(function (item) { return item.href === href; })[0]; }).filter(Boolean).forEach(function (item) { dock.appendChild(makeRouteLink(item, "filmroom-dock-item")); });
+      mobileDock.map(function (href) { return primary.filter(function (item) { return item.href === href; })[0]; }).filter(Boolean).forEach(function (item) { dock.appendChild(makeRouteLink(item, "current-dock-item")); });
       var moreButton = document.createElement("button");
       moreButton.type = "button";
-      moreButton.className = "filmroom-dock-item filmroom-mobile-more";
+      moreButton.className = "current-dock-item current-mobile-more";
       moreButton.setAttribute("aria-label", "Open menu for remaining pages");
       moreButton.setAttribute("aria-expanded", "false");
-      moreButton.innerHTML = '<span class="filmroom-nav-icon">' + icon("menu") + '</span><span class="filmroom-nav-label">More</span>';
+      moreButton.innerHTML = '<span class="current-nav-icon">' + icon("menu") + '</span><span class="current-nav-label">More</span>';
       dock.appendChild(moreButton);
       dock.setAttribute("data-dock-preferences", dockSignature);
     }
 
-    var drawer = document.querySelector(".filmroom-mobile-drawer");
+    var drawer = document.querySelector(".current-mobile-drawer");
     if (!drawer) {
       drawer = document.createElement("div");
-      drawer.className = "filmroom-mobile-drawer";
+      drawer.className = "current-mobile-drawer";
       drawer.setAttribute("aria-label", "More pages");
       document.body.appendChild(drawer);
       drawer.addEventListener("click", function (event) {
         if (event.target === drawer) { openMobileDrawer(false); return; }
-        var route = event.target.closest("[data-filmroom-route]");
+        var route = event.target.closest("[data-current-route]");
         if (route) { navigateFromLink(event, route); }
       });
     }
@@ -424,13 +426,13 @@
     if (drawer.getAttribute("data-signature") !== drawerSignature) {
       drawer.textContent = "";
       var sheet = document.createElement("section");
-      sheet.className = "filmroom-mobile-sheet";
+      sheet.className = "current-mobile-sheet";
       var sheetHeading = document.createElement("div");
-      sheetHeading.className = "filmroom-mobile-sheet-heading";
+      sheetHeading.className = "current-mobile-sheet-heading";
       sheetHeading.innerHTML = "<strong>More pages</strong>";
       var close = document.createElement("button");
       close.type = "button";
-      close.className = "filmroom-mobile-close";
+      close.className = "current-mobile-close";
       close.setAttribute("aria-label", "Close navigation");
       close.textContent = "×";
       close.addEventListener("click", function () { openMobileDrawer(false); });
@@ -438,20 +440,20 @@
       sheet.appendChild(sheetHeading);
       navigationSections(primary.filter(function (item) { return mobileDock.indexOf(item.href) === -1; })).forEach(function (section) {
         var group = document.createElement("section");
-        group.className = "filmroom-mobile-nav-section";
+        group.className = "current-mobile-nav-section";
         var heading = document.createElement("h3");
-        heading.className = "filmroom-mobile-nav-section-heading";
+        heading.className = "current-mobile-nav-section-heading";
         heading.textContent = section.label;
         group.appendChild(heading);
-        section.items.forEach(function (item) { group.appendChild(makeRouteLink(item, "filmroom-mobile-sheet-link")); });
+        section.items.forEach(function (item) { group.appendChild(makeRouteLink(item, "current-mobile-sheet-link")); });
         sheet.appendChild(group);
       });
-      sheet.appendChild(makeRouteLink({ href: PLUGIN_ROUTE, label: "Theme settings", icon: "sun" }, "filmroom-mobile-sheet-link filmroom-theme-nav-item"));
+      sheet.appendChild(makeRouteLink({ href: PLUGIN_ROUTE, label: "Theme settings", icon: "sun" }, "current-mobile-sheet-link current-theme-nav-item"));
       drawer.appendChild(sheet);
       drawer.setAttribute("data-signature", drawerSignature);
     }
 
-    document.body.classList.add("filmroom-active");
+    document.body.classList.add("current-active");
     applyPreferences(readPreferences());
     updateActiveNavigation();
     refreshTopbarContext();
@@ -460,12 +462,12 @@
 
   function navigateFromLink(event, link) {
     if (event.defaultPrevented || event.button !== 0 || event.metaKey || event.ctrlKey || event.shiftKey || event.altKey) { return; }
-    var href = link.getAttribute("data-filmroom-route");
+    var href = link.getAttribute("data-current-route");
     if (!href) { return; }
     event.preventDefault();
     openMobileDrawer(false);
     if (href.indexOf(PLUGIN_ROUTE) === 0) {
-      var proxy = document.querySelector(".filmroom-route-proxy");
+      var proxy = document.querySelector(".current-route-proxy");
       if (proxy) { proxy.click(); return; }
       if (window.location.pathname !== href) {
         window.history.pushState({}, "", href);
@@ -527,7 +529,7 @@
     statisticsScenesPromise = (function () {
       var results = [];
       function loadPage(page) {
-        var query = "query FilmroomStatistics { findScenes(filter: { per_page: 100, page: " + page + ", sort: \"date\", direction: DESC }) { scenes { date files { height } } } }";
+        var query = "query CurrentStatistics { findScenes(filter: { per_page: 100, page: " + page + ", sort: \"date\", direction: DESC }) { scenes { date files { height } } } }";
         return createGraphQLClient()(query).then(function (result) {
           var rows = result.findScenes && result.findScenes.scenes || [];
           results = results.concat(rows);
@@ -556,14 +558,14 @@
     var years = Object.keys(counts).sort().slice(-7);
     var chart = makeSvgElement("svg", { viewBox: "0 0 640 190", role: "img", "aria-label": "Scenes by year" });
     if (!years.length) {
-      chart.appendChild(makeSvgElement("text", { x: "320", y: "100", "text-anchor": "middle", class: "filmroom-chart-empty" }, "No dated scenes yet"));
+      chart.appendChild(makeSvgElement("text", { x: "320", y: "100", "text-anchor": "middle", class: "current-chart-empty" }, "No dated scenes yet"));
       return chart;
     }
     var max = Math.max.apply(Math, years.map(function (year) { return counts[year]; }));
     [0, 0.5, 1].forEach(function (fraction) {
       var y = 145 - fraction * 112;
-      chart.appendChild(makeSvgElement("line", { x1: "38", x2: "626", y1: y, y2: y, class: "filmroom-chart-grid" }));
-      chart.appendChild(makeSvgElement("text", { x: "29", y: y + 4, "text-anchor": "end", class: "filmroom-chart-axis" }, String(Math.round(max * fraction))));
+      chart.appendChild(makeSvgElement("line", { x1: "38", x2: "626", y1: y, y2: y, class: "current-chart-grid" }));
+      chart.appendChild(makeSvgElement("text", { x: "29", y: y + 4, "text-anchor": "end", class: "current-chart-axis" }, String(Math.round(max * fraction))));
     });
     var step = 588 / years.length;
     years.forEach(function (year, index) {
@@ -571,9 +573,9 @@
       var height = Math.max(3, value / max * 112);
       var x = 46 + index * step + step * .22;
       var width = step * .56;
-      chart.appendChild(makeSvgElement("rect", { x: x, y: 145 - height, width: width, height: height, rx: "3", class: "filmroom-chart-bar" }));
-      chart.appendChild(makeSvgElement("text", { x: x + width / 2, y: 163, "text-anchor": "middle", class: "filmroom-chart-axis" }, year));
-      chart.appendChild(makeSvgElement("text", { x: x + width / 2, y: 145 - height - 7, "text-anchor": "middle", class: "filmroom-chart-value" }, String(value)));
+      chart.appendChild(makeSvgElement("rect", { x: x, y: 145 - height, width: width, height: height, rx: "3", class: "current-chart-bar" }));
+      chart.appendChild(makeSvgElement("text", { x: x + width / 2, y: 163, "text-anchor": "middle", class: "current-chart-axis" }, year));
+      chart.appendChild(makeSvgElement("text", { x: x + width / 2, y: 145 - height - 7, "text-anchor": "middle", class: "current-chart-value" }, String(value)));
     });
     return chart;
   }
@@ -593,20 +595,20 @@
     var total = scenes.length;
     var order = bins.slice().sort(function (a, b) { return b.count - a.count; });
     var chart = document.createElement("div");
-    chart.className = "filmroom-resolution-rows";
+    chart.className = "current-resolution-rows";
     order.forEach(function (bin) {
       var row = document.createElement("div");
-      row.className = "filmroom-resolution-row";
+      row.className = "current-resolution-row";
       var label = document.createElement("span");
-      label.className = "filmroom-resolution-label";
+      label.className = "current-resolution-label";
       label.textContent = bin.label;
       var track = document.createElement("span");
-      track.className = "filmroom-resolution-track";
+      track.className = "current-resolution-track";
       var fill = document.createElement("span");
       fill.style.width = (total ? bin.count / total * 100 : 0) + "%";
       track.appendChild(fill);
       var value = document.createElement("span");
-      value.className = "filmroom-resolution-value";
+      value.className = "current-resolution-value";
       value.textContent = bin.count + " (" + (total ? (bin.count / total * 100).toFixed(1) : "0.0") + "%)";
       row.appendChild(label);
       row.appendChild(track);
@@ -616,26 +618,26 @@
     return chart;
   }
 
-  function mountFilmroomStatistics() {
+  function mountCurrentStatistics() {
     if (window.location.pathname !== "/stats") { return; }
     var main = document.querySelector(".main.container-fluid");
     var root = main && main.querySelector(".mt-5");
-    if (!root || root.querySelector(".filmroom-stats-insights")) { return; }
+    if (!root || root.querySelector(".current-stats-insights")) { return; }
     loadStatisticsScenes().then(function (scenes) {
-      if (window.location.pathname !== "/stats" || !root.isConnected || root.querySelector(".filmroom-stats-insights")) { return; }
+      if (window.location.pathname !== "/stats" || !root.isConnected || root.querySelector(".current-stats-insights")) { return; }
       var section = document.createElement("section");
-      section.className = "filmroom-stats-insights";
+      section.className = "current-stats-insights";
       var yearPanel = document.createElement("article");
-      yearPanel.className = "filmroom-stats-panel filmroom-years-panel";
+      yearPanel.className = "current-stats-panel current-years-panel";
       var yearHeading = document.createElement("div");
-      yearHeading.className = "filmroom-stats-panel-heading";
+      yearHeading.className = "current-stats-panel-heading";
       yearHeading.innerHTML = "<h2>Scenes by year</h2><span>Scene release dates in your library</span>";
       yearPanel.appendChild(yearHeading);
       yearPanel.appendChild(makeYearChart(scenes));
       var resolutionPanel = document.createElement("article");
-      resolutionPanel.className = "filmroom-stats-panel filmroom-resolution-panel";
+      resolutionPanel.className = "current-stats-panel current-resolution-panel";
       var resolutionHeading = document.createElement("div");
-      resolutionHeading.className = "filmroom-stats-panel-heading";
+      resolutionHeading.className = "current-stats-panel-heading";
       resolutionHeading.innerHTML = "<h2>Media resolution</h2><span>Highest file resolution per scene</span>";
       resolutionPanel.appendChild(resolutionHeading);
       resolutionPanel.appendChild(makeResolutionChart(scenes));
@@ -645,18 +647,18 @@
     });
   }
 
-  function updateFilmroomRangeProgress(range) {
+  function updateCurrentRangeProgress(range) {
     if (!range || !range.matches || !range.matches(".zoom-slider")) { return; }
     var minimum = Number(range.min || 0);
     var maximum = Number(range.max || 100);
     var value = Number(range.value || 0);
     var progress = maximum > minimum ? Math.max(0, Math.min(100, (value - minimum) / (maximum - minimum) * 100)) : 0;
-    range.style.setProperty("--filmroom-range-progress", progress + "%");
+    range.style.setProperty("--current-range-progress", progress + "%");
   }
 
-  function syncFilmroomRangeControls() {
+  function syncCurrentRangeControls() {
     var ranges = document.querySelectorAll(".item-list-container .filtered-list-toolbar .zoom-slider");
-    for (var i = 0; i < ranges.length; i++) { updateFilmroomRangeProgress(ranges[i]); }
+    for (var i = 0; i < ranges.length; i++) { updateCurrentRangeProgress(ranges[i]); }
   }
 
   function sceneView(scene) {
@@ -701,15 +703,15 @@
     }
 
     function SceneArtwork(props) {
-      return h("div", { className: "filmroom-artwork" + (props.large ? " filmroom-artwork-large" : ""), style: props.image ? { backgroundImage: "url(\"" + props.image.replace(/\"/g, "%22") + "\")" } : undefined },
-        h("div", { className: "filmroom-artwork-overlay" }),
-        props.duration ? h("span", { className: "filmroom-duration" }, formatDuration(props.duration)) : null,
+      return h("div", { className: "current-artwork" + (props.large ? " current-artwork-large" : ""), style: props.image ? { backgroundImage: "url(\"" + props.image.replace(/\"/g, "%22") + "\")" } : undefined },
+        h("div", { className: "current-artwork-overlay" }),
+        props.duration ? h("span", { className: "current-duration" }, formatDuration(props.duration)) : null,
         props.children);
     }
 
     function EmptyState(props) {
-      return h("div", { className: "filmroom-empty-state" },
-        h("span", { className: "filmroom-empty-icon", dangerouslySetInnerHTML: { __html: icon(props.icon || "scenes") } }),
+      return h("div", { className: "current-empty-state" },
+        h("span", { className: "current-empty-icon", dangerouslySetInnerHTML: { __html: icon(props.icon || "scenes") } }),
         h("p", null, props.children));
     }
 
@@ -721,12 +723,12 @@
       var touchStart = React.useRef(null);
       React.useEffect(function () { if (index >= scenes.length) { setIndex(0); } }, [scenes.length, index]);
       if (!scenes.length) {
-        return h("section", { className: "filmroom-home-hero filmroom-home-hero-empty", "aria-label": "New arrivals" },
-          h("div", { className: "filmroom-hero-copy" },
-            h("span", { className: "filmroom-kicker" }, "New arrivals"),
+        return h("section", { className: "current-home-hero current-home-hero-empty", "aria-label": "New arrivals" },
+          h("div", { className: "current-hero-copy" },
+            h("span", { className: "current-kicker" }, "New arrivals"),
             h("h1", null, "Your next favorite starts here."),
             h("p", null, props.loading ? "Loading the latest additions to your library…" : "New scenes will appear here after they are added to your library."),
-            !props.loading ? routeLink("/scenes", "filmroom-button filmroom-button-primary", "Browse scenes") : null));
+            !props.loading ? routeLink("/scenes", "current-button current-button-primary", "Browse scenes") : null));
       }
       var scene = scenes[index];
       var metadata = [];
@@ -738,7 +740,7 @@
       if (scene.height) { metadata.push(Math.round(scene.height) + "p"); }
       var performers = scene.performers.slice(0, 3).join(" · ");
       return h("section", {
-        className: "filmroom-home-hero",
+        className: "current-home-hero",
         "aria-roledescription": "carousel",
         "aria-label": "New arrivals",
         tabIndex: 0,
@@ -748,7 +750,7 @@
         },
         onTouchStart: function (event) { touchStart.current = event.touches && event.touches[0] ? event.touches[0].clientX : null; },
         onTouchEnd: function (event) {
-          if (touchStart.current === null || (event.target.closest && event.target.closest(".filmroom-carousel-controls"))) { touchStart.current = null; return; }
+          if (touchStart.current === null || (event.target.closest && event.target.closest(".current-carousel-controls"))) { touchStart.current = null; return; }
           var touchEnd = event.changedTouches && event.changedTouches[0] ? event.changedTouches[0].clientX : touchStart.current;
           var distance = touchEnd - touchStart.current;
           touchStart.current = null;
@@ -756,43 +758,43 @@
         }
       },
         h(SceneArtwork, { image: scene.image, duration: scene.duration, large: true }),
-        h("div", { className: "filmroom-hero-copy" },
-          h("span", { className: "filmroom-kicker" }, "Newly added to your library"),
+        h("div", { className: "current-hero-copy" },
+          h("span", { className: "current-kicker" }, "Newly added to your library"),
           h("h1", { "aria-live": "polite" }, scene.title),
-          h("div", { className: "filmroom-hero-meta" }, metadata.join(" · ")),
-          performers ? h("div", { className: "filmroom-hero-performers" }, performers) : null,
-          h("div", { className: "filmroom-hero-actions" },
-            routeLink("/scenes/" + encodeURIComponent(scene.id), "filmroom-button filmroom-button-primary", h(React.Fragment, null, h("span", { className: "filmroom-play-icon", dangerouslySetInnerHTML: { __html: "<svg viewBox='0 0 24 24' fill='currentColor' aria-hidden='true'><path d='M8 5v14l11-7z'/></svg>" } }), "Play scene")),
-            routeLink("/scenes", "filmroom-button filmroom-button-quiet", "Browse library"))),
-        h("div", { className: "filmroom-carousel-controls", role: "group", "aria-label": "New arrivals controls" },
-          h("button", { type: "button", className: "filmroom-carousel-arrow", "aria-label": "Previous scene", onClick: function () { setIndex((index - 1 + scenes.length) % scenes.length); } }, "‹"),
-          h("div", { className: "filmroom-carousel-dots" }, scenes.map(function (item, dotIndex) {
-            return h("button", { type: "button", key: item.id, className: "filmroom-carousel-dot" + (dotIndex === index ? " is-active" : ""), "aria-label": "Show " + item.title, "aria-current": dotIndex === index ? "true" : undefined, onClick: function () { setIndex(dotIndex); } }, h("span", null));
+          h("div", { className: "current-hero-meta" }, metadata.join(" · ")),
+          performers ? h("div", { className: "current-hero-performers" }, performers) : null,
+          h("div", { className: "current-hero-actions" },
+            routeLink("/scenes/" + encodeURIComponent(scene.id), "current-button current-button-primary", h(React.Fragment, null, h("span", { className: "current-play-icon", dangerouslySetInnerHTML: { __html: "<svg viewBox='0 0 24 24' fill='currentColor' aria-hidden='true'><path d='M8 5v14l11-7z'/></svg>" } }), "Play scene")),
+            routeLink("/scenes", "current-button current-button-quiet", "Browse library"))),
+        h("div", { className: "current-carousel-controls", role: "group", "aria-label": "New arrivals controls" },
+          h("button", { type: "button", className: "current-carousel-arrow", "aria-label": "Previous scene", onClick: function () { setIndex((index - 1 + scenes.length) % scenes.length); } }, "‹"),
+          h("div", { className: "current-carousel-dots" }, scenes.map(function (item, dotIndex) {
+            return h("button", { type: "button", key: item.id, className: "current-carousel-dot" + (dotIndex === index ? " is-active" : ""), "aria-label": "Show " + item.title, "aria-current": dotIndex === index ? "true" : undefined, onClick: function () { setIndex(dotIndex); } }, h("span", null));
           })),
-          h("span", { className: "filmroom-carousel-count", "aria-live": "polite" }, (index + 1) + " / " + scenes.length),
-          h("button", { type: "button", className: "filmroom-carousel-arrow", "aria-label": "Next scene", onClick: function () { setIndex((index + 1) % scenes.length); } }, "›")));
+          h("span", { className: "current-carousel-count", "aria-live": "polite" }, (index + 1) + " / " + scenes.length),
+          h("button", { type: "button", className: "current-carousel-arrow", "aria-label": "Next scene", onClick: function () { setIndex((index + 1) % scenes.length); } }, "›")));
     }
 
     function ContinueWatching(props) {
-      return h("section", { className: "filmroom-home-section", "aria-labelledby": "filmroom-continue-heading" },
-        h("div", { className: "filmroom-section-heading" },
-          h("div", null, h("span", { className: "filmroom-kicker" }, "Pick up where you left off"), h("h2", { id: "filmroom-continue-heading" }, "Continue watching")),
-          props.scenes && props.scenes.length ? routeLink("/scenes", "filmroom-section-link", "All scenes →") : null),
-        props.scenes && props.scenes.length ? h("div", { className: "filmroom-resume-grid" }, props.scenes.map(function (scene) {
+      return h("section", { className: "current-home-section", "aria-labelledby": "current-continue-heading" },
+        h("div", { className: "current-section-heading" },
+          h("div", null, h("span", { className: "current-kicker" }, "Pick up where you left off"), h("h2", { id: "current-continue-heading" }, "Continue watching")),
+          props.scenes && props.scenes.length ? routeLink("/scenes", "current-section-link", "All scenes →") : null),
+        props.scenes && props.scenes.length ? h("div", { className: "current-resume-grid" }, props.scenes.map(function (scene) {
           var duration = scene.duration;
           var percent = duration > 0 ? Math.max(0, Math.min(100, Math.round(scene.resumeTime / duration * 100))) : 0;
-          return h("article", { className: "filmroom-resume-card", key: scene.id },
-            routeLink("/scenes/" + encodeURIComponent(scene.id), "filmroom-resume-link",
+          return h("article", { className: "current-resume-card", key: scene.id },
+            routeLink("/scenes/" + encodeURIComponent(scene.id), "current-resume-link",
               h(React.Fragment, null,
                 h(SceneArtwork, { image: scene.image, duration: duration }),
-                h("div", { className: "filmroom-progress-track", role: "progressbar", "aria-label": scene.title + " watched", "aria-valuemin": 0, "aria-valuemax": 100, "aria-valuenow": percent }, h("span", { style: { width: percent + "%" } })),
-                h("div", { className: "filmroom-resume-title" }, scene.title),
-                h("div", { className: "filmroom-resume-meta" }, "Resume at " + formatDuration(scene.resumeTime) + (duration ? " · " + formatDuration(duration) : ""))
+                h("div", { className: "current-progress-track", role: "progressbar", "aria-label": scene.title + " watched", "aria-valuemin": 0, "aria-valuemax": 100, "aria-valuenow": percent }, h("span", { style: { width: percent + "%" } })),
+                h("div", { className: "current-resume-title" }, scene.title),
+                h("div", { className: "current-resume-meta" }, "Resume at " + formatDuration(scene.resumeTime) + (duration ? " · " + formatDuration(duration) : ""))
               )));
         })) : h(EmptyState, { icon: "scenes" }, props.loading ? "Checking for saved playback…" : "Scenes you have started will appear here."));
     }
 
-    function FilmroomHome(props) {
+    function CurrentHome(props) {
       var state = React.useState({ arrivals: [], resume: [], loading: true });
       var data = state[0];
       var setData = state[1];
@@ -807,7 +809,7 @@
           controller = new AbortController();
           setData(function (old) { return Object.assign({}, old, { loading: true }); });
           var sort = readPreferences().newContentSort === "date" ? "date" : "created_at";
-          var query = "query FilmroomHome { " +
+          var query = "query CurrentHome { " +
             "newArrivals: findScenes(filter: { per_page: 7, sort: \"" + sort + "\", direction: DESC }) { scenes { id title date created_at resume_time studio { name } performers { name } files { basename duration height } paths { screenshot } } } " +
             "continueWatching: findScenes(scene_filter: { resume_time: { value: 0, modifier: GREATER_THAN } }, filter: { per_page: 8, sort: \"last_played_at\", direction: DESC }) { scenes { id title date created_at resume_time studio { name } performers { name } files { basename duration height } paths { screenshot } } } }";
           gql(query, controller.signal).then(function (result) {
@@ -831,13 +833,13 @@
           window.removeEventListener(PREFERENCES_EVENT, onPreferencesChanged);
         };
       }, []);
-      return h("div", { className: "filmroom-home" },
+      return h("div", { className: "current-home" },
         h(NewArrivalsCarousel, { scenes: data.arrivals, loading: data.loading }),
         h(ContinueWatching, { scenes: data.resume, loading: data.loading }),
-        props.stockContent ? h("section", { className: "filmroom-stock-recommendations", "aria-label": "Stash recommendations" }, props.stockContent) : null);
+        props.stockContent ? h("section", { className: "current-stock-recommendations", "aria-label": "Stash recommendations" }, props.stockContent) : null);
     }
 
-    function FilmroomSettingsPage() {
+    function CurrentSettingsPage() {
       var state = React.useState(readPreferences());
       var preferences = state[0];
       var setState = state[1];
@@ -846,7 +848,7 @@
         window.addEventListener(PREFERENCES_EVENT, refresh);
         window.setTimeout(function () {
           refreshTopbarContext();
-          var themeLinks = document.querySelectorAll(".filmroom-theme-nav-item");
+          var themeLinks = document.querySelectorAll(".current-theme-nav-item");
           for (var i = 0; i < themeLinks.length; i++) {
             themeLinks[i].classList.add("is-active");
             themeLinks[i].setAttribute("aria-current", "page");
@@ -865,9 +867,9 @@
         }
       }
       function toggle(label, description, key) {
-        return h("div", { className: "filmroom-setting-row", key: key },
+        return h("div", { className: "current-setting-row", key: key },
           h("div", null, h("strong", null, label), h("p", null, description)),
-          h("button", { type: "button", role: "switch", className: "filmroom-switch" + (preferences[key] ? " is-on" : ""), "aria-checked": Boolean(preferences[key]), onClick: function () { change(key, !preferences[key]); } }, h("span", null)));
+          h("button", { type: "button", role: "switch", className: "current-switch" + (preferences[key] ? " is-on" : ""), "aria-checked": Boolean(preferences[key]), onClick: function () { change(key, !preferences[key]); } }, h("span", null)));
       }
       var mobileChoices = [
         ["/", "Home"], ["/scenes", "Scenes"], ["/images", "Images"], ["/galleries", "Galleries"],
@@ -882,54 +884,54 @@
         change("mobileDock", next);
       }
       var cardStyles = [["cinematic", "Cinematic", "Wide artwork with a clean metadata panel."], ["compact", "Compact", "More titles in a tighter library grid."], ["poster", "Poster", "Tall artwork for a poster wall." ]];
-      return h("main", { className: "filmroom-settings-page" },
-        h("header", { className: "filmroom-settings-hero" },
-          h("span", { className: "filmroom-brand-mark" }, "F"),
-          h("div", null, h("span", { className: "filmroom-kicker" }, "FILMROOM THEME SETTINGS"), h("h1", null, "Make Filmroom yours"), h("p", null, "Set the tone, shape navigation, and fine-tune how your library looks."))),
-        h("section", { className: "filmroom-settings-card" },
-          h("div", { className: "filmroom-section-heading" }, h("div", null, h("span", { className: "filmroom-kicker" }, "APPEARANCE"), h("h2", null, "Color and mode"))),
-          h("div", { className: "filmroom-setting-row" },
+      return h("main", { className: "current-settings-page" },
+        h("header", { className: "current-settings-hero" },
+          h("span", { className: "current-brand-mark", dangerouslySetInnerHTML: { __html: CURRENT_MARK } }),
+          h("div", null, h("span", { className: "current-kicker" }, "CURRENT THEME SETTINGS"), h("h1", null, "Make Current yours"), h("p", null, "Set the tone, shape navigation, and fine-tune how your library looks."))),
+        h("section", { className: "current-settings-card" },
+          h("div", { className: "current-section-heading" }, h("div", null, h("span", { className: "current-kicker" }, "APPEARANCE"), h("h2", null, "Color and mode"))),
+          h("div", { className: "current-setting-row" },
             h("div", null, h("strong", null, "Color mode"), h("p", null, "Choose light, dark, or follow your device setting.")),
-            h("select", { className: "filmroom-select", value: preferences.mode, onChange: function (event) { change("mode", event.target.value); } },
+            h("select", { className: "current-select", value: preferences.mode, onChange: function (event) { change("mode", event.target.value); } },
               h("option", { value: "system" }, "System"), h("option", { value: "dark" }, "Dark"), h("option", { value: "light" }, "Light"))),
-          h("div", { className: "filmroom-setting-row filmroom-accent-row" },
+          h("div", { className: "current-setting-row current-accent-row" },
             h("div", null, h("strong", null, "Accent color"), h("p", null, "Used for active states, controls, and playback progress.")),
-            h("div", { className: "filmroom-accent-swatches", role: "group", "aria-label": "Accent color" }, ACCENTS.map(function (accent) {
-              return h("button", { type: "button", key: accent.id, className: "filmroom-accent-swatch" + (preferences.accent === accent.id ? " is-selected" : ""), style: { backgroundColor: accent.color }, title: accent.label, "aria-label": accent.label, "aria-pressed": preferences.accent === accent.id, onClick: function () { change("accent", accent.id); } });
+            h("div", { className: "current-accent-swatches", role: "group", "aria-label": "Accent color" }, ACCENTS.map(function (accent) {
+              return h("button", { type: "button", key: accent.id, className: "current-accent-swatch" + (preferences.accent === accent.id ? " is-selected" : ""), style: { backgroundColor: accent.color }, title: accent.label, "aria-label": accent.label, "aria-pressed": preferences.accent === accent.id, onClick: function () { change("accent", accent.id); } });
             }))),
           toggle("Reduce visual effects", "Reduce transitions and motion on this device.", "reduceEffects")),
-        h("section", { className: "filmroom-settings-card" },
-          h("div", { className: "filmroom-section-heading" }, h("div", null, h("span", { className: "filmroom-kicker" }, "CARDS"), h("h2", null, "Library card appearance"), h("p", null, "Choose a layout for Stash scene cards."))),
-          h("div", { className: "filmroom-card-style-grid" }, cardStyles.map(function (style) {
-            return h("button", { type: "button", key: style[0], className: "filmroom-card-style-option" + (preferences.cardStyle === style[0] ? " is-selected" : ""), "aria-pressed": preferences.cardStyle === style[0], onClick: function () { change("cardStyle", style[0]); } },
-              h("span", { className: "filmroom-card-style-preview " + style[0] }, h("i", null), h("i", null), h("i", null)),
+        h("section", { className: "current-settings-card" },
+          h("div", { className: "current-section-heading" }, h("div", null, h("span", { className: "current-kicker" }, "CARDS"), h("h2", null, "Library card appearance"), h("p", null, "Choose a layout for Stash scene cards."))),
+          h("div", { className: "current-card-style-grid" }, cardStyles.map(function (style) {
+            return h("button", { type: "button", key: style[0], className: "current-card-style-option" + (preferences.cardStyle === style[0] ? " is-selected" : ""), "aria-pressed": preferences.cardStyle === style[0], onClick: function () { change("cardStyle", style[0]); } },
+              h("span", { className: "current-card-style-preview " + style[0] }, h("i", null), h("i", null), h("i", null)),
               h("strong", null, style[1]), h("small", null, style[2]));
           }))),
-        h("section", { className: "filmroom-settings-card" },
-          h("div", { className: "filmroom-section-heading" }, h("div", null, h("span", { className: "filmroom-kicker" }, "HOMEPAGE"), h("h2", null, "Featured content"))),
-          h("div", { className: "filmroom-setting-row" },
-            h("div", null, h("strong", null, "New content means"), h("p", null, "Choose how Filmroom decides what counts as new.")),
-            h("select", { className: "filmroom-select", value: preferences.newContentSort === "date" ? "date" : "created_at", onChange: function (event) { change("newContentSort", event.target.value); } },
+        h("section", { className: "current-settings-card" },
+          h("div", { className: "current-section-heading" }, h("div", null, h("span", { className: "current-kicker" }, "HOMEPAGE"), h("h2", null, "Featured content"))),
+          h("div", { className: "current-setting-row" },
+            h("div", null, h("strong", null, "New content means"), h("p", null, "Choose how Current decides what counts as new.")),
+            h("select", { className: "current-select", value: preferences.newContentSort === "date" ? "date" : "created_at", onChange: function (event) { change("newContentSort", event.target.value); } },
               h("option", { value: "created_at" }, "Recently added"), h("option", { value: "date" }, "Recently released")))),
-        h("section", { className: "filmroom-settings-card" },
-          h("div", { className: "filmroom-section-heading" }, h("div", null, h("span", { className: "filmroom-kicker" }, "NAVIGATION"), h("h2", null, "Shape your navigation"), h("p", null, "Choose how Filmroom routes appear on desktop and mobile."))),
+        h("section", { className: "current-settings-card" },
+          h("div", { className: "current-section-heading" }, h("div", null, h("span", { className: "current-kicker" }, "NAVIGATION"), h("h2", null, "Shape your navigation"), h("p", null, "Choose how Current routes appear on desktop and mobile."))),
           toggle("Start with a compact desktop rail", "Show navigation labels only when the rail is expanded.", "sidebarCollapsed"),
-          h("div", { className: "filmroom-setting-row filmroom-mobile-choice-row" },
+          h("div", { className: "current-setting-row current-mobile-choice-row" },
             h("div", null, h("strong", null, "Mobile dock"), h("p", null, "Choose up to three destinations; the fixed fourth button opens all remaining pages.")),
-            h("span", { className: "filmroom-selection-count" }, preferences.mobileDock.length + " of 3")),
-          h("div", { className: "filmroom-mobile-choice-grid" }, mobileChoices.map(function (choice) {
+            h("span", { className: "current-selection-count" }, preferences.mobileDock.length + " of 3")),
+          h("div", { className: "current-mobile-choice-grid" }, mobileChoices.map(function (choice) {
             var selected = preferences.mobileDock.indexOf(choice[0]) !== -1;
-            return h("button", { type: "button", key: choice[0], className: "filmroom-choice-chip" + (selected ? " is-selected" : ""), "aria-pressed": selected, disabled: !selected && preferences.mobileDock.length >= 3, onClick: function () { toggleDock(choice[0]); } }, choice[1]);
+            return h("button", { type: "button", key: choice[0], className: "current-choice-chip" + (selected ? " is-selected" : ""), "aria-pressed": selected, disabled: !selected && preferences.mobileDock.length >= 3, onClick: function () { toggleDock(choice[0]); } }, choice[1]);
           }))),
-        h("section", { className: "filmroom-settings-card" },
-          h("div", { className: "filmroom-section-heading" }, h("div", null, h("span", { className: "filmroom-kicker" }, "PLAYBACK"), h("h2", null, "Playback preferences"), h("p", null, "Player behavior remains controlled by Stash."))),
-          h("div", { className: "filmroom-playback-note" }, h("p", null, "Filmroom uses Stash’s built-in player and resume position, so autoplay, playlist continuation, and playback controls stay in sync with the server’s native preferences."), routeLink("/settings?tab=interface", "filmroom-button filmroom-button-quiet", "Open Stash playback settings"))),
-        h("p", { className: "filmroom-settings-note" }, "Filmroom appearance preferences are saved in this browser. Library records, playback, and settings continue to use Stash’s native features."));
+        h("section", { className: "current-settings-card" },
+          h("div", { className: "current-section-heading" }, h("div", null, h("span", { className: "current-kicker" }, "PLAYBACK"), h("h2", null, "Playback preferences"), h("p", null, "Player behavior remains controlled by Stash."))),
+          h("div", { className: "current-playback-note" }, h("p", null, "Current uses Stash’s built-in player and resume position, so autoplay, playlist continuation, and playback controls stay in sync with the server’s native preferences."), routeLink("/settings?tab=interface", "current-button current-button-quiet", "Open Stash playback settings"))),
+        h("p", { className: "current-settings-note" }, "Current appearance preferences are saved in this browser. Library records, playback, and settings continue to use Stash’s native features."));
     }
 
     if (PluginApi.register && PluginApi.register.route) {
       PluginApi.register.route(PLUGIN_ROUTE, function (props) {
-        return h(FilmroomSettingsPage, props);
+        return h(CurrentSettingsPage, props);
       });
     }
     if (PluginApi.patch && PluginApi.patch.instead && RouterLink) {
@@ -938,7 +940,7 @@
         var next = args.pop();
         var original = next.apply(null, args);
         return h(React.Fragment, null, original,
-          h(RouterLink, { to: PLUGIN_ROUTE, className: "filmroom-route-proxy", tabIndex: -1, "aria-hidden": "true" }, "Theme settings"));
+          h(RouterLink, { to: PLUGIN_ROUTE, className: "current-route-proxy", tabIndex: -1, "aria-hidden": "true" }, "Theme settings"));
       });
     }
     if (PluginApi.patch && PluginApi.patch.after) {
@@ -950,7 +952,7 @@
           (stockContent.type.displayName || stockContent.type.name) || "";
         if (className.indexOf("recommendations-container-edit") !== -1 ||
             componentName === "FrontPageConfig" || componentName === "LoadingIndicator") { return stockContent; }
-        return h(FilmroomHome, { stockContent: stockContent });
+        return h(CurrentHome, { stockContent: stockContent });
       });
     }
   }
@@ -972,8 +974,8 @@
       installTopbarContext(navbar);
       installModeButton();
       renderNavigation(navbar);
-      mountFilmroomStatistics();
-      syncFilmroomRangeControls();
+      mountCurrentStatistics();
+      syncCurrentRangeControls();
       if (!observer) {
         observer = new MutationObserver(function () { renderNavigation(navbar); installModeButton(); });
         observer.observe(navbar, { childList: true, subtree: true });
@@ -994,8 +996,8 @@
       bodyObserver = new MutationObserver(activate);
       bodyObserver.observe(document.body, { childList: true, subtree: true });
       pageObserver = new MutationObserver(function () {
-        syncFilmroomRangeControls();
-        if (window.location.pathname === "/stats") { window.setTimeout(mountFilmroomStatistics, 100); }
+        syncCurrentRangeControls();
+        if (window.location.pathname === "/stats") { window.setTimeout(mountCurrentStatistics, 100); }
       });
       pageObserver.observe(document.body, { childList: true, subtree: true });
     }
@@ -1003,7 +1005,7 @@
     else { document.addEventListener("DOMContentLoaded", activate, { once: true }); }
     window.addEventListener("popstate", updateActiveNavigation);
     window.addEventListener("popstate", refreshTopbarContext);
-    window.addEventListener("popstate", mountFilmroomStatistics);
+    window.addEventListener("popstate", mountCurrentStatistics);
     if (window.matchMedia) {
       var modeQuery = window.matchMedia("(prefers-color-scheme: light)");
       modeQuery.addEventListener ? modeQuery.addEventListener("change", function () { if (readPreferences().mode === "system") { applyPreferences(readPreferences()); } }) : modeQuery.addListener(function () { if (readPreferences().mode === "system") { applyPreferences(readPreferences()); } });
@@ -1011,12 +1013,12 @@
     document.addEventListener("keydown", function (event) {
       if (event.key === "Escape") { openMobileDrawer(false); }
       if ((event.metaKey || event.ctrlKey) && event.key.toLowerCase() === "k") {
-        var search = document.querySelector(".filmroom-global-search-input");
+        var search = document.querySelector(".current-global-search-input");
         if (search) { event.preventDefault(); search.focus(); }
       }
     });
-    document.addEventListener("input", function (event) { updateFilmroomRangeProgress(event.target); });
-    document.addEventListener("change", function (event) { updateFilmroomRangeProgress(event.target); });
+    document.addEventListener("input", function (event) { updateCurrentRangeProgress(event.target); });
+    document.addEventListener("change", function (event) { updateCurrentRangeProgress(event.target); });
     applyPreferences(readPreferences());
     return true;
   }

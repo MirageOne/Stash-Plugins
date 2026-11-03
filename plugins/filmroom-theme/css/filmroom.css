@@ -1,0 +1,484 @@
+/* Filmroom is an independent video-first Stash theme. */
+html[data-filmroom-theme="active"] {
+  color-scheme: dark;
+  --fr-bg: #0b0d10;
+  --fr-surface: #13161a;
+  --fr-surface-raised: #1b1f24;
+  --fr-surface-strong: #23282e;
+  --fr-line: #2b3138;
+  --fr-line-strong: #3a424b;
+  --fr-text: #f1f3f4;
+  --fr-muted: #b0b7bd;
+  --fr-quiet: #858e97;
+  --fr-accent: #a88bfa;
+  --fr-accent-rgb: 168, 139, 250;
+  --fr-accent-ink: #17111f;
+  --fr-danger: #ee777f;
+  --fr-danger-rgb: 238, 119, 127;
+  --fr-success: #7bd3a5;
+  --fr-shadow: 0 16px 44px rgba(0, 0, 0, .32);
+  --fr-sidebar-width: 232px;
+  --fr-radius: 7px;
+}
+
+html[data-filmroom-theme="active"][data-filmroom-accent="teal"] { --fr-accent:#42d7c2; --fr-accent-rgb:66,215,194; --fr-accent-ink:#08201d; }
+html[data-filmroom-theme="active"][data-filmroom-accent="blue"] { --fr-accent:#6ea8fe; --fr-accent-rgb:110,168,254; --fr-accent-ink:#0b1727; }
+html[data-filmroom-theme="active"][data-filmroom-accent="coral"] { --fr-accent:#ff927a; --fr-accent-rgb:255,146,122; --fr-accent-ink:#28130f; }
+html[data-filmroom-theme="active"][data-filmroom-accent="amber"] { --fr-accent:#f1c46d; --fr-accent-rgb:241,196,109; --fr-accent-ink:#211a0d; }
+html[data-filmroom-theme="active"][data-filmroom-accent="rose"] { --fr-accent:#f18bb6; --fr-accent-rgb:241,139,182; --fr-accent-ink:#26131d; }
+html[data-filmroom-theme="active"][data-filmroom-accent="green"] { --fr-accent:#83d79d; --fr-accent-rgb:131,215,157; --fr-accent-ink:#102116; }
+html[data-filmroom-theme="active"][data-filmroom-mode="light"] {
+  color-scheme: light;
+  --fr-bg: #f2f4f6;
+  --fr-surface: #ffffff;
+  --fr-surface-raised: #f8f9fb;
+  --fr-surface-strong: #edf0f3;
+  --fr-line: #dce1e6;
+  --fr-line-strong: #c5cdd5;
+  --fr-text: #1a2026;
+  --fr-muted: #4f5b66;
+  --fr-quiet: #6c7884;
+  --fr-shadow: 0 14px 36px rgba(23, 33, 45, .11);
+}
+
+html[data-filmroom-theme="active"] body {
+  background: var(--fr-bg) !important;
+  color: var(--fr-text) !important;
+  font-family: Inter, ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont, "Helvetica Neue", Arial, sans-serif !important;
+  font-size: 14px;
+  line-height: 1.5;
+}
+
+html[data-filmroom-theme="active"] a { color: var(--fr-accent); }
+html[data-filmroom-theme="active"] a:hover { color: var(--fr-text); }
+html[data-filmroom-theme="active"] ::selection { color: var(--fr-accent-ink); background: var(--fr-accent); }
+html[data-filmroom-theme="active"] :focus-visible { outline: 2px solid var(--fr-accent) !important; outline-offset: 2px; }
+
+/* Persistent desktop rail and compact application bar. */
+body.filmroom-active nav.top-nav {
+  position: fixed !important;
+  z-index: 1030;
+  inset: 0 0 auto 0;
+  height: 60px;
+  display: flex !important;
+  flex-flow: row nowrap;
+  align-items: center;
+  padding: 0 24px;
+  border: 0 !important;
+  border-bottom: 1px solid var(--fr-line) !important;
+  background: var(--fr-surface) !important;
+  box-shadow: none !important;
+}
+body.filmroom-active nav.top-nav .navbar-brand,
+body.filmroom-active nav.top-nav .navbar-collapse,
+body.filmroom-active nav.top-nav .nav-menu-toggle { display: none !important; }
+body.filmroom-active nav.top-nav .filmroom-topbar-brand { display: none; }
+body.filmroom-active nav.top-nav .navbar-buttons {
+  display: flex !important;
+  align-items: center;
+  gap: 7px;
+  margin: 0 0 0 auto !important;
+}
+body.filmroom-active nav.top-nav .navbar-buttons > * { margin: 0 !important; }
+body.filmroom-active nav.top-nav .navbar-buttons .btn,
+body.filmroom-active nav.top-nav .navbar-buttons .nav-link {
+  min-width: 38px;
+  min-height: 38px;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  border: 1px solid transparent !important;
+  border-radius: 5px !important;
+  background: transparent !important;
+  color: var(--fr-muted) !important;
+  box-shadow: none !important;
+}
+body.filmroom-active nav.top-nav .navbar-buttons .btn:hover,
+body.filmroom-active nav.top-nav .navbar-buttons .nav-link:hover {
+  border-color: var(--fr-line) !important;
+  background: var(--fr-surface-raised) !important;
+  color: var(--fr-text) !important;
+}
+body.filmroom-active nav.top-nav .navbar-buttons .btn-primary,
+body.filmroom-active nav.top-nav .navbar-buttons [data-action="new"] {
+  border-color: var(--fr-accent) !important;
+  background: var(--fr-accent) !important;
+  color: var(--fr-accent-ink) !important;
+}
+body.filmroom-active nav.top-nav .navbar-buttons .donate { color: var(--fr-muted) !important; }
+body.filmroom-active nav.top-nav .navbar-buttons .nav-utility { padding: 0 !important; }
+body.filmroom-active nav.top-nav .navbar-buttons .filmroom-mode-toggle svg { width: 18px; height: 18px; }
+
+body.filmroom-active .filmroom-sidebar {
+  position: fixed;
+  z-index: 1020;
+  inset: 60px auto 0 0;
+  width: var(--fr-sidebar-width);
+  display: flex;
+  flex-direction: column;
+  padding: 14px 12px 16px;
+  overflow: auto;
+  border-right: 1px solid var(--fr-line);
+  background: var(--fr-surface);
+  transition: width .18s ease;
+}
+body.filmroom-active .filmroom-sidebar-brand-row { display: flex; align-items: center; gap: 7px; padding: 2px 2px 18px; }
+body.filmroom-active .filmroom-brand { min-width: 0; flex: 1; display: flex; align-items: center; gap: 10px; color: var(--fr-text); text-decoration: none; }
+body.filmroom-active .filmroom-brand-mark {
+  width: 34px;
+  height: 34px;
+  flex: 0 0 34px;
+  display: grid;
+  place-items: center;
+  border-radius: 5px;
+  background: var(--fr-accent);
+  color: var(--fr-accent-ink);
+  font-size: 18px;
+  font-weight: 850;
+  letter-spacing: -.09em;
+}
+body.filmroom-active .filmroom-brand-name { overflow: hidden; font-size: 15px; font-weight: 760; letter-spacing: -.035em; text-overflow: ellipsis; }
+body.filmroom-active .filmroom-sidebar-collapse {
+  width: 32px;
+  height: 32px;
+  flex: 0 0 32px;
+  display: grid;
+  place-items: center;
+  padding: 0;
+  border: 1px solid var(--fr-line);
+  border-radius: 4px;
+  background: transparent;
+  color: var(--fr-muted);
+}
+body.filmroom-active .filmroom-sidebar-collapse:hover { border-color: var(--fr-line-strong); color: var(--fr-text); }
+body.filmroom-active .filmroom-sidebar-collapse svg { width: 15px; height: 15px; }
+body.filmroom-active .filmroom-sidebar-nav { min-height: 0; flex: 1; display: flex; flex-direction: column; }
+body.filmroom-active .filmroom-sidebar-primary { display: flex; flex-direction: column; gap: 3px; }
+body.filmroom-active .filmroom-sidebar-footer { display: flex; flex-direction: column; gap: 3px; margin-top: auto; padding-top: 16px; border-top: 1px solid var(--fr-line); }
+body.filmroom-active .filmroom-nav-item {
+  min-height: 40px;
+  display: flex;
+  align-items: center;
+  gap: 11px;
+  padding: 0 11px;
+  border: 1px solid transparent;
+  border-radius: 4px;
+  color: var(--fr-muted);
+  font-size: 12px;
+  font-weight: 560;
+  text-decoration: none;
+  transition: background-color .12s ease, color .12s ease;
+}
+body.filmroom-active .filmroom-nav-item:hover { background: var(--fr-surface-raised); color: var(--fr-text); }
+body.filmroom-active .filmroom-nav-item.is-active {
+  border-color: rgba(var(--fr-accent-rgb), .18);
+  background: rgba(var(--fr-accent-rgb), .11);
+  color: var(--fr-accent);
+}
+body.filmroom-active .filmroom-nav-icon { width: 18px; height: 18px; flex: 0 0 18px; display: grid; place-items: center; }
+body.filmroom-active .filmroom-nav-icon svg { width: 17px; height: 17px; }
+body.filmroom-active .filmroom-nav-label { min-width: 0; overflow: hidden; white-space: nowrap; text-overflow: ellipsis; }
+
+body.filmroom-active.filmroom-sidebar-collapsed { --fr-sidebar-width: 72px; }
+body.filmroom-active.filmroom-sidebar-collapsed .filmroom-sidebar { padding-inline: 10px; }
+body.filmroom-active.filmroom-sidebar-collapsed .filmroom-sidebar-brand-row { flex-direction: column; }
+body.filmroom-active.filmroom-sidebar-collapsed .filmroom-brand { flex: none; justify-content: center; }
+body.filmroom-active.filmroom-sidebar-collapsed .filmroom-brand-name,
+body.filmroom-active.filmroom-sidebar-collapsed .filmroom-nav-label { display: none; }
+body.filmroom-active.filmroom-sidebar-collapsed .filmroom-nav-item { justify-content: center; padding-inline: 0; }
+body.filmroom-active.filmroom-sidebar-collapsed .filmroom-sidebar-collapse svg { transform: rotate(180deg); }
+
+body.filmroom-active .main.container-fluid {
+  width: calc(100% - var(--fr-sidebar-width));
+  max-width: 1760px;
+  margin: 0 0 0 var(--fr-sidebar-width) !important;
+  padding: 88px clamp(22px, 3vw, 54px) 72px !important;
+  transition: width .18s ease, margin-left .18s ease;
+}
+
+/* Flat controls, crisp surfaces, and readable forms across Stash pages. */
+html[data-filmroom-theme="active"] .card,
+html[data-filmroom-theme="active"] .modal-content,
+html[data-filmroom-theme="active"] .popover,
+html[data-filmroom-theme="active"] .dropdown-menu,
+html[data-filmroom-theme="active"] .filter-section,
+html[data-filmroom-theme="active"] .plugin-settings,
+html[data-filmroom-theme="active"] .settings-section,
+html[data-filmroom-theme="active"] .settings-container {
+  border: 1px solid var(--fr-line) !important;
+  border-radius: var(--fr-radius) !important;
+  background: var(--fr-surface) !important;
+  color: var(--fr-text) !important;
+  box-shadow: none !important;
+}
+html[data-filmroom-theme="active"] .card-header,
+html[data-filmroom-theme="active"] .card-footer,
+html[data-filmroom-theme="active"] .modal-header,
+html[data-filmroom-theme="active"] .modal-footer,
+html[data-filmroom-theme="active"] .list-group-item,
+html[data-filmroom-theme="active"] .dropdown-divider {
+  border-color: var(--fr-line) !important;
+  background: var(--fr-surface-raised) !important;
+  color: var(--fr-text) !important;
+}
+html[data-filmroom-theme="active"] .text-muted,
+html[data-filmroom-theme="active"] .text-secondary,
+html[data-filmroom-theme="active"] .sub-heading,
+html[data-filmroom-theme="active"] .form-text { color: var(--fr-quiet) !important; }
+html[data-filmroom-theme="active"] .btn,
+html[data-filmroom-theme="active"] button.btn,
+html[data-filmroom-theme="active"] .page-link {
+  min-height: 34px;
+  border: 1px solid var(--fr-line-strong) !important;
+  border-radius: 4px !important;
+  background: var(--fr-surface-raised) !important;
+  color: var(--fr-text) !important;
+  box-shadow: none !important;
+  font-weight: 620;
+  transition: border-color .12s ease, background-color .12s ease, color .12s ease;
+}
+html[data-filmroom-theme="active"] .btn:hover,
+html[data-filmroom-theme="active"] .page-link:hover { border-color: var(--fr-accent) !important; color: var(--fr-accent) !important; }
+html[data-filmroom-theme="active"] .btn-primary,
+html[data-filmroom-theme="active"] .btn-success,
+html[data-filmroom-theme="active"] .btn-info,
+html[data-filmroom-theme="active"] .btn-primary:hover,
+html[data-filmroom-theme="active"] .btn-success:hover,
+html[data-filmroom-theme="active"] .btn-info:hover {
+  border-color: var(--fr-accent) !important;
+  background: var(--fr-accent) !important;
+  color: var(--fr-accent-ink) !important;
+}
+html[data-filmroom-theme="active"] .btn-danger,
+html[data-filmroom-theme="active"] .btn-danger:hover,
+html[data-filmroom-theme="active"] .btn-outline-danger:hover {
+  border-color: rgba(var(--fr-danger-rgb), .58) !important;
+  background: rgba(var(--fr-danger-rgb), .20) !important;
+  color: var(--fr-text) !important;
+}
+html[data-filmroom-theme="active"] .btn-link { border-color: transparent !important; background: transparent !important; color: var(--fr-accent) !important; }
+html[data-filmroom-theme="active"] .form-control,
+html[data-filmroom-theme="active"] .custom-select,
+html[data-filmroom-theme="active"] .form-select,
+html[data-filmroom-theme="active"] input:not([type="checkbox"]):not([type="radio"]),
+html[data-filmroom-theme="active"] textarea,
+html[data-filmroom-theme="active"] select {
+  border: 1px solid var(--fr-line-strong) !important;
+  border-radius: 4px !important;
+  background-color: var(--fr-surface-raised) !important;
+  color: var(--fr-text) !important;
+  box-shadow: none !important;
+}
+html[data-filmroom-theme="active"] .form-control:focus,
+html[data-filmroom-theme="active"] input:focus,
+html[data-filmroom-theme="active"] textarea:focus,
+html[data-filmroom-theme="active"] select:focus { border-color: var(--fr-accent) !important; box-shadow: 0 0 0 2px rgba(var(--fr-accent-rgb), .18) !important; }
+html[data-filmroom-theme="active"] input[type="checkbox"],
+html[data-filmroom-theme="active"] input[type="radio"],
+html[data-filmroom-theme="active"] input[type="range"] { accent-color: var(--fr-accent); }
+html[data-filmroom-theme="active"] .custom-switch .custom-control-label::before {
+  width: 2.3rem;
+  height: 1.28rem;
+  top: .08rem;
+  left: -2.65rem;
+  border: 1px solid var(--fr-line-strong) !important;
+  border-radius: 999px !important;
+  background: var(--fr-surface-strong) !important;
+  box-shadow: none !important;
+}
+html[data-filmroom-theme="active"] .custom-switch .custom-control-label::after {
+  top: calc(.08rem + 3px);
+  left: calc(-2.65rem + 3px);
+  width: 14px;
+  height: 14px;
+  border-radius: 50%;
+  background: var(--fr-muted) !important;
+  box-shadow: none !important;
+  transition: transform .14s ease, background-color .14s ease;
+}
+html[data-filmroom-theme="active"] .custom-switch .custom-control-input:checked ~ .custom-control-label::before { border-color: var(--fr-accent) !important; background: var(--fr-accent) !important; }
+html[data-filmroom-theme="active"] .custom-switch .custom-control-input:checked ~ .custom-control-label::after { background: var(--fr-accent-ink) !important; transform: translateX(1rem); }
+html[data-filmroom-theme="active"] table { color: var(--fr-muted); }
+html[data-filmroom-theme="active"] table th { border-color: var(--fr-line); background: var(--fr-surface-raised); color: var(--fr-quiet); }
+html[data-filmroom-theme="active"] table td { border-color: var(--fr-line); }
+html[data-filmroom-theme="active"] pre,
+html[data-filmroom-theme="active"] code { color: var(--fr-text); }
+html[data-filmroom-theme="active"] pre,
+html[data-filmroom-theme="active"] .log-entry,
+html[data-filmroom-theme="active"] .log-message { white-space: pre-wrap; overflow-wrap: anywhere; word-break: break-word; }
+html[data-filmroom-theme="active"] .page-title,
+html[data-filmroom-theme="active"] h1,
+html[data-filmroom-theme="active"] h2,
+html[data-filmroom-theme="active"] h3,
+html[data-filmroom-theme="active"] h4 { color: var(--fr-text); letter-spacing: -.025em; }
+html[data-filmroom-theme="active"] .nav-tabs { border-color: var(--fr-line); }
+html[data-filmroom-theme="active"] .nav-tabs .nav-link { border: 0; border-bottom: 2px solid transparent; border-radius: 0; color: var(--fr-muted); }
+html[data-filmroom-theme="active"] .nav-tabs .nav-link.active { border-color: var(--fr-accent); background: transparent; color: var(--fr-accent); }
+
+/* Playback controls remain Stash's player; Filmroom only reskins its chrome. */
+html[data-filmroom-theme="active"] .video-js,
+html[data-filmroom-theme="active"] .scene-player,
+html[data-filmroom-theme="active"] .scene-player-container { border-radius: 6px; }
+html[data-filmroom-theme="active"] .video-js .vjs-control-bar { background: rgba(9, 12, 15, .92); }
+html[data-filmroom-theme="active"] .video-js .vjs-play-progress,
+html[data-filmroom-theme="active"] .video-js .vjs-volume-level { background: var(--fr-accent); }
+html[data-filmroom-theme="active"] .video-js .vjs-play-progress::before { color: var(--fr-accent); }
+
+/* Main video-first homepage. */
+html[data-filmroom-theme="active"] .filmroom-home { width: 100%; max-width: 1500px; margin: 0 auto; }
+html[data-filmroom-theme="active"] .filmroom-home-hero {
+  min-height: 410px;
+  position: relative;
+  display: flex;
+  align-items: flex-end;
+  overflow: hidden;
+  border: 1px solid var(--fr-line);
+  border-radius: 8px;
+  background: linear-gradient(135deg, #14252b, #3b4849 52%, #8a6047);
+  isolation: isolate;
+  touch-action: pan-y;
+}
+html[data-filmroom-theme="active"] .filmroom-home-hero::after {
+  position: absolute;
+  z-index: -1;
+  inset: 0;
+  content: "";
+  background: linear-gradient(90deg, rgba(7, 10, 13, .92) 0%, rgba(7, 10, 13, .72) 34%, rgba(7, 10, 13, .14) 78%), linear-gradient(0deg, rgba(7, 10, 13, .48), transparent 58%);
+}
+html[data-filmroom-theme="active"] .filmroom-artwork-large { position: absolute; z-index: -2; inset: 0; border: 0; border-radius: 0; }
+html[data-filmroom-theme="active"] .filmroom-artwork-large::after { display: none; }
+html[data-filmroom-theme="active"] .filmroom-artwork-large .filmroom-duration { display: none; }
+html[data-filmroom-theme="active"] .filmroom-artwork-large .filmroom-artwork-overlay { display: none; }
+html[data-filmroom-theme="active"] .filmroom-artwork {
+  aspect-ratio: 16 / 9;
+  position: relative;
+  overflow: hidden;
+  border: 1px solid var(--fr-line);
+  border-radius: 5px;
+  background-color: var(--fr-surface-strong);
+  background-size: cover;
+  background-position: center 35%;
+}
+html[data-filmroom-theme="active"] .filmroom-artwork-overlay { position: absolute; inset: 0; background: linear-gradient(0deg, rgba(0,0,0,.34), transparent 44%); }
+html[data-filmroom-theme="active"] .filmroom-duration { position: absolute; right: 8px; bottom: 8px; padding: 3px 6px; border-radius: 3px; background: rgba(0,0,0,.72); color: #fff; font-size: 10px; font-variant-numeric: tabular-nums; }
+html[data-filmroom-theme="active"] .filmroom-hero-copy { width: min(660px, 64%); padding: 44px clamp(24px, 5vw, 72px) 74px; }
+html[data-filmroom-theme="active"] .filmroom-kicker { display: block; color: var(--fr-accent); font-size: 10px; font-weight: 780; letter-spacing: .15em; line-height: 1.4; text-transform: uppercase; }
+html[data-filmroom-theme="active"] .filmroom-hero-copy h1 { max-width: 620px; margin: 11px 0 9px; color: #fff; font-size: clamp(32px, 4vw, 56px); font-weight: 780; line-height: 1.04; letter-spacing: -.045em; }
+html[data-filmroom-theme="active"] .filmroom-hero-copy p { max-width: 520px; margin: 12px 0 0; color: rgba(255,255,255,.78); font-size: 13px; }
+html[data-filmroom-theme="active"] .filmroom-hero-meta,
+html[data-filmroom-theme="active"] .filmroom-hero-performers { color: rgba(255,255,255,.76); font-size: 12px; }
+html[data-filmroom-theme="active"] .filmroom-hero-performers { margin-top: 6px; }
+html[data-filmroom-theme="active"] .filmroom-hero-actions { display: flex; flex-wrap: wrap; gap: 9px; margin-top: 21px; }
+html[data-filmroom-theme="active"] .filmroom-button { min-height: 40px; display: inline-flex; align-items: center; justify-content: center; gap: 8px; padding: 0 14px; border: 1px solid rgba(255,255,255,.34); border-radius: 4px; color: #fff; font-size: 12px; font-weight: 680; text-decoration: none; }
+html[data-filmroom-theme="active"] .filmroom-button:hover { border-color: #fff; color: #fff; }
+html[data-filmroom-theme="active"] .filmroom-button-primary { border-color: var(--fr-accent); background: var(--fr-accent); color: var(--fr-accent-ink); }
+html[data-filmroom-theme="active"] .filmroom-button-primary:hover { border-color: var(--fr-accent); filter: brightness(1.07); color: var(--fr-accent-ink); }
+html[data-filmroom-theme="active"] .filmroom-button-quiet { background: rgba(12,15,18,.34); }
+html[data-filmroom-theme="active"] .filmroom-play-icon svg { width: 15px; height: 15px; }
+html[data-filmroom-theme="active"] .filmroom-carousel-controls { position: absolute; right: 18px; bottom: 16px; z-index: 2; display: flex; align-items: center; gap: 8px; }
+html[data-filmroom-theme="active"] .filmroom-carousel-arrow { width: 34px; height: 34px; display: grid; place-items: center; padding: 0 0 3px; border: 1px solid rgba(255,255,255,.3); border-radius: 4px; background: rgba(8,11,14,.58); color: #fff; font-size: 25px; line-height: 1; }
+html[data-filmroom-theme="active"] .filmroom-carousel-arrow:hover { border-color: var(--fr-accent); color: var(--fr-accent); }
+html[data-filmroom-theme="active"] .filmroom-carousel-dots { display: flex; align-items: center; gap: 3px; }
+html[data-filmroom-theme="active"] .filmroom-carousel-dot { width: 20px; height: 25px; display: grid; place-items: center; padding: 0; border: 0; background: transparent; }
+html[data-filmroom-theme="active"] .filmroom-carousel-dot span { width: 6px; height: 6px; border-radius: 9px; background: rgba(255,255,255,.55); transition: width .15s ease; }
+html[data-filmroom-theme="active"] .filmroom-carousel-dot.is-active span { width: 18px; background: var(--fr-accent); }
+html[data-filmroom-theme="active"] .filmroom-carousel-count { min-width: 36px; color: rgba(255,255,255,.8); font-size: 10px; font-variant-numeric: tabular-nums; text-align: center; }
+html[data-filmroom-theme="active"] .filmroom-home-hero-empty { align-items: center; min-height: 350px; }
+html[data-filmroom-theme="active"] .filmroom-home-hero-empty::after { background: linear-gradient(100deg, rgba(7,10,13,.94), rgba(7,10,13,.38)), radial-gradient(ellipse at 78% 48%, rgba(var(--fr-accent-rgb),.16), transparent 36%); }
+html[data-filmroom-theme="active"] .filmroom-home-hero-empty .filmroom-hero-copy { width: min(740px, 82%); }
+html[data-filmroom-theme="active"] .filmroom-home-section { margin: 27px 0 35px; }
+html[data-filmroom-theme="active"] .filmroom-section-heading { min-height: 44px; display: flex; align-items: flex-end; justify-content: space-between; gap: 16px; margin-bottom: 14px; }
+html[data-filmroom-theme="active"] .filmroom-section-heading h2 { margin: 3px 0 0; color: var(--fr-text); font-size: 20px; font-weight: 730; letter-spacing: -.035em; }
+html[data-filmroom-theme="active"] .filmroom-section-link { flex: 0 0 auto; color: var(--fr-accent); font-size: 11px; font-weight: 650; text-decoration: none; }
+html[data-filmroom-theme="active"] .filmroom-resume-grid { display: grid; grid-template-columns: repeat(4, minmax(0, 1fr)); gap: 15px; }
+html[data-filmroom-theme="active"] .filmroom-resume-card { min-width: 0; }
+html[data-filmroom-theme="active"] .filmroom-resume-link { display: block; color: var(--fr-text); text-decoration: none; }
+html[data-filmroom-theme="active"] .filmroom-resume-link:hover .filmroom-artwork { border-color: rgba(var(--fr-accent-rgb), .8); }
+html[data-filmroom-theme="active"] .filmroom-resume-title { overflow: hidden; margin-top: 8px; color: var(--fr-text); font-size: 12px; font-weight: 680; text-overflow: ellipsis; white-space: nowrap; }
+html[data-filmroom-theme="active"] .filmroom-resume-meta { overflow: hidden; margin-top: 3px; color: var(--fr-quiet); font-size: 10px; text-overflow: ellipsis; white-space: nowrap; }
+html[data-filmroom-theme="active"] .filmroom-progress-track { height: 3px; overflow: hidden; border-radius: 4px; background: var(--fr-surface-strong); }
+html[data-filmroom-theme="active"] .filmroom-progress-track span { height: 100%; display: block; border-radius: inherit; background: var(--fr-accent); }
+html[data-filmroom-theme="active"] .filmroom-stock-recommendations { margin-top: 34px; }
+html[data-filmroom-theme="active"] .filmroom-empty-state { min-height: 76px; display: flex; align-items: center; gap: 12px; padding: 16px; border: 1px solid var(--fr-line); border-radius: 5px; color: var(--fr-quiet); font-size: 12px; }
+html[data-filmroom-theme="active"] .filmroom-empty-state p { margin: 0; }
+html[data-filmroom-theme="active"] .filmroom-empty-icon { width: 18px; height: 18px; color: var(--fr-accent); }
+html[data-filmroom-theme="active"] .filmroom-empty-icon svg { width: 18px; height: 18px; }
+
+/* Theme preferences are a regular Stash plugin route. */
+html[data-filmroom-theme="active"] .filmroom-settings-page { width: min(100%, 1060px); margin: 0 auto; }
+html[data-filmroom-theme="active"] .filmroom-settings-hero { display: flex; align-items: center; gap: 16px; margin-bottom: 17px; padding: 21px; border: 1px solid var(--fr-line); border-left: 3px solid var(--fr-accent); border-radius: 5px; background: var(--fr-surface); }
+html[data-filmroom-theme="active"] .filmroom-settings-hero .filmroom-brand-mark { width: 48px; height: 48px; flex-basis: 48px; font-size: 24px; }
+html[data-filmroom-theme="active"] .filmroom-settings-hero h1 { margin: 4px 0; font-size: 25px; }
+html[data-filmroom-theme="active"] .filmroom-settings-hero p { margin: 0; color: var(--fr-muted); font-size: 12px; }
+html[data-filmroom-theme="active"] .filmroom-settings-card { margin: 14px 0; padding: 18px 20px; border: 1px solid var(--fr-line); border-radius: 5px; background: var(--fr-surface); }
+html[data-filmroom-theme="active"] .filmroom-settings-card .filmroom-section-heading { padding-bottom: 12px; border-bottom: 1px solid var(--fr-line); }
+html[data-filmroom-theme="active"] .filmroom-settings-card .filmroom-section-heading h2 { font-size: 16px; }
+html[data-filmroom-theme="active"] .filmroom-setting-row { min-height: 70px; display: flex; align-items: center; justify-content: space-between; gap: 18px; padding: 14px 0; border-bottom: 1px solid var(--fr-line); }
+html[data-filmroom-theme="active"] .filmroom-setting-row:last-child { border-bottom: 0; }
+html[data-filmroom-theme="active"] .filmroom-setting-row strong { display: block; color: var(--fr-text); font-size: 12px; }
+html[data-filmroom-theme="active"] .filmroom-setting-row p { margin: 4px 0 0; color: var(--fr-quiet); font-size: 11px; }
+html[data-filmroom-theme="active"] .filmroom-switch { width: 42px; height: 24px; flex: 0 0 42px; position: relative; padding: 0; border: 1px solid var(--fr-line-strong); border-radius: 999px; background: var(--fr-surface-strong); }
+html[data-filmroom-theme="active"] .filmroom-switch span { position: absolute; top: 3px; left: 3px; width: 16px; height: 16px; border-radius: 50%; background: var(--fr-muted); transition: transform .14s ease, background .14s ease; }
+html[data-filmroom-theme="active"] .filmroom-switch.is-on { border-color: var(--fr-accent); background: var(--fr-accent); }
+html[data-filmroom-theme="active"] .filmroom-switch.is-on span { background: var(--fr-accent-ink); transform: translateX(18px); }
+html[data-filmroom-theme="active"] .filmroom-accent-swatches { display: flex; flex-wrap: wrap; gap: 9px; }
+html[data-filmroom-theme="active"] .filmroom-accent-swatch { width: 30px; height: 30px; flex: 0 0 30px; border: 2px solid var(--fr-surface) !important; border-radius: 4px; box-shadow: 0 0 0 1px var(--fr-line-strong); }
+html[data-filmroom-theme="active"] .filmroom-accent-swatch.is-selected { box-shadow: 0 0 0 2px var(--fr-accent); }
+html[data-filmroom-theme="active"] .filmroom-select { min-width: 210px; min-height: 36px; padding: 0 10px; }
+html[data-filmroom-theme="active"] .filmroom-settings-note { margin: 14px 2px; color: var(--fr-quiet); font-size: 10px; }
+
+/* Mobile navigation: a small dock and a complete, reachable route sheet. */
+body.filmroom-active .filmroom-mobile-dock,
+body.filmroom-active .filmroom-mobile-drawer { display: none; }
+@media (max-width: 1100px) and (min-width: 701px) {
+  html[data-filmroom-theme="active"] { --fr-sidebar-width: 72px; }
+  body.filmroom-active .filmroom-sidebar { padding-inline: 10px; }
+  body.filmroom-active .filmroom-sidebar-brand-row { flex-direction: column; }
+  body.filmroom-active .filmroom-brand { flex: none; justify-content: center; }
+  body.filmroom-active .filmroom-brand-name,
+  body.filmroom-active .filmroom-nav-label { display: none; }
+  body.filmroom-active .filmroom-nav-item { justify-content: center; padding-inline: 0; }
+  body.filmroom-active .filmroom-resume-grid { grid-template-columns: repeat(3, minmax(0,1fr)); }
+}
+@media (max-width: 700px) {
+  body.filmroom-active nav.top-nav { height: 54px; padding: 0 11px; }
+  body.filmroom-active nav.top-nav .filmroom-topbar-brand { display: flex; align-items: center; gap: 8px; margin-right: auto; color: var(--fr-text); font-size: 13px; font-weight: 740; text-decoration: none; }
+  body.filmroom-active nav.top-nav .filmroom-topbar-brand .filmroom-brand-mark { width: 29px; height: 29px; flex-basis: 29px; font-size: 15px; }
+  body.filmroom-active nav.top-nav .navbar-buttons { gap: 4px; }
+  body.filmroom-active nav.top-nav .navbar-buttons .btn,
+  body.filmroom-active nav.top-nav .navbar-buttons .nav-link { min-width: 34px; min-height: 34px; }
+  body.filmroom-active nav.top-nav .navbar-buttons .donate,
+  body.filmroom-active nav.top-nav .navbar-buttons .logout-button { display: none !important; }
+  body.filmroom-active .filmroom-sidebar { display: none; }
+  body.filmroom-active .main.container-fluid { width: 100%; max-width: none; margin: 0 !important; padding: 73px 13px 88px !important; }
+  body.filmroom-active .filmroom-mobile-dock { position: fixed; z-index: 1040; inset: auto 0 0; height: 62px; display: flex; align-items: stretch; justify-content: space-around; gap: 2px; padding: 5px 6px max(5px, env(safe-area-inset-bottom)); border-top: 1px solid var(--fr-line); background: var(--fr-surface); }
+  body.filmroom-active .filmroom-dock-item { min-width: 0; flex: 1; display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 3px; border: 0; border-radius: 4px; background: transparent; color: var(--fr-quiet); text-decoration: none; }
+  body.filmroom-active .filmroom-dock-item.is-active { background: rgba(var(--fr-accent-rgb), .1); color: var(--fr-accent); }
+  body.filmroom-active .filmroom-dock-item .filmroom-nav-icon svg { width: 18px; height: 18px; }
+  body.filmroom-active .filmroom-dock-item .filmroom-nav-label { max-width: 100%; overflow: hidden; font-size: 9px; line-height: 1; text-overflow: ellipsis; white-space: nowrap; }
+  body.filmroom-active .filmroom-mobile-drawer { position: fixed; z-index: 1050; inset: 0; display: block; padding: 12px; visibility: hidden; opacity: 0; background: rgba(0,0,0,.58); transition: opacity .16s ease, visibility .16s ease; }
+  body.filmroom-active.filmroom-drawer-open .filmroom-mobile-drawer { visibility: visible; opacity: 1; }
+  body.filmroom-active .filmroom-mobile-sheet { position: absolute; inset: auto 0 0; max-height: 78vh; overflow: auto; padding: 18px 15px calc(80px + env(safe-area-inset-bottom)); border: 1px solid var(--fr-line); border-radius: 12px 12px 0 0; background: var(--fr-surface); transform: translateY(12px); transition: transform .16s ease; }
+  body.filmroom-active.filmroom-drawer-open .filmroom-mobile-sheet { transform: translateY(0); }
+  body.filmroom-active .filmroom-mobile-sheet-heading { display: flex; align-items: center; justify-content: space-between; margin-bottom: 12px; color: var(--fr-text); font-size: 15px; }
+  body.filmroom-active .filmroom-mobile-close { width: 32px; height: 32px; border: 1px solid var(--fr-line); border-radius: 4px; background: var(--fr-surface-raised); color: var(--fr-text); font-size: 20px; }
+  body.filmroom-active .filmroom-mobile-sheet-link { min-height: 42px; display: flex; align-items: center; gap: 11px; border-bottom: 1px solid var(--fr-line); color: var(--fr-muted); text-decoration: none; }
+  body.filmroom-active .filmroom-mobile-sheet-link.is-active { color: var(--fr-accent); }
+  html[data-filmroom-theme="active"] .filmroom-home-hero { min-height: 440px; align-items: flex-end; }
+  html[data-filmroom-theme="active"] .filmroom-home-hero::after { background: linear-gradient(0deg, rgba(7,10,13,.94), rgba(7,10,13,.58) 45%, rgba(7,10,13,.04)); }
+  html[data-filmroom-theme="active"] .filmroom-hero-copy { width: 100%; padding: 24px 18px 78px; }
+  html[data-filmroom-theme="active"] .filmroom-hero-copy h1 { font-size: clamp(31px, 9vw, 42px); }
+  html[data-filmroom-theme="active"] .filmroom-carousel-controls { left: 13px; right: 13px; bottom: 12px; justify-content: flex-end; }
+  html[data-filmroom-theme="active"] .filmroom-carousel-dots { margin-right: auto; }
+  html[data-filmroom-theme="active"] .filmroom-resume-grid { grid-template-columns: repeat(2, minmax(0,1fr)); gap: 13px 9px; }
+  html[data-filmroom-theme="active"] .filmroom-settings-card { padding: 14px; }
+  html[data-filmroom-theme="active"] .filmroom-setting-row { align-items: flex-start; }
+  html[data-filmroom-theme="active"] .filmroom-accent-row { flex-direction: column; }
+  html[data-filmroom-theme="active"] .filmroom-select { min-width: 0; max-width: 45%; }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  html[data-filmroom-theme="active"] *,
+  html[data-filmroom-theme="active"] *::before,
+  html[data-filmroom-theme="active"] *::after { scroll-behavior: auto !important; animation-duration: .01ms !important; animation-iteration-count: 1 !important; transition-duration: .01ms !important; }
+}

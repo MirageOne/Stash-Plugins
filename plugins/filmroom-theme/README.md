@@ -10,7 +10,27 @@ Theme preferences are stored in the current browser. The login page is served ou
 
 Copy this directory into Stash's configured `plugins/` directory, reload plugins in **Settings → Plugins**, then enable **Filmroom Theme**. Disable other full-app theme plugins while testing it so global styles do not conflict.
 
-For a packaged manual install, download [Filmroom Theme 0.1.0](../../packages/filmroom-theme/0.1.0-manual.zip) and extract its `filmroom-theme/` folder into the configured plugins directory.
+For a packaged manual install, download [Filmroom Theme 0.1.1](../../packages/filmroom-theme/0.1.1-manual.zip) and extract its `filmroom-theme/` folder into the configured plugins directory.
+
+## Screenshots
+
+These screenshots were captured from a live Stash 0.32.0 instance running Filmroom Theme. The library contains only fictional, non-explicit demo clips created for this capture.
+
+### Home
+
+The new-arrivals carousel leads the page, with Continue Watching directly below it. Stash's existing recommendation shelves remain further down the page.
+
+![Filmroom home page with a new-arrivals carousel and Continue Watching row](screenshots/home-dark.png)
+
+![Filmroom home page in light mode](screenshots/home-light.png)
+
+### Scene library
+
+![Stash scene library using Filmroom navigation and styling](screenshots/scene-library.png)
+
+### Theme settings
+
+![Filmroom theme settings for light mode, accent color, and homepage behavior](screenshots/theme-settings.png)
 
 The plugin has no external dependencies or build step. Its JavaScript and manifest can be syntax-checked directly with Node; its styles load from `css/filmroom.css`.
 

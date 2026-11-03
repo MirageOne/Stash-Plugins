@@ -340,12 +340,12 @@ html[data-filmroom-theme="active"] .filmroom-home-hero {
 }
 html[data-filmroom-theme="active"] .filmroom-home-hero::after {
   position: absolute;
-  z-index: -1;
+  z-index: 1;
   inset: 0;
   content: "";
   background: linear-gradient(90deg, rgba(7, 10, 13, .92) 0%, rgba(7, 10, 13, .72) 34%, rgba(7, 10, 13, .14) 78%), linear-gradient(0deg, rgba(7, 10, 13, .48), transparent 58%);
 }
-html[data-filmroom-theme="active"] .filmroom-artwork-large { position: absolute; z-index: -2; inset: 0; border: 0; border-radius: 0; }
+html[data-filmroom-theme="active"] .filmroom-home-hero > .filmroom-artwork-large { position: absolute; z-index: 0; inset: 0; width: 100%; height: 100%; aspect-ratio: auto; border: 0; border-radius: 0; background-position: center 43%; }
 html[data-filmroom-theme="active"] .filmroom-artwork-large::after { display: none; }
 html[data-filmroom-theme="active"] .filmroom-artwork-large .filmroom-duration { display: none; }
 html[data-filmroom-theme="active"] .filmroom-artwork-large .filmroom-artwork-overlay { display: none; }
@@ -361,7 +361,7 @@ html[data-filmroom-theme="active"] .filmroom-artwork {
 }
 html[data-filmroom-theme="active"] .filmroom-artwork-overlay { position: absolute; inset: 0; background: linear-gradient(0deg, rgba(0,0,0,.34), transparent 44%); }
 html[data-filmroom-theme="active"] .filmroom-duration { position: absolute; right: 8px; bottom: 8px; padding: 3px 6px; border-radius: 3px; background: rgba(0,0,0,.72); color: #fff; font-size: 10px; font-variant-numeric: tabular-nums; }
-html[data-filmroom-theme="active"] .filmroom-hero-copy { width: min(660px, 64%); padding: 44px clamp(24px, 5vw, 72px) 74px; }
+html[data-filmroom-theme="active"] .filmroom-hero-copy { position: relative; z-index: 2; width: min(660px, 64%); padding: 44px clamp(24px, 5vw, 72px) 74px; }
 html[data-filmroom-theme="active"] .filmroom-kicker { display: block; color: var(--fr-accent); font-size: 10px; font-weight: 780; letter-spacing: .15em; line-height: 1.4; text-transform: uppercase; }
 html[data-filmroom-theme="active"] .filmroom-hero-copy h1 { max-width: 620px; margin: 11px 0 9px; color: #fff; font-size: clamp(32px, 4vw, 56px); font-weight: 780; line-height: 1.04; letter-spacing: -.045em; }
 html[data-filmroom-theme="active"] .filmroom-hero-copy p { max-width: 520px; margin: 12px 0 0; color: rgba(255,255,255,.78); font-size: 13px; }
@@ -375,7 +375,7 @@ html[data-filmroom-theme="active"] .filmroom-button-primary { border-color: var(
 html[data-filmroom-theme="active"] .filmroom-button-primary:hover { border-color: var(--fr-accent); filter: brightness(1.07); color: var(--fr-accent-ink); }
 html[data-filmroom-theme="active"] .filmroom-button-quiet { background: rgba(12,15,18,.34); }
 html[data-filmroom-theme="active"] .filmroom-play-icon svg { width: 15px; height: 15px; }
-html[data-filmroom-theme="active"] .filmroom-carousel-controls { position: absolute; right: 18px; bottom: 16px; z-index: 2; display: flex; align-items: center; gap: 8px; }
+html[data-filmroom-theme="active"] .filmroom-carousel-controls { position: absolute; right: 18px; bottom: 16px; z-index: 3; display: flex; align-items: center; gap: 8px; }
 html[data-filmroom-theme="active"] .filmroom-carousel-arrow { width: 34px; height: 34px; display: grid; place-items: center; padding: 0 0 3px; border: 1px solid rgba(255,255,255,.3); border-radius: 4px; background: rgba(8,11,14,.58); color: #fff; font-size: 25px; line-height: 1; }
 html[data-filmroom-theme="active"] .filmroom-carousel-arrow:hover { border-color: var(--fr-accent); color: var(--fr-accent); }
 html[data-filmroom-theme="active"] .filmroom-carousel-dots { display: flex; align-items: center; gap: 3px; }

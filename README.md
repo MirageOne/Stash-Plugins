@@ -9,14 +9,14 @@ This repository hosts independent Stash plugins. Each plugin keeps its manifest,
 - [Library Doctor](plugins/library-doctor/README.md) — Health Check, FFmpeg encoding audit and re-encoding, metadata assistance, scraping, tagging, and duplicate or alternate-version review.
 - [Scene Gallery Generator](plugins/scene-gallery-generator/README.md) — Extract a user-selected number of still frames from scene videos and create metadata-rich galleries linked to their source scenes.
 - [Stash Downloader](plugins/stash-downloader/README.md) — a Stash-integrated image and video URL queue with metadata extraction and server-side downloads.
-- [Filmroom Theme](plugins/filmroom-theme/README.md) — a video-first redesign with a new-arrivals carousel, Continue Watching, responsive navigation, light and dark modes, and seven accent colors.
+- [Filmroom Theme](plugins/filmroom-theme/README.md) — a video-first redesign with a new-arrivals carousel, Continue Watching, responsive navigation, light and dark modes, and seven accent colors. [Screenshots](plugins/filmroom-theme/README.md#screenshots)
 
 ## Install from Stash
 
 Add the repository once in Stash under **Settings → Plugins → Add source**. Use **MirageOne Stash Plugins** as the source name and this index URL:
 
 ```text
-https://raw.githubusercontent.com/MirageOne/Stasher/main/index.yml
+https://raw.githubusercontent.com/MirageOne/Stash-Plugins/main/index.yml
 ```
 
 Reload plugins, then install any listed plugin from **Available Plugins**. New plugins added to the shared index will appear under the same source.
@@ -30,7 +30,7 @@ Download a plugin's manual archive, extract its included plugin folder into Stas
 - [Library Doctor manual archive](packages/library-doctor/1.6.4-manual.zip)
 - [Scene Gallery Generator manual archive](packages/scene-gallery-generator/1.0.2-manual.zip)
 - [Stash Downloader manual archive](packages/stash-downloader/0.6.2-manual.zip)
-- [Filmroom Theme manual archive](packages/filmroom-theme/0.1.0-manual.zip)
+- [Filmroom Theme manual archive](packages/filmroom-theme/0.1.1-manual.zip)
 
 Each plugin's README links to its current manual archive.
 

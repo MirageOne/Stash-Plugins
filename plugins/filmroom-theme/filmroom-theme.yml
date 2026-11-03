@@ -1,7 +1,7 @@
 name: Filmroom Theme
 description: Video-first Stash redesign with a new-arrivals carousel, Continue Watching, light and dark modes, and seven accent colors.
-version: 0.1.0
-url: https://github.com/MirageOne/Stasher
+version: 0.1.1
+url: https://github.com/MirageOne/Stash-Plugins
 ui:
   javascript:
     - filmroom-theme.js

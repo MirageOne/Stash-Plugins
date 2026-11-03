@@ -427,6 +427,157 @@ html[data-filmroom-theme="active"] .filmroom-accent-swatch.is-selected { box-sha
 html[data-filmroom-theme="active"] .filmroom-select { min-width: 210px; min-height: 36px; padding: 0 10px; }
 html[data-filmroom-theme="active"] .filmroom-settings-note { margin: 14px 2px; color: var(--fr-quiet); font-size: 10px; }
 
+/* Scene, performer, and gallery filters use Stash's native toolbar. Keep its
+   controls fully functional while giving them the grouped Filmroom surface
+   used by the design mockup. */
+html[data-filmroom-theme="active"] .item-list-container .sidebar-pane-content {
+  position: relative;
+  margin: 0 !important;
+  padding: 0 !important;
+  border: 0 !important;
+  border-radius: 0 !important;
+  background: transparent !important;
+  box-shadow: none !important;
+}
+html[data-filmroom-theme="active"] .item-list-container .sidebar-toggle-button-container {
+  position: absolute !important;
+  inset: 10px auto auto 10px !important;
+  width: 36px !important;
+  height: 36px !important;
+  display: flex !important;
+  align-items: center;
+  justify-content: center;
+  margin: 0 !important;
+  padding: 0 !important;
+}
+html[data-filmroom-theme="active"] .item-list-container .sidebar-toggle-button-container .sidebar-toggle-button {
+  width: 36px !important;
+  min-width: 36px !important;
+  height: 36px !important;
+  min-height: 36px !important;
+  padding: 0 !important;
+  border: 1px solid var(--fr-line-strong) !important;
+  border-radius: 5px !important;
+  background: var(--fr-surface-raised) !important;
+  color: var(--fr-muted) !important;
+}
+html[data-filmroom-theme="active"] .item-list-container .filtered-list-toolbar {
+  width: 100% !important;
+  min-height: 58px;
+  display: flex !important;
+  flex-wrap: wrap;
+  align-items: center !important;
+  justify-content: flex-start !important;
+  gap: 8px !important;
+  margin: 0 0 7px !important;
+  padding: 11px 11px 11px 57px !important;
+  border: 1px solid var(--fr-line) !important;
+  border-radius: var(--fr-radius) !important;
+  background: var(--fr-surface) !important;
+  box-shadow: none !important;
+}
+html[data-filmroom-theme="active"] .item-list-container .filtered-list-toolbar > *,
+html[data-filmroom-theme="active"] .item-list-container .filtered-list-toolbar .btn-group {
+  margin: 0 !important;
+}
+html[data-filmroom-theme="active"] .item-list-container .filtered-list-toolbar .search-term-input {
+  width: 220px;
+  max-width: 100%;
+  min-width: 140px;
+  flex: 0 1 220px;
+}
+html[data-filmroom-theme="active"] .item-list-container .filtered-list-toolbar .search-term-input .form-control {
+  width: 100%;
+  height: 34px !important;
+  min-height: 34px !important;
+  padding: 0 10px !important;
+  border: 1px solid var(--fr-line) !important;
+  border-radius: 4px !important;
+  background: var(--fr-bg) !important;
+  color: var(--fr-text) !important;
+  box-shadow: none !important;
+}
+html[data-filmroom-theme="active"] .item-list-container .filtered-list-toolbar .search-term-input .form-control:focus {
+  border-color: var(--fr-accent) !important;
+  box-shadow: 0 0 0 2px rgba(var(--fr-accent-rgb), .18) !important;
+}
+html[data-filmroom-theme="active"] .item-list-container .filtered-list-toolbar button.btn,
+html[data-filmroom-theme="active"] .item-list-container .filtered-list-toolbar .page-size-selector select {
+  min-width: 34px;
+  min-height: 34px !important;
+  height: 34px !important;
+  padding: 0 10px !important;
+  border: 1px solid var(--fr-line) !important;
+  border-radius: 5px !important;
+  background: var(--fr-bg) !important;
+  color: var(--fr-muted) !important;
+  box-shadow: none !important;
+  font-size: 12px;
+  font-weight: 620;
+}
+html[data-filmroom-theme="active"] .item-list-container .filtered-list-toolbar button.btn:hover,
+html[data-filmroom-theme="active"] .item-list-container .filtered-list-toolbar .page-size-selector select:hover {
+  border-color: var(--fr-accent) !important;
+  background: var(--fr-surface-raised) !important;
+  color: var(--fr-accent) !important;
+}
+html[data-filmroom-theme="active"] .item-list-container .filtered-list-toolbar .page-size-selector select {
+  width: auto;
+  padding-right: 26px !important;
+}
+html[data-filmroom-theme="active"] .item-list-container .filtered-list-toolbar > .list-operations {
+  margin-left: auto !important;
+}
+html[data-filmroom-theme="active"] .item-list-container .filtered-list-toolbar > .list-operations + .btn-group {
+  display: flex;
+  align-items: center;
+  gap: 0 !important;
+  overflow: hidden;
+  border: 1px solid var(--fr-line) !important;
+  border-radius: 5px !important;
+  background: var(--fr-bg) !important;
+}
+html[data-filmroom-theme="active"] .item-list-container .filtered-list-toolbar > .list-operations + .btn-group > button.btn {
+  width: 34px;
+  min-width: 34px;
+  height: 32px !important;
+  min-height: 32px !important;
+  padding: 0 !important;
+  border: 0 !important;
+  border-radius: 0 !important;
+  background: transparent !important;
+  color: var(--fr-quiet) !important;
+}
+html[data-filmroom-theme="active"] .item-list-container .filtered-list-toolbar > .list-operations + .btn-group > button.btn + button.btn {
+  border-left: 1px solid var(--fr-line) !important;
+}
+html[data-filmroom-theme="active"] .item-list-container .filtered-list-toolbar > .list-operations + .btn-group > button.btn:hover,
+html[data-filmroom-theme="active"] .item-list-container .filtered-list-toolbar > .list-operations + .btn-group > button.btn.active {
+  border-color: var(--fr-line) !important;
+  background: var(--fr-surface-soft) !important;
+  color: var(--fr-text) !important;
+}
+html[data-filmroom-theme="active"] .item-list-container .filtered-list-toolbar .zoom-slider-container {
+  flex: 0 1 110px;
+  margin: 0 0 0 2px !important;
+  padding-inline: 4px;
+}
+html[data-filmroom-theme="active"] .item-list-container .filtered-list-toolbar .zoom-slider-container .zoom-slider {
+  width: 100%;
+  accent-color: var(--fr-accent);
+}
+html[data-filmroom-theme="active"] .item-list-container .pagination-index-container {
+  margin: 7px 0 15px !important;
+  color: var(--fr-quiet) !important;
+  font-size: 11px;
+  text-align: center;
+}
+html[data-filmroom-theme="active"] .item-list-container .pagination-index-container .page-link {
+  min-height: 28px;
+  padding: 3px 8px;
+  background: transparent !important;
+}
+
 /* Mobile navigation: a small dock and a complete, reachable route sheet. */
 body.filmroom-active .filmroom-mobile-dock,
 body.filmroom-active .filmroom-mobile-drawer { display: none; }
@@ -472,6 +623,14 @@ body.filmroom-active .filmroom-mobile-drawer { display: none; }
   html[data-filmroom-theme="active"] .filmroom-carousel-dots { margin-right: auto; }
   html[data-filmroom-theme="active"] .filmroom-resume-grid { grid-template-columns: repeat(2, minmax(0,1fr)); gap: 13px 9px; }
   html[data-filmroom-theme="active"] .filmroom-settings-card { padding: 14px; }
+  html[data-filmroom-theme="active"] .item-list-container .sidebar-pane-content { padding: 0 !important; }
+  html[data-filmroom-theme="active"] .item-list-container .sidebar-toggle-button-container { position: static !important; float: right; width: 34px !important; height: 34px !important; margin: 0 0 8px 8px !important; }
+  html[data-filmroom-theme="active"] .item-list-container .sidebar-toggle-button-container .sidebar-toggle-button { width: 34px !important; min-width: 34px !important; height: 34px !important; min-height: 34px !important; }
+  html[data-filmroom-theme="active"] .item-list-container .filtered-list-toolbar { clear: both; padding: 11px !important; }
+  html[data-filmroom-theme="active"] .item-list-container .filtered-list-toolbar .search-term-input { flex: 1 1 100%; width: 100%; }
+  html[data-filmroom-theme="active"] .item-list-container .filtered-list-toolbar > .list-operations { margin-left: 0 !important; }
+  html[data-filmroom-theme="active"] .item-list-container .filtered-list-toolbar > .list-operations + .btn-group { margin-left: auto !important; }
+  html[data-filmroom-theme="active"] .item-list-container .filtered-list-toolbar .zoom-slider-container { flex: 1 1 80px; }
   html[data-filmroom-theme="active"] .filmroom-setting-row { align-items: flex-start; }
   html[data-filmroom-theme="active"] .filmroom-accent-row { flex-direction: column; }
   html[data-filmroom-theme="active"] .filmroom-select { min-width: 0; max-width: 45%; }

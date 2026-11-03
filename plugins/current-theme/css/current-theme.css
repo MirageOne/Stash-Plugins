@@ -11,6 +11,8 @@ html[data-current-theme="active"] {
   --current-muted: #b0b7bd;
   --current-quiet: #858e97;
   --current-accent: #a88bfa;
+  --current-accent-button: #a88bfa;
+  --current-accent-soft: #d2c3ff;
   --current-accent-rgb: 168, 139, 250;
   --current-accent-ink: #17111f;
   --current-danger: #ee777f;
@@ -21,12 +23,12 @@ html[data-current-theme="active"] {
   --current-radius: 7px;
 }
 
-html[data-current-theme="active"][data-current-accent="teal"] { --current-accent:#42d7c2; --current-accent-rgb:66,215,194; --current-accent-ink:#08201d; }
-html[data-current-theme="active"][data-current-accent="blue"] { --current-accent:#6ea8fe; --current-accent-rgb:110,168,254; --current-accent-ink:#0b1727; }
-html[data-current-theme="active"][data-current-accent="coral"] { --current-accent:#ff927a; --current-accent-rgb:255,146,122; --current-accent-ink:#28130f; }
-html[data-current-theme="active"][data-current-accent="amber"] { --current-accent:#f1c46d; --current-accent-rgb:241,196,109; --current-accent-ink:#211a0d; }
-html[data-current-theme="active"][data-current-accent="rose"] { --current-accent:#f18bb6; --current-accent-rgb:241,139,182; --current-accent-ink:#26131d; }
-html[data-current-theme="active"][data-current-accent="green"] { --current-accent:#83d79d; --current-accent-rgb:131,215,157; --current-accent-ink:#102116; }
+html[data-current-theme="active"][data-current-accent="teal"] { --current-accent:#42d7c2; --current-accent-button:#42d7c2; --current-accent-soft:#c7f2ec; --current-accent-rgb:66,215,194; --current-accent-ink:#08201d; }
+html[data-current-theme="active"][data-current-accent="blue"] { --current-accent:#6ea8fe; --current-accent-button:#6ea8fe; --current-accent-soft:#d1e2ff; --current-accent-rgb:110,168,254; --current-accent-ink:#0b1727; }
+html[data-current-theme="active"][data-current-accent="coral"] { --current-accent:#ff927a; --current-accent-button:#ff927a; --current-accent-soft:#ffd8cf; --current-accent-rgb:255,146,122; --current-accent-ink:#28130f; }
+html[data-current-theme="active"][data-current-accent="amber"] { --current-accent:#f1c46d; --current-accent-button:#f1c46d; --current-accent-soft:#f8e7bf; --current-accent-rgb:241,196,109; --current-accent-ink:#211a0d; }
+html[data-current-theme="active"][data-current-accent="rose"] { --current-accent:#f18bb6; --current-accent-button:#f18bb6; --current-accent-soft:#f8d1e1; --current-accent-rgb:241,139,182; --current-accent-ink:#26131d; }
+html[data-current-theme="active"][data-current-accent="green"] { --current-accent:#83d79d; --current-accent-button:#83d79d; --current-accent-soft:#d0efd8; --current-accent-rgb:131,215,157; --current-accent-ink:#102116; }
 html[data-current-theme="active"][data-current-mode="light"] {
   color-scheme: light;
   --current-bg: #f2f4f6;
@@ -39,7 +41,14 @@ html[data-current-theme="active"][data-current-mode="light"] {
   --current-muted: #4f5b66;
   --current-quiet: #6c7884;
   --current-shadow: 0 14px 36px rgba(23, 33, 45, .11);
+  --current-accent-button: #7555c3;
 }
+html[data-current-theme="active"][data-current-mode="light"][data-current-accent="teal"] { --current-accent-button:#187a71; }
+html[data-current-theme="active"][data-current-mode="light"][data-current-accent="blue"] { --current-accent-button:#3569b7; }
+html[data-current-theme="active"][data-current-mode="light"][data-current-accent="coral"] { --current-accent-button:#b24b37; }
+html[data-current-theme="active"][data-current-mode="light"][data-current-accent="amber"] { --current-accent-button:#8e6110; }
+html[data-current-theme="active"][data-current-mode="light"][data-current-accent="rose"] { --current-accent-button:#a54369; }
+html[data-current-theme="active"][data-current-mode="light"][data-current-accent="green"] { --current-accent-button:#2f7040; }
 
 html[data-current-theme="active"] body {
   background: var(--current-bg) !important;
@@ -101,8 +110,8 @@ body.current-active nav.top-nav .navbar-buttons .nav-link:hover {
 }
 body.current-active nav.top-nav .navbar-buttons .btn-primary,
 body.current-active nav.top-nav .navbar-buttons [data-action="new"] {
-  border-color: var(--current-accent) !important;
-  background: var(--current-accent) !important;
+  border-color: var(--current-accent-soft) !important;
+  background: var(--current-accent-soft) !important;
   color: var(--current-accent-ink) !important;
 }
 body.current-active nav.top-nav .navbar-buttons .donate { color: var(--current-muted) !important; }
@@ -240,14 +249,20 @@ html[data-current-theme="active"] .page-link {
 }
 html[data-current-theme="active"] .btn:hover,
 html[data-current-theme="active"] .page-link:hover { border-color: var(--current-accent) !important; color: var(--current-accent) !important; }
-html[data-current-theme="active"] .btn-primary,
-html[data-current-theme="active"] .btn-success,
-html[data-current-theme="active"] .btn-info,
-html[data-current-theme="active"] .btn-primary:hover,
-html[data-current-theme="active"] .btn-success:hover,
-html[data-current-theme="active"] .btn-info:hover {
-  border-color: var(--current-accent) !important;
-  background: var(--current-accent) !important;
+html[data-current-theme="active"] .btn-primary:not(.minimal),
+html[data-current-theme="active"] .btn-success:not(.minimal),
+html[data-current-theme="active"] .btn-info:not(.minimal),
+html[data-current-theme="active"] .btn-primary:not(.minimal):hover,
+html[data-current-theme="active"] .btn-success:not(.minimal):hover,
+html[data-current-theme="active"] .btn-info:not(.minimal):hover,
+html[data-current-theme="active"] .btn-primary:not(.minimal):focus,
+html[data-current-theme="active"] .btn-success:not(.minimal):focus,
+html[data-current-theme="active"] .btn-info:not(.minimal):focus,
+html[data-current-theme="active"] .btn-primary:not(.minimal):active,
+html[data-current-theme="active"] .btn-success:not(.minimal):active,
+html[data-current-theme="active"] .btn-info:not(.minimal):active {
+  border-color: var(--current-accent-soft) !important;
+  background: var(--current-accent-soft) !important;
   color: var(--current-accent-ink) !important;
 }
 html[data-current-theme="active"] .btn-danger,
@@ -375,15 +390,16 @@ html[data-current-theme="active"] .current-hero-meta,
 html[data-current-theme="active"] .current-hero-performers { color: rgba(255,255,255,.76); font-size: 12px; }
 html[data-current-theme="active"] .current-hero-performers { margin-top: 6px; }
 html[data-current-theme="active"] .current-hero-actions { display: flex; flex-wrap: wrap; gap: 9px; margin-top: 21px; }
-html[data-current-theme="active"] .current-button { min-height: 40px; display: inline-flex; align-items: center; justify-content: center; gap: 8px; padding: 0 14px; border: 1px solid rgba(255,255,255,.34); border-radius: 4px; color: #fff; font-size: 12px; font-weight: 680; text-decoration: none; }
-html[data-current-theme="active"] .current-button:hover { border-color: #fff; color: #fff; }
-html[data-current-theme="active"] .current-button-primary { border-color: var(--current-accent); background: var(--current-accent); color: var(--current-accent-ink); }
-html[data-current-theme="active"] .current-button-primary:hover { border-color: var(--current-accent); filter: brightness(1.07); color: var(--current-accent-ink); }
-html[data-current-theme="active"] .current-button-quiet { background: rgba(12,15,18,.34); }
+html[data-current-theme="active"] .current-button { min-height: 40px; display: inline-flex; align-items: center; justify-content: center; gap: 8px; padding: 0 14px; border: 1px solid var(--current-accent-button); border-radius: 6px; color: var(--current-accent-button); font-size: 12px; font-weight: 680; text-decoration: none; transition: border-color .12s ease, background-color .12s ease, color .12s ease, filter .12s ease; }
+html[data-current-theme="active"] .current-button:hover { border-color: var(--current-accent-button); background: rgba(var(--current-accent-rgb), .10); color: var(--current-accent-button); }
+html[data-current-theme="active"] .current-button-primary { border-color: var(--current-accent-soft); background: var(--current-accent-soft); color: var(--current-accent-ink); }
+html[data-current-theme="active"] .current-button-primary:hover { border-color: var(--current-accent-soft); filter: brightness(.96); color: var(--current-accent-ink); }
+html[data-current-theme="active"] .current-button-quiet { background: transparent; }
+html[data-current-theme="active"] .current-button:focus-visible { outline: 2px solid var(--current-accent-button) !important; outline-offset: 2px; }
 html[data-current-theme="active"] .current-play-icon svg { width: 15px; height: 15px; }
 html[data-current-theme="active"] .current-carousel-controls { position: absolute; right: 18px; bottom: 16px; z-index: 3; display: flex; align-items: center; gap: 8px; }
-html[data-current-theme="active"] .current-carousel-arrow { width: 34px; height: 34px; display: grid; place-items: center; padding: 0 0 3px; border: 1px solid rgba(255,255,255,.3); border-radius: 4px; background: rgba(8,11,14,.58); color: #fff; font-size: 25px; line-height: 1; }
-html[data-current-theme="active"] .current-carousel-arrow:hover { border-color: var(--current-accent); color: var(--current-accent); }
+html[data-current-theme="active"] .current-carousel-arrow { width: 34px; height: 34px; display: grid; place-items: center; padding: 0 0 3px; border: 1px solid var(--current-accent-button); border-radius: 6px; background: transparent; color: var(--current-accent-button); font-size: 25px; line-height: 1; }
+html[data-current-theme="active"] .current-carousel-arrow:hover { border-color: var(--current-accent-button); background: rgba(var(--current-accent-rgb), .10); color: var(--current-accent-button); }
 html[data-current-theme="active"] .current-carousel-dots { display: flex; align-items: center; gap: 3px; }
 html[data-current-theme="active"] .current-carousel-dot { width: 20px; height: 25px; display: grid; place-items: center; padding: 0; border: 0; background: transparent; }
 html[data-current-theme="active"] .current-carousel-dot span { width: 6px; height: 6px; border-radius: 9px; background: rgba(255,255,255,.55); transition: width .15s ease; }
@@ -747,8 +763,8 @@ body.current-active nav.top-nav .current-route-proxy {
   pointer-events: none !important;
 }
 body.current-active nav.top-nav .navbar-buttons [data-action="new"] {
-  border-color: var(--current-accent) !important;
-  background: var(--current-accent) !important;
+  border-color: var(--current-accent-soft) !important;
+  background: var(--current-accent-soft) !important;
   color: var(--current-accent-ink) !important;
 }
 body.current-active .current-sidebar-primary { gap: 10px; }
@@ -1029,7 +1045,7 @@ html[data-current-theme="active"] .current-choice-chip.is-selected { border-colo
 html[data-current-theme="active"] .current-choice-chip:disabled { opacity: .42; cursor: not-allowed; }
 html[data-current-theme="active"] .current-playback-note { display: flex; align-items: center; justify-content: space-between; gap: 18px; padding-top: 13px; }
 html[data-current-theme="active"] .current-playback-note p { max-width: 610px; margin: 0; color: var(--current-muted); font-size: 11px; }
-html[data-current-theme="active"] .current-playback-note .current-button { flex: none; border-color: var(--current-line-strong); color: var(--current-text); }
+html[data-current-theme="active"] .current-playback-note .current-button { flex: none; }
 body.current-active.current-reduced-effects *,
 body.current-active.current-reduced-effects *::before,
 body.current-active.current-reduced-effects *::after { animation: none !important; transition: none !important; scroll-behavior: auto !important; backdrop-filter: none !important; }
@@ -1164,4 +1180,79 @@ html[data-current-theme="active"] .item-list-container.scene-list .row.justify-c
 @media (max-width: 520px) {
   html[data-current-theme="active"] .item-list-container.scene-list .row.justify-content-center:has(> .scene-card.grid-card),
   html[data-current-theme="active"] .item-list-container.scene-list .row.justify-content-center:has(> .scene-card.zoom-0) { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+}
+
+/* Soft Fill button system. Keep Stash's minimal card links untouched, while
+   overriding its later-loaded base styles for real action buttons. */
+html[data-current-theme="active"] body.current-active .btn:not(.minimal):not(.btn-link) {
+  min-height: 36px;
+  border: 1px solid var(--current-accent-button) !important;
+  border-radius: 6px !important;
+  background-color: transparent !important;
+  color: var(--current-accent-button) !important;
+  box-shadow: none !important;
+  transition: border-color .12s ease, background-color .12s ease, color .12s ease, filter .12s ease;
+}
+html[data-current-theme="active"] body.current-active .btn:not(.minimal):not(.btn-link):hover,
+html[data-current-theme="active"] body.current-active .btn:not(.minimal):not(.btn-link):focus-visible {
+  border-color: var(--current-accent-button) !important;
+  background-color: rgba(var(--current-accent-rgb), .10) !important;
+  color: var(--current-accent-button) !important;
+}
+html[data-current-theme="active"] body.current-active .btn-primary:not(.minimal):not(.btn-link),
+html[data-current-theme="active"] body.current-active .btn-success:not(.minimal):not(.btn-link),
+html[data-current-theme="active"] body.current-active .btn-info:not(.minimal):not(.btn-link),
+html[data-current-theme="active"] body.current-active .btn-primary:not(.minimal):not(.btn-link):hover,
+html[data-current-theme="active"] body.current-active .btn-success:not(.minimal):not(.btn-link):hover,
+html[data-current-theme="active"] body.current-active .btn-info:not(.minimal):not(.btn-link):hover,
+html[data-current-theme="active"] body.current-active .btn-primary:not(.minimal):not(.btn-link):focus,
+html[data-current-theme="active"] body.current-active .btn-success:not(.minimal):not(.btn-link):focus,
+html[data-current-theme="active"] body.current-active .btn-info:not(.minimal):not(.btn-link):focus,
+html[data-current-theme="active"] body.current-active .btn-primary:not(.minimal):not(.btn-link):active,
+html[data-current-theme="active"] body.current-active .btn-success:not(.minimal):not(.btn-link):active,
+html[data-current-theme="active"] body.current-active .btn-info:not(.minimal):not(.btn-link):active {
+  border-color: var(--current-accent-soft) !important;
+  background-color: var(--current-accent-soft) !important;
+  color: var(--current-accent-ink) !important;
+}
+html[data-current-theme="active"] body.current-active .btn-primary:not(.minimal):not(.btn-link):hover,
+html[data-current-theme="active"] body.current-active .btn-success:not(.minimal):not(.btn-link):hover,
+html[data-current-theme="active"] body.current-active .btn-info:not(.minimal):not(.btn-link):hover { filter: brightness(.96); }
+html[data-current-theme="active"] body.current-active .btn-danger:not(.minimal):not(.btn-link),
+html[data-current-theme="active"] body.current-active .btn-outline-danger:not(.minimal):not(.btn-link) {
+  border-color: rgba(var(--current-danger-rgb), .58) !important;
+  background-color: rgba(var(--current-danger-rgb), .18) !important;
+  color: var(--current-text) !important;
+}
+html[data-current-theme="active"] body.current-active .btn-danger:not(.minimal):not(.btn-link):hover,
+html[data-current-theme="active"] body.current-active .btn-outline-danger:not(.minimal):not(.btn-link):hover {
+  background-color: rgba(var(--current-danger-rgb), .28) !important;
+}
+html[data-current-theme="active"] body.current-active .btn-link:not(.minimal) {
+  border-color: transparent !important;
+  background-color: transparent !important;
+  color: var(--current-accent-button) !important;
+}
+
+/* The app bar has its own quiet icon buttons and a single soft-filled action. */
+body.current-active nav.top-nav .navbar-buttons .btn,
+body.current-active nav.top-nav .navbar-buttons .nav-link {
+  border-color: transparent !important;
+  background-color: transparent !important;
+  color: var(--current-muted) !important;
+}
+body.current-active nav.top-nav .navbar-buttons .btn-primary:not([data-action="new"]),
+body.current-active nav.top-nav .navbar-buttons .donate {
+  border-color: transparent !important;
+  background-color: transparent !important;
+  color: var(--current-muted) !important;
+}
+body.current-active nav.top-nav .navbar-buttons [data-action="new"] {
+  border-color: var(--current-accent-soft) !important;
+  background-color: var(--current-accent-soft) !important;
+  color: var(--current-accent-ink) !important;
+}
+html[data-current-theme="active"] body.current-active .current-carousel-arrow:focus-visible {
+  outline: 2px solid var(--current-accent-button) !important;
+  outline-offset: 2px;
 }

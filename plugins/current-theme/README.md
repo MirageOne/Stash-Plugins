@@ -1,6 +1,6 @@
 # Current Theme
 
-Current is a video-first Stash theme plugin with a responsive library rail, a large home carousel for new arrivals, a Continue Watching row, light and dark modes, and seven accent colors. It preserves Stash's own player, library operations, and customizable recommendation shelves. Its plugin ID, folder, asset names, and settings route consistently use `current-theme`.
+Current is a video-first Stash theme plugin with a responsive library rail, a large home carousel for new arrivals, a Continue Watching row, light and dark modes, seven accent colors, and Soft Fill buttons. It preserves Stash's own player, library operations, and customizable recommendation shelves. Its plugin ID, folder, asset names, and settings route consistently use `current-theme`.
 
 The home carousel and Continue Watching shelf use Stash GraphQL scene data. New arrivals can sort by the library-add time or scene release date. Continue Watching filters scenes with a saved resume position and opens the normal Stash scene route, where the built-in player applies Stash's resume behavior.
 
@@ -10,7 +10,7 @@ Theme preferences are stored in the current browser. The login page is served ou
 
 Copy this directory into Stash's configured `plugins/` directory, reload plugins in **Settings → Plugins**, then enable **Current Theme**. Disable other full-app theme plugins while testing it so global styles do not conflict.
 
-For a packaged manual install, download [Current Theme 0.1.6](../../packages/current-theme/0.1.6-manual.zip) and extract its `current-theme/` folder into the configured plugins directory.
+For a packaged manual install, download [Current Theme 0.1.7](../../packages/current-theme/0.1.7-manual.zip) and extract its `current-theme/` folder into the configured plugins directory.
 
 ## Screenshots
 
@@ -43,6 +43,12 @@ The mobile dock always has four items: three destinations you choose in Theme se
 ### Theme settings
 
 ![Current theme settings for accent color, card layout, navigation, and playback](screenshots/theme-settings.png)
+
+### Buttons
+
+Soft Fill uses pale accent fills for primary actions, a matching accent outline for secondary actions, and a separate red treatment for destructive actions. The outline text deepens in light mode for contrast.
+
+![Soft Fill buttons in Stash's plugin settings, showing primary, outline, and destructive styles](screenshots/soft-fill-buttons.png)
 
 ## Visual audit
 

@@ -11,7 +11,7 @@
     sidebarCollapsed: false,
     reduceEffects: false,
     cardStyle: "cinematic",
-    mobileDock: ["/", "/scenes", "/images", "/performers", "/galleries", "/stats"]
+    mobileDock: ["/", "/scenes", "/images"]
   };
   var ACCENTS = [
     { id: "teal", label: "Teal", color: "#42d7c2" },
@@ -34,6 +34,7 @@
     markers: "<path d=\"M6 3h12v18l-6-4-6 4z\"/>",
     stats: "<path d=\"M4 20V10M10 20V4M16 20v-7M22 20H2\"/>",
     collapse: "<path d=\"m14.5 5-7 7 7 7\"/>",
+    menu: "<path d=\"M4 6h16M4 12h16M4 18h16\"/>",
     activity: "<path d=\"M3 12h4l3-8 4 16 3-8h4\"/>",
     tools: "<path d=\"M14.7 6.3a5 5 0 0 0-6.6 6.6l-4.6 4.6a2 2 0 0 0 2.8 2.8l4.6-4.6a5 5 0 0 0 6.6-6.6L14 12l-2-2z\"/>",
     logs: "<path d=\"M5 4h14v16H5zM8 8h8M8 12h8M8 16h5\"/>",
@@ -65,8 +66,7 @@
     var validDock = ["/", "/scenes", "/images", "/galleries", "/performers", "/studios", "/groups", "/tags", "/scenes/markers", "/stats", "/settings"];
     merged.mobileDock = Array.isArray(merged.mobileDock) ? merged.mobileDock.filter(function (href, index, values) {
       return validDock.indexOf(href) !== -1 && values.indexOf(href) === index;
-    }).slice(0, 6) : DEFAULT_PREFERENCES.mobileDock.slice();
-    if (!merged.mobileDock.length) { merged.mobileDock = DEFAULT_PREFERENCES.mobileDock.slice(); }
+    }).slice(0, 3) : DEFAULT_PREFERENCES.mobileDock.slice();
     return merged;
   }
 
@@ -321,6 +321,11 @@
       if (active) { links[i].setAttribute("aria-current", "page"); }
       else { links[i].removeAttribute("aria-current"); }
     }
+    var mobileMore = document.querySelector(".filmroom-mobile-more");
+    if (mobileMore) {
+      var isDocked = readPreferences().mobileDock.some(function (href) { return itemIsActive({ href: href }, path, search); });
+      mobileMore.classList.toggle("is-active", !isDocked);
+    }
   }
 
   function openMobileDrawer(open) {
@@ -388,16 +393,17 @@
         if (route) { navigateFromLink(event, route); }
       });
     }
-    var dockSignature = signature + "|" + readPreferences().mobileDock.join(",");
+    var mobileDock = readPreferences().mobileDock;
+    var dockSignature = signature + "|" + mobileDock.join(",");
     if (dock.getAttribute("data-dock-preferences") !== dockSignature) {
       dock.textContent = "";
-      readPreferences().mobileDock.map(function (href) { return primary.filter(function (item) { return item.href === href; })[0]; }).filter(Boolean).forEach(function (item) { dock.appendChild(makeRouteLink(item, "filmroom-dock-item")); });
+      mobileDock.map(function (href) { return primary.filter(function (item) { return item.href === href; })[0]; }).filter(Boolean).forEach(function (item) { dock.appendChild(makeRouteLink(item, "filmroom-dock-item")); });
       var moreButton = document.createElement("button");
       moreButton.type = "button";
       moreButton.className = "filmroom-dock-item filmroom-mobile-more";
-      moreButton.setAttribute("aria-label", "More pages");
+      moreButton.setAttribute("aria-label", "Open menu for remaining pages");
       moreButton.setAttribute("aria-expanded", "false");
-      moreButton.innerHTML = '<span class="filmroom-nav-icon">' + icon("groups") + '</span><span class="filmroom-nav-label">More</span>';
+      moreButton.innerHTML = '<span class="filmroom-nav-icon">' + icon("menu") + '</span><span class="filmroom-nav-label">More</span>';
       dock.appendChild(moreButton);
       dock.setAttribute("data-dock-preferences", dockSignature);
     }
@@ -406,7 +412,7 @@
     if (!drawer) {
       drawer = document.createElement("div");
       drawer.className = "filmroom-mobile-drawer";
-      drawer.setAttribute("aria-label", "All pages");
+      drawer.setAttribute("aria-label", "More pages");
       document.body.appendChild(drawer);
       drawer.addEventListener("click", function (event) {
         if (event.target === drawer) { openMobileDrawer(false); return; }
@@ -414,13 +420,14 @@
         if (route) { navigateFromLink(event, route); }
       });
     }
-    if (drawer.getAttribute("data-signature") !== signature) {
+    var drawerSignature = signature + "|" + mobileDock.join(",");
+    if (drawer.getAttribute("data-signature") !== drawerSignature) {
       drawer.textContent = "";
       var sheet = document.createElement("section");
       sheet.className = "filmroom-mobile-sheet";
       var sheetHeading = document.createElement("div");
       sheetHeading.className = "filmroom-mobile-sheet-heading";
-      sheetHeading.innerHTML = "<strong>All pages</strong>";
+      sheetHeading.innerHTML = "<strong>More pages</strong>";
       var close = document.createElement("button");
       close.type = "button";
       close.className = "filmroom-mobile-close";
@@ -429,7 +436,7 @@
       close.addEventListener("click", function () { openMobileDrawer(false); });
       sheetHeading.appendChild(close);
       sheet.appendChild(sheetHeading);
-      sections.forEach(function (section) {
+      navigationSections(primary.filter(function (item) { return mobileDock.indexOf(item.href) === -1; })).forEach(function (section) {
         var group = document.createElement("section");
         group.className = "filmroom-mobile-nav-section";
         var heading = document.createElement("h3");
@@ -441,7 +448,7 @@
       });
       sheet.appendChild(makeRouteLink({ href: PLUGIN_ROUTE, label: "Theme settings", icon: "sun" }, "filmroom-mobile-sheet-link filmroom-theme-nav-item"));
       drawer.appendChild(sheet);
-      drawer.setAttribute("data-signature", signature);
+      drawer.setAttribute("data-signature", drawerSignature);
     }
 
     document.body.classList.add("filmroom-active");
@@ -871,7 +878,7 @@
         var next = preferences.mobileDock.slice();
         var index = next.indexOf(href);
         if (index !== -1) { next.splice(index, 1); }
-        else if (next.length < 6) { next.push(href); }
+        else if (next.length < 3) { next.push(href); }
         change("mobileDock", next);
       }
       var cardStyles = [["cinematic", "Cinematic", "Wide artwork with a clean metadata panel."], ["compact", "Compact", "More titles in a tighter library grid."], ["poster", "Poster", "Tall artwork for a poster wall." ]];
@@ -908,11 +915,11 @@
           h("div", { className: "filmroom-section-heading" }, h("div", null, h("span", { className: "filmroom-kicker" }, "NAVIGATION"), h("h2", null, "Shape your navigation"), h("p", null, "Choose how Filmroom routes appear on desktop and mobile."))),
           toggle("Start with a compact desktop rail", "Show navigation labels only when the rail is expanded.", "sidebarCollapsed"),
           h("div", { className: "filmroom-setting-row filmroom-mobile-choice-row" },
-            h("div", null, h("strong", null, "Mobile dock"), h("p", null, "Choose up to six destinations. All other pages stay in More.")),
-            h("span", { className: "filmroom-selection-count" }, preferences.mobileDock.length + " of 6")),
+            h("div", null, h("strong", null, "Mobile dock"), h("p", null, "Choose up to three destinations; the fixed fourth button opens all remaining pages.")),
+            h("span", { className: "filmroom-selection-count" }, preferences.mobileDock.length + " of 3")),
           h("div", { className: "filmroom-mobile-choice-grid" }, mobileChoices.map(function (choice) {
             var selected = preferences.mobileDock.indexOf(choice[0]) !== -1;
-            return h("button", { type: "button", key: choice[0], className: "filmroom-choice-chip" + (selected ? " is-selected" : ""), "aria-pressed": selected, disabled: !selected && preferences.mobileDock.length >= 6, onClick: function () { toggleDock(choice[0]); } }, choice[1]);
+            return h("button", { type: "button", key: choice[0], className: "filmroom-choice-chip" + (selected ? " is-selected" : ""), "aria-pressed": selected, disabled: !selected && preferences.mobileDock.length >= 3, onClick: function () { toggleDock(choice[0]); } }, choice[1]);
           }))),
         h("section", { className: "filmroom-settings-card" },
           h("div", { className: "filmroom-section-heading" }, h("div", null, h("span", { className: "filmroom-kicker" }, "PLAYBACK"), h("h2", null, "Playback preferences"), h("p", null, "Player behavior remains controlled by Stash."))),

@@ -45,10 +45,10 @@
     description: Server-side image and video downloads with yt-dlp, proxy settings, library-aware imports, and metadata extraction.
 - id: current-theme
   name: Current Theme
-  version: 0.1.11
-  date: "2026-11-03 22:26:20"
-  path: packages/current-theme/0.1.11.zip
-  sha256: a16430ac576c34473f900e0ae8b3dd6d97eba067b587d2c98970357365c744e4
+  version: 0.1.12
+  date: "2026-11-03 22:41:37"
+  path: packages/current-theme/0.1.12.zip
+  sha256: 37178d074a0a514a517596c31e536040aa8f30a5e73bdddcf3cb0d472aa0ab15
   requires: []
   metadata:
     description: Current is a video-first Stash theme with Geist typography, a new-arrivals carousel, Continue Watching, customizable mobile navigation, light and dark modes, seven accent colors, and Soft Fill buttons.

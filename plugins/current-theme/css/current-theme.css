@@ -755,12 +755,69 @@ body.current-active .current-mobile-drawer { display: none; }
   html[data-current-theme="active"] .item-list-container .sidebar-pane-content { padding: 0 !important; }
   html[data-current-theme="active"] .item-list-container .sidebar-toggle-button-container { position: static !important; float: right; width: 34px !important; height: 34px !important; margin: 0 0 8px 8px !important; }
   html[data-current-theme="active"] .item-list-container .sidebar-toggle-button-container .sidebar-toggle-button { width: 34px !important; min-width: 34px !important; height: 34px !important; min-height: 34px !important; }
-  html[data-current-theme="active"] .item-list-container .filtered-list-toolbar { clear: both; padding: 11px !important; }
-  html[data-current-theme="active"] .item-list-container .filtered-list-toolbar .search-term-input { flex: 1 1 100%; width: 100%; }
+  /* On phones, give search its own row and keep every native control in
+     source order. Wrapped filter and view groups stay together at the same
+     left edge, including Stash's Wall and Tagger view buttons. */
+  html[data-current-theme="active"] .item-list-container .filtered-list-toolbar {
+    clear: both;
+    box-sizing: border-box;
+    flex-wrap: wrap !important;
+    align-content: flex-start;
+    justify-content: flex-start !important;
+    column-gap: 8px !important;
+    row-gap: 8px !important;
+    padding: 11px !important;
+  }
+  html[data-current-theme="active"] .item-list-container .filtered-list-toolbar > *:not(.search-term-input) {
+    min-width: 0;
+    max-width: 100%;
+    margin: 0 !important;
+    flex: 0 0 auto;
+  }
+  html[data-current-theme="active"] .item-list-container .filtered-list-toolbar .search-term-input {
+    box-sizing: border-box;
+    flex: 1 1 100%;
+    width: 100%;
+    min-width: 0;
+    max-width: 100%;
+  }
+  html[data-current-theme="active"] .item-list-container .filtered-list-toolbar .search-term-input .form-control {
+    box-sizing: border-box;
+  }
+  html[data-current-theme="active"] .item-list-container .filtered-list-toolbar .btn-group,
+  html[data-current-theme="active"] .item-list-container .filtered-list-toolbar .sort-by-select,
+  html[data-current-theme="active"] .item-list-container .filtered-list-toolbar .list-operations {
+    max-width: 100%;
+    flex-wrap: nowrap !important;
+    flex-shrink: 0 !important;
+  }
   html[data-current-theme="active"] .item-list-container .filtered-list-toolbar > .list-operations { margin-left: 0 !important; }
-  /* When the toolbar wraps on narrow screens, keep its adjacent action groups
-     together on the left instead of sending the second group to the far edge. */
-  html[data-current-theme="active"] .item-list-container .filtered-list-toolbar > .list-operations + .btn-group { margin-left: 0 !important; }
+  html[data-current-theme="active"] .item-list-container .filtered-list-toolbar > .list-operations + .btn-group {
+    gap: 6px !important;
+    overflow: visible;
+    border: 0 !important;
+    border-radius: 0 !important;
+    background: transparent !important;
+  }
+  html[data-current-theme="active"] .item-list-container .filtered-list-toolbar > .list-operations + .btn-group > button.btn {
+    width: 36px;
+    min-width: 36px;
+    height: 36px !important;
+    min-height: 36px !important;
+    padding: 0 !important;
+    border: 1px solid var(--current-line) !important;
+    border-radius: 5px !important;
+    background: var(--current-bg) !important;
+    color: var(--current-muted) !important;
+  }
+  html[data-current-theme="active"] .item-list-container .filtered-list-toolbar > .list-operations + .btn-group > button.btn + button.btn {
+    border-left: 1px solid var(--current-line) !important;
+  }
+  html[data-current-theme="active"] .item-list-container .filtered-list-toolbar > .list-operations + .btn-group > button.btn:is(.active, .btn-primary) {
+    border-color: var(--current-accent) !important;
+    background: rgba(var(--current-accent-rgb), .13) !important;
+    color: var(--current-accent) !important;
+  }
   html[data-current-theme="active"] .item-list-container .filtered-list-toolbar .zoom-slider-container { flex: 1 1 80px; }
   html[data-current-theme="active"] .current-setting-row { align-items: flex-start; }
   html[data-current-theme="active"] .current-accent-row { flex-direction: column; }
@@ -1375,4 +1432,29 @@ body.current-active nav.top-nav .navbar-buttons img {
 body.current-active nav.top-nav .navbar-buttons i {
   font-size: 18px !important;
   line-height: 1 !important;
+}
+
+/* Keep the mobile filter controls neutral like the mockup; selected modes
+   use the soft accent fill while Wall and Tagger remain native Stash buttons. */
+@media (max-width: 700px) {
+  html[data-current-theme="active"] body.current-active .item-list-container .filtered-list-toolbar button.btn {
+    min-height: 36px !important;
+    height: 36px !important;
+    border: 1px solid var(--current-line) !important;
+    border-radius: 5px !important;
+    background-color: var(--current-bg) !important;
+    color: var(--current-muted) !important;
+    box-shadow: none !important;
+  }
+  html[data-current-theme="active"] body.current-active .item-list-container .filtered-list-toolbar button.btn:hover,
+  html[data-current-theme="active"] body.current-active .item-list-container .filtered-list-toolbar button.btn:focus-visible {
+    border-color: var(--current-accent) !important;
+    background-color: rgba(var(--current-accent-rgb), .08) !important;
+    color: var(--current-accent) !important;
+  }
+  html[data-current-theme="active"] body.current-active .item-list-container .filtered-list-toolbar button.btn:is(.active, .btn-primary) {
+    border-color: var(--current-accent) !important;
+    background-color: rgba(var(--current-accent-rgb), .14) !important;
+    color: var(--current-accent) !important;
+  }
 }

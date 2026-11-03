@@ -181,6 +181,8 @@ body.current-active nav.top-nav .navbar-brand,
 body.current-active nav.top-nav .navbar-collapse,
 body.current-active nav.top-nav .nav-menu-toggle { display: none !important; }
 body.current-active nav.top-nav .current-topbar-brand { display: none; }
+body.current-active nav.top-nav .navbar-buttons .current-mode-toggle,
+body.current-active nav.top-nav .navbar-buttons .current-topbar-help-hidden { display: none !important; }
 body.current-active nav.top-nav .navbar-buttons {
   display: flex !important;
   align-items: center;
@@ -215,7 +217,6 @@ body.current-active nav.top-nav .navbar-buttons [data-action="new"] {
 }
 body.current-active nav.top-nav .navbar-buttons .donate { color: var(--current-muted) !important; }
 body.current-active nav.top-nav .navbar-buttons .nav-utility { padding: 0 !important; }
-body.current-active nav.top-nav .navbar-buttons .current-mode-toggle svg { width: 18px; height: 18px; }
 
 body.current-active .current-sidebar {
   position: fixed;

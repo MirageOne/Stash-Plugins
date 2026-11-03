@@ -97,7 +97,6 @@
       document.body.classList.toggle("current-sidebar-collapsed", preferences.sidebarCollapsed);
       document.body.classList.toggle("current-reduced-effects", preferences.reduceEffects);
     }
-    updateModeButton(mode);
     updateSidebarState(preferences.sidebarCollapsed);
   }
 
@@ -107,18 +106,6 @@
   }
 
   var CURRENT_MARK = '<svg viewBox="0 0 32 32" fill="none" aria-hidden="true"><path d="M4.5 11.2C9.5 4.3 18.2 3.4 25.8 8.8"/><path d="M27.5 20.8c-5 6.9-13.7 7.8-21.3 2.4"/><path d="M6.5 16h6M19.5 16h6"/><rect x="13.5" y="13.5" width="5" height="5" rx="1.5" fill="var(--current-surface)" stroke="none"/></svg>';
-
-  function updateModeButton(mode) {
-    var button = document.querySelector(".current-mode-toggle");
-    if (!button) { return; }
-    if (button.getAttribute("data-current-mode") === mode) { return; }
-    var nextLabel = mode === "dark" ? "Switch to light mode" : "Switch to dark mode";
-    button.setAttribute("aria-label", nextLabel);
-    button.setAttribute("title", nextLabel);
-    button.setAttribute("aria-pressed", mode === "light" ? "true" : "false");
-    button.setAttribute("data-current-mode", mode);
-    button.innerHTML = icon(mode === "dark" ? "sun" : "moon");
-  }
 
   function installTopbarBrand(navbar) {
     if (navbar.querySelector(".current-topbar-brand")) { return true; }
@@ -196,24 +183,29 @@
     refreshTopbarContext();
   }
 
-  function installModeButton() {
-    var navbar = document.querySelector("nav.top-nav");
-    var actions = navbar && navbar.querySelector(".navbar-buttons");
-    if (!actions) { return false; }
-    var button = actions.querySelector(".current-mode-toggle");
-    if (!button) {
-      button = document.createElement("button");
-      button.type = "button";
-      button.className = "btn minimal current-mode-toggle";
-      button.addEventListener("click", function () {
-        var preferences = readPreferences();
-        savePreferences({ mode: resolveMode(preferences.mode) === "dark" ? "light" : "dark" });
-      });
-      var toggle = actions.querySelector(".nav-menu-toggle");
-      actions.insertBefore(button, toggle || null);
+  function removeTopbarThemeToggle(navbar) {
+    var toggle = navbar.querySelector(".current-mode-toggle");
+    if (toggle) { toggle.remove(); }
+  }
+
+  function hideTopbarHelp(navbar) {
+    var actions = navbar.querySelector(".navbar-buttons");
+    if (!actions) { return; }
+    var controls = actions.querySelectorAll("a, button, [role=button]");
+    for (var i = 0; i < controls.length; i++) {
+      var control = controls[i];
+      var parts = [control.getAttribute("aria-label"), control.getAttribute("title"),
+        control.getAttribute("data-original-title"), control.getAttribute("href"),
+        control.className, control.textContent];
+      var icons = control.querySelectorAll("svg, i");
+      for (var j = 0; j < icons.length; j++) {
+        parts.push(icons[j].getAttribute("aria-label"), icons[j].getAttribute("title"),
+          icons[j].getAttribute("data-icon"), icons[j].getAttribute("class"));
+      }
+      if (/(?:^|[\s/_-])help(?:$|[\s/_-])|question(?:[-_ ]?circle)?|circle[-_ ]?question/i.test(parts.filter(Boolean).join(" "))) {
+        control.classList.add("current-topbar-help-hidden");
+      }
     }
-    updateModeButton(resolveMode(readPreferences().mode));
-    return true;
   }
 
   function routeIcon(path) {
@@ -972,12 +964,17 @@
       if (!navbar) { return false; }
       installTopbarBrand(navbar);
       installTopbarContext(navbar);
-      installModeButton();
+      removeTopbarThemeToggle(navbar);
+      hideTopbarHelp(navbar);
       renderNavigation(navbar);
       mountCurrentStatistics();
       syncCurrentRangeControls();
       if (!observer) {
-        observer = new MutationObserver(function () { renderNavigation(navbar); installModeButton(); });
+        observer = new MutationObserver(function () {
+          removeTopbarThemeToggle(navbar);
+          hideTopbarHelp(navbar);
+          renderNavigation(navbar);
+        });
         observer.observe(navbar, { childList: true, subtree: true });
       }
       return true;

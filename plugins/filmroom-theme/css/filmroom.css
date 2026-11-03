@@ -311,6 +311,11 @@ html[data-filmroom-theme="active"] h1,
 html[data-filmroom-theme="active"] h2,
 html[data-filmroom-theme="active"] h3,
 html[data-filmroom-theme="active"] h4 { color: var(--fr-text); letter-spacing: -.025em; }
+html[data-filmroom-theme="active"] .page-title,
+html[data-filmroom-theme="active"] h1 { font-size: 27px; line-height: 1.15; }
+html[data-filmroom-theme="active"] h2 { font-size: 18px; line-height: 1.3; }
+html[data-filmroom-theme="active"] h3 { font-size: 14px; line-height: 1.35; }
+html[data-filmroom-theme="active"] h4 { font-size: 13px; line-height: 1.35; }
 html[data-filmroom-theme="active"] .nav-tabs { border-color: var(--fr-line); }
 html[data-filmroom-theme="active"] .nav-tabs .nav-link { border: 0; border-bottom: 2px solid transparent; border-radius: 0; color: var(--fr-muted); }
 html[data-filmroom-theme="active"] .nav-tabs .nav-link.active { border-color: var(--fr-accent); background: transparent; color: var(--fr-accent); }
@@ -388,7 +393,7 @@ html[data-filmroom-theme="active"] .filmroom-home-hero-empty::after { background
 html[data-filmroom-theme="active"] .filmroom-home-hero-empty .filmroom-hero-copy { width: min(740px, 82%); }
 html[data-filmroom-theme="active"] .filmroom-home-section { margin: 27px 0 35px; }
 html[data-filmroom-theme="active"] .filmroom-section-heading { min-height: 44px; display: flex; align-items: flex-end; justify-content: space-between; gap: 16px; margin-bottom: 14px; }
-html[data-filmroom-theme="active"] .filmroom-section-heading h2 { margin: 3px 0 0; color: var(--fr-text); font-size: 20px; font-weight: 730; letter-spacing: -.035em; }
+html[data-filmroom-theme="active"] .filmroom-section-heading h2 { margin: 3px 0 0; color: var(--fr-text); font-size: 18px; font-weight: 730; letter-spacing: -.035em; }
 html[data-filmroom-theme="active"] .filmroom-section-link { flex: 0 0 auto; color: var(--fr-accent); font-size: 11px; font-weight: 650; text-decoration: none; }
 html[data-filmroom-theme="active"] .filmroom-resume-grid { display: grid; grid-template-columns: repeat(4, minmax(0, 1fr)); gap: 15px; }
 html[data-filmroom-theme="active"] .filmroom-resume-card { min-width: 0; }
@@ -640,4 +645,515 @@ body.filmroom-active .filmroom-mobile-drawer { display: none; }
   html[data-filmroom-theme="active"] *,
   html[data-filmroom-theme="active"] *::before,
   html[data-filmroom-theme="active"] *::after { scroll-behavior: auto !important; animation-duration: .01ms !important; animation-iteration-count: 1 !important; transition-duration: .01ms !important; }
+}
+
+/* Complete the shared shell with the grouped navigation and search shown in
+   the Filmroom review mockup. */
+html[data-filmroom-theme="active"] {
+  --fr-surface-soft: #171a1f;
+}
+html[data-filmroom-theme="active"][data-filmroom-mode="light"] {
+  --fr-surface-soft: #f1f3f5;
+}
+body.filmroom-active nav.top-nav .filmroom-topbar-context {
+  min-width: 0;
+  flex: 1;
+  display: flex;
+  align-items: center;
+  gap: clamp(20px, 4vw, 64px);
+  margin-left: 0;
+}
+body.filmroom-active nav.top-nav .filmroom-breadcrumb {
+  min-width: 150px;
+  display: flex;
+  align-items: center;
+  gap: 9px;
+  color: var(--fr-quiet);
+  font-size: 12px;
+  white-space: nowrap;
+}
+body.filmroom-active nav.top-nav .filmroom-breadcrumb a {
+  color: var(--fr-muted);
+  text-decoration: none;
+}
+body.filmroom-active nav.top-nav .filmroom-breadcrumb a:hover { color: var(--fr-accent); }
+body.filmroom-active nav.top-nav .filmroom-breadcrumb-current { color: var(--fr-text); font-weight: 650; }
+body.filmroom-active nav.top-nav .filmroom-global-search {
+  width: min(420px, 42vw);
+  height: 38px;
+  display: flex;
+  align-items: center;
+  gap: 9px;
+  margin: 0 auto;
+  padding: 0 11px;
+  border: 1px solid var(--fr-line);
+  border-radius: 5px;
+  background: var(--fr-surface-raised);
+  color: var(--fr-quiet);
+}
+body.filmroom-active nav.top-nav .filmroom-global-search:focus-within { border-color: var(--fr-accent); }
+body.filmroom-active nav.top-nav .filmroom-search-icon { width: 17px; height: 17px; display: grid; place-items: center; flex: none; }
+body.filmroom-active nav.top-nav .filmroom-search-icon svg { width: 16px; height: 16px; }
+body.filmroom-active nav.top-nav .filmroom-global-search input {
+  width: 100%;
+  min-width: 0;
+  height: 100%;
+  padding: 0;
+  border: 0 !important;
+  outline: 0;
+  background: transparent !important;
+  color: var(--fr-text);
+  font-size: 12px;
+}
+body.filmroom-active nav.top-nav .filmroom-global-search input:focus { box-shadow: none !important; }
+body.filmroom-active nav.top-nav .filmroom-global-search input::placeholder { color: var(--fr-quiet); }
+body.filmroom-active nav.top-nav .filmroom-global-search kbd {
+  flex: none;
+  padding: 2px 5px;
+  border: 1px solid var(--fr-line);
+  border-radius: 3px;
+  background: var(--fr-bg);
+  color: var(--fr-quiet);
+  font-family: inherit;
+  font-size: 9px;
+}
+body.filmroom-active nav.top-nav .navbar-buttons { margin-left: 20px !important; }
+body.filmroom-active nav.top-nav .navbar-buttons .btn-primary:not([data-action="new"]),
+body.filmroom-active nav.top-nav .navbar-buttons .donate {
+  border-color: transparent !important;
+  background: transparent !important;
+  color: var(--fr-muted) !important;
+}
+body.filmroom-active nav.top-nav .navbar-buttons .donate { display: none !important; }
+body.filmroom-active nav.top-nav .navbar-buttons .donate svg,
+body.filmroom-active nav.top-nav .navbar-buttons .donate svg * { color: var(--fr-muted) !important; fill: currentColor; }
+body.filmroom-active nav.top-nav .filmroom-route-proxy {
+  position: fixed !important;
+  z-index: -1 !important;
+  width: 1px !important;
+  height: 1px !important;
+  overflow: hidden !important;
+  clip-path: inset(50%) !important;
+  white-space: nowrap !important;
+  opacity: 0 !important;
+  pointer-events: none !important;
+}
+body.filmroom-active nav.top-nav .navbar-buttons [data-action="new"] {
+  border-color: var(--fr-accent) !important;
+  background: var(--fr-accent) !important;
+  color: var(--fr-accent-ink) !important;
+}
+body.filmroom-active .filmroom-sidebar-primary { gap: 10px; }
+body.filmroom-active .filmroom-nav-section { display: flex; flex-direction: column; gap: 2px; }
+body.filmroom-active .filmroom-nav-section-heading {
+  margin: 4px 10px 5px;
+  color: var(--fr-quiet);
+  font-size: 9px;
+  font-weight: 760;
+  letter-spacing: .12em;
+  line-height: 1.3;
+}
+body.filmroom-active .filmroom-nav-item { min-height: 35px; }
+body.filmroom-active.filmroom-sidebar-collapsed .filmroom-nav-section-heading { display: none; }
+body.filmroom-active.filmroom-sidebar-collapsed .filmroom-sidebar-primary { gap: 8px; }
+
+/* Native Settings must not retain Bootstrap/Refract blue or Fluent switches. */
+html[data-filmroom-theme="active"] .nav-pills .nav-link {
+  border: 1px solid transparent !important;
+  border-radius: 4px !important;
+  background: transparent !important;
+  color: var(--fr-muted) !important;
+}
+html[data-filmroom-theme="active"] .nav-pills .nav-link:hover {
+  background: var(--fr-surface-raised) !important;
+  color: var(--fr-text) !important;
+}
+html[data-filmroom-theme="active"] .nav-pills .nav-link.active,
+html[data-filmroom-theme="active"] .nav-pills .show > .nav-link {
+  border-color: rgba(var(--fr-accent-rgb), .24) !important;
+  background: rgba(var(--fr-accent-rgb), .13) !important;
+  color: var(--fr-accent) !important;
+}
+html[data-filmroom-theme="active"] .custom-switch .custom-control-input:checked ~ .custom-control-label::before,
+html[data-filmroom-theme="active"] .custom-control-input:checked ~ .custom-control-label::before,
+html[data-filmroom-theme="active"] .form-check-input:checked {
+  border-color: var(--fr-accent) !important;
+  background-color: var(--fr-accent) !important;
+}
+html[data-filmroom-theme="active"] .custom-switch .custom-control-input:checked ~ .custom-control-label::after {
+  background: var(--fr-accent-ink) !important;
+}
+html[data-filmroom-theme="active"] .tasks-panel-queue,
+html[data-filmroom-theme="active"] [class*="tasks-panel-queue"],
+html[data-filmroom-theme="active"] .tasks-panel,
+html[data-filmroom-theme="active"] .log-level-container,
+html[data-filmroom-theme="active"] .log-level {
+  border: 1px solid var(--fr-line) !important;
+  border-radius: var(--fr-radius) !important;
+  background: var(--fr-surface) !important;
+  color: var(--fr-text) !important;
+  box-shadow: none !important;
+}
+html[data-filmroom-theme="active"] .log-entry,
+html[data-filmroom-theme="active"] .log-message,
+html[data-filmroom-theme="active"] .log-container,
+html[data-filmroom-theme="active"] .logs {
+  max-width: 100%;
+  min-width: 0;
+  overflow-x: hidden;
+  overflow-wrap: anywhere;
+  word-break: break-word;
+}
+html[data-filmroom-theme="active"] .main.container-fluid { overflow-x: clip; }
+
+/* Media-library cards use restrained labels and a simple rating chip. */
+html[data-filmroom-theme="active"] .scene-card,
+html[data-filmroom-theme="active"] .image-card,
+html[data-filmroom-theme="active"] .gallery-card,
+html[data-filmroom-theme="active"] .performer-card,
+html[data-filmroom-theme="active"] .studio-card,
+html[data-filmroom-theme="active"] .group-card,
+html[data-filmroom-theme="active"] .tag-card {
+  overflow: hidden;
+  border: 1px solid var(--fr-line) !important;
+  border-radius: 6px !important;
+  background: var(--fr-surface) !important;
+  box-shadow: none !important;
+}
+html[data-filmroom-theme="active"] .scene-card:hover,
+html[data-filmroom-theme="active"] .image-card:hover,
+html[data-filmroom-theme="active"] .gallery-card:hover,
+html[data-filmroom-theme="active"] .performer-card:hover,
+html[data-filmroom-theme="active"] .studio-card:hover {
+  border-color: var(--fr-line-strong) !important;
+}
+html[data-filmroom-theme="active"] .scene-card-preview,
+html[data-filmroom-theme="active"] .image-card img,
+html[data-filmroom-theme="active"] .gallery-card img,
+html[data-filmroom-theme="active"] .performer-card img {
+  background-color: var(--fr-surface-strong);
+}
+html[data-filmroom-theme="active"] .scene-card-preview-image { object-fit: cover; }
+html[data-filmroom-theme="active"] .scene-card .rating-banner {
+  position: absolute !important;
+  z-index: 3;
+  inset: 9px auto auto 9px !important;
+  width: auto !important;
+  height: auto !important;
+  min-width: 0 !important;
+  padding: 3px 7px !important;
+  transform: none !important;
+  border: 1px solid rgba(255,255,255,.14) !important;
+  border-radius: 4px !important;
+  background: rgba(8,11,14,.82) !important;
+  color: #f2c66d !important;
+  font-size: 10px !important;
+  font-weight: 700;
+  line-height: 1.3;
+  text-align: center;
+  box-shadow: none !important;
+}
+html[data-filmroom-theme="active"] .scene-card .rating-banner::before,
+html[data-filmroom-theme="active"] .scene-card .rating-banner::after { display: none !important; }
+html[data-filmroom-theme="active"] .scene-card .card-body,
+html[data-filmroom-theme="active"] .image-card .card-body,
+html[data-filmroom-theme="active"] .gallery-card .card-body {
+  padding: 10px 11px !important;
+  background: var(--fr-surface) !important;
+  color: var(--fr-text) !important;
+}
+html[data-filmroom-theme="active"] .scene-card .scene-card-title,
+html[data-filmroom-theme="active"] .scene-card .scene-title,
+html[data-filmroom-theme="active"] .card-title,
+html[data-filmroom-theme="active"] .card-section-title,
+html[data-filmroom-theme="active"] .card-section-title .TruncatedText { color: var(--fr-text) !important; }
+html[data-filmroom-theme="active"] .scene-card .scene-card-details,
+html[data-filmroom-theme="active"] .scene-card .scene-card__details,
+html[data-filmroom-theme="active"] .scene-card .scene-card-performers,
+html[data-filmroom-theme="active"] .scene-card .scene-card__performers { color: var(--fr-quiet) !important; }
+html[data-filmroom-theme="active"] .scene-card .progress,
+html[data-filmroom-theme="active"] .scene-card .progress-bar { background-color: var(--fr-surface-strong) !important; background-image: none !important; }
+html[data-filmroom-theme="active"] .scene-card .progress-indicator { background-color: var(--fr-accent) !important; background-image: none !important; }
+html[data-filmroom-theme="active"] .slick-slider > .slick-arrow {
+  z-index: 4;
+  width: 30px;
+  height: 30px;
+  border: 1px solid var(--fr-line-strong) !important;
+  border-radius: 50% !important;
+  background: var(--fr-surface) !important;
+  color: var(--fr-muted) !important;
+  opacity: .92;
+}
+html[data-filmroom-theme="active"] .slick-slider > .slick-arrow::before {
+  color: var(--fr-muted) !important;
+  font-size: 14px !important;
+  opacity: 1 !important;
+}
+html[data-filmroom-theme="active"] .slick-slider > .slick-arrow:hover {
+  border-color: var(--fr-accent) !important;
+  background: var(--fr-surface-raised) !important;
+}
+html[data-filmroom-theme="active"] .slick-slider > .slick-arrow:hover::before { color: var(--fr-accent) !important; }
+html[data-filmroom-theme="active"] .slick-slider > .slick-arrow.slick-disabled { opacity: .38; }
+html[data-filmroom-theme="active"][data-filmroom-card-style="compact"] .scene-card .video-section { max-height: 148px; overflow: hidden; }
+html[data-filmroom-theme="active"][data-filmroom-card-style="compact"] .scene-card .scene-card-preview { aspect-ratio: 16 / 8; }
+html[data-filmroom-theme="active"][data-filmroom-card-style="compact"] .scene-card .card-body { padding: 7px 9px !important; }
+html[data-filmroom-theme="active"][data-filmroom-card-style="compact"] .scene-card .card-title { margin-bottom: 3px; font-size: 11px; }
+html[data-filmroom-theme="active"][data-filmroom-card-style="poster"] .scene-card .scene-card-preview { aspect-ratio: 2 / 3; }
+html[data-filmroom-theme="active"][data-filmroom-card-style="poster"] .scene-card .video-section { overflow: hidden; }
+html[data-filmroom-theme="active"][data-filmroom-card-style="poster"] .scene-card .scene-card-preview-image { object-position: center 28%; }
+
+/* Statistics match the mock's label/value cards and paired visual reports. */
+html[data-filmroom-theme="active"] .main.container-fluid .stats {
+  width: 100%;
+  max-width: none;
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(145px, 1fr));
+  gap: 10px;
+  margin: 0 0 10px !important;
+}
+html[data-filmroom-theme="active"] .main.container-fluid .stats-element {
+  min-width: 0;
+  display: flex;
+  flex-direction: column-reverse;
+  align-items: flex-start;
+  justify-content: center;
+  gap: 1px;
+  margin: 0 !important;
+  padding: 13px 15px;
+  border: 1px solid var(--fr-line);
+  border-radius: var(--fr-radius);
+  background: var(--fr-surface);
+}
+html[data-filmroom-theme="active"] .stats-element .heading {
+  margin: 0;
+  color: var(--fr-muted);
+  font-size: 11px;
+  font-weight: 550;
+}
+html[data-filmroom-theme="active"] .stats-element .title {
+  margin: 0;
+  color: var(--fr-text);
+  font-size: 22px;
+  font-weight: 740;
+  letter-spacing: -.04em;
+  font-variant-numeric: tabular-nums;
+}
+html[data-filmroom-theme="active"] .filmroom-stats-insights {
+  display: grid;
+  grid-template-columns: minmax(0, 1.2fr) minmax(0, 1fr);
+  gap: 12px;
+  margin-top: 3px;
+}
+html[data-filmroom-theme="active"] .filmroom-stats-panel {
+  min-width: 0;
+  padding: 16px 17px 13px;
+  border: 1px solid var(--fr-line);
+  border-radius: var(--fr-radius);
+  background: var(--fr-surface);
+}
+html[data-filmroom-theme="active"] .filmroom-stats-panel-heading { display: flex; align-items: center; justify-content: space-between; gap: 12px; margin-bottom: 9px; }
+html[data-filmroom-theme="active"] .filmroom-stats-panel-heading h2 { margin: 0; color: var(--fr-text); font-size: 14px; font-weight: 680; }
+html[data-filmroom-theme="active"] .filmroom-stats-panel-heading span { color: var(--fr-quiet); font-size: 10px; text-align: right; }
+html[data-filmroom-theme="active"] .filmroom-years-panel svg { display: block; width: 100%; height: 180px; overflow: visible; }
+html[data-filmroom-theme="active"] .filmroom-chart-grid { stroke: var(--fr-line); stroke-width: 1; }
+html[data-filmroom-theme="active"] .filmroom-chart-axis { fill: var(--fr-muted); font-family: inherit; font-size: 10px; }
+html[data-filmroom-theme="active"] .filmroom-chart-value { fill: var(--fr-text); font-family: inherit; font-size: 9px; }
+html[data-filmroom-theme="active"] .filmroom-chart-bar { fill: var(--fr-accent); }
+html[data-filmroom-theme="active"] .filmroom-chart-empty { fill: var(--fr-quiet); font-family: inherit; font-size: 12px; }
+html[data-filmroom-theme="active"] .filmroom-resolution-rows { display: grid; gap: 11px; padding: 12px 0 3px; }
+html[data-filmroom-theme="active"] .filmroom-resolution-row { min-width: 0; display: grid; grid-template-columns: 49px minmax(30px, 1fr) 78px; align-items: center; gap: 9px; }
+html[data-filmroom-theme="active"] .filmroom-resolution-label,
+html[data-filmroom-theme="active"] .filmroom-resolution-value { color: var(--fr-muted); font-size: 10px; font-variant-numeric: tabular-nums; }
+html[data-filmroom-theme="active"] .filmroom-resolution-value { color: var(--fr-text); text-align: right; }
+html[data-filmroom-theme="active"] .filmroom-resolution-track { height: 7px; overflow: hidden; border-radius: 99px; background: var(--fr-surface-strong); }
+html[data-filmroom-theme="active"] .filmroom-resolution-track span { height: 100%; display: block; border-radius: inherit; background: var(--fr-accent); }
+
+/* Theme settings now expose the mock's appearance, card, navigation, and
+   playback sections with working controls tied to real preferences. */
+html[data-filmroom-theme="active"] .filmroom-settings-page { max-width: 1080px; }
+html[data-filmroom-theme="active"] .filmroom-settings-card .filmroom-section-heading > div > p { margin: 4px 0 0; color: var(--fr-quiet); font-size: 11px; }
+html[data-filmroom-theme="active"] .filmroom-card-style-grid { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 10px; margin-top: 14px; }
+html[data-filmroom-theme="active"] .filmroom-card-style-option {
+  min-width: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+  padding: 8px;
+  border: 1px solid var(--fr-line) !important;
+  border-radius: 5px !important;
+  background: var(--fr-surface-raised) !important;
+  color: var(--fr-text) !important;
+  text-align: left;
+}
+html[data-filmroom-theme="active"] .filmroom-card-style-option:hover,
+html[data-filmroom-theme="active"] .filmroom-card-style-option.is-selected { border-color: var(--fr-accent) !important; }
+html[data-filmroom-theme="active"] .filmroom-card-style-option.is-selected { background: rgba(var(--fr-accent-rgb), .08) !important; }
+html[data-filmroom-theme="active"] .filmroom-card-style-option > strong { font-size: 11px; }
+html[data-filmroom-theme="active"] .filmroom-card-style-option > small { color: var(--fr-quiet); font-size: 10px; line-height: 1.4; }
+html[data-filmroom-theme="active"] .filmroom-card-style-preview {
+  height: 75px;
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  align-items: end;
+  gap: 4px;
+  padding: 6px;
+  border-radius: 3px;
+  background: linear-gradient(135deg, #252a31, #171a1f);
+}
+html[data-filmroom-theme="active"] .filmroom-card-style-preview i { height: 43px; display: block; border: 1px solid var(--fr-line-strong); border-radius: 3px; background: linear-gradient(150deg, rgba(var(--fr-accent-rgb),.42), #252a31 68%); }
+html[data-filmroom-theme="active"] .filmroom-card-style-preview.compact { grid-template-columns: repeat(4, 1fr); }
+html[data-filmroom-theme="active"] .filmroom-card-style-preview.compact i { height: 37px; }
+html[data-filmroom-theme="active"] .filmroom-card-style-preview.poster i { height: 57px; }
+html[data-filmroom-theme="active"] .filmroom-mobile-choice-row { min-height: 60px; }
+html[data-filmroom-theme="active"] .filmroom-selection-count { flex: none; color: var(--fr-quiet); font-size: 10px; }
+html[data-filmroom-theme="active"] .filmroom-mobile-choice-grid { display: flex; flex-wrap: wrap; gap: 7px; padding-top: 12px; }
+html[data-filmroom-theme="active"] .filmroom-choice-chip {
+  min-height: 31px;
+  padding: 0 10px;
+  border: 1px solid var(--fr-line) !important;
+  border-radius: 4px !important;
+  background: var(--fr-surface-raised) !important;
+  color: var(--fr-muted) !important;
+  font-size: 10px;
+}
+html[data-filmroom-theme="active"] .filmroom-choice-chip.is-selected { border-color: var(--fr-accent) !important; background: rgba(var(--fr-accent-rgb), .12) !important; color: var(--fr-accent) !important; }
+html[data-filmroom-theme="active"] .filmroom-choice-chip:disabled { opacity: .42; cursor: not-allowed; }
+html[data-filmroom-theme="active"] .filmroom-playback-note { display: flex; align-items: center; justify-content: space-between; gap: 18px; padding-top: 13px; }
+html[data-filmroom-theme="active"] .filmroom-playback-note p { max-width: 610px; margin: 0; color: var(--fr-muted); font-size: 11px; }
+html[data-filmroom-theme="active"] .filmroom-playback-note .filmroom-button { flex: none; border-color: var(--fr-line-strong); color: var(--fr-text); }
+body.filmroom-active.filmroom-reduced-effects *,
+body.filmroom-active.filmroom-reduced-effects *::before,
+body.filmroom-active.filmroom-reduced-effects *::after { animation: none !important; transition: none !important; scroll-behavior: auto !important; backdrop-filter: none !important; }
+
+@media (max-width: 1100px) and (min-width: 701px) {
+  body.filmroom-active nav.top-nav { padding-inline: 15px; }
+  body.filmroom-active nav.top-nav .filmroom-topbar-context { gap: 14px; }
+  body.filmroom-active nav.top-nav .filmroom-breadcrumb { min-width: 125px; }
+  body.filmroom-active nav.top-nav .filmroom-global-search { width: min(320px, 34vw); }
+  body.filmroom-active nav.top-nav .filmroom-global-search kbd { display: none; }
+  body.filmroom-active .filmroom-nav-section-heading { display: none; }
+  body.filmroom-active .filmroom-nav-section { gap: 7px; }
+}
+@media (max-width: 700px) {
+  body.filmroom-active nav.top-nav .filmroom-topbar-brand { flex: none; margin-right: 8px; }
+  body.filmroom-active nav.top-nav .filmroom-topbar-brand > span:last-child { display: none; }
+  body.filmroom-active nav.top-nav .filmroom-topbar-context { flex: 1; gap: 0; }
+  body.filmroom-active nav.top-nav .filmroom-breadcrumb { display: none; }
+  body.filmroom-active nav.top-nav .filmroom-global-search { width: auto; min-width: 0; flex: 1; height: 34px; margin: 0; padding-inline: 8px; }
+  body.filmroom-active nav.top-nav .filmroom-global-search kbd { display: none; }
+  body.filmroom-active nav.top-nav .navbar-buttons { margin-left: 5px !important; }
+  html[data-filmroom-theme="active"] .filmroom-stats-insights { grid-template-columns: 1fr; }
+  html[data-filmroom-theme="active"] .filmroom-card-style-grid { grid-template-columns: 1fr; }
+  html[data-filmroom-theme="active"] .filmroom-card-style-option { display: grid; grid-template-columns: 108px 1fr; align-items: center; }
+  html[data-filmroom-theme="active"] .filmroom-card-style-preview { grid-row: span 2; }
+  html[data-filmroom-theme="active"] .filmroom-playback-note { align-items: flex-start; flex-direction: column; }
+}
+
+/* Match the review's compact controls while keeping every Stash toolbar action native. */
+html[data-filmroom-theme="active"] .btn,
+html[data-filmroom-theme="active"] button.btn,
+html[data-filmroom-theme="active"] .page-link {
+  min-height: 36px;
+  border-radius: 5px !important;
+  font-size: 12px;
+  font-weight: 680;
+}
+html[data-filmroom-theme="active"] .btn.btn-sm,
+html[data-filmroom-theme="active"] button.btn-sm,
+html[data-filmroom-theme="active"] .btn-group-sm > .btn,
+html[data-filmroom-theme="active"] .pagination-sm .page-link {
+  min-height: 30px;
+  font-size: 11px;
+}
+html[data-filmroom-theme="active"] .item-list-container .filtered-list-toolbar {
+  border-radius: 7px !important;
+}
+html[data-filmroom-theme="active"] .item-list-container .filtered-list-toolbar .btn-group > .btn,
+html[data-filmroom-theme="active"] .item-list-container .filtered-list-toolbar .list-operations .btn {
+  border-radius: 4px !important;
+}
+html[data-filmroom-theme="active"] .item-list-container .filtered-list-toolbar > .list-operations + .btn-group > button.btn.active {
+  background: rgba(var(--fr-accent-rgb), .14) !important;
+  color: var(--fr-accent) !important;
+}
+html[data-filmroom-theme="active"] .item-list-container .filtered-list-toolbar .zoom-slider {
+  width: 100% !important;
+  height: 18px !important;
+  min-height: 18px !important;
+  padding: 0 !important;
+  border: 0 !important;
+  border-radius: 0 !important;
+  background: transparent !important;
+  appearance: none !important;
+  -webkit-appearance: none !important;
+  accent-color: var(--fr-accent) !important;
+  cursor: pointer;
+}
+html[data-filmroom-theme="active"] .item-list-container .filtered-list-toolbar .zoom-slider::-webkit-slider-runnable-track {
+  height: 4px;
+  border-radius: 99px;
+  background: linear-gradient(to right, var(--fr-accent) 0 var(--filmroom-range-progress, 33%), var(--fr-surface-strong) var(--filmroom-range-progress, 33%) 100%);
+}
+html[data-filmroom-theme="active"] .item-list-container .filtered-list-toolbar .zoom-slider::-webkit-slider-thumb {
+  width: 13px;
+  height: 13px;
+  margin-top: -4.5px;
+  border: 2px solid var(--fr-surface);
+  border-radius: 50%;
+  background: var(--fr-accent);
+  -webkit-appearance: none;
+}
+html[data-filmroom-theme="active"] .item-list-container .filtered-list-toolbar .zoom-slider::-moz-range-track {
+  height: 4px;
+  border-radius: 99px;
+  background: var(--fr-surface-strong);
+}
+html[data-filmroom-theme="active"] .item-list-container .filtered-list-toolbar .zoom-slider::-moz-range-progress {
+  height: 4px;
+  border-radius: 99px;
+  background: var(--fr-accent);
+}
+html[data-filmroom-theme="active"] .item-list-container .filtered-list-toolbar .zoom-slider::-moz-range-thumb {
+  width: 9px;
+  height: 9px;
+  border: 2px solid var(--fr-surface);
+  border-radius: 50%;
+  background: var(--fr-accent);
+}
+
+/* Keep the native zoom control meaningful while matching the mock's denser
+   five-card desktop scene grid at the default zoom level. */
+html[data-filmroom-theme="active"] .item-list-container.scene-list .row.justify-content-center:has(> .scene-card.grid-card) {
+  width: 100%;
+  display: grid !important;
+  grid-template-columns: repeat(5, minmax(0, 1fr));
+  align-content: start;
+  gap: 15px 12px;
+  margin: 0 !important;
+}
+html[data-filmroom-theme="active"] .item-list-container.scene-list .row.justify-content-center:has(> .scene-card.zoom-0) { grid-template-columns: repeat(6, minmax(0, 1fr)); }
+html[data-filmroom-theme="active"] .item-list-container.scene-list .row.justify-content-center:has(> .scene-card.zoom-2) { grid-template-columns: repeat(4, minmax(0, 1fr)); }
+html[data-filmroom-theme="active"] .item-list-container.scene-list .row.justify-content-center:has(> .scene-card.zoom-3) { grid-template-columns: repeat(3, minmax(0, 1fr)); }
+html[data-filmroom-theme="active"] .item-list-container.scene-list .row.justify-content-center > .scene-card.grid-card {
+  width: auto !important;
+  max-width: none !important;
+  min-width: 0;
+  margin: 0 !important;
+  padding: 0;
+}
+@media (max-width: 1100px) {
+  html[data-filmroom-theme="active"] .item-list-container.scene-list .row.justify-content-center:has(> .scene-card.grid-card) { grid-template-columns: repeat(4, minmax(0, 1fr)); }
+  html[data-filmroom-theme="active"] .item-list-container.scene-list .row.justify-content-center:has(> .scene-card.zoom-0) { grid-template-columns: repeat(5, minmax(0, 1fr)); }
+  html[data-filmroom-theme="active"] .item-list-container.scene-list .row.justify-content-center:has(> .scene-card.zoom-2) { grid-template-columns: repeat(3, minmax(0, 1fr)); }
+}
+@media (max-width: 760px) {
+  html[data-filmroom-theme="active"] .item-list-container.scene-list .row.justify-content-center:has(> .scene-card.grid-card) { grid-template-columns: repeat(3, minmax(0, 1fr)); }
+  html[data-filmroom-theme="active"] .item-list-container.scene-list .row.justify-content-center:has(> .scene-card.zoom-0) { grid-template-columns: repeat(4, minmax(0, 1fr)); }
+  html[data-filmroom-theme="active"] .item-list-container.scene-list .row.justify-content-center:has(> .scene-card.zoom-2),
+  html[data-filmroom-theme="active"] .item-list-container.scene-list .row.justify-content-center:has(> .scene-card.zoom-3) { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+}
+@media (max-width: 520px) {
+  html[data-filmroom-theme="active"] .item-list-container.scene-list .row.justify-content-center:has(> .scene-card.grid-card),
+  html[data-filmroom-theme="active"] .item-list-container.scene-list .row.justify-content-center:has(> .scene-card.zoom-0) { grid-template-columns: repeat(2, minmax(0, 1fr)); }
 }

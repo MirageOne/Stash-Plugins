@@ -8,7 +8,10 @@
     mode: "dark",
     accent: "violet",
     newContentSort: "created_at",
-    sidebarCollapsed: false
+    sidebarCollapsed: false,
+    reduceEffects: false,
+    cardStyle: "cinematic",
+    mobileDock: ["/", "/scenes", "/images", "/performers", "/galleries", "/stats"]
   };
   var ACCENTS = [
     { id: "teal", label: "Teal", color: "#42d7c2" },
@@ -31,6 +34,12 @@
     markers: "<path d=\"M6 3h12v18l-6-4-6 4z\"/>",
     stats: "<path d=\"M4 20V10M10 20V4M16 20v-7M22 20H2\"/>",
     collapse: "<path d=\"m14.5 5-7 7 7 7\"/>",
+    activity: "<path d=\"M3 12h4l3-8 4 16 3-8h4\"/>",
+    tools: "<path d=\"M14.7 6.3a5 5 0 0 0-6.6 6.6l-4.6 4.6a2 2 0 0 0 2.8 2.8l4.6-4.6a5 5 0 0 0 6.6-6.6L14 12l-2-2z\"/>",
+    logs: "<path d=\"M5 4h14v16H5zM8 8h8M8 12h8M8 16h5\"/>",
+    plugins: "<path d=\"M9 3h6v4a3 3 0 1 0 6 0h1v14H2V7h1a3 3 0 1 0 6 0z\"/>",
+    about: "<circle cx=\"12\" cy=\"12\" r=\"9\"/><path d=\"M12 11v5m0-8h.01\"/>",
+    search: "<circle cx=\"10.8\" cy=\"10.8\" r=\"6.8\"/><path d=\"m16 16 5 5\"/>",
     settings: "<circle cx=\"12\" cy=\"12\" r=\"3\"/><path d=\"m19.4 15 .1.1a1.7 1.7 0 0 1-2.4 2.4l-.1-.1a1.7 1.7 0 0 0-2.9 1.2v.2a1.7 1.7 0 0 1-3.4 0v-.2a1.7 1.7 0 0 0-2.9-1.2l-.1.1a1.7 1.7 0 0 1-2.4-2.4l.1-.1a1.7 1.7 0 0 0-1.2-2.9H4a1.7 1.7 0 0 1 0-3.4h.2a1.7 1.7 0 0 0 1.2-2.9l-.1-.1a1.7 1.7 0 0 1 2.4-2.4l.1.1a1.7 1.7 0 0 0 2.9-1.2V2a1.7 1.7 0 0 1 3.4 0v.2a1.7 1.7 0 0 0 2.9 1.2l.1-.1a1.7 1.7 0 0 1 2.4 2.4l-.1.1a1.7 1.7 0 0 0 1.2 2.9h.2a1.7 1.7 0 0 1 0 3.4h-.2a1.7 1.7 0 0 0-1.2 2.9Z\"/>",
     sun: "<circle cx=\"12\" cy=\"12\" r=\"4\"/><path d=\"M12 2v2m0 16v2M4.93 4.93l1.42 1.42m11.3 11.3 1.42 1.42M2 12h2m16 0h2M4.93 19.07l1.42-1.42m11.3-11.3 1.42-1.42\"/>",
     moon: "<path d=\"M20.5 14.2A8.5 8.5 0 0 1 9.8 3.5 8.5 8.5 0 1 0 20.5 14.2Z\"/>"
@@ -45,13 +54,25 @@
     }
     if (!preferences || typeof preferences !== "object") { preferences = {}; }
     var merged = Object.assign({}, DEFAULT_PREFERENCES, preferences);
-    if (merged.mode !== "light") { merged.mode = "dark"; }
+    if (["light", "system"].indexOf(merged.mode) === -1) { merged.mode = "dark"; }
     if (!ACCENTS.some(function (accent) { return accent.id === merged.accent; })) {
       merged.accent = DEFAULT_PREFERENCES.accent;
     }
     if (merged.newContentSort !== "date") { merged.newContentSort = "created_at"; }
     merged.sidebarCollapsed = Boolean(merged.sidebarCollapsed);
+    merged.reduceEffects = Boolean(merged.reduceEffects);
+    if (["cinematic", "compact", "poster"].indexOf(merged.cardStyle) === -1) { merged.cardStyle = "cinematic"; }
+    var validDock = ["/", "/scenes", "/images", "/galleries", "/performers", "/studios", "/groups", "/tags", "/scenes/markers", "/stats", "/settings"];
+    merged.mobileDock = Array.isArray(merged.mobileDock) ? merged.mobileDock.filter(function (href, index, values) {
+      return validDock.indexOf(href) !== -1 && values.indexOf(href) === index;
+    }).slice(0, 6) : DEFAULT_PREFERENCES.mobileDock.slice();
+    if (!merged.mobileDock.length) { merged.mobileDock = DEFAULT_PREFERENCES.mobileDock.slice(); }
     return merged;
+  }
+
+  function resolveMode(mode) {
+    if (mode !== "system") { return mode; }
+    return window.matchMedia && window.matchMedia("(prefers-color-scheme: light)").matches ? "light" : "dark";
   }
 
   function savePreferences(preferences) {
@@ -67,13 +88,16 @@
   function applyPreferences(preferences) {
     var root = document.documentElement;
     root.setAttribute("data-filmroom-theme", "active");
-    root.setAttribute("data-filmroom-mode", preferences.mode);
+    var mode = resolveMode(preferences.mode);
+    root.setAttribute("data-filmroom-mode", mode);
     root.setAttribute("data-filmroom-accent", preferences.accent);
+    root.setAttribute("data-filmroom-card-style", preferences.cardStyle);
     if (document.body) {
       document.body.classList.add("filmroom-active");
       document.body.classList.toggle("filmroom-sidebar-collapsed", preferences.sidebarCollapsed);
+      document.body.classList.toggle("filmroom-reduced-effects", preferences.reduceEffects);
     }
-    updateModeButton(preferences.mode);
+    updateModeButton(mode);
     updateSidebarState(preferences.sidebarCollapsed);
   }
 
@@ -107,6 +131,69 @@
     return true;
   }
 
+  function topbarLabel(path) {
+    var labels = {
+      "/": "Home", "/scenes": "Scenes", "/images": "Images", "/galleries": "Galleries",
+      "/performers": "Performers", "/studios": "Studios", "/groups": "Groups", "/tags": "Tags",
+      "/scenes/markers": "Scene markers", "/stats": "Statistics", "/settings": "Settings",
+      "/plugin/filmroom-theme": "Theme settings"
+    };
+    if (path.indexOf("/scenes/") === 0) { return "Scene details"; }
+    if (path.indexOf("/images/") === 0) { return "Image details"; }
+    if (path.indexOf("/galleries/") === 0) { return "Gallery details"; }
+    if (path.indexOf("/performers/") === 0) { return "Performer profile"; }
+    if (path.indexOf("/studios/") === 0) { return "Studio profile"; }
+    if (path.indexOf("/groups/") === 0) { return "Group details"; }
+    if (path.indexOf("/tags/") === 0) { return "Tag details"; }
+    if (path === "/settings" && window.location.search.indexOf("tab=tasks") !== -1) { return "Tasks & queue"; }
+    if (path === "/settings" && window.location.search.indexOf("tab=logs") !== -1) { return "Logs"; }
+    if (path === "/settings" && window.location.search.indexOf("tab=tools") !== -1) { return "Tools"; }
+    return labels[path] || "Library";
+  }
+
+  function submitGlobalSearch(value) {
+    var query = String(value || "").trim();
+    if (!query) { return; }
+    var target = "/scenes?q=" + encodeURIComponent(query) + "&sortby=date";
+    window.location.assign(target);
+  }
+
+  function refreshTopbarContext() {
+    var context = document.querySelector(".filmroom-topbar-context");
+    if (!context) { return; }
+    var path = window.location.pathname || "/";
+    var crumb = context.querySelector(".filmroom-breadcrumb-current");
+    var label = topbarLabel(path);
+    // The topbar has a MutationObserver that refreshes route state. Replacing
+    // this text node when the label is already current retriggers that observer
+    // forever on SPA routes such as Filmroom's settings page.
+    if (crumb && crumb.textContent !== label) { crumb.textContent = label; }
+    var input = context.querySelector(".filmroom-global-search-input");
+    if (input && document.activeElement !== input) {
+      input.value = path === "/scenes" ? new URLSearchParams(window.location.search).get("q") || "" : "";
+    }
+  }
+
+  function installTopbarContext(navbar) {
+    var context = navbar.querySelector(".filmroom-topbar-context");
+    if (!context) {
+      context = document.createElement("div");
+      context.className = "filmroom-topbar-context";
+      context.innerHTML = '<div class="filmroom-breadcrumb"><a href="/" data-filmroom-route="/">Library</a><span aria-hidden="true">/</span><strong class="filmroom-breadcrumb-current"></strong></div><form class="filmroom-global-search" role="search"><span class="filmroom-search-icon">' + icon("search") + '</span><input class="filmroom-global-search-input" type="search" aria-label="Search your library" placeholder="Search your library"><kbd>Ctrl K</kbd></form>';
+      var input = context.querySelector(".filmroom-global-search-input");
+      context.querySelector(".filmroom-global-search").addEventListener("submit", function (event) {
+        event.preventDefault();
+        submitGlobalSearch(input.value);
+      });
+      context.querySelector(".filmroom-breadcrumb").addEventListener("click", function (event) {
+        var route = event.target.closest("[data-filmroom-route]");
+        if (route) { navigateFromLink(event, route); }
+      });
+      navbar.insertBefore(context, navbar.querySelector(".navbar-buttons") || null);
+    }
+    refreshTopbarContext();
+  }
+
   function installModeButton() {
     var navbar = document.querySelector("nav.top-nav");
     var actions = navbar && navbar.querySelector(".navbar-buttons");
@@ -118,12 +205,12 @@
       button.className = "btn minimal filmroom-mode-toggle";
       button.addEventListener("click", function () {
         var preferences = readPreferences();
-        savePreferences({ mode: preferences.mode === "dark" ? "light" : "dark" });
+        savePreferences({ mode: resolveMode(preferences.mode) === "dark" ? "light" : "dark" });
       });
       var toggle = actions.querySelector(".nav-menu-toggle");
       actions.insertBefore(button, toggle || null);
     }
-    updateModeButton(readPreferences().mode);
+    updateModeButton(resolveMode(readPreferences().mode));
     return true;
   }
 
@@ -139,12 +226,16 @@
     if (path.indexOf("/tags") === 0) { return "tags"; }
     if (path.indexOf("/stats") === 0) { return "stats"; }
     if (path.indexOf("/settings") === 0) { return "settings"; }
+    if (path.indexOf("tab=tasks") !== -1) { return "activity"; }
+    if (path.indexOf("tab=logs") !== -1) { return "logs"; }
+    if (path.indexOf("tab=tools") !== -1) { return "tools"; }
+    if (path.indexOf("tab=plugins") !== -1) { return "plugins"; }
+    if (path.indexOf("tab=about") !== -1) { return "about"; }
     return "scenes";
   }
 
   function collectNavigationItems(navbar) {
-    var items = [{ href: "/", label: "Home", icon: "home" }];
-    var seen = { "/": true };
+    var nativeByPath = {};
     var menu = navbar.querySelector(".navbar-collapse");
     var links = menu ? menu.querySelectorAll("a[href]") : [];
     for (var i = 0; i < links.length; i++) {
@@ -153,31 +244,37 @@
       var path;
       try { path = new URL(anchor.getAttribute("href"), window.location.origin).pathname; }
       catch (error) { continue; }
-      if (path.charAt(0) !== "/" || path === "/logout" || /\/new\/?$/.test(path) || seen[path]) { continue; }
+      if (path.charAt(0) !== "/" || path === "/logout" || /\/new\/?$/.test(path)) { continue; }
       var label = (anchor.innerText || anchor.textContent || anchor.getAttribute("aria-label") || "").replace(/\s+/g, " ").trim();
       if (!label) { continue; }
-      seen[path] = true;
-      items.push({ href: path, label: label, icon: routeIcon(path) });
+      nativeByPath[path] = { href: path, label: label, icon: routeIcon(path) };
     }
 
-    var utilityLinks = navbar.querySelectorAll(".navbar-buttons a[href]");
-    for (var j = 0; j < utilityLinks.length; j++) {
-      var utility = utilityLinks[j];
-      var utilityPath;
-      try { utilityPath = new URL(utility.getAttribute("href"), window.location.origin).pathname; }
-      catch (error) { continue; }
-      if (utilityPath === "/stats" && !seen[utilityPath]) {
-        seen[utilityPath] = true;
-        items.push({ href: utilityPath, label: "Statistics", icon: "stats" });
-      }
+    function item(href, fallback, iconName) {
+      var native = nativeByPath[href];
+      return { href: href, label: fallback || native && native.label || href, icon: iconName || routeIcon(href) };
     }
+    return [
+      item("/", "Home", "home"), item("/scenes", "Scenes", "scenes"), item("/images", "Images", "images"), item("/galleries", "Galleries", "galleries"),
+      item("/performers", "Performers", "performers"), item("/studios", "Studios", "studios"), item("/groups", "Groups", "groups"), item("/tags", "Tags", "tags"), item("/scenes/markers", "Markers", "markers"),
+      item("/stats", "Statistics", "stats"), item("/settings?tab=tasks", "Tasks & queue", "activity"), item("/settings?tab=logs", "Logs", "logs"),
+      item("/settings?tab=tools", "Tools", "tools"), item("/settings", "Settings", "settings"), item("/settings?tab=plugins", "Plugins", "plugins"), item("/settings?tab=about", "About", "about")
+    ];
+  }
 
-    var settings = { href: "/settings", label: "Settings", icon: "settings" };
-    if (seen[settings.href]) {
-      items = items.filter(function (item) { return item.href !== settings.href; });
-    }
-    items.push(settings);
-    return items;
+  function navigationSections(items) {
+    var definitions = [
+      ["LIBRARY", ["/", "/scenes", "/images", "/galleries"]],
+      ["PEOPLE & METADATA", ["/performers", "/studios", "/groups", "/tags", "/scenes/markers"]],
+      ["ACTIVITY", ["/stats", "/settings?tab=tasks", "/settings?tab=logs"]],
+      ["TOOLS", ["/settings?tab=tools"]],
+      ["SYSTEM", ["/settings", "/settings?tab=plugins", "/settings?tab=about"]]
+    ];
+    return definitions.map(function (definition) {
+      return { label: definition[0], items: definition[1].map(function (href) {
+        return items.filter(function (item) { return item.href === href; })[0];
+      }).filter(Boolean) };
+    }).filter(function (section) { return section.items.length; });
   }
 
   function makeRouteLink(item, className) {
@@ -203,19 +300,23 @@
     }
   }
 
-  function itemIsActive(item, path) {
+  function itemIsActive(item, path, search) {
+    var parsed = document.createElement("a");
+    parsed.href = item.href || "/";
+    if (parsed.search) { return path === parsed.pathname && search === parsed.search; }
+    if (item.href === "/settings") { return path === "/settings" && !search; }
     if (item.href === "/") { return path === "/"; }
     if (item.href === "/plugin/filmroom-theme") { return path.indexOf(item.href) === 0; }
     if (item.href === "/scenes" && path.indexOf("/scenes/markers") === 0) { return false; }
-    return path === item.href || path.indexOf(item.href + "/") === 0 ||
-      (item.href === "/settings" && path.indexOf("/settings") === 0);
+    return path === item.href || path.indexOf(item.href + "/") === 0;
   }
 
   function updateActiveNavigation() {
     var path = window.location.pathname || "/";
+    var search = window.location.search || "";
     var links = document.querySelectorAll("[data-filmroom-route]");
     for (var i = 0; i < links.length; i++) {
-      var active = itemIsActive({ href: links[i].getAttribute("data-filmroom-route") }, path);
+      var active = itemIsActive({ href: links[i].getAttribute("data-filmroom-route") }, path, search);
       links[i].classList.toggle("is-active", active);
       if (active) { links[i].setAttribute("aria-current", "page"); }
       else { links[i].removeAttribute("aria-current"); }
@@ -232,8 +333,8 @@
   function renderNavigation(navbar) {
     if (!document.body) { return false; }
     var items = collectNavigationItems(navbar);
-    var settings = items.filter(function (item) { return item.href === "/settings"; })[0];
-    var primary = items.filter(function (item) { return item.href !== "/settings"; });
+    var primary = items.filter(function (item) { return item.href.indexOf(PLUGIN_ROUTE) !== 0; });
+    var sections = navigationSections(primary);
     var signature = items.map(function (item) { return item.href + ":" + item.label; }).join("|");
 
     var sidebar = document.querySelector(".filmroom-sidebar");
@@ -241,7 +342,7 @@
       sidebar = document.createElement("aside");
       sidebar.className = "filmroom-sidebar";
       sidebar.setAttribute("aria-label", "Primary navigation");
-      sidebar.innerHTML = '<div class="filmroom-sidebar-brand-row"><a class="filmroom-brand" href="/" data-filmroom-route="/" aria-label="Filmroom home"><span class="filmroom-brand-mark">F</span><span class="filmroom-brand-name">Filmroom</span></a><button type="button" class="filmroom-sidebar-collapse" aria-label="Collapse navigation" aria-pressed="false" title="Collapse navigation">' + icon("collapse") + "</button></div><nav class=\"filmroom-sidebar-nav\" aria-label=\"Library\"><div class=\"filmroom-sidebar-primary\"></div><div class=\"filmroom-sidebar-footer\"></div></nav>";
+      sidebar.innerHTML = '<div class="filmroom-sidebar-brand-row"><a class="filmroom-brand" href="/" data-filmroom-route="/" aria-label="Filmroom home"><span class="filmroom-brand-mark">F</span><span class="filmroom-brand-name">Filmroom</span></a><button type="button" class="filmroom-sidebar-collapse" aria-label="Collapse navigation" aria-pressed="false" title="Collapse navigation">' + icon("collapse") + "</button></div><nav class=\"filmroom-sidebar-nav\" aria-label=\"Filmroom sections\"><div class=\"filmroom-sidebar-primary\"></div><div class=\"filmroom-sidebar-footer\"></div></nav>";
       document.body.appendChild(sidebar);
       sidebar.addEventListener("click", function (event) {
         var collapse = event.target.closest(".filmroom-sidebar-collapse");
@@ -260,8 +361,16 @@
       var footerHost = sidebar.querySelector(".filmroom-sidebar-footer");
       primaryHost.textContent = "";
       footerHost.textContent = "";
-      primary.forEach(function (item) { primaryHost.appendChild(makeRouteLink(item, "filmroom-nav-item")); });
-      if (settings) { footerHost.appendChild(makeRouteLink(settings, "filmroom-nav-item")); }
+      sections.forEach(function (section) {
+        var group = document.createElement("section");
+        group.className = "filmroom-nav-section";
+        var heading = document.createElement("h2");
+        heading.className = "filmroom-nav-section-heading";
+        heading.textContent = section.label;
+        group.appendChild(heading);
+        section.items.forEach(function (item) { group.appendChild(makeRouteLink(item, "filmroom-nav-item")); });
+        primaryHost.appendChild(group);
+      });
       footerHost.appendChild(makeRouteLink({ href: PLUGIN_ROUTE, label: "Theme settings", icon: "sun" }, "filmroom-nav-item filmroom-theme-nav-item"));
       sidebar.setAttribute("data-signature", signature);
     }
@@ -279,17 +388,18 @@
         if (route) { navigateFromLink(event, route); }
       });
     }
-    if (dock.getAttribute("data-signature") !== signature) {
+    var dockSignature = signature + "|" + readPreferences().mobileDock.join(",");
+    if (dock.getAttribute("data-dock-preferences") !== dockSignature) {
       dock.textContent = "";
-      primary.slice(0, 5).forEach(function (item) { dock.appendChild(makeRouteLink(item, "filmroom-dock-item")); });
-      var more = document.createElement("button");
-      more.type = "button";
-      more.className = "filmroom-dock-item filmroom-mobile-more";
-      more.setAttribute("aria-label", "More pages");
-      more.setAttribute("aria-expanded", "false");
-      more.innerHTML = '<span class="filmroom-nav-icon">' + icon("groups") + '</span><span class="filmroom-nav-label">More</span>';
-      dock.appendChild(more);
-      dock.setAttribute("data-signature", signature);
+      readPreferences().mobileDock.map(function (href) { return primary.filter(function (item) { return item.href === href; })[0]; }).filter(Boolean).forEach(function (item) { dock.appendChild(makeRouteLink(item, "filmroom-dock-item")); });
+      var moreButton = document.createElement("button");
+      moreButton.type = "button";
+      moreButton.className = "filmroom-dock-item filmroom-mobile-more";
+      moreButton.setAttribute("aria-label", "More pages");
+      moreButton.setAttribute("aria-expanded", "false");
+      moreButton.innerHTML = '<span class="filmroom-nav-icon">' + icon("groups") + '</span><span class="filmroom-nav-label">More</span>';
+      dock.appendChild(moreButton);
+      dock.setAttribute("data-dock-preferences", dockSignature);
     }
 
     var drawer = document.querySelector(".filmroom-mobile-drawer");
@@ -319,7 +429,16 @@
       close.addEventListener("click", function () { openMobileDrawer(false); });
       sheetHeading.appendChild(close);
       sheet.appendChild(sheetHeading);
-      items.forEach(function (item) { sheet.appendChild(makeRouteLink(item, "filmroom-mobile-sheet-link")); });
+      sections.forEach(function (section) {
+        var group = document.createElement("section");
+        group.className = "filmroom-mobile-nav-section";
+        var heading = document.createElement("h3");
+        heading.className = "filmroom-mobile-nav-section-heading";
+        heading.textContent = section.label;
+        group.appendChild(heading);
+        section.items.forEach(function (item) { group.appendChild(makeRouteLink(item, "filmroom-mobile-sheet-link")); });
+        sheet.appendChild(group);
+      });
       sheet.appendChild(makeRouteLink({ href: PLUGIN_ROUTE, label: "Theme settings", icon: "sun" }, "filmroom-mobile-sheet-link filmroom-theme-nav-item"));
       drawer.appendChild(sheet);
       drawer.setAttribute("data-signature", signature);
@@ -328,6 +447,7 @@
     document.body.classList.add("filmroom-active");
     applyPreferences(readPreferences());
     updateActiveNavigation();
+    refreshTopbarContext();
     return true;
   }
 
@@ -337,11 +457,22 @@
     if (!href) { return; }
     event.preventDefault();
     openMobileDrawer(false);
-    if (window.location.pathname !== href) {
-      window.history.pushState({}, "", href);
-      window.dispatchEvent(new PopStateEvent("popstate"));
+    if (href.indexOf(PLUGIN_ROUTE) === 0) {
+      var proxy = document.querySelector(".filmroom-route-proxy");
+      if (proxy) { proxy.click(); return; }
+      if (window.location.pathname !== href) {
+        window.history.pushState({}, "", href);
+        window.dispatchEvent(new PopStateEvent("popstate"));
+      }
+      updateActiveNavigation();
+      refreshTopbarContext();
+      return;
+    }
+    if (window.location.pathname + window.location.search !== href) {
+      window.location.assign(href);
     }
     updateActiveNavigation();
+    refreshTopbarContext();
   }
 
   function createGraphQLClient() {
@@ -383,6 +514,144 @@
     return "Added " + new Intl.DateTimeFormat(undefined, { dateStyle: "medium" }).format(new Date(timestamp));
   }
 
+  var statisticsScenesPromise = null;
+  function loadStatisticsScenes() {
+    if (statisticsScenesPromise) { return statisticsScenesPromise; }
+    statisticsScenesPromise = (function () {
+      var results = [];
+      function loadPage(page) {
+        var query = "query FilmroomStatistics { findScenes(filter: { per_page: 100, page: " + page + ", sort: \"date\", direction: DESC }) { scenes { date files { height } } } }";
+        return createGraphQLClient()(query).then(function (result) {
+          var rows = result.findScenes && result.findScenes.scenes || [];
+          results = results.concat(rows);
+          if (rows.length === 100 && page < 100) { return loadPage(page + 1); }
+          return results;
+        });
+      }
+      return loadPage(1).catch(function () { return []; });
+    })();
+    return statisticsScenesPromise;
+  }
+
+  function makeSvgElement(name, attributes, text) {
+    var element = document.createElementNS("http://www.w3.org/2000/svg", name);
+    Object.keys(attributes || {}).forEach(function (key) { element.setAttribute(key, attributes[key]); });
+    if (text !== undefined) { element.textContent = text; }
+    return element;
+  }
+
+  function makeYearChart(scenes) {
+    var counts = {};
+    scenes.forEach(function (scene) {
+      var match = String(scene.date || "").match(/^(\d{4})/);
+      if (match && Number(match[1]) > 1800) { counts[match[1]] = (counts[match[1]] || 0) + 1; }
+    });
+    var years = Object.keys(counts).sort().slice(-7);
+    var chart = makeSvgElement("svg", { viewBox: "0 0 640 190", role: "img", "aria-label": "Scenes by year" });
+    if (!years.length) {
+      chart.appendChild(makeSvgElement("text", { x: "320", y: "100", "text-anchor": "middle", class: "filmroom-chart-empty" }, "No dated scenes yet"));
+      return chart;
+    }
+    var max = Math.max.apply(Math, years.map(function (year) { return counts[year]; }));
+    [0, 0.5, 1].forEach(function (fraction) {
+      var y = 145 - fraction * 112;
+      chart.appendChild(makeSvgElement("line", { x1: "38", x2: "626", y1: y, y2: y, class: "filmroom-chart-grid" }));
+      chart.appendChild(makeSvgElement("text", { x: "29", y: y + 4, "text-anchor": "end", class: "filmroom-chart-axis" }, String(Math.round(max * fraction))));
+    });
+    var step = 588 / years.length;
+    years.forEach(function (year, index) {
+      var value = counts[year];
+      var height = Math.max(3, value / max * 112);
+      var x = 46 + index * step + step * .22;
+      var width = step * .56;
+      chart.appendChild(makeSvgElement("rect", { x: x, y: 145 - height, width: width, height: height, rx: "3", class: "filmroom-chart-bar" }));
+      chart.appendChild(makeSvgElement("text", { x: x + width / 2, y: 163, "text-anchor": "middle", class: "filmroom-chart-axis" }, year));
+      chart.appendChild(makeSvgElement("text", { x: x + width / 2, y: 145 - height - 7, "text-anchor": "middle", class: "filmroom-chart-value" }, String(value)));
+    });
+    return chart;
+  }
+
+  function makeResolutionChart(scenes) {
+    var bins = [
+      { label: "4K", min: 2160, count: 0 }, { label: "1440p", min: 1440, count: 0 },
+      { label: "1080p", min: 1080, count: 0 }, { label: "720p", min: 720, count: 0 },
+      { label: "480p", min: 480, count: 0 }, { label: "360p", min: 360, count: 0 },
+      { label: "Other", min: 0, count: 0 }
+    ];
+    scenes.forEach(function (scene) {
+      var height = Math.max.apply(Math, (scene.files || []).map(function (file) { return Number(file && file.height || 0); }).concat([0]));
+      var bin = bins.filter(function (entry) { return height >= entry.min; })[0] || bins[bins.length - 1];
+      bin.count += 1;
+    });
+    var total = scenes.length;
+    var order = bins.slice().sort(function (a, b) { return b.count - a.count; });
+    var chart = document.createElement("div");
+    chart.className = "filmroom-resolution-rows";
+    order.forEach(function (bin) {
+      var row = document.createElement("div");
+      row.className = "filmroom-resolution-row";
+      var label = document.createElement("span");
+      label.className = "filmroom-resolution-label";
+      label.textContent = bin.label;
+      var track = document.createElement("span");
+      track.className = "filmroom-resolution-track";
+      var fill = document.createElement("span");
+      fill.style.width = (total ? bin.count / total * 100 : 0) + "%";
+      track.appendChild(fill);
+      var value = document.createElement("span");
+      value.className = "filmroom-resolution-value";
+      value.textContent = bin.count + " (" + (total ? (bin.count / total * 100).toFixed(1) : "0.0") + "%)";
+      row.appendChild(label);
+      row.appendChild(track);
+      row.appendChild(value);
+      chart.appendChild(row);
+    });
+    return chart;
+  }
+
+  function mountFilmroomStatistics() {
+    if (window.location.pathname !== "/stats") { return; }
+    var main = document.querySelector(".main.container-fluid");
+    var root = main && main.querySelector(".mt-5");
+    if (!root || root.querySelector(".filmroom-stats-insights")) { return; }
+    loadStatisticsScenes().then(function (scenes) {
+      if (window.location.pathname !== "/stats" || !root.isConnected || root.querySelector(".filmroom-stats-insights")) { return; }
+      var section = document.createElement("section");
+      section.className = "filmroom-stats-insights";
+      var yearPanel = document.createElement("article");
+      yearPanel.className = "filmroom-stats-panel filmroom-years-panel";
+      var yearHeading = document.createElement("div");
+      yearHeading.className = "filmroom-stats-panel-heading";
+      yearHeading.innerHTML = "<h2>Scenes by year</h2><span>Scene release dates in your library</span>";
+      yearPanel.appendChild(yearHeading);
+      yearPanel.appendChild(makeYearChart(scenes));
+      var resolutionPanel = document.createElement("article");
+      resolutionPanel.className = "filmroom-stats-panel filmroom-resolution-panel";
+      var resolutionHeading = document.createElement("div");
+      resolutionHeading.className = "filmroom-stats-panel-heading";
+      resolutionHeading.innerHTML = "<h2>Media resolution</h2><span>Highest file resolution per scene</span>";
+      resolutionPanel.appendChild(resolutionHeading);
+      resolutionPanel.appendChild(makeResolutionChart(scenes));
+      section.appendChild(yearPanel);
+      section.appendChild(resolutionPanel);
+      root.appendChild(section);
+    });
+  }
+
+  function updateFilmroomRangeProgress(range) {
+    if (!range || !range.matches || !range.matches(".zoom-slider")) { return; }
+    var minimum = Number(range.min || 0);
+    var maximum = Number(range.max || 100);
+    var value = Number(range.value || 0);
+    var progress = maximum > minimum ? Math.max(0, Math.min(100, (value - minimum) / (maximum - minimum) * 100)) : 0;
+    range.style.setProperty("--filmroom-range-progress", progress + "%");
+  }
+
+  function syncFilmroomRangeControls() {
+    var ranges = document.querySelectorAll(".item-list-container .filtered-list-toolbar .zoom-slider");
+    for (var i = 0; i < ranges.length; i++) { updateFilmroomRangeProgress(ranges[i]); }
+  }
+
   function sceneView(scene) {
     var files = (scene && scene.files || []).slice().sort(function (a, b) {
       return Number(b && b.height || 0) - Number(a && a.height || 0);
@@ -415,7 +684,7 @@
         className: className,
         onClick: function (event) {
           if (event.button === 0 && !event.metaKey && !event.ctrlKey && !event.shiftKey && !event.altKey) {
-            window.setTimeout(updateActiveNavigation, 0);
+            window.setTimeout(refreshTopbarContext, 0);
           }
         }
       };
@@ -568,43 +837,102 @@
       React.useEffect(function () {
         function refresh(event) { setState(event.detail || readPreferences()); }
         window.addEventListener(PREFERENCES_EVENT, refresh);
+        window.setTimeout(function () {
+          refreshTopbarContext();
+          var themeLinks = document.querySelectorAll(".filmroom-theme-nav-item");
+          for (var i = 0; i < themeLinks.length; i++) {
+            themeLinks[i].classList.add("is-active");
+            themeLinks[i].setAttribute("aria-current", "page");
+          }
+        }, 0);
         return function () { window.removeEventListener(PREFERENCES_EVENT, refresh); };
       }, []);
       function change(key, value) {
         var next = savePreferences((function () { var update = {}; update[key] = value; return update; })());
         setState(next);
+        if (key === "mobileDock") {
+          window.setTimeout(function () {
+            var navbar = document.querySelector("nav.top-nav");
+            if (navbar) { renderNavigation(navbar); }
+          }, 0);
+        }
       }
       function toggle(label, description, key) {
         return h("div", { className: "filmroom-setting-row", key: key },
           h("div", null, h("strong", null, label), h("p", null, description)),
           h("button", { type: "button", role: "switch", className: "filmroom-switch" + (preferences[key] ? " is-on" : ""), "aria-checked": Boolean(preferences[key]), onClick: function () { change(key, !preferences[key]); } }, h("span", null)));
       }
+      var mobileChoices = [
+        ["/", "Home"], ["/scenes", "Scenes"], ["/images", "Images"], ["/galleries", "Galleries"],
+        ["/performers", "Performers"], ["/studios", "Studios"], ["/groups", "Groups"], ["/tags", "Tags"],
+        ["/scenes/markers", "Markers"], ["/stats", "Statistics"], ["/settings", "Settings"]
+      ];
+      function toggleDock(href) {
+        var next = preferences.mobileDock.slice();
+        var index = next.indexOf(href);
+        if (index !== -1) { next.splice(index, 1); }
+        else if (next.length < 6) { next.push(href); }
+        change("mobileDock", next);
+      }
+      var cardStyles = [["cinematic", "Cinematic", "Wide artwork with a clean metadata panel."], ["compact", "Compact", "More titles in a tighter library grid."], ["poster", "Poster", "Tall artwork for a poster wall." ]];
       return h("main", { className: "filmroom-settings-page" },
         h("header", { className: "filmroom-settings-hero" },
           h("span", { className: "filmroom-brand-mark" }, "F"),
-          h("div", null, h("span", { className: "filmroom-kicker" }, "FILMROOM THEME SETTINGS"), h("h1", null, "Make Filmroom yours"), h("p", null, "Choose your mode, accent, and homepage behavior."))),
+          h("div", null, h("span", { className: "filmroom-kicker" }, "FILMROOM THEME SETTINGS"), h("h1", null, "Make Filmroom yours"), h("p", null, "Set the tone, shape navigation, and fine-tune how your library looks."))),
         h("section", { className: "filmroom-settings-card" },
           h("div", { className: "filmroom-section-heading" }, h("div", null, h("span", { className: "filmroom-kicker" }, "APPEARANCE"), h("h2", null, "Color and mode"))),
           h("div", { className: "filmroom-setting-row" },
-            h("div", null, h("strong", null, "Light mode"), h("p", null, "Use a bright palette throughout Stash.")),
-            h("button", { type: "button", role: "switch", className: "filmroom-switch" + (preferences.mode === "light" ? " is-on" : ""), "aria-checked": preferences.mode === "light", onClick: function () { change("mode", preferences.mode === "dark" ? "light" : "dark"); } }, h("span", null))),
+            h("div", null, h("strong", null, "Color mode"), h("p", null, "Choose light, dark, or follow your device setting.")),
+            h("select", { className: "filmroom-select", value: preferences.mode, onChange: function (event) { change("mode", event.target.value); } },
+              h("option", { value: "system" }, "System"), h("option", { value: "dark" }, "Dark"), h("option", { value: "light" }, "Light"))),
           h("div", { className: "filmroom-setting-row filmroom-accent-row" },
             h("div", null, h("strong", null, "Accent color"), h("p", null, "Used for active states, controls, and playback progress.")),
             h("div", { className: "filmroom-accent-swatches", role: "group", "aria-label": "Accent color" }, ACCENTS.map(function (accent) {
               return h("button", { type: "button", key: accent.id, className: "filmroom-accent-swatch" + (preferences.accent === accent.id ? " is-selected" : ""), style: { backgroundColor: accent.color }, title: accent.label, "aria-label": accent.label, "aria-pressed": preferences.accent === accent.id, onClick: function () { change("accent", accent.id); } });
-            })))),
+            }))),
+          toggle("Reduce visual effects", "Reduce transitions and motion on this device.", "reduceEffects")),
+        h("section", { className: "filmroom-settings-card" },
+          h("div", { className: "filmroom-section-heading" }, h("div", null, h("span", { className: "filmroom-kicker" }, "CARDS"), h("h2", null, "Library card appearance"), h("p", null, "Choose a layout for Stash scene cards."))),
+          h("div", { className: "filmroom-card-style-grid" }, cardStyles.map(function (style) {
+            return h("button", { type: "button", key: style[0], className: "filmroom-card-style-option" + (preferences.cardStyle === style[0] ? " is-selected" : ""), "aria-pressed": preferences.cardStyle === style[0], onClick: function () { change("cardStyle", style[0]); } },
+              h("span", { className: "filmroom-card-style-preview " + style[0] }, h("i", null), h("i", null), h("i", null)),
+              h("strong", null, style[1]), h("small", null, style[2]));
+          }))),
         h("section", { className: "filmroom-settings-card" },
           h("div", { className: "filmroom-section-heading" }, h("div", null, h("span", { className: "filmroom-kicker" }, "HOMEPAGE"), h("h2", null, "Featured content"))),
           h("div", { className: "filmroom-setting-row" },
             h("div", null, h("strong", null, "New content means"), h("p", null, "Choose how Filmroom decides what counts as new.")),
             h("select", { className: "filmroom-select", value: preferences.newContentSort === "date" ? "date" : "created_at", onChange: function (event) { change("newContentSort", event.target.value); } },
-              h("option", { value: "created_at" }, "Recently added"), h("option", { value: "date" }, "Recently released"))),
-          toggle("Compact sidebar", "Show a narrow icon-only desktop navigation rail.", "sidebarCollapsed")),
-        h("p", { className: "filmroom-settings-note" }, "These appearance preferences are saved in this browser. Stash continues to manage your library, player, and recommendation shelves."));
+              h("option", { value: "created_at" }, "Recently added"), h("option", { value: "date" }, "Recently released")))),
+        h("section", { className: "filmroom-settings-card" },
+          h("div", { className: "filmroom-section-heading" }, h("div", null, h("span", { className: "filmroom-kicker" }, "NAVIGATION"), h("h2", null, "Shape your navigation"), h("p", null, "Choose how Filmroom routes appear on desktop and mobile."))),
+          toggle("Start with a compact desktop rail", "Show navigation labels only when the rail is expanded.", "sidebarCollapsed"),
+          h("div", { className: "filmroom-setting-row filmroom-mobile-choice-row" },
+            h("div", null, h("strong", null, "Mobile dock"), h("p", null, "Choose up to six destinations. All other pages stay in More.")),
+            h("span", { className: "filmroom-selection-count" }, preferences.mobileDock.length + " of 6")),
+          h("div", { className: "filmroom-mobile-choice-grid" }, mobileChoices.map(function (choice) {
+            var selected = preferences.mobileDock.indexOf(choice[0]) !== -1;
+            return h("button", { type: "button", key: choice[0], className: "filmroom-choice-chip" + (selected ? " is-selected" : ""), "aria-pressed": selected, disabled: !selected && preferences.mobileDock.length >= 6, onClick: function () { toggleDock(choice[0]); } }, choice[1]);
+          }))),
+        h("section", { className: "filmroom-settings-card" },
+          h("div", { className: "filmroom-section-heading" }, h("div", null, h("span", { className: "filmroom-kicker" }, "PLAYBACK"), h("h2", null, "Playback preferences"), h("p", null, "Player behavior remains controlled by Stash."))),
+          h("div", { className: "filmroom-playback-note" }, h("p", null, "Filmroom uses Stash’s built-in player and resume position, so autoplay, playlist continuation, and playback controls stay in sync with the server’s native preferences."), routeLink("/settings?tab=interface", "filmroom-button filmroom-button-quiet", "Open Stash playback settings"))),
+        h("p", { className: "filmroom-settings-note" }, "Filmroom appearance preferences are saved in this browser. Library records, playback, and settings continue to use Stash’s native features."));
     }
 
     if (PluginApi.register && PluginApi.register.route) {
-      PluginApi.register.route(PLUGIN_ROUTE, FilmroomSettingsPage);
+      PluginApi.register.route(PLUGIN_ROUTE, function (props) {
+        return h(FilmroomSettingsPage, props);
+      });
+    }
+    if (PluginApi.patch && PluginApi.patch.instead && RouterLink) {
+      PluginApi.patch.instead("MainNavBar.UtilityItems", function () {
+        var args = Array.prototype.slice.call(arguments);
+        var next = args.pop();
+        var original = next.apply(null, args);
+        return h(React.Fragment, null, original,
+          h(RouterLink, { to: PLUGIN_ROUTE, className: "filmroom-route-proxy", tabIndex: -1, "aria-hidden": "true" }, "Theme settings"));
+      });
     }
     if (PluginApi.patch && PluginApi.patch.after) {
       PluginApi.patch.after("FrontPage", function () {
@@ -628,13 +956,17 @@
     var attempts = 0;
     var observer = null;
     var bodyObserver = null;
+    var pageObserver = null;
     var timer = null;
     function sync() {
       var navbar = document.querySelector("nav.top-nav");
       if (!navbar) { return false; }
       installTopbarBrand(navbar);
+      installTopbarContext(navbar);
       installModeButton();
       renderNavigation(navbar);
+      mountFilmroomStatistics();
+      syncFilmroomRangeControls();
       if (!observer) {
         observer = new MutationObserver(function () { renderNavigation(navbar); installModeButton(); });
         observer.observe(navbar, { childList: true, subtree: true });
@@ -654,11 +986,30 @@
     if (document.body) {
       bodyObserver = new MutationObserver(activate);
       bodyObserver.observe(document.body, { childList: true, subtree: true });
+      pageObserver = new MutationObserver(function () {
+        syncFilmroomRangeControls();
+        if (window.location.pathname === "/stats") { window.setTimeout(mountFilmroomStatistics, 100); }
+      });
+      pageObserver.observe(document.body, { childList: true, subtree: true });
     }
     if (document.readyState !== "loading") { activate(); }
     else { document.addEventListener("DOMContentLoaded", activate, { once: true }); }
     window.addEventListener("popstate", updateActiveNavigation);
-    document.addEventListener("keydown", function (event) { if (event.key === "Escape") { openMobileDrawer(false); } });
+    window.addEventListener("popstate", refreshTopbarContext);
+    window.addEventListener("popstate", mountFilmroomStatistics);
+    if (window.matchMedia) {
+      var modeQuery = window.matchMedia("(prefers-color-scheme: light)");
+      modeQuery.addEventListener ? modeQuery.addEventListener("change", function () { if (readPreferences().mode === "system") { applyPreferences(readPreferences()); } }) : modeQuery.addListener(function () { if (readPreferences().mode === "system") { applyPreferences(readPreferences()); } });
+    }
+    document.addEventListener("keydown", function (event) {
+      if (event.key === "Escape") { openMobileDrawer(false); }
+      if ((event.metaKey || event.ctrlKey) && event.key.toLowerCase() === "k") {
+        var search = document.querySelector(".filmroom-global-search-input");
+        if (search) { event.preventDefault(); search.focus(); }
+      }
+    });
+    document.addEventListener("input", function (event) { updateFilmroomRangeProgress(event.target); });
+    document.addEventListener("change", function (event) { updateFilmroomRangeProgress(event.target); });
     applyPreferences(readPreferences());
     return true;
   }

@@ -479,7 +479,6 @@
   }
 
   function enhanceNativeSettings() {
-    if (window.location.pathname !== "/settings") { return; }
     var menu = document.querySelector("#settings-menu-container");
     var nav = menu && menu.querySelector(".nav");
     var container = document.querySelector("#settings-container");

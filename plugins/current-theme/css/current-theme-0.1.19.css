@@ -860,15 +860,15 @@ html[data-current-theme="active"] body.current-active .current-settings-layout {
   margin-right: 0;
   margin-left: 0;
 }
-html[data-current-theme="active"] body.current-active .row:has(> #settings-menu-container) {
+html[data-current-theme="active"] body.current-active .row:has(#settings-menu-container) {
   display: block !important;
   margin-right: 0;
   margin-left: 0;
 }
 html[data-current-theme="active"] body.current-active .current-settings-layout > #settings-menu-container,
 html[data-current-theme="active"] body.current-active .current-settings-layout > #settings-container,
-html[data-current-theme="active"] body.current-active .row:has(> #settings-menu-container) > #settings-menu-container,
-html[data-current-theme="active"] body.current-active .row:has(> #settings-menu-container) > #settings-container {
+html[data-current-theme="active"] body.current-active .row:has(#settings-menu-container) #settings-menu-container,
+html[data-current-theme="active"] body.current-active .row:has(#settings-menu-container) #settings-container {
   display: block;
   width: 100%;
   max-width: 100%;

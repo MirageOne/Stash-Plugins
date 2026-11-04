@@ -484,8 +484,21 @@
     var nav = menu && menu.querySelector(".nav");
     var container = document.querySelector("#settings-container");
     if (!menu || !nav || !container) { return; }
-    var settingsRow = menu.closest(".row");
-    if (settingsRow) { settingsRow.classList.add("current-settings-layout"); }
+    var settingsRow = menu.parentElement;
+    if (!settingsRow || !settingsRow.classList.contains("row")) { settingsRow = menu.closest(".row"); }
+    if (settingsRow) {
+      settingsRow.classList.add("current-settings-layout");
+      settingsRow.style.setProperty("display", "block", "important");
+      settingsRow.style.marginLeft = "0";
+      settingsRow.style.marginRight = "0";
+    }
+    menu.style.setProperty("display", "block", "important");
+    menu.style.width = "100%";
+    menu.style.maxWidth = "100%";
+    container.style.setProperty("display", "block", "important");
+    container.style.width = "100%";
+    container.style.maxWidth = "100%";
+    container.style.setProperty("margin-left", "0", "important");
 
     var links = Array.prototype.slice.call(nav.querySelectorAll("a[href]"));
     if (!links.length) { return; }

@@ -24,32 +24,59 @@ ACTIVE_PROCESS = None
 IMAGE_FIELDS_CACHE = None
 
 try:
-    import log
-except ImportError:  # Supports local syntax/unit checks outside Stash.
-    class _Log:
-        @staticmethod
-        def LogInfo(message):
-            sys.stderr.write(str(message) + "\n")
+    from stashapi import log
+except ImportError:
+    try:
+        import log
+    except ImportError:  # Supports local syntax/unit checks outside Stash.
+        class _Log:
+            @staticmethod
+            def LogInfo(message):
+                sys.stderr.write("INFO: " + str(message) + "\n")
 
-        @staticmethod
-        def LogProgress(value):
-            pass
+            @staticmethod
+            def LogProgress(value):
+                pass
 
-    log = _Log()
+        log = _Log()
 
 
 def log_info(message):
-    try:
-        log.LogInfo("[Scene Gallery Generator] " + str(message))
-    except Exception:
-        pass
+    formatted = "[Scene Gallery Generator] " + str(message)
+    for method_name in ("LogInfo", "info"):
+        method = getattr(log, method_name, None)
+        if callable(method):
+            try:
+                method(formatted)
+                return
+            except Exception:
+                pass
+    sys.stderr.write("INFO: " + formatted + "\n")
+
+
+def log_error(message):
+    formatted = "[Scene Gallery Generator] " + str(message)
+    for method_name in ("LogError", "error"):
+        method = getattr(log, method_name, None)
+        if callable(method):
+            try:
+                method(formatted)
+                return
+            except Exception:
+                pass
+    sys.stderr.write("ERROR: " + formatted + "\n")
 
 
 def report_progress(value):
-    try:
-        log.LogProgress(float(max(0.0, min(1.0, value))))
-    except Exception:
-        pass
+    progress = float(max(0.0, min(1.0, value)))
+    for method_name in ("LogProgress", "progress"):
+        method = getattr(log, method_name, None)
+        if callable(method):
+            try:
+                method(progress)
+                return
+            except Exception:
+                pass
 
 
 def cancel_handler(_signum, _frame):
@@ -1193,7 +1220,7 @@ def run_task(input_data):
             raise
         except Exception as error:
             failures.append((str(scene.get("id") or "?"), str(error)))
-            log_info("Scene " + str(scene.get("id") or "?") + " failed: " + str(error))
+            log_error("Scene " + str(scene.get("id") or "?") + " failed: " + str(error))
         report_progress((index + 1) / max(1, total))
 
     summary = "Completed library run: " + str(generated) + " generated/refreshed, " + str(skipped) + " skipped, " + str(len(failures)) + " failed."
@@ -1217,7 +1244,7 @@ def main():
         print(json.dumps({"error": str(error)}, ensure_ascii=False))
         raise
     except Exception as error:
-        log_info("Task failed: " + str(error))
+        log_error("Task failed: " + str(error))
         print(json.dumps({"error": str(error)}, ensure_ascii=False))
         sys.exit(1)
 

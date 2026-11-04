@@ -24,6 +24,28 @@ class SceneGalleryTaskTests(unittest.TestCase):
         with self.assertRaises(RuntimeError):
             TASK.validate_image_count("8.5")
 
+    def test_log_info_routes_plugin_messages_through_stash_log_api(self):
+        with patch.object(TASK.log, "LogInfo") as log_info:
+            TASK.log_info("Queued Stash image scan 163")
+        log_info.assert_called_once_with("[Scene Gallery Generator] Queued Stash image scan 163")
+
+    def test_logging_and_progress_support_current_stashapi_methods(self):
+        calls = []
+        modern_logger = type("ModernLogger", (), {
+            "info": staticmethod(lambda message: calls.append(("info", message))),
+            "error": staticmethod(lambda message: calls.append(("error", message))),
+            "progress": staticmethod(lambda value: calls.append(("progress", value))),
+        })()
+        with patch.object(TASK, "log", modern_logger):
+            TASK.log_info("Queued Stash image scan 163")
+            TASK.log_error("Task failed: sample")
+            TASK.report_progress(0.5)
+        self.assertEqual(calls, [
+            ("info", "[Scene Gallery Generator] Queued Stash image scan 163"),
+            ("error", "[Scene Gallery Generator] Task failed: sample"),
+            ("progress", 0.5),
+        ])
+
     def test_frame_sampling_returns_requested_count_inside_safe_margins(self):
         timestamps = TASK.frame_timestamps(100.0, 4)
         self.assertEqual(len(timestamps), 4)

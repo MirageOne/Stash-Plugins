@@ -23,6 +23,6 @@ Automatic generation is optional and off by default. To enable it, open **Stash 
 - Stash must scan ZIP archives in the selected image library. The Gallery is created from `gallery.zip`, while the generated JPEG files remain beside it for compatibility with image-library scanners.
 - Generated galleries use the title `<scene title> — Scene Gallery` and a stable `SGG-<scene-id>` code when supported. The video source is never modified.
 
-Install from the repository source in the root README or download the [1.0.3 manual archive](../../packages/scene-gallery-generator/1.0.3-manual.zip) and extract the `scene-gallery-generator/` directory into Stash's configured plugins directory. Enable the plugin in **Settings → Plugins**. If updating manually, reload Stash's plugins and reopen the plugin page so its versioned assets load.
+Install from the repository source in the root README or download the [1.0.4 manual archive](../../packages/scene-gallery-generator/1.0.4-manual.zip) and extract the `scene-gallery-generator/` directory into Stash's configured plugins directory. Enable the plugin in **Settings → Plugins**. If updating manually, reload Stash's plugins and reopen the plugin page so its versioned assets load.
 
 The page mirrors the active Fluent Mica or Noir theme, including its surfaces, typography, borders, and accent color.

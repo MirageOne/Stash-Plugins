@@ -1,6 +1,6 @@
 # Current Theme
 
-Current is a video-first Stash theme plugin with Geist typography, a responsive library rail, a large home carousel for new arrivals, a Continue Watching row, light and dark modes, seven accent colors, and Soft Fill buttons. It preserves Stash's own player, library operations, and customizable recommendation shelves. Its plugin ID, folder, asset names, and settings route consistently use `current-theme`.
+Current is a video-first Stash theme plugin with Geist typography, a responsive library rail, a large home carousel for new arrivals, a Continue Watching row, light and dark modes, seven accent colors, and Soft Fill buttons. It preserves Stash's own player, library operations, and customizable recommendation shelves. Its plugin ID and folder consistently use `current-theme`.
 
 The home carousel and Continue Watching shelf use Stash GraphQL scene data. New arrivals can sort by the library-add time or scene release date. Continue Watching filters scenes with a saved resume position and opens the normal Stash scene route, where the built-in player applies Stash's resume behavior.
 
@@ -12,7 +12,7 @@ Theme preferences are stored in the current browser. The login page is served ou
 
 Copy this directory into Stash's configured `plugins/` directory, reload plugins in **Settings → Plugins**, then enable **Current Theme**. After updating, reload the Stash UI in the browser so the new JavaScript and CSS load. Disable other full-app theme plugins while testing it so global styles do not conflict.
 
-For a packaged manual install, download [Current Theme 0.1.23](../../packages/current-theme/0.1.23-manual.zip) and extract its `current-theme/` folder into the configured plugins directory.
+For a packaged manual install, download [Current Theme 0.1.24](../../packages/current-theme/0.1.24-manual.zip) and extract its `current-theme/` folder into the configured plugins directory.
 
 ## Screenshots
 
@@ -28,7 +28,7 @@ The new-arrivals carousel leads the page, with Continue Watching directly below 
 
 ![Current home page on a mobile viewport](screenshots/mobile-home.png)
 
-The mobile dock always has four items: three destinations you choose in Current Theme settings and a final **More** button that opens the remaining pages. Current Theme settings are available from **Settings → Plugins → Customize Current Theme**. Stash settings show one category at a time, with a wrapped tab bar on desktop and a section picker on phones. The native Plugins filter remains available, and the installed plugin list scrolls inside its panel.
+The mobile dock always has four items: three destinations you choose in **Settings → Interface → Theme Settings** and a final **More** button that opens the remaining pages. Stash settings show one category at a time, with a wrapped tab bar on desktop and a section picker on phones. The native Plugins filter remains available, and the installed plugin list scrolls inside its panel.
 
 ![Current mobile More menu showing the remaining destinations](screenshots/mobile-drawer.png)
 
@@ -54,10 +54,10 @@ Soft Fill uses pale accent fills for primary actions, a matching accent outline 
 
 ## Visual audit
 
-The current UI was checked in a live Stash 0.32.0 instance at desktop and mobile widths. The audit covered the home carousel and Continue Watching shelf, scene filters and zoom, statistics cards and charts, theme settings, native settings and logs, navigation, and the light/dark appearance. All twelve native Settings sections were selected at desktop width, and the mobile section picker was used to change sections. The Current Theme Settings menu is returned to normal document flow so it no longer overlaps the active section. Tagger result cards use the selected theme surface instead of Stash's fixed blue-gray background. Search, carousel navigation, accent changes, card layout, the three-destination mobile dock and its More menu, flyout labels with the desktop rail collapsed, reduced effects, and sidebar collapse were exercised in the browser. Library mutations, playback, detail pages, and server settings stay on Stash's native routes and APIs.
+The current UI was checked in a live Stash 0.32.0 instance at desktop and mobile widths. The audit covered the home carousel and Continue Watching shelf, scene filters and zoom, statistics cards and charts, theme settings embedded under **Settings → Interface**, native settings and logs, navigation, and the light/dark appearance. All twelve native Settings sections were selected at desktop width, and the mobile section picker was used to change sections. Tagger result cards use the selected theme surface instead of Stash's fixed blue-gray background. Search, carousel navigation, accent changes, card layout, the three-destination mobile dock and its More menu, flyout labels with the desktop rail collapsed, reduced effects, and sidebar collapse were exercised in the browser. Library mutations, playback, detail pages, and server settings stay on Stash's native routes and APIs.
 
 The library in the screenshots contains fictional, non-explicit demo clips.
 
-The plugin has no external dependencies or build step. Its JavaScript and manifest can be syntax-checked directly with Node; its styles load from `css/current-theme-0.1.23.css`.
+The plugin has no external dependencies or build step. Its JavaScript and manifest can be syntax-checked directly with Node; its styles load from `css/current-theme-0.1.24.css`.
 
 Current is distributed under [AGPL-3.0](./LICENSE).

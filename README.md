@@ -9,7 +9,7 @@ This repository hosts independent Stash plugins. Each plugin keeps its manifest,
 - [Library Doctor](plugins/library-doctor/README.md) — Health Check, FFmpeg encoding audit and re-encoding, metadata assistance, scraping, tagging, and duplicate or alternate-version review.
 - [Scene Gallery Generator](plugins/scene-gallery-generator/README.md) — Extract a user-selected number of still frames from scene videos and create metadata-rich galleries linked to their source scenes.
 - [Stash Downloader](plugins/stash-downloader/README.md) — a Stash-integrated image and video URL queue with metadata extraction and server-side downloads.
-- [Current Theme](plugins/current-theme/README.md) — a video-first redesign with Geist typography, distinct accent-filled tag chips, neutral Tagger cards, themed dropdowns and selects, a new-arrivals carousel, Continue Watching, customizable four-item mobile navigation, light and dark modes, seven accent colors, and Soft Fill buttons. [Screenshots](plugins/current-theme/README.md#screenshots)
+- [Current Theme](plugins/current-theme/README.md) — a video-first redesign with an accent-responsive Stash mark, Geist typography, distinct accent-filled tag chips, neutral Tagger cards, themed dropdowns and selects, a new-arrivals carousel, Continue Watching, customizable four-item mobile navigation, light and dark modes, seven accent colors, and Soft Fill buttons. [Screenshots](plugins/current-theme/README.md#screenshots)
 
 ## Install from Stash
 
@@ -30,7 +30,7 @@ Download a plugin's manual archive, extract its included plugin folder into Stas
 - [Library Doctor manual archive](packages/library-doctor/1.6.4-manual.zip)
 - [Scene Gallery Generator manual archive](packages/scene-gallery-generator/1.0.5-manual.zip)
 - [Stash Downloader manual archive](packages/stash-downloader/0.6.2-manual.zip)
-- [Current Theme manual archive](packages/current-theme/0.1.39-manual.zip)
+- [Current Theme manual archive](packages/current-theme/0.1.40-manual.zip)
 
 Each plugin's README links to its current manual archive.
 

@@ -851,10 +851,21 @@ html[data-current-theme="active"] body.current-active #configuration-tabs {
   width: 100%;
 }
 html[data-current-theme="active"] body.current-active #configuration-tabs > .row {
-  display: flex;
-  flex-direction: column;
+  display: block;
   margin-right: 0;
   margin-left: 0;
+}
+html[data-current-theme="active"] body.current-active .current-settings-layout {
+  display: block !important;
+  margin-right: 0;
+  margin-left: 0;
+}
+html[data-current-theme="active"] body.current-active .current-settings-layout > #settings-menu-container,
+html[data-current-theme="active"] body.current-active .current-settings-layout > #settings-container {
+  display: block;
+  width: 100%;
+  max-width: 100%;
+  margin-left: 0 !important;
 }
 html[data-current-theme="active"] body.current-active #settings-menu-container {
   width: 100%;

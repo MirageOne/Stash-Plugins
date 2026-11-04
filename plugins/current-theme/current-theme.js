@@ -484,6 +484,8 @@
     var nav = menu && menu.querySelector(".nav");
     var container = document.querySelector("#settings-container");
     if (!menu || !nav || !container) { return; }
+    var settingsRow = menu.closest(".row");
+    if (settingsRow) { settingsRow.classList.add("current-settings-layout"); }
 
     var links = Array.prototype.slice.call(nav.querySelectorAll("a[href]"));
     if (!links.length) { return; }
@@ -540,11 +542,20 @@
 
     var activePanel = container.querySelector(".tab-pane.active");
     if (tab === "plugins" && activePanel) {
-      var sections = activePanel.querySelectorAll(".setting-section");
-      var section = sections.length ? sections[sections.length - 1] : null;
+      var pluginSettings = activePanel.querySelector(".plugin-settings");
+      var section = pluginSettings && pluginSettings.closest(".setting-section");
       var card = section && section.querySelector(":scope > .card");
       var toolbar = card && card.querySelector(":scope > .content");
       var pluginList = toolbar && toolbar.nextElementSibling;
+      Array.prototype.forEach.call(activePanel.querySelectorAll(".current-settings-plugin-list"), function (list) {
+        if (list !== pluginList) { list.classList.remove("current-settings-plugin-list"); }
+      });
+      Array.prototype.forEach.call(activePanel.querySelectorAll(".current-settings-plugin-link"), function (link) {
+        if (!toolbar || !toolbar.contains(link)) { link.remove(); }
+      });
+      Array.prototype.forEach.call(activePanel.querySelectorAll(".current-settings-plugin-toolbar"), function (oldToolbar) {
+        if (oldToolbar !== toolbar) { oldToolbar.classList.remove("current-settings-plugin-toolbar"); }
+      });
       if (toolbar && !toolbar.querySelector(".current-settings-plugin-link")) {
         toolbar.classList.add("current-settings-plugin-toolbar");
         var customizeLink = document.createElement("a");

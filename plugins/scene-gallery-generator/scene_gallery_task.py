@@ -10,6 +10,7 @@ import tempfile
 import time
 import urllib.error
 import urllib.request
+import zipfile
 
 PLUGIN_ID = "scene-gallery-generator"
 TASK_NAME = "Generate scene galleries"
@@ -17,8 +18,10 @@ DEFAULT_IMAGE_COUNT = 8
 MIN_IMAGE_COUNT = 1
 MAX_IMAGE_COUNT = 30
 DEFAULT_SAMPLING_MODE = "smart"
+GALLERY_ARCHIVE_NAME = "gallery.zip"
 PAGE_SIZE = 100
 ACTIVE_PROCESS = None
+IMAGE_FIELDS_CACHE = None
 
 try:
     import log
@@ -557,6 +560,51 @@ def write_manifest(directory, data):
                 pass
 
 
+def create_gallery_archive(directory, names):
+    """Atomically write the generated frames as the ZIP Stash scans into a Gallery."""
+    if (not names or
+            any(not isinstance(name, str) or not re.fullmatch(r"frame-[0-9]{3}\.jpg", name) for name in names) or
+            len(set(names)) != len(names)):
+        raise RuntimeError("The generated frame list is invalid; no gallery archive was written.")
+    archive_path = os.path.join(directory, GALLERY_ARCHIVE_NAME)
+    if os.path.islink(archive_path):
+        raise RuntimeError("The generated gallery archive cannot be a symbolic link.")
+    frame_paths = []
+    for name in names:
+        path = os.path.join(directory, name)
+        if os.path.islink(path) or not os.path.isfile(path) or not path_is_within(directory, path):
+            raise RuntimeError("A generated frame is missing or outside its output folder: " + name)
+        frame_paths.append((name, path))
+    fd, temporary = tempfile.mkstemp(prefix=".sgg-gallery-", suffix=".zip.tmp", dir=directory)
+    os.close(fd)
+    try:
+        with zipfile.ZipFile(temporary, "w", compression=zipfile.ZIP_DEFLATED) as archive:
+            for name, path in frame_paths:
+                archive.write(path, arcname=name)
+        with zipfile.ZipFile(temporary, "r") as archive:
+            if archive.testzip() is not None or archive.namelist() != list(names):
+                raise RuntimeError("The generated gallery archive did not pass validation.")
+        os.replace(temporary, archive_path)
+    finally:
+        if os.path.exists(temporary):
+            try:
+                os.remove(temporary)
+            except OSError:
+                pass
+    return archive_path
+
+
+def gallery_archive_matches(directory, names):
+    archive_path = os.path.join(directory, GALLERY_ARCHIVE_NAME)
+    if os.path.islink(archive_path) or not os.path.isfile(archive_path):
+        return False
+    try:
+        with zipfile.ZipFile(archive_path, "r") as archive:
+            return archive.testzip() is None and archive.namelist() == list(names)
+    except (OSError, zipfile.BadZipFile, RuntimeError):
+        return False
+
+
 def generate_frames(scene, count, library_root, ffmpeg, sampling_mode=DEFAULT_SAMPLING_MODE, progress_start=0.0, progress_span=1.0):
     scene_id = valid_scene_id(scene.get("id"))
     files = [item for item in (scene.get("files") or []) if item and item.get("path")]
@@ -633,10 +681,19 @@ def wait_for_job(server, job_id, timeout=600):
 
 
 def find_image_by_path(server, path):
+    global IMAGE_FIELDS_CACHE
+    if IMAGE_FIELDS_CACHE is None:
+        try:
+            IMAGE_FIELDS_CACHE = introspect_fields(server, "Image", "fields")
+        except Exception:
+            IMAGE_FIELDS_CACHE = set()
+    image_selection = "id title files { id path }"
+    if "galleries" in IMAGE_FIELDS_CACHE:
+        image_selection += " galleries { id }"
     query = (
         "query SceneGalleryGeneratorImage($path:String!) { findImages("
         "image_filter:{path:{value:$path,modifier:EQUALS}},filter:{per_page:1}) { "
-        "images { id title files { id path } } } }"
+        "images { " + image_selection + " } } }"
     )
     values = graphql(server, query, {"path": path}).get("findImages") or {}
     images = values.get("images") or []
@@ -678,25 +735,9 @@ def find_gallery_by_id(server, gallery_id):
         return None
 
 
-def find_gallery_by_path(server, directory, generated_names):
-    desired = set(normalize_path(os.path.join(directory, name)) for name in generated_names)
-    # A scanned directory commonly becomes a Stash gallery. Search by its unique
-    # folder-derived title first, then scan gallery file paths as a compatibility fallback.
-    title = os.path.basename(directory)
-    try:
-        query = (
-            "query SceneGalleryGeneratorGalleryByTitle($title:String!) { "
-            "findGalleries(gallery_filter:{title:{value:$title,modifier:EQUALS}},filter:{page:1,per_page:10}) { "
-            "galleries { id title files { id path } } } }"
-        )
-        result = graphql(server, query, {"title": title}).get("findGalleries") or {}
-        for gallery in result.get("galleries") or []:
-            paths = set(normalize_path(item.get("path")) for item in (gallery.get("files") or []) if item and item.get("path"))
-            if desired.intersection(paths):
-                return gallery
-    except Exception as error:
-        log_info("Folder-title gallery lookup was unavailable; checking indexed gallery paths: " + str(error))
-
+def find_gallery_by_path(server, directory):
+    """Find the Gallery Stash scanned from this scene's ZIP archive."""
+    archive_path = normalize_path(os.path.join(directory, GALLERY_ARCHIVE_NAME))
     query = (
         "query SceneGalleryGeneratorGalleries($page:Int!,$perPage:Int!) { "
         "findGalleries(filter:{page:$page,per_page:$perPage}) { count galleries { id title files { id path } } } }"
@@ -712,7 +753,7 @@ def find_gallery_by_path(server, directory, generated_names):
         count = int(result.get("count") or 0)
         for gallery in result.get("galleries") or []:
             paths = set(normalize_path(item.get("path")) for item in (gallery.get("files") or []) if item and item.get("path"))
-            if desired.intersection(paths):
+            if archive_path in paths:
                 return gallery
         if not (result.get("galleries") or []):
             break
@@ -723,15 +764,19 @@ def find_gallery_by_path(server, directory, generated_names):
 def get_gallery_snapshot(server, gallery_id):
     try:
         gallery_fields = introspect_fields(server, "Gallery", "fields")
-        image_fields = introspect_fields(server, "Image", "fields")
     except Exception:
         gallery_fields = {"files"}
-        image_fields = {"files"}
     selections = ["id", "title"]
     if "files" in gallery_fields:
         selections.append("files { id path }")
-    if "images" in gallery_fields and "files" in image_fields:
-        selections.append("images { id files { id path } }")
+    for field in ("code", "details", "date", "rating100", "organized", "url", "urls"):
+        if field in gallery_fields:
+            selections.append(field)
+    for field in ("scenes", "performers", "tags"):
+        if field in gallery_fields:
+            selections.append(field + " { id }")
+    if "studio" in gallery_fields:
+        selections.append("studio { id }")
     query = "query SceneGalleryGeneratorGallerySnapshot($id:ID!) { findGallery(id:$id) { " + " ".join(selections) + " } }"
     try:
         return graphql(server, query, {"id": str(gallery_id)}).get("findGallery")
@@ -739,39 +784,49 @@ def get_gallery_snapshot(server, gallery_id):
         return None
 
 
-def gallery_contains_generated_frames(gallery, directory, names, manifest):
+def gallery_contains_generated_frames(gallery, directory, names):
     if not isinstance(gallery, dict):
         return False
-    expected_paths = set(normalize_path(os.path.join(directory, name)) for name in names)
-    expected_image_ids = set(str(item) for item in (manifest.get("image_ids") or []) if item)
-    expected_file_ids = set(str(item) for item in (manifest.get("file_ids") or []) if item)
-    actual_paths = set()
-    actual_image_ids = set()
-    actual_file_ids = set()
-    for item in gallery.get("files") or []:
-        if not isinstance(item, dict):
-            continue
-        if item.get("path"):
-            actual_paths.add(normalize_path(item["path"]))
-        if item.get("id"):
-            actual_file_ids.add(str(item["id"]))
-    for image in gallery.get("images") or []:
-        if not isinstance(image, dict):
-            continue
-        if image.get("id"):
-            actual_image_ids.add(str(image["id"]))
-        for item in image.get("files") or []:
-            if not isinstance(item, dict):
-                continue
-            if item.get("path"):
-                actual_paths.add(normalize_path(item["path"]))
-            if item.get("id"):
-                actual_file_ids.add(str(item["id"]))
-    return bool(
-        expected_paths and expected_paths.issubset(actual_paths) or
-        expected_image_ids and expected_image_ids.issubset(actual_image_ids) or
-        expected_file_ids and expected_file_ids.issubset(actual_file_ids)
-    )
+    archive_path = normalize_path(os.path.join(directory, GALLERY_ARCHIVE_NAME))
+    actual_paths = set(normalize_path(item.get("path")) for item in gallery.get("files") or []
+                       if isinstance(item, dict) and item.get("path"))
+    return archive_path in actual_paths and gallery_archive_matches(directory, names)
+
+
+def scene_metadata_matches(scene, gallery):
+    """Check the scene fields the server schema can store on a Gallery."""
+    if not isinstance(gallery, dict):
+        return False
+    scene_id = str(scene.get("id"))
+    expected_title = str(scene.get("title") or ("Scene " + scene_id)) + " — Scene Gallery"
+    if gallery.get("title") != expected_title:
+        return False
+    for field in ("details", "date", "rating100", "organized"):
+        value = scene.get(field)
+        if value is not None and gallery.get(field) != value:
+            return False
+    url = str(scene.get("url") or "").strip()
+    if url:
+        gallery_urls = gallery.get("urls") or []
+        if gallery.get("url") != url and url not in gallery_urls:
+            return False
+    for scene_key, gallery_key in (("studio", "studio"), ("performers", "performers"), ("tags", "tags")):
+        source = scene.get(scene_key) or [] if scene_key != "studio" else ([scene.get("studio")] if scene.get("studio") else [])
+        target = gallery.get(gallery_key) or [] if gallery_key != "studio" else ([gallery.get("studio")] if gallery.get("studio") else [])
+        source_ids = sorted(str(item.get("id")) for item in source if item and item.get("id"))
+        target_ids = sorted(str(item.get("id")) for item in target if item and item.get("id"))
+        if source_ids and source_ids != target_ids:
+            return False
+    return True
+
+
+def images_linked_to_gallery(server, directory, names, gallery_id):
+    for name in names:
+        image = find_image_by_path(server, os.path.join(directory, name))
+        linked_ids = [str(item.get("id")) for item in (image or {}).get("galleries") or [] if item and item.get("id")]
+        if not image or str(gallery_id) not in linked_ids:
+            return False
+    return True
 
 
 def existing_gallery_is_complete(server, scene, directory, count, sampling_mode, manifest, gallery):
@@ -782,6 +837,8 @@ def existing_gallery_is_complete(server, scene, directory, count, sampling_mode,
     if any(not isinstance(name, str) or not re.fullmatch(r"frame-[0-9]{3}\.jpg", name) or
             not os.path.isfile(os.path.join(directory, name)) for name in names):
         return False
+    if not gallery_archive_matches(directory, names):
+        return False
     scene_id = str(scene.get("id"))
     expected_title = str(scene.get("title") or ("Scene " + scene_id)) + " — Scene Gallery"
     try:
@@ -790,10 +847,12 @@ def existing_gallery_is_complete(server, scene, directory, count, sampling_mode,
     except Exception as error:
         log_info("Could not verify the existing gallery; it will be refreshed: " + str(error))
         return False
+    gallery_scene_ids = [str(item.get("id")) for item in (snapshot or {}).get("scenes") or [] if item and item.get("id")]
     return bool(
-        str(gallery["id"]) in linked_ids and snapshot and
-        snapshot.get("title") == expected_title and
-        gallery_contains_generated_frames(snapshot, directory, names, manifest)
+        str(gallery["id"]) in linked_ids and scene_id in gallery_scene_ids and snapshot and
+        snapshot.get("title") == expected_title and scene_metadata_matches(scene, snapshot) and
+        gallery_contains_generated_frames(snapshot, directory, names) and
+        images_linked_to_gallery(server, directory, names, str(gallery["id"]))
     )
 
 
@@ -833,8 +892,13 @@ def current_gallery_ids_for_scene(server, scene_id):
 
 def link_gallery_to_scene(server, scene_id, gallery_id, gallery_update_fields):
     if "scene_ids" in gallery_update_fields:
+        query = "query SceneGalleryGeneratorExistingSceneLinks($id:ID!) { findGallery(id:$id) { scenes { id } } }"
+        gallery = graphql(server, query, {"id": str(gallery_id)}).get("findGallery") or {}
+        scene_ids = [str(item.get("id")) for item in (gallery.get("scenes") or []) if item and item.get("id")]
+        if str(scene_id) not in scene_ids:
+            scene_ids.append(str(scene_id))
         mutation = "mutation SceneGalleryGeneratorLinkGallery($input:GalleryUpdateInput!) { galleryUpdate(input:$input) { id } }"
-        graphql(server, mutation, {"input": {"id": str(gallery_id), "scene_ids": [str(scene_id)]}})
+        graphql(server, mutation, {"input": {"id": str(gallery_id), "scene_ids": scene_ids}})
         return
     scene_fields = introspect_fields(server, "SceneUpdateInput", "inputFields")
     if "gallery_ids" not in scene_fields:
@@ -846,14 +910,17 @@ def link_gallery_to_scene(server, scene_id, gallery_id, gallery_update_fields):
     graphql(server, mutation, {"input": {"id": str(scene_id), "gallery_ids": gallery_ids}})
 
 
-def update_image_metadata(server, image, scene, gallery_id, image_fields, index, count):
+def update_image_metadata(server, image, scene, gallery_id, image_fields, index):
     if not image or "id" not in image:
         return
     title = str(scene.get("title") or ("Scene " + str(scene.get("id")))) + " — Frame {:02d}".format(index)
     input_fields = set(image_fields)
     values = metadata_input(scene, title, input_fields)
-    if "gallery_id" in input_fields:
-        values["gallery_id"] = str(gallery_id)
+    if "gallery_ids" in input_fields:
+        current_ids = [str(item.get("id")) for item in image.get("galleries") or [] if item and item.get("id")]
+        if str(gallery_id) not in current_ids:
+            current_ids.append(str(gallery_id))
+        values["gallery_ids"] = current_ids
     if "id" not in input_fields:
         return
     values["id"] = str(image["id"])
@@ -863,7 +930,7 @@ def update_image_metadata(server, image, scene, gallery_id, image_fields, index,
     graphql(server, mutation, {"input": values})
 
 
-def attach_generated_files_if_supported(server, gallery_id, scene_id, directory, names, frame_images, old_manifest, gallery_update_fields, gallery_create_fields, snapshot):
+def update_generated_images(server, gallery_id, scene, names, frame_images):
     image_ids = []
     file_ids = []
     images_by_name = dict(zip(names, frame_images))
@@ -875,36 +942,9 @@ def attach_generated_files_if_supported(server, gallery_id, scene_id, directory,
                 if file and file.get("id"):
                     file_ids.append(str(file["id"]))
 
-    # Gallery files may be populated automatically from the scanned folder. If the
-    # API exposes explicit attachment fields, refresh them from the indexed output.
-    fields = gallery_update_fields or gallery_create_fields
-    patch = {"id": str(gallery_id)}
-    old_image_ids = set(str(item) for item in (old_manifest.get("image_ids") or []))
-    if "image_ids" in fields and len(image_ids) == len(names) and isinstance(snapshot, dict) and isinstance(snapshot.get("images"), list):
-        preserved = [str(item.get("id")) for item in snapshot.get("images") or []
-                     if item and item.get("id") and str(item.get("id")) not in old_image_ids
-                     and not any(normalize_path(path) in set(normalize_path(os.path.join(directory, name)) for name in (old_manifest.get("generated_files") or []))
-                                 for path in [f.get("path") for f in (item.get("files") or []) if f and f.get("path")])]
-        patch["image_ids"] = list(dict.fromkeys(preserved + image_ids))
-    elif "file_ids" in fields and isinstance(snapshot, dict) and isinstance(snapshot.get("files"), list):
-        old_paths = set(normalize_path(os.path.join(directory, name)) for name in (old_manifest.get("generated_files") or []))
-        new_paths = set(normalize_path(os.path.join(directory, name)) for name in names)
-        preserved = [str(item.get("id")) for item in snapshot.get("files") or []
-                     if item and item.get("id") and normalize_path(item.get("path")) not in old_paths | new_paths]
-        # The scanner owns the folder-backed file relation when the generated
-        # files are already present there. Retain those indexed file IDs as-is.
-        desired_file_ids = [str(item.get("id")) for item in snapshot.get("files") or []
-                            if item and item.get("id") and normalize_path(item.get("path")) in new_paths]
-        if new_paths.issubset(set(normalize_path(item.get("path")) for item in snapshot.get("files") or [] if item and item.get("path"))):
-            patch["file_ids"] = list(dict.fromkeys(preserved + desired_file_ids))
-
-    if len(patch) > 1 and "id" in gallery_update_fields:
-        mutation = "mutation SceneGalleryGeneratorAttachImages($input:GalleryUpdateInput!) { galleryUpdate(input:$input) { id } }"
-        graphql(server, mutation, {"input": patch})
-
     image_fields = introspect_fields(server, "ImageUpdateInput", "inputFields")
     for index, name in enumerate(names, 1):
-        update_image_metadata(server, images_by_name.get(name), scene, gallery_id, image_fields, index, len(names))
+        update_image_metadata(server, images_by_name.get(name), scene, gallery_id, image_fields, index)
     return image_ids, file_ids
 
 
@@ -912,12 +952,18 @@ def create_or_update_gallery(server, scene, directory, names, frame_images, old_
     scene_id = valid_scene_id(scene.get("id"))
     if len(frame_images) != len(names) or any(not item or not item.get("id") for item in frame_images):
         raise RuntimeError("Stash has not indexed every generated frame. No gallery was created or linked.")
-    gallery_create_fields = introspect_fields(server, "GalleryCreateInput", "inputFields")
     gallery_update_fields = introspect_fields(server, "GalleryUpdateInput", "inputFields")
     title = str(scene.get("title") or ("Scene " + scene_id)) + " — Scene Gallery"
-    gallery = find_gallery_by_id(server, old_manifest.get("gallery_id"))
-    if not gallery:
-        gallery = find_gallery_by_path(server, directory, names)
+    archive_path = os.path.join(directory, GALLERY_ARCHIVE_NAME)
+    if not gallery_archive_matches(directory, names):
+        raise RuntimeError("The generated ZIP gallery archive is missing or incomplete.")
+    gallery = find_gallery_by_path(server, directory)
+    if not gallery and old_manifest.get("gallery_id"):
+        previous_gallery = find_gallery_by_id(server, old_manifest.get("gallery_id"))
+        if previous_gallery:
+            previous_snapshot = get_gallery_snapshot(server, previous_gallery.get("id")) or {}
+            if gallery_contains_generated_frames(previous_snapshot, directory, names):
+                gallery = previous_gallery
 
     if gallery and gallery.get("id"):
         gallery_id = str(gallery["id"])
@@ -928,47 +974,28 @@ def create_or_update_gallery(server, scene, directory, names, frame_images, old_
             mutation = "mutation SceneGalleryGeneratorUpdate($input:GalleryUpdateInput!) { galleryUpdate(input:$input) { id } }"
             graphql(server, mutation, {"input": values})
     else:
-        # Most Stash versions create a Gallery when scanning a folder of images.
-        # If they do not, create one explicitly from the indexed image/file IDs.
-        image_ids = [str(item["id"]) for item in frame_images if item and item.get("id")]
-        file_ids = []
-        for item in frame_images:
-            for file in (item or {}).get("files") or []:
-                if file and file.get("id"):
-                    file_ids.append(str(file["id"]))
-        create_fields = metadata_input(scene, title, gallery_create_fields, include_identity=True)
-        attachment_added = False
-        if "image_ids" in gallery_create_fields:
-            create_fields["image_ids"] = image_ids
-            attachment_added = True
-        elif "file_ids" in gallery_create_fields and file_ids:
-            create_fields["file_ids"] = file_ids
-            attachment_added = True
-        if "scene_ids" in gallery_create_fields:
-            create_fields["scene_ids"] = [scene_id]
-        if not attachment_added:
-            raise RuntimeError("Stash indexed the frames but did not create a gallery, and its GraphQL API has no supported image/file attachment input. The files remain in the generated library folder.")
-        mutation = "mutation SceneGalleryGeneratorCreate($input:GalleryCreateInput!) { galleryCreate(input:$input) { id } }"
-        created = graphql(server, mutation, {"input": create_fields}).get("galleryCreate") or {}
-        if not created.get("id"):
-            raise RuntimeError("Stash did not return an ID for the generated gallery.")
-        gallery_id = str(created["id"])
+        raise RuntimeError(
+            "Stash indexed the generated frames and ZIP archive but did not create a Gallery for " + archive_path +
+            ". Confirm the image library includes this folder and that ZIP/CBZ files are enabled for scanning, then rescan the folder."
+        )
 
     link_gallery_to_scene(server, scene_id, gallery_id, gallery_update_fields)
     snapshot = get_gallery_snapshot(server, gallery_id) or {}
-    image_ids, file_ids = attach_generated_files_if_supported(
-        server, gallery_id, scene_id, directory, names, frame_images, old_manifest,
-        gallery_update_fields, gallery_create_fields, snapshot,
-    )
+    image_ids, file_ids = update_generated_images(server, gallery_id, scene, names, frame_images)
     snapshot = get_gallery_snapshot(server, gallery_id) or snapshot
     linked_ids = current_gallery_ids_for_scene(server, scene_id)
+    gallery_scene_ids = [str(item.get("id")) for item in (snapshot or {}).get("scenes") or [] if item and item.get("id")]
     verified_manifest = dict(old_manifest)
     verified_manifest["image_ids"] = image_ids
     verified_manifest["file_ids"] = file_ids
-    if str(gallery_id) not in linked_ids:
+    if str(gallery_id) not in linked_ids or scene_id not in gallery_scene_ids:
         raise RuntimeError("The gallery was created, but Stash did not link it to scene " + scene_id + ".")
-    if not gallery_contains_generated_frames(snapshot, directory, names, verified_manifest):
-        raise RuntimeError("The gallery was linked to scene " + scene_id + ", but Stash did not attach all generated frames.")
+    if not gallery_contains_generated_frames(snapshot, directory, names):
+        raise RuntimeError("The gallery was linked to scene " + scene_id + ", but Stash did not attach the generated ZIP archive.")
+    if not images_linked_to_gallery(server, directory, names, gallery_id):
+        raise RuntimeError("The ZIP Gallery was created, but one or more generated frame images are not linked to it.")
+    if not scene_metadata_matches(scene, snapshot):
+        raise RuntimeError("The ZIP Gallery was created, but Stash did not save the source scene metadata on it.")
     return gallery_id, image_ids, file_ids, snapshot
 
 
@@ -1017,6 +1044,7 @@ def process_scene(server, scene, count, library_root, ffmpeg, general, force=Fal
         log_info("Existing gallery for scene " + scene_id + " is incomplete or unlinked; refreshing it.")
 
     directory, names, old_manifest, old_names = generate_frames(scene, count, library_root, ffmpeg, sampling_mode, progress_start, progress_span)
+    create_gallery_archive(directory, names)
     report_progress(progress_start + progress_span * 0.62)
     scan_job = trigger_scan(server, [directory])
     wait_for_job(server, scan_job)
@@ -1037,6 +1065,7 @@ def process_scene(server, scene, count, library_root, ffmpeg, general, force=Fal
         "image_count": count,
         "sampling_mode": sampling_mode,
         "generated_files": names,
+        "archive_file": GALLERY_ARCHIVE_NAME,
         "image_ids": image_ids,
         "file_ids": file_ids,
         "updated_at": time.strftime("%Y-%m-%dT%H:%M:%SZ", time.gmtime()),

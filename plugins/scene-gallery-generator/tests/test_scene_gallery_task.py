@@ -105,6 +105,14 @@ class SceneGalleryTaskTests(unittest.TestCase):
         self.assertEqual(values["tag_ids"], ["4"])
         self.assertEqual(values["code"], "SGG-123")
 
+    def test_gallery_scene_link_preserves_existing_scene_links(self):
+        with patch.object(TASK, "graphql", side_effect=[
+                {"findGallery": {"scenes": [{"id": "existing-scene"}]}},
+                {"galleryUpdate": {"id": "gallery-1"}}]) as graphql:
+            TASK.link_gallery_to_scene({}, "new-scene", "gallery-1", {"scene_ids"})
+        mutation_variables = graphql.call_args_list[1].args[2]
+        self.assertEqual(mutation_variables["input"]["scene_ids"], ["existing-scene", "new-scene"])
+
     def test_gallery_generation_waits_for_every_frame_to_be_indexed(self):
         names = ["frame-001.jpg", "frame-002.jpg"]
         with patch.object(TASK, "find_image_by_path", side_effect=lambda _server, path: {"id": os.path.basename(path)}):
@@ -115,6 +123,41 @@ class SceneGalleryTaskTests(unittest.TestCase):
         with patch.object(TASK, "find_image_by_path", side_effect=lambda _server, path: {"id": "frame-001"} if path.endswith("frame-001.jpg") else None):
             with self.assertRaisesRegex(RuntimeError, "No gallery was created or linked"):
                 TASK.wait_for_indexed_images({}, "/images/scene", ["frame-001.jpg", "frame-002.jpg"], timeout=0)
+
+    def test_gallery_archive_contains_exact_generated_frames_and_replaces_atomically(self):
+        with tempfile.TemporaryDirectory() as directory:
+            for name, payload in (("frame-001.jpg", b"one"), ("frame-002.jpg", b"two"), ("not-generated.jpg", b"keep")):
+                with open(os.path.join(directory, name), "wb") as handle:
+                    handle.write(payload)
+            archive_path = TASK.create_gallery_archive(directory, ["frame-001.jpg", "frame-002.jpg"])
+            self.assertTrue(TASK.gallery_archive_matches(directory, ["frame-001.jpg", "frame-002.jpg"]))
+            with TASK.zipfile.ZipFile(archive_path, "r") as archive:
+                self.assertEqual(archive.namelist(), ["frame-001.jpg", "frame-002.jpg"])
+                self.assertEqual(archive.read("frame-002.jpg"), b"two")
+            self.assertFalse(TASK.gallery_archive_matches(directory, ["frame-001.jpg"]))
+
+    def test_gallery_archive_rejects_symlinked_frames(self):
+        with tempfile.TemporaryDirectory() as directory, tempfile.TemporaryDirectory() as outside:
+            outside_frame = os.path.join(outside, "frame-001.jpg")
+            with open(outside_frame, "wb") as handle:
+                handle.write(b"frame")
+            os.symlink(outside_frame, os.path.join(directory, "frame-001.jpg"))
+            with self.assertRaisesRegex(RuntimeError, "missing or outside"):
+                TASK.create_gallery_archive(directory, ["frame-001.jpg"])
+
+    def test_gallery_archive_rejects_symlinked_archive_path(self):
+        with tempfile.TemporaryDirectory() as directory, tempfile.TemporaryDirectory() as outside:
+            frame_path = os.path.join(directory, "frame-001.jpg")
+            with open(frame_path, "wb") as handle:
+                handle.write(b"frame")
+            os.symlink(os.path.join(outside, "gallery.zip"), os.path.join(directory, "gallery.zip"))
+            with self.assertRaisesRegex(RuntimeError, "archive cannot be a symbolic link"):
+                TASK.create_gallery_archive(directory, ["frame-001.jpg"])
+
+    def test_gallery_archive_rejects_duplicate_frame_names(self):
+        with tempfile.TemporaryDirectory() as directory:
+            with self.assertRaisesRegex(RuntimeError, "frame list is invalid"):
+                TASK.create_gallery_archive(directory, ["frame-001.jpg", "frame-001.jpg"])
 
     def test_gallery_creation_rejects_missing_frame_records_before_mutating_stash(self):
         with patch.object(TASK, "introspect_fields", side_effect=AssertionError("Stash must not be mutated")):
@@ -127,13 +170,21 @@ class SceneGalleryTaskTests(unittest.TestCase):
             with open(frame_path, "wb") as handle:
                 handle.write(b"frame")
             scene = {"id": "123", "title": "Sample scene"}
+            TASK.create_gallery_archive(directory, ["frame-001.jpg"])
             manifest = {"generated_files": ["frame-001.jpg"], "image_count": 1, "sampling_mode": "smart", "file_ids": ["file-1"]}
             gallery = {"id": "gallery-1"}
-            snapshot = {"id": "gallery-1", "title": "Sample scene — Scene Gallery", "files": [{"id": "file-1", "path": frame_path}]}
-            with patch.object(TASK, "current_gallery_ids_for_scene", return_value=["gallery-1"]), patch.object(TASK, "get_gallery_snapshot", return_value=snapshot):
+            snapshot = {"id": "gallery-1", "title": "Sample scene — Scene Gallery", "files": [{"id": "archive-1", "path": os.path.join(directory, "gallery.zip")}], "scenes": [{"id": "123"}]}
+            with patch.object(TASK, "current_gallery_ids_for_scene", return_value=["gallery-1"]), patch.object(TASK, "get_gallery_snapshot", return_value=snapshot), patch.object(TASK, "images_linked_to_gallery", return_value=True):
                 self.assertTrue(TASK.existing_gallery_is_complete({}, scene, directory, 1, "smart", manifest, gallery))
-            with patch.object(TASK, "current_gallery_ids_for_scene", return_value=[]), patch.object(TASK, "get_gallery_snapshot", return_value=snapshot):
+            with patch.object(TASK, "current_gallery_ids_for_scene", return_value=[]), patch.object(TASK, "get_gallery_snapshot", return_value=snapshot), patch.object(TASK, "images_linked_to_gallery", return_value=True):
                 self.assertFalse(TASK.existing_gallery_is_complete({}, scene, directory, 1, "smart", manifest, gallery))
+
+    def test_scene_metadata_must_match_gallery_values(self):
+        scene = {"id": "123", "title": "Sample scene", "details": "Copied details", "performers": [{"id": "2"}]}
+        gallery = {"title": "Sample scene — Scene Gallery", "details": "Copied details", "performers": [{"id": "2"}]}
+        self.assertTrue(TASK.scene_metadata_matches(scene, gallery))
+        gallery["performers"] = []
+        self.assertFalse(TASK.scene_metadata_matches(scene, gallery))
 
     def test_hook_scene_id_extraction_handles_nested_stash_payloads(self):
         self.assertEqual(TASK.scene_id_from_hook({"input": {"scene": {"id": 42}}}), "42")

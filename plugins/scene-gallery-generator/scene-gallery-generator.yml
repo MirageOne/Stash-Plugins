@@ -1,6 +1,6 @@
 name: Scene Gallery Generator
 description: Extract stills from scene videos and build linked, metadata-rich Stash galleries.
-version: 1.0.2
+version: 1.0.3
 url: https://github.com/MirageOne/Stasher/tree/main/plugins/scene-gallery-generator
 settings:
   autoGenerate:
@@ -21,7 +21,7 @@ exec:
 interface: raw
 tasks:
   - name: Generate scene galleries
-    description: Extract scene stills with FFmpeg, scan them into Stash, and create or refresh linked galleries.
+    description: Extract scene stills with FFmpeg, create a ZIP gallery archive, and link its scanned Gallery to the scene.
     defaultArgs:
       mode: generate
 hooks:

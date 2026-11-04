@@ -8,7 +8,7 @@ Open **Scene Gallery Generator** from the utility buttons beside Settings in Sta
 
 Use **Generate or update galleries** to process the library. A scene is skipped only when its generated frames are indexed, present in the gallery, and linked to the scene at the requested image count and sampling mode. Incomplete or unlinked galleries are refreshed. Use **Generate** or **Refresh** beside a scene to process only that scene. The page shows the Stash job's progress, and jobs can be cancelled.
 
-For each scene, generated files are stored beneath the selected image library in `Scene Gallery Generator/sgg-scene-<scene-id>/`. The scene ID keeps the folder and gallery stable across title or filename changes. Stash indexes the folder; the plugin waits for every frame to be indexed before creating or updating the gallery, copies the scene's supported metadata to the gallery and frame images, and verifies the native scene–gallery link. A small manifest in the generated folder records the gallery ID, image count, sampling mode, and plugin-owned frame names so reruns update the same gallery and cleanup only removes frames the plugin previously created.
+For each scene, generated files are stored beneath the selected image library in `Scene Gallery Generator/sgg-scene-<scene-id>/`. The scene ID keeps the folder and gallery stable across title or filename changes. Alongside the JPEGs, the plugin creates or replaces `gallery.zip` with an exact copy of the generated frames. Stash scans that archive and creates the Gallery from its contents; this is how the Gallery gets its images. The plugin then copies supported scene metadata to the Gallery and frame images and verifies the ZIP, the Gallery's metadata, the Gallery-to-scene and scene-to-Gallery links, and every frame's Gallery association. A small manifest in the generated folder records the Gallery ID, image count, sampling mode, and plugin-owned frame names so reruns update the same Gallery and cleanup only removes frames the plugin previously created.
 
 ## Automatic generation
 
@@ -20,8 +20,9 @@ Automatic generation is optional and off by default. To enable it, open **Stash 
 - The generated output path must be inside an existing Stash library that allows images. The plugin validates this before writing files.
 - A scene must have a video file with a usable duration. Scenes without one are skipped in a library run.
 - Gallery metadata includes the scene title, details, date, URL, rating, studio, performers, and tags where the installed Stash schema supports those fields. Frame images receive the image fields supported by that Stash version.
+- Stash must scan ZIP archives in the selected image library. The Gallery is created from `gallery.zip`, while the generated JPEG files remain beside it for compatibility with image-library scanners.
 - Generated galleries use the title `<scene title> — Scene Gallery` and a stable `SGG-<scene-id>` code when supported. The video source is never modified.
 
-Install from the repository source in the root README or download the [1.0.2 manual archive](../../packages/scene-gallery-generator/1.0.2-manual.zip) and extract the `scene-gallery-generator/` directory into Stash's configured plugins directory. Enable the plugin in **Settings → Plugins**. If updating manually, reload Stash's plugins and reopen the plugin page so its versioned assets load.
+Install from the repository source in the root README or download the [1.0.3 manual archive](../../packages/scene-gallery-generator/1.0.3-manual.zip) and extract the `scene-gallery-generator/` directory into Stash's configured plugins directory. Enable the plugin in **Settings → Plugins**. If updating manually, reload Stash's plugins and reopen the plugin page so its versioned assets load.
 
 The page mirrors the active Fluent Mica or Noir theme, including its surfaces, typography, borders, and accent color.

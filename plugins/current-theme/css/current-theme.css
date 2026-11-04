@@ -264,7 +264,6 @@ body.current-active .current-sidebar-collapse:hover { border-color: var(--curren
 body.current-active .current-sidebar-collapse svg { width: 15px; height: 15px; }
 body.current-active .current-sidebar-nav { min-height: 0; flex: 1; display: flex; flex-direction: column; }
 body.current-active .current-sidebar-primary { display: flex; flex-direction: column; gap: 3px; }
-body.current-active .current-sidebar-footer { display: flex; flex-direction: column; gap: 3px; margin-top: auto; padding-top: 16px; border-top: 1px solid var(--current-line); }
 body.current-active .current-nav-item {
   min-height: 40px;
   display: flex;
@@ -528,6 +527,9 @@ html[data-current-theme="active"] .current-empty-icon svg { width: 18px; height:
 
 /* Theme preferences are a regular Stash plugin route. */
 html[data-current-theme="active"] .current-settings-page { width: min(100%, 1060px); margin: 0 auto; }
+html[data-current-theme="active"] .current-settings-shortcut { width: min(100%, 1080px); display: flex; align-items: center; justify-content: space-between; gap: 16px; margin: 0 auto 16px; padding: 14px 18px; border: 1px solid var(--current-line); border-left: 3px solid var(--current-accent); border-radius: 5px; background: var(--current-surface); }
+html[data-current-theme="active"] .current-settings-shortcut strong { display: block; margin-top: 3px; color: var(--current-text); font-size: 14px; }
+html[data-current-theme="active"] .current-settings-shortcut p { margin: 3px 0 0; color: var(--current-muted); font-size: 11px; }
 html[data-current-theme="active"] .current-settings-hero { display: flex; align-items: center; gap: 16px; margin-bottom: 17px; padding: 21px; border: 1px solid var(--current-line); border-left: 3px solid var(--current-accent); border-radius: 5px; background: var(--current-surface); }
 html[data-current-theme="active"] .current-settings-hero .current-brand-mark { width: 48px; height: 48px; flex-basis: 48px; font-size: 24px; }
 html[data-current-theme="active"] .current-settings-hero h1 { margin: 4px 0; font-size: 25px; }
@@ -742,7 +744,6 @@ body.current-active .current-mobile-drawer { display: none; }
   body.current-active .current-mobile-sheet-link .current-nav-icon { width: 18px; height: 18px; flex: 0 0 18px; display: grid; place-items: center; }
   body.current-active .current-mobile-sheet-link .current-nav-icon svg { display: block; width: 18px; height: 18px; }
   body.current-active .current-mobile-sheet .current-mobile-sheet-link .current-nav-label { display: block; flex: 1 1 auto; min-width: 0; overflow: hidden; font-size: 14px; line-height: 1.25; text-overflow: ellipsis; white-space: nowrap; }
-  body.current-active .current-mobile-sheet > .current-theme-nav-item { margin-top: 12px; }
   body.current-active .current-mobile-sheet-link.is-active { color: var(--current-accent); }
   html[data-current-theme="active"] .current-home-hero { min-height: 440px; align-items: flex-end; }
   html[data-current-theme="active"] .current-home-hero::after { background: linear-gradient(0deg, rgba(7,10,13,.94), rgba(7,10,13,.58) 45%, rgba(7,10,13,.04)); }
@@ -752,6 +753,7 @@ body.current-active .current-mobile-drawer { display: none; }
   html[data-current-theme="active"] .current-carousel-dots { margin-right: auto; }
   html[data-current-theme="active"] .current-resume-grid { grid-template-columns: repeat(2, minmax(0,1fr)); gap: 13px 9px; }
   html[data-current-theme="active"] .current-settings-card { padding: 14px; }
+  html[data-current-theme="active"] .current-settings-shortcut { align-items: flex-start; flex-direction: column; padding: 14px; }
   html[data-current-theme="active"] .item-list-container .sidebar-pane-content { padding: 0 !important; }
   html[data-current-theme="active"] .item-list-container .sidebar-toggle-button-container { position: absolute !important; inset: 12px 12px auto auto !important; z-index: 3; float: none !important; width: 36px !important; height: 36px !important; margin: 0 !important; }
   html[data-current-theme="active"] .item-list-container .sidebar-toggle-button-container .sidebar-toggle-button { width: 34px !important; min-width: 34px !important; height: 34px !important; min-height: 34px !important; }

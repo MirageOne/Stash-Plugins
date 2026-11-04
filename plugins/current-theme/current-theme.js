@@ -125,7 +125,7 @@
       "/": "Home", "/scenes": "Scenes", "/images": "Images", "/galleries": "Galleries",
       "/performers": "Performers", "/studios": "Studios", "/groups": "Groups", "/tags": "Tags",
       "/scenes/markers": "Scene markers", "/stats": "Statistics", "/settings": "Settings",
-      "/plugin/current-theme": "Theme settings"
+      "/plugin/current-theme": "Current Theme"
     };
     if (path.indexOf("/scenes/") === 0) { return "Scene details"; }
     if (path.indexOf("/images/") === 0) { return "Image details"; }
@@ -252,7 +252,7 @@
       item("/", "Home", "home"), item("/scenes", "Scenes", "scenes"), item("/images", "Images", "images"), item("/galleries", "Galleries", "galleries"),
       item("/performers", "Performers", "performers"), item("/studios", "Studios", "studios"), item("/groups", "Groups", "groups"), item("/tags", "Tags", "tags"), item("/scenes/markers", "Markers", "markers"),
       item("/stats", "Statistics", "stats"), item("/settings?tab=tasks", "Tasks & queue", "activity"), item("/settings?tab=logs", "Logs", "logs"),
-      item("/settings?tab=tools", "Tools", "tools"), item("/settings", "Settings", "settings"), item("/settings?tab=plugins", "Plugins", "plugins"), item("/settings?tab=about", "About", "about")
+      item("/settings", "Settings", "settings")
     ];
   }
 
@@ -261,8 +261,7 @@
       ["LIBRARY", ["/", "/scenes", "/images", "/galleries"]],
       ["PEOPLE & METADATA", ["/performers", "/studios", "/groups", "/tags", "/scenes/markers"]],
       ["ACTIVITY", ["/stats", "/settings?tab=tasks", "/settings?tab=logs"]],
-      ["TOOLS", ["/settings?tab=tools"]],
-      ["SYSTEM", ["/settings", "/settings?tab=plugins", "/settings?tab=about"]]
+      ["SETTINGS", ["/settings"]]
     ];
     return definitions.map(function (definition) {
       return { label: definition[0], items: definition[1].map(function (href) {
@@ -332,7 +331,7 @@
   function renderNavigation(navbar) {
     if (!document.body) { return false; }
     var items = collectNavigationItems(navbar);
-    var primary = items.filter(function (item) { return item.href.indexOf(PLUGIN_ROUTE) !== 0; });
+    var primary = items;
     var sections = navigationSections(primary);
     var signature = items.map(function (item) { return item.href + ":" + item.label; }).join("|");
 
@@ -341,7 +340,7 @@
       sidebar = document.createElement("aside");
       sidebar.className = "current-sidebar";
       sidebar.setAttribute("aria-label", "Primary navigation");
-      sidebar.innerHTML = '<div class="current-sidebar-brand-row"><a class="current-brand" href="/" data-current-route="/" aria-label="Current home"><span class="current-brand-mark">' + CURRENT_MARK + '</span><span class="current-brand-name">Current</span></a><button type="button" class="current-sidebar-collapse" aria-label="Collapse navigation" aria-pressed="false" title="Collapse navigation">' + icon("collapse") + "</button></div><nav class=\"current-sidebar-nav\" aria-label=\"Current sections\"><div class=\"current-sidebar-primary\"></div><div class=\"current-sidebar-footer\"></div></nav>";
+      sidebar.innerHTML = '<div class="current-sidebar-brand-row"><a class="current-brand" href="/" data-current-route="/" aria-label="Current home"><span class="current-brand-mark">' + CURRENT_MARK + '</span><span class="current-brand-name">Current</span></a><button type="button" class="current-sidebar-collapse" aria-label="Collapse navigation" aria-pressed="false" title="Collapse navigation">' + icon("collapse") + "</button></div><nav class=\"current-sidebar-nav\" aria-label=\"Current sections\"><div class=\"current-sidebar-primary\"></div></nav>";
       document.body.appendChild(sidebar);
       sidebar.addEventListener("click", function (event) {
         var collapse = event.target.closest(".current-sidebar-collapse");
@@ -357,9 +356,7 @@
 
     if (sidebar.getAttribute("data-signature") !== signature) {
       var primaryHost = sidebar.querySelector(".current-sidebar-primary");
-      var footerHost = sidebar.querySelector(".current-sidebar-footer");
       primaryHost.textContent = "";
-      footerHost.textContent = "";
       sections.forEach(function (section) {
         var group = document.createElement("section");
         group.className = "current-nav-section";
@@ -370,7 +367,6 @@
         section.items.forEach(function (item) { group.appendChild(makeRouteLink(item, "current-nav-item")); });
         primaryHost.appendChild(group);
       });
-      footerHost.appendChild(makeRouteLink({ href: PLUGIN_ROUTE, label: "Theme settings", icon: "sun" }, "current-nav-item current-theme-nav-item"));
       sidebar.setAttribute("data-signature", signature);
     }
 
@@ -440,7 +436,6 @@
         section.items.forEach(function (item) { group.appendChild(makeRouteLink(item, "current-mobile-sheet-link")); });
         sheet.appendChild(group);
       });
-      sheet.appendChild(makeRouteLink({ href: PLUGIN_ROUTE, label: "Theme settings", icon: "sun" }, "current-mobile-sheet-link current-theme-nav-item"));
       drawer.appendChild(sheet);
       drawer.setAttribute("data-signature", drawerSignature);
     }
@@ -840,11 +835,6 @@
         window.addEventListener(PREFERENCES_EVENT, refresh);
         window.setTimeout(function () {
           refreshTopbarContext();
-          var themeLinks = document.querySelectorAll(".current-theme-nav-item");
-          for (var i = 0; i < themeLinks.length; i++) {
-            themeLinks[i].classList.add("is-active");
-            themeLinks[i].setAttribute("aria-current", "page");
-          }
         }, 0);
         return function () { window.removeEventListener(PREFERENCES_EVENT, refresh); };
       }, []);
@@ -932,10 +922,25 @@
         var next = args.pop();
         var original = next.apply(null, args);
         return h(React.Fragment, null, original,
-          h(RouterLink, { to: PLUGIN_ROUTE, className: "current-route-proxy", tabIndex: -1, "aria-hidden": "true" }, "Theme settings"));
+          h(RouterLink, { to: PLUGIN_ROUTE, className: "current-route-proxy", tabIndex: -1, "aria-hidden": "true" }, "Current Theme"));
       });
     }
     if (PluginApi.patch && PluginApi.patch.after) {
+      if (RouterLink) {
+        PluginApi.patch.after("Settings", function () {
+          var args = Array.prototype.slice.call(arguments);
+          var original = args[args.length - 1];
+          var tab = new URLSearchParams(window.location.search).get("tab");
+          if (window.location.pathname !== "/settings" || !tab) { return original; }
+          var shortcut = h("section", { className: "current-settings-shortcut", "aria-label": "Theme settings" },
+            h("div", null,
+              h("span", { className: "current-kicker" }, "THEME & NAVIGATION"),
+              h("strong", null, "Appearance and navigation"),
+              h("p", null, "Customize colors, library cards, and the mobile dock.")),
+            h(RouterLink, { to: PLUGIN_ROUTE, className: "current-button current-button-quiet" }, "Customize"));
+          return h(React.Fragment, null, shortcut, original);
+        });
+      }
       PluginApi.patch.after("FrontPage", function () {
         var args = Array.prototype.slice.call(arguments);
         var stockContent = args[args.length - 1];

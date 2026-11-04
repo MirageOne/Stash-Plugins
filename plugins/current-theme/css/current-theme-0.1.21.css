@@ -875,6 +875,7 @@ html[data-current-theme="active"] body.current-active .row:has(#settings-menu-co
   margin-left: 0 !important;
 }
 html[data-current-theme="active"] body.current-active #settings-menu-container {
+  position: static !important;
   width: 100%;
   max-width: 100%;
   flex: 0 0 100%;

@@ -492,6 +492,7 @@
       settingsLayout.style.marginRight = "0";
     }
     menu.style.setProperty("display", "block", "important");
+    menu.style.setProperty("position", "static", "important");
     menu.style.width = "100%";
     menu.style.maxWidth = "100%";
     container.style.setProperty("display", "block", "important");

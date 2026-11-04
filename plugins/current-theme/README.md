@@ -12,7 +12,7 @@ Theme preferences are stored in the current browser. The login page is served ou
 
 Copy this directory into Stash's configured `plugins/` directory, reload plugins in **Settings → Plugins**, then enable **Current Theme**. Disable other full-app theme plugins while testing it so global styles do not conflict.
 
-For a packaged manual install, download [Current Theme 0.1.14](../../packages/current-theme/0.1.14-manual.zip) and extract its `current-theme/` folder into the configured plugins directory.
+For a packaged manual install, download [Current Theme 0.1.15](../../packages/current-theme/0.1.15-manual.zip) and extract its `current-theme/` folder into the configured plugins directory.
 
 ## Screenshots
 
@@ -28,7 +28,7 @@ The new-arrivals carousel leads the page, with Continue Watching directly below 
 
 ![Current home page on a mobile viewport](screenshots/mobile-home.png)
 
-The mobile dock always has four items: three destinations you choose in Current Theme settings and a final **More** button that opens the remaining pages. Current Theme settings are accessed from **Settings**.
+The mobile dock always has four items: three destinations you choose in Current Theme settings and a final **More** button that opens the remaining pages. Current Theme settings are available under **Settings → Plugins → Current Theme → Customize Current Theme**. Stash settings show one category at a time, with a wrapped tab bar on desktop and a section picker on phones. The native Plugins filter remains available, and the installed plugin list scrolls inside its panel.
 
 ![Current mobile More menu showing the remaining destinations](screenshots/mobile-drawer.png)
 

@@ -471,6 +471,86 @@
     refreshTopbarContext();
   }
 
+  function settingsTabFromLink(link) {
+    var key = link.getAttribute("data-rb-event-key");
+    if (key) { return key; }
+    try { return new URL(link.getAttribute("href"), window.location.origin).searchParams.get("tab"); }
+    catch (error) { return null; }
+  }
+
+  function enhanceNativeSettings() {
+    if (window.location.pathname !== "/settings") { return; }
+    var menu = document.querySelector("#settings-menu-container");
+    var nav = menu && menu.querySelector(".nav");
+    var container = document.querySelector("#settings-container");
+    if (!menu || !nav || !container) { return; }
+
+    var links = Array.prototype.slice.call(nav.querySelectorAll("a[href]"));
+    if (!links.length) { return; }
+    if (nav.getAttribute("data-current-settings-bound") !== "true") {
+      nav.setAttribute("data-current-settings-bound", "true");
+      nav.addEventListener("click", function (event) {
+        var link = event.target.closest("a[href]");
+        if (link && nav.contains(link)) { window.setTimeout(enhanceNativeSettings, 0); }
+      });
+    }
+    links.forEach(function (link) {
+      var item = link.closest(".nav-item");
+      if (item) { item.classList.add("current-settings-link-item"); }
+    });
+    var picker = menu.querySelector(".current-settings-section-picker");
+    if (!picker) {
+      var pickerLabel = document.createElement("label");
+      pickerLabel.className = "current-settings-section-label";
+      pickerLabel.textContent = "Settings section";
+      picker = document.createElement("select");
+      picker.className = "current-settings-section-picker";
+      picker.setAttribute("aria-label", "Settings section");
+      picker.addEventListener("change", function () {
+        var currentNav = document.querySelector("#settings-menu-container .nav");
+        var currentLinks = currentNav ? Array.prototype.slice.call(currentNav.querySelectorAll("a[href]")) : [];
+        var target = currentLinks.filter(function (link) { return link.getAttribute("href") === picker.value; })[0];
+        if (target) { target.click(); }
+      });
+      menu.insertBefore(pickerLabel, nav);
+      menu.insertBefore(picker, nav);
+    }
+
+    var options = links.map(function (link) {
+      return (link.getAttribute("href") || "") + "|" + (link.innerText || link.textContent || "").replace(/\s+/g, " ").trim();
+    }).join("\n");
+    if (picker.getAttribute("data-signature") !== options) {
+      picker.textContent = "";
+      links.forEach(function (link) {
+        var option = document.createElement("option");
+        option.value = link.getAttribute("href");
+        option.textContent = (link.innerText || link.textContent || "").replace(/\s+/g, " ").trim();
+        picker.appendChild(option);
+      });
+      picker.setAttribute("data-signature", options);
+    }
+
+    var activeLink = links.filter(function (link) {
+      return link.classList.contains("active") || link.getAttribute("aria-selected") === "true" || link.getAttribute("aria-current") === "page";
+    })[0];
+    var tab = new URLSearchParams(window.location.search).get("tab");
+    if (!activeLink) { activeLink = links.filter(function (link) { return settingsTabFromLink(link) === tab; })[0]; }
+    if (!activeLink) { activeLink = links[0]; }
+    if (activeLink && picker.value !== activeLink.getAttribute("href")) { picker.value = activeLink.getAttribute("href"); }
+
+    var activePanel = container.querySelector(".tab-pane.active");
+    if (tab === "plugins" && activePanel) {
+      var sections = activePanel.querySelectorAll(".setting-section");
+      var section = sections.length ? sections[sections.length - 1] : null;
+      var card = section && section.querySelector(":scope > .card");
+      var toolbar = card && card.querySelector(":scope > .content");
+      var pluginList = toolbar && toolbar.nextElementSibling;
+      if (pluginList && !pluginList.classList.contains("current-settings-plugin-list")) {
+        pluginList.classList.add("current-settings-plugin-list");
+      }
+    }
+  }
+
   function createGraphQLClient() {
     return function (query, signal) {
       return fetch("/graphql", {
@@ -927,18 +1007,10 @@
     }
     if (PluginApi.patch && PluginApi.patch.after) {
       if (RouterLink) {
-        PluginApi.patch.after("Settings", function () {
-          var args = Array.prototype.slice.call(arguments);
-          var original = args[args.length - 1];
-          var tab = new URLSearchParams(window.location.search).get("tab");
-          if (window.location.pathname !== "/settings" || !tab) { return original; }
-          var shortcut = h("section", { className: "current-settings-shortcut", "aria-label": "Theme settings" },
-            h("div", null,
-              h("span", { className: "current-kicker" }, "THEME & NAVIGATION"),
-              h("strong", null, "Appearance and navigation"),
-              h("p", null, "Customize colors, library cards, and the mobile dock.")),
-            h(RouterLink, { to: PLUGIN_ROUTE, className: "current-button current-button-quiet" }, "Customize"));
-          return h(React.Fragment, null, shortcut, original);
+        PluginApi.patch.after("PluginSettings", function (pluginProps, original) {
+          if (!pluginProps || pluginProps.pluginID !== "current-theme") { return original; }
+          return h("div", { className: "current-plugin-settings-content" }, original,
+            h(RouterLink, { to: PLUGIN_ROUTE, className: "current-button current-button-quiet" }, "Customize Current Theme"));
         });
       }
       PluginApi.patch.after("FrontPage", function () {
@@ -974,6 +1046,7 @@
       renderNavigation(navbar);
       mountCurrentStatistics();
       syncCurrentRangeControls();
+      enhanceNativeSettings();
       if (!observer) {
         observer = new MutationObserver(function () {
           removeTopbarThemeToggle(navbar);
@@ -999,6 +1072,7 @@
       bodyObserver.observe(document.body, { childList: true, subtree: true });
       pageObserver = new MutationObserver(function () {
         syncCurrentRangeControls();
+        enhanceNativeSettings();
         if (window.location.pathname === "/stats") { window.setTimeout(mountCurrentStatistics, 100); }
       });
       pageObserver.observe(document.body, { childList: true, subtree: true });
@@ -1008,6 +1082,7 @@
     window.addEventListener("popstate", updateActiveNavigation);
     window.addEventListener("popstate", refreshTopbarContext);
     window.addEventListener("popstate", mountCurrentStatistics);
+    window.addEventListener("popstate", enhanceNativeSettings);
     if (window.matchMedia) {
       var modeQuery = window.matchMedia("(prefers-color-scheme: light)");
       modeQuery.addEventListener ? modeQuery.addEventListener("change", function () { if (readPreferences().mode === "system") { applyPreferences(readPreferences()); } }) : modeQuery.addListener(function () { if (readPreferences().mode === "system") { applyPreferences(readPreferences()); } });

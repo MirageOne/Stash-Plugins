@@ -527,9 +527,6 @@ html[data-current-theme="active"] .current-empty-icon svg { width: 18px; height:
 
 /* Theme preferences are a regular Stash plugin route. */
 html[data-current-theme="active"] .current-settings-page { width: min(100%, 1060px); margin: 0 auto; }
-html[data-current-theme="active"] .current-settings-shortcut { width: min(100%, 1080px); display: flex; align-items: center; justify-content: space-between; gap: 16px; margin: 0 auto 16px; padding: 14px 18px; border: 1px solid var(--current-line); border-left: 3px solid var(--current-accent); border-radius: 5px; background: var(--current-surface); }
-html[data-current-theme="active"] .current-settings-shortcut strong { display: block; margin-top: 3px; color: var(--current-text); font-size: 14px; }
-html[data-current-theme="active"] .current-settings-shortcut p { margin: 3px 0 0; color: var(--current-muted); font-size: 11px; }
 html[data-current-theme="active"] .current-settings-hero { display: flex; align-items: center; gap: 16px; margin-bottom: 17px; padding: 21px; border: 1px solid var(--current-line); border-left: 3px solid var(--current-accent); border-radius: 5px; background: var(--current-surface); }
 html[data-current-theme="active"] .current-settings-hero .current-brand-mark { width: 48px; height: 48px; flex-basis: 48px; font-size: 24px; }
 html[data-current-theme="active"] .current-settings-hero h1 { margin: 4px 0; font-size: 25px; }
@@ -753,7 +750,6 @@ body.current-active .current-mobile-drawer { display: none; }
   html[data-current-theme="active"] .current-carousel-dots { margin-right: auto; }
   html[data-current-theme="active"] .current-resume-grid { grid-template-columns: repeat(2, minmax(0,1fr)); gap: 13px 9px; }
   html[data-current-theme="active"] .current-settings-card { padding: 14px; }
-  html[data-current-theme="active"] .current-settings-shortcut { align-items: flex-start; flex-direction: column; padding: 14px; }
   html[data-current-theme="active"] .item-list-container .sidebar-pane-content { padding: 0 !important; }
   html[data-current-theme="active"] .item-list-container .sidebar-toggle-button-container { position: absolute !important; inset: 12px 12px auto auto !important; z-index: 3; float: none !important; width: 36px !important; height: 36px !important; margin: 0 !important; }
   html[data-current-theme="active"] .item-list-container .sidebar-toggle-button-container .sidebar-toggle-button { width: 34px !important; min-width: 34px !important; height: 34px !important; min-height: 34px !important; }
@@ -847,6 +843,176 @@ body.current-active .current-mobile-drawer { display: none; }
   html[data-current-theme="active"] .current-setting-row { align-items: flex-start; }
   html[data-current-theme="active"] .current-accent-row { flex-direction: column; }
   html[data-current-theme="active"] .current-select { min-width: 0; max-width: 45%; }
+}
+
+/* Settings stay in one section at a time, with categories laid out as a
+   desktop tab strip and a compact native picker on narrow screens. */
+html[data-current-theme="active"] body.current-active #configuration-tabs {
+  width: 100%;
+}
+html[data-current-theme="active"] body.current-active #configuration-tabs > .row {
+  display: flex;
+  flex-direction: column;
+  margin-right: 0;
+  margin-left: 0;
+}
+html[data-current-theme="active"] body.current-active #settings-menu-container {
+  width: 100%;
+  max-width: 100%;
+  flex: 0 0 100%;
+  padding: 0;
+}
+html[data-current-theme="active"] body.current-active #settings-menu-container > .nav {
+  display: flex;
+  flex-direction: row !important;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 5px;
+  padding: 8px;
+  border: 1px solid var(--current-line);
+  border-radius: 6px;
+  background: var(--current-surface);
+}
+html[data-current-theme="active"] body.current-active #settings-menu-container > .nav > .nav-item {
+  flex: 0 0 auto;
+  margin: 0;
+}
+html[data-current-theme="active"] body.current-active #settings-menu-container .nav-link {
+  min-height: 34px;
+  display: inline-flex;
+  align-items: center;
+  padding: 0 11px;
+  border: 1px solid transparent;
+  border-radius: 4px;
+  background: transparent;
+  color: var(--current-muted);
+  font-size: 12px;
+  font-weight: 580;
+  text-decoration: none;
+  white-space: nowrap;
+}
+html[data-current-theme="active"] body.current-active #settings-menu-container .nav-link:hover {
+  border-color: var(--current-line);
+  background: var(--current-surface-raised);
+  color: var(--current-text);
+}
+html[data-current-theme="active"] body.current-active #settings-menu-container .nav-link.active,
+html[data-current-theme="active"] body.current-active #settings-menu-container .nav-link[aria-selected="true"] {
+  border-color: rgba(var(--current-accent-rgb), .35);
+  background: rgba(var(--current-accent-rgb), .12);
+  color: var(--current-accent);
+}
+html[data-current-theme="active"] body.current-active #settings-menu-container .advanced-switch {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 0 8px;
+  color: var(--current-muted);
+  font-size: 11px;
+}
+html[data-current-theme="active"] body.current-active #settings-menu-container .advanced-switch label {
+  margin: 0;
+}
+html[data-current-theme="active"] body.current-active #settings-menu-container > .nav > hr {
+  display: none;
+}
+html[data-current-theme="active"] body.current-active #settings-container {
+  width: 100%;
+  max-width: 100%;
+  flex: 0 0 100%;
+  margin-left: 0 !important;
+  padding: 20px 0 0;
+}
+html[data-current-theme="active"] body.current-active #settings-container > .tab-content {
+  width: min(100%, 1180px);
+  margin: 0 auto;
+}
+html[data-current-theme="active"] body.current-active #settings-container .setting-section > h1 {
+  margin: 0 0 7px;
+  color: var(--current-text);
+  font-size: 20px;
+  font-weight: 680;
+  letter-spacing: -.025em;
+}
+html[data-current-theme="active"] body.current-active #settings-container .setting-section > .card {
+  overflow: hidden;
+  border: 1px solid var(--current-line) !important;
+  border-radius: 6px !important;
+  background: var(--current-surface) !important;
+}
+html[data-current-theme="active"] body.current-active .current-settings-section-label,
+html[data-current-theme="active"] body.current-active .current-settings-section-picker {
+  display: none;
+}
+html[data-current-theme="active"] body.current-active .current-settings-plugin-list {
+  max-height: min(66vh, 620px);
+  overflow: auto;
+  overscroll-behavior: contain;
+  scrollbar-color: var(--current-line-strong) transparent;
+  scrollbar-width: thin;
+}
+html[data-current-theme="active"] body.current-active .current-settings-plugin-list > * {
+  border-bottom: 1px solid var(--current-line);
+}
+html[data-current-theme="active"] body.current-active .current-settings-plugin-list > *:last-child {
+  border-bottom: 0;
+}
+html[data-current-theme="active"] body.current-active .current-plugin-settings-content {
+  display: flex;
+  align-items: center;
+  flex-wrap: wrap;
+  gap: 8px;
+}
+html[data-current-theme="active"] body.current-active .current-plugin-settings-content > .plugin-settings:empty {
+  display: none;
+}
+html[data-current-theme="active"] body.current-active .current-plugin-settings-content > .current-button {
+  min-height: 34px;
+}
+
+@media (max-width: 700px) {
+  html[data-current-theme="active"] body.current-active #settings-menu-container > .nav {
+    display: block;
+    padding: 0;
+    border: 0;
+    background: transparent;
+  }
+  html[data-current-theme="active"] body.current-active #settings-menu-container > .nav > .current-settings-link-item {
+    display: none;
+  }
+  html[data-current-theme="active"] body.current-active #settings-menu-container > .nav > .nav-item:not(.current-settings-link-item) {
+    margin: 0 0 8px;
+  }
+  html[data-current-theme="active"] body.current-active .current-settings-section-label {
+    display: block;
+    margin: 0 0 6px;
+    color: var(--current-quiet);
+    font-size: 10px;
+    font-weight: 700;
+    letter-spacing: .08em;
+    text-transform: uppercase;
+  }
+  html[data-current-theme="active"] body.current-active .current-settings-section-picker {
+    width: 100%;
+    min-height: 42px;
+    display: block;
+    margin: 0 0 10px;
+    padding: 0 12px;
+    border: 1px solid var(--current-line-strong);
+    border-radius: 5px;
+    background-color: var(--current-surface);
+    color: var(--current-text);
+    font-size: 14px;
+  }
+  html[data-current-theme="active"] body.current-active #settings-container {
+    padding-top: 9px;
+  }
+  html[data-current-theme="active"] body.current-active #settings-container > .tab-content {
+    width: 100%;
+  }
+  html[data-current-theme="active"] body.current-active .current-settings-plugin-list {
+    max-height: 58vh;
+  }
 }
 
 @media (prefers-reduced-motion: reduce) {

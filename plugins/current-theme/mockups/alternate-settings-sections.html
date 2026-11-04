@@ -1,0 +1,252 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Current — Settings sections concept</title>
+  <style>
+    :root {
+      color-scheme: dark;
+      --bg: #0b0d10;
+      --surface: #13171c;
+      --raised: #1a1f25;
+      --line: #2a3038;
+      --line-strong: #3a424c;
+      --text: #f1f3f5;
+      --muted: #aeb6bf;
+      --quiet: #7f8994;
+      --accent: #a88bfa;
+      --accent-rgb: 168,139,250;
+      --green: #83d79d;
+      font-family: Geist, ui-sans-serif, system-ui, sans-serif;
+    }
+    @font-face {
+      font-family: Geist;
+      font-style: normal;
+      font-weight: 100 900;
+      font-display: swap;
+      src: url("../fonts/geist-latin-wght-normal.woff2") format("woff2-variations");
+    }
+    * { box-sizing: border-box; }
+    body { min-width: 320px; margin: 0; background: var(--bg); color: var(--text); font: 14px/1.5 Geist, ui-sans-serif, system-ui, sans-serif; }
+    button, input, select, a { font: inherit; }
+    button:focus-visible, input:focus-visible, select:focus-visible, a:focus-visible { outline: 2px solid var(--accent); outline-offset: 3px; }
+    .topbar { min-height: 58px; display: flex; align-items: center; justify-content: space-between; gap: 18px; padding: 0 30px; border-bottom: 1px solid var(--line); background: #101317; }
+    .brand, .crumbs, .server-state { display: flex; align-items: center; }
+    .brand { gap: 10px; color: var(--text); font-weight: 720; letter-spacing: -.02em; }
+    .brand-mark { width: 29px; height: 29px; display: grid; place-items: center; border-radius: 7px; background: var(--accent); color: #201638; }
+    .brand-mark svg { width: 20px; height: 20px; }
+    .crumbs { gap: 10px; margin: 0 auto; color: var(--quiet); font-size: 12px; }
+    .crumbs strong { color: var(--text); font-weight: 620; }
+    .server-state { gap: 8px; color: var(--muted); font-size: 11px; white-space: nowrap; }
+    .server-dot { width: 7px; height: 7px; border-radius: 50%; background: var(--green); box-shadow: 0 0 0 3px rgba(131,215,157,.1); }
+    main { width: min(100% - 48px, 1040px); margin: 36px auto 64px; }
+    .page-heading { display: flex; align-items: end; justify-content: space-between; gap: 20px; margin: 0 0 23px; padding: 0 2px; }
+    .eyebrow { color: var(--accent); font-size: 10px; font-weight: 760; letter-spacing: .13em; text-transform: uppercase; }
+    h1 { margin: 5px 0 5px; font-size: clamp(25px, 3vw, 32px); font-weight: 690; line-height: 1.15; letter-spacing: -.035em; }
+    .page-heading p { max-width: 600px; margin: 0; color: var(--muted); font-size: 13px; }
+    .section-count { padding: 6px 9px; border: 1px solid var(--line); border-radius: 5px; color: var(--muted); font-size: 10px; white-space: nowrap; }
+    .section-tabs { display: flex; flex-wrap: wrap; gap: 5px; margin-bottom: 15px; padding: 8px; border: 1px solid var(--line); border-radius: 7px; background: var(--surface); }
+    .section-tab { min-height: 31px; padding: 0 10px; border: 1px solid transparent; border-radius: 5px; background: transparent; color: var(--muted); font-size: 11px; cursor: pointer; }
+    .section-tab:hover { background: var(--raised); color: var(--text); }
+    .section-tab[aria-selected="true"] { border-color: rgba(var(--accent-rgb),.34); background: rgba(var(--accent-rgb),.11); color: var(--accent); }
+    .mobile-label { display: none; margin-bottom: 6px; }
+    .mobile-section { display: none; width: 100%; min-height: 42px; margin: 0 0 13px; padding: 0 12px; border: 1px solid var(--line-strong); border-radius: 6px; background: var(--surface); color: var(--text); }
+    .content-panel { min-height: 470px; padding: 22px 24px; border: 1px solid var(--line); border-radius: 8px; background: var(--surface); }
+    .content-heading { display: flex; align-items: start; justify-content: space-between; gap: 18px; margin-bottom: 15px; padding-bottom: 14px; border-bottom: 1px solid var(--line); }
+    .content-heading h2 { margin: 3px 0 0; font-size: 18px; font-weight: 660; letter-spacing: -.02em; }
+    .content-heading p { margin: 4px 0 0; color: var(--quiet); font-size: 11px; }
+    .setting-row { min-height: 64px; display: grid; grid-template-columns: minmax(0,1fr) minmax(220px,340px); align-items: center; gap: 18px; padding: 11px 0; border-bottom: 1px solid var(--line); }
+    .setting-row:last-child { border-bottom: 0; }
+    .setting-row strong { display: block; color: var(--text); font-size: 12px; font-weight: 630; }
+    .setting-row p { margin: 3px 0 0; color: var(--quiet); font-size: 10px; }
+    .field, .select { width: 100%; min-height: 36px; padding: 0 10px; border: 1px solid var(--line-strong); border-radius: 5px; background: var(--raised); color: var(--text); font-size: 11px; }
+    .field.mono { font-family: ui-monospace, SFMono-Regular, Menlo, monospace; }
+    .switch { width: 40px; height: 23px; justify-self: end; position: relative; padding: 0; border: 1px solid var(--line-strong); border-radius: 99px; background: var(--raised); cursor: pointer; }
+    .switch::after { content: ""; position: absolute; top: 3px; left: 3px; width: 15px; height: 15px; border-radius: 50%; background: #89929b; transition: transform .14s ease, background .14s ease; }
+    .switch[aria-checked="true"] { border-color: var(--accent); background: var(--accent); }
+    .switch[aria-checked="true"]::after { transform: translateX(17px); background: #201638; }
+    .button { min-height: 34px; display: inline-flex; align-items: center; justify-content: center; gap: 7px; padding: 0 11px; border: 1px solid var(--line-strong); border-radius: 5px; background: transparent; color: var(--text); font-size: 10px; font-weight: 620; text-decoration: none; white-space: nowrap; cursor: pointer; }
+    .button:hover { border-color: var(--accent); color: var(--accent); }
+    .button.primary { border-color: var(--accent); background: rgba(var(--accent-rgb),.12); color: var(--accent); }
+    .button.danger { color: #ff9b97; }
+    .button-row { display: flex; flex-wrap: wrap; gap: 8px; padding: 13px 0 0; }
+    .status { min-height: 22px; display: inline-flex; align-items: center; gap: 6px; padding: 0 8px; border: 1px solid var(--line); border-radius: 99px; color: var(--muted); font-size: 9px; white-space: nowrap; }
+    .status.good { border-color: rgba(131,215,157,.24); color: var(--green); }
+    .status .dot { width: 5px; height: 5px; border-radius: 50%; background: currentColor; }
+    .section-label { margin: 14px 0 3px; color: var(--quiet); font-size: 9px; font-weight: 730; letter-spacing: .1em; text-transform: uppercase; }
+    .swatches { display: flex; flex-wrap: wrap; gap: 9px; }
+    .swatch { width: 24px; height: 24px; padding: 0; border: 2px solid var(--surface); border-radius: 50%; box-shadow: 0 0 0 1px var(--line-strong); cursor: pointer; }
+    .swatch[aria-pressed="true"] { box-shadow: 0 0 0 2px var(--accent); }
+    .style-options { display: flex; flex-wrap: wrap; gap: 7px; }
+    .style-option { min-height: 31px; padding: 0 10px; border: 1px solid var(--line); border-radius: 5px; background: var(--raised); color: var(--muted); font-size: 10px; cursor: pointer; }
+    .style-option[aria-pressed="true"] { border-color: var(--accent); color: var(--accent); }
+    .plugin-toolbar { display: grid; grid-template-columns: auto minmax(220px,1fr) auto; align-items: center; gap: 12px; margin: 4px 0 12px; }
+    .plugin-total { color: var(--text); font-size: 12px; font-weight: 650; }
+    .filter-select { width: auto; min-width: 125px; }
+    .plugin-list { max-height: 390px; overflow-y: auto; overscroll-behavior: contain; border: 1px solid var(--line); border-radius: 6px; scrollbar-color: var(--line-strong) transparent; scrollbar-width: thin; }
+    .plugin-row { min-height: 66px; display: grid; grid-template-columns: minmax(0,1fr) auto; align-items: center; gap: 15px; padding: 10px 13px; border-bottom: 1px solid var(--line); }
+    .plugin-row[hidden] { display: none; }
+    .plugin-row:last-child { border-bottom: 0; }
+    .plugin-row strong { display: block; font-size: 11px; font-weight: 650; }
+    .plugin-row p { margin: 2px 0 0; color: var(--quiet); font-size: 10px; }
+    .plugin-actions { display: flex; align-items: center; gap: 10px; }
+    .plugin-bottom { display: flex; align-items: center; justify-content: space-between; gap: 10px; margin-top: 11px; color: var(--quiet); font-size: 10px; }
+    .pagination { display: flex; align-items: center; gap: 4px; }
+    .page-button { min-width: 27px; height: 27px; padding: 0 6px; border: 1px solid transparent; border-radius: 4px; background: transparent; color: var(--muted); font-size: 10px; cursor: pointer; }
+    .page-button.active { border-color: var(--accent); color: var(--accent); }
+    .source-card { margin-top: 18px; padding-top: 15px; border-top: 1px solid var(--line); }
+    .source-card h3 { margin: 0 0 4px; font-size: 12px; }
+    .source-card p { margin: 0 0 10px; color: var(--quiet); font-size: 10px; }
+    .source-row { display: flex; gap: 8px; }
+    .empty { display: none; padding: 28px 12px; color: var(--quiet); text-align: center; font-size: 11px; }
+    .log-row { display: grid; grid-template-columns: 100px 70px minmax(0,1fr); gap: 12px; padding: 11px 0; border-bottom: 1px solid var(--line); font-size: 10px; }
+    .log-row:last-child { border-bottom: 0; }
+    .log-time { color: var(--quiet); font-variant-numeric: tabular-nums; }
+    .log-level { color: var(--accent); font-weight: 690; }
+    .log-message { color: var(--muted); }
+    .release-row { padding: 12px 0; border-bottom: 1px solid var(--line); }
+    .release-row:last-child { border-bottom: 0; }
+    .release-row strong { font-size: 11px; }
+    .release-row p { margin: 4px 0 0; color: var(--muted); font-size: 10px; }
+    .link-row { display: flex; flex-wrap: wrap; gap: 8px; padding-top: 12px; }
+    .footer-note { margin: 15px 2px; color: var(--quiet); font-size: 10px; }
+    @media (max-width: 680px) {
+      .topbar { min-height: 54px; padding: 0 14px; }
+      .crumbs { margin-right: 0; font-size: 11px; }
+      .crumbs span:first-child, .crumbs span:nth-child(2) { display: none; }
+      .server-state { font-size: 0; }
+      .server-dot { width: 8px; height: 8px; }
+      main { width: min(100% - 28px, 1040px); margin: 25px auto 44px; }
+      .page-heading { align-items: start; margin-bottom: 16px; }
+      .section-count { margin-top: 5px; }
+      .section-tabs { display: none; }
+      .mobile-label { display: block; }
+      .mobile-section { display: block; }
+      .content-panel { min-height: 470px; padding: 17px 15px; }
+      .setting-row { grid-template-columns: minmax(0,1fr); gap: 8px; padding: 11px 0; }
+      .setting-row > .switch { justify-self: start; }
+      .plugin-toolbar { grid-template-columns: 1fr 1fr; gap: 8px; }
+      .plugin-total { grid-column: 1 / -1; }
+      .plugin-toolbar .field { grid-column: 1; }
+      .plugin-toolbar .select { grid-column: 2; }
+      .plugin-list { max-height: none; }
+      .plugin-row { grid-template-columns: minmax(0,1fr); gap: 8px; padding: 11px; }
+      .plugin-actions { justify-content: space-between; }
+      .plugin-bottom { align-items: flex-start; flex-direction: column; }
+      .source-row { flex-direction: column; }
+      .log-row { grid-template-columns: 1fr auto; gap: 4px 9px; }
+      .log-message { grid-column: 1 / -1; }
+    }
+    @media (prefers-reduced-motion: reduce) { *, *::before, *::after { transition-duration: .01ms !important; } }
+  </style>
+</head>
+<body>
+  <header class="topbar">
+    <div class="brand"><span class="brand-mark"><svg viewBox="0 0 32 32" fill="none" aria-hidden="true"><path d="M4.5 11.2C9.5 4.3 18.2 3.4 25.8 8.8M27.5 20.8c-5 6.9-13.7 7.8-21.3 2.4M6.5 16h6m7 0h6" stroke="currentColor" stroke-width="2" stroke-linecap="round"/><rect x="13.5" y="13.5" width="5" height="5" rx="1.5" fill="#201638"/></svg></span><span>Current</span></div>
+    <div class="crumbs"><span>Stash</span><span aria-hidden="true">/</span><strong>Settings</strong></div>
+    <div class="server-state"><span class="server-dot"></span><span>Server settings</span></div>
+  </header>
+  <main>
+    <header class="page-heading">
+      <div><div class="eyebrow">Stash configuration</div><h1>Settings</h1><p>Choose a section to manage. Only that section’s controls appear here.</p></div>
+      <span class="section-count">12 sections</span>
+    </header>
+    <nav class="section-tabs" role="tablist" aria-label="Settings sections">
+      <button class="section-tab" role="tab" data-section="tasks">Tasks</button>
+      <button class="section-tab" role="tab" data-section="library">Library</button>
+      <button class="section-tab" role="tab" data-section="interface">Interface</button>
+      <button class="section-tab" role="tab" data-section="security">Security</button>
+      <button class="section-tab" role="tab" data-section="metadata">Metadata Providers</button>
+      <button class="section-tab" role="tab" data-section="services">Services</button>
+      <button class="section-tab" role="tab" data-section="system">System</button>
+      <button class="section-tab" role="tab" data-section="plugins">Plugins</button>
+      <button class="section-tab" role="tab" data-section="logs">Logs</button>
+      <button class="section-tab" role="tab" data-section="tools">Tools</button>
+      <button class="section-tab" role="tab" data-section="changelog">Changelog</button>
+      <button class="section-tab" role="tab" data-section="about">About</button>
+    </nav>
+    <label class="eyebrow mobile-label" for="mobile-section">Settings section</label>
+    <select class="mobile-section" id="mobile-section" aria-label="Settings section">
+      <option value="tasks">Tasks</option><option value="library">Library</option><option value="interface">Interface</option><option value="security">Security</option>
+      <option value="metadata">Metadata Providers</option><option value="services">Services</option><option value="system">System</option><option value="plugins" selected>Plugins</option>
+      <option value="logs">Logs</option><option value="tools">Tools</option><option value="changelog">Changelog</option><option value="about">About</option>
+    </select>
+    <section class="content-panel" id="section-content" role="tabpanel" aria-live="polite"></section>
+    <p class="footer-note">The section list stays fixed while the selected settings view changes. Plugin results are filtered and paginated inside their own view.</p>
+  </main>
+  <script>
+    (function () {
+      var views = {
+        tasks: '<div class="content-heading"><div><div class="eyebrow">Background work</div><h2>Tasks</h2><p>Start library operations and monitor queued jobs.</p></div><span class="status running"><i class="dot"></i>1 active</span></div><div class="setting-row"><div><strong>Scan library</strong><p>12,840 files · 4 of 9 folders complete.</p></div><span class="status running">Running · 47%</span></div><div class="setting-row"><div><strong>Generate previews</strong><p>Queued · requested 2 minutes ago.</p></div><span class="status">Queued</span></div><div class="button-row"><button class="button primary">Scan library</button><button class="button">Import files</button><button class="button">Clean generated data</button></div>',
+        library: '<div class="content-heading"><div><div class="eyebrow">Files and defaults</div><h2>Library</h2><p>Manage media paths, supported formats, and generated files.</p></div></div><div class="setting-row"><div><strong>Video directories</strong><p>/media/library</p></div><button class="button">Manage paths</button></div><div class="setting-row"><div><strong>Video extensions</strong><p>Comma-separated formats included in scans.</p></div><input class="field mono" value="mp4, mkv, mov, webm"></div><div class="setting-row"><div><strong>Image extensions</strong><p>Supported image formats.</p></div><input class="field mono" value="jpg, jpeg, png, webp"></div><div class="setting-row"><div><strong>Write image thumbnails</strong><p>Generate thumbnail files for images.</p></div><button class="switch" role="switch" aria-checked="true"></button></div><div class="setting-row"><div><strong>Default delete behavior</strong><p>Choose whether source files are removed with library records.</p></div><select class="select"><option>Keep source files</option><option>Delete source files</option></select></div>',
+        interface: '<div class="content-heading"><div><div class="eyebrow">Display preferences</div><h2>Interface</h2><p>Set the look, library layout, homepage, and navigation.</p></div></div><div class="setting-row"><div><strong>Color mode</strong><p>Choose dark, light, or follow the device.</p></div><select class="select"><option>Dark</option><option>Light</option><option>System</option></select></div><div class="setting-row"><div><strong>Accent color</strong><p>Used for active controls and progress.</p></div><div class="swatches" role="group" aria-label="Accent color"><button class="swatch" style="background:#42d7c2" aria-label="Teal" aria-pressed="false"></button><button class="swatch" style="background:#6ea8fe" aria-label="Blue" aria-pressed="false"></button><button class="swatch" style="background:#a88bfa" aria-label="Violet" aria-pressed="true"></button><button class="swatch" style="background:#ff927a" aria-label="Coral" aria-pressed="false"></button><button class="swatch" style="background:#f1c46d" aria-label="Amber" aria-pressed="false"></button><button class="swatch" style="background:#f18bb6" aria-label="Rose" aria-pressed="false"></button><button class="swatch" style="background:#83d79d" aria-label="Green" aria-pressed="false"></button></div></div><div class="setting-row"><div><strong>Library card layout</strong><p>Choose the scene card density.</p></div><div class="style-options"><button class="style-option" aria-pressed="true">Cinematic</button><button class="style-option" aria-pressed="false">Compact</button><button class="style-option" aria-pressed="false">Poster</button></div></div><div class="setting-row"><div><strong>New content means</strong><p>Sort by library add date or release date.</p></div><select class="select"><option>Recently added</option><option>Recently released</option></select></div><div class="setting-row"><div><strong>Compact navigation</strong><p>Start with the desktop rail collapsed.</p></div><button class="switch" role="switch" aria-checked="false"></button></div><div class="setting-row"><div><strong>Mobile dock</strong><p>Three chosen destinations plus More.</p></div><button class="button">Choose destinations</button></div><div class="setting-row"><div><strong>Playback</strong><p>Player controls remain managed by Stash.</p></div><button class="button">Open playback settings</button></div>',
+        security: '<div class="content-heading"><div><div class="eyebrow">Authentication</div><h2>Security</h2><p>Manage account credentials and API access.</p></div><span class="status good"><i class="dot"></i>Enabled</span></div><div class="setting-row"><div><strong>Username</strong><p>Account used to sign in.</p></div><input class="field" value="stash-admin"></div><div class="setting-row"><div><strong>Password</strong><p>Update the account password.</p></div><button class="button">Change password</button></div><div class="setting-row"><div><strong>API key</strong><p>Used by trusted clients and integrations.</p></div><button class="button">Regenerate key</button></div>',
+        metadata: '<div class="content-heading"><div><div class="eyebrow">Scrapers</div><h2>Metadata Providers</h2><p>Review available scrapers and their supported data.</p></div><button class="button">Reload scrapers</button></div><div class="section-label">Installed scrapers</div><div class="setting-row"><div><strong>StashDB</strong><p>Scene metadata and performer matches.</p></div><span class="status good">Available</span></div><div class="setting-row"><div><strong>ThePornDB</strong><p>Scene and performer metadata.</p></div><span class="status good">Available</span></div><div class="setting-row"><div><strong>Scraper timeout</strong><p>Maximum wait for a provider response.</p></div><select class="select"><option>30 seconds</option><option>60 seconds</option></select></div>',
+        services: '<div class="content-heading"><div><div class="eyebrow">Network services</div><h2>Services</h2><p>Configure local service discovery and access.</p></div></div><div class="setting-row"><div><strong>DLNA server</strong><p>Allow compatible devices on the local network.</p></div><button class="switch" role="switch" aria-checked="true"></button></div><div class="setting-row"><div><strong>DLNA port</strong><p>Port used by the service.</p></div><input class="field mono" value="1900"></div><div class="setting-row"><div><strong>Recent client</strong><p>Living room · 192.168.1.42 · last seen today.</p></div><button class="button">Manage access</button></div>',
+        system: '<div class="content-heading"><div><div class="eyebrow">Server configuration</div><h2>System</h2><p>Set runtime executable paths and backup storage.</p></div></div><div class="setting-row"><div><strong>FFmpeg path</strong><p>Video processing executable.</p></div><input class="field mono" value="/usr/bin/ffmpeg"></div><div class="setting-row"><div><strong>FFprobe path</strong><p>Media inspection executable.</p></div><input class="field mono" value="/usr/bin/ffprobe"></div><div class="setting-row"><div><strong>Python path</strong><p>Runtime used by supported plugins.</p></div><input class="field mono" value="/usr/bin/python3"></div><div class="setting-row"><div><strong>Backup directory</strong><p>Location for database backups.</p></div><input class="field mono" value="/var/lib/stash/backups"></div><div class="button-row"><button class="button">Download FFmpeg</button><button class="button">Create backup</button></div>',
+        plugins: '<div class="content-heading"><div><div class="eyebrow">Installed extensions</div><h2>Plugins</h2><p>Search, filter, and manage plugins without expanding the page.</p></div><span class="status">24 installed</span></div><div class="plugin-toolbar"><strong class="plugin-total">Installed plugins</strong><input class="field" id="plugin-filter" type="search" placeholder="Filter plugins" aria-label="Filter plugins"><select class="select filter-select" id="plugin-state" aria-label="Plugin status"><option value="all">All statuses</option><option value="enabled">Enabled</option><option value="disabled">Disabled</option></select></div><div class="plugin-list" id="plugin-list"><article class="plugin-row" data-enabled="true"><div><strong>Current Theme <span class="status">0.1.15</span></strong><p>Appearance and navigation</p></div><div class="plugin-actions"><button class="button">Settings</button><button class="switch" role="switch" aria-checked="true" aria-label="Current Theme enabled"></button></div></article><article class="plugin-row" data-enabled="true"><div><strong>Library Doctor <span class="status">1.6.4</span></strong><p>Library diagnostics and repair</p></div><div class="plugin-actions"><button class="switch" role="switch" aria-checked="true" aria-label="Library Doctor enabled"></button></div></article><article class="plugin-row" data-enabled="true"><div><strong>Scene Gallery Generator <span class="status">1.0.2</span></strong><p>Generate galleries from scene metadata</p></div><div class="plugin-actions"><button class="switch" role="switch" aria-checked="true" aria-label="Scene Gallery Generator enabled"></button></div></article><article class="plugin-row" data-enabled="true"><div><strong>Stash Downloader <span class="status">0.6.2</span></strong><p>Download and import media</p></div><div class="plugin-actions"><button class="switch" role="switch" aria-checked="true" aria-label="Stash Downloader enabled"></button></div></article><article class="plugin-row" data-enabled="false"><div><strong>Fluent Mica <span class="status">1.0.5</span></strong><p>Alternative interface appearance</p></div><div class="plugin-actions"><button class="switch" role="switch" aria-checked="false" aria-label="Fluent Mica enabled"></button></div></article></div><div class="plugin-bottom"><span id="plugin-results">Showing 1–5 of 24 · 5 per page</span><div class="pagination" aria-label="Plugin pages"><button class="page-button" disabled>‹</button><button class="page-button active">1</button><button class="page-button">2</button><button class="page-button">3</button><button class="page-button">4</button><button class="page-button">›</button></div></div><div class="source-card"><h3>Plugin sources</h3><p>Manage where available plugins are discovered.</p><div class="source-row"><input class="field" value="https://github.com/MirageOne/Stash-Plugins" aria-label="Plugin source URL"><button class="button">Reload source</button></div></div>',
+        logs: '<div class="content-heading"><div><div class="eyebrow">Server activity</div><h2>Logs</h2><p>Filter recent events by severity.</p></div><button class="button danger">Clear logs</button></div><div class="setting-row"><div><strong>Severity</strong><p>Choose which events to show.</p></div><select class="select"><option>All levels</option><option>Errors</option><option>Warnings</option><option>Info</option></select></div><div class="log-row"><span class="log-time">12:41:08</span><span class="log-level">INFO</span><span class="log-message">Scan completed: 184 scenes updated.</span></div><div class="log-row"><span class="log-time">12:38:51</span><span class="log-level">WARN</span><span class="log-message">Could not read metadata from one file.</span></div><div class="log-row"><span class="log-time">12:30:16</span><span class="log-level">INFO</span><span class="log-message">Scheduled backup completed.</span></div>',
+        tools: '<div class="content-heading"><div><div class="eyebrow">Utilities</div><h2>Tools</h2><p>Open a tool when you need it; utilities stay out of everyday navigation.</p></div></div><div class="setting-row"><div><strong>GraphQL Playground</strong><p>Explore the Stash API schema and run queries.</p></div><button class="button">Open tool</button></div><div class="setting-row"><div><strong>Scene filename parser</strong><p>Preview metadata parsed from filenames.</p></div><button class="button">Open tool</button></div><div class="setting-row"><div><strong>Scene duplicate checker</strong><p>Find possible duplicate files.</p></div><button class="button">Open tool</button></div>',
+        changelog: '<div class="content-heading"><div><div class="eyebrow">Release notes</div><h2>Changelog</h2><p>Review recent Stash changes.</p></div></div><article class="release-row"><strong>Stash 0.32.0 <span class="status good">Current</span></strong><p>Library workflow, settings organization, and plugin improvements.</p></article><article class="release-row"><strong>Stash 0.31.0</strong><p>Metadata handling and background task updates.</p></article><div class="button-row"><button class="button">View full changelog</button></div>',
+        about: '<div class="content-heading"><div><div class="eyebrow">Project details</div><h2>About Stash</h2><p>Build information and project resources.</p></div><span class="status good"><i class="dot"></i>Up to date</span></div><div class="setting-row"><div><strong>Installed version</strong><p>Stash server release</p></div><span class="status">0.32.0</span></div><div class="setting-row"><div><strong>Build</strong><p>Build date and revision supplied by this server.</p></div><span class="status">Build information</span></div><div class="button-row"><button class="button">GitHub</button><button class="button">Documentation</button><button class="button">Community</button><button class="button">Support Stash</button></div>'
+      };
+      var names = { tasks: "Tasks", library: "Library", interface: "Interface", security: "Security", metadata: "Metadata Providers", services: "Services", system: "System", plugins: "Plugins", logs: "Logs", tools: "Tools", changelog: "Changelog", about: "About" };
+      var content = document.getElementById("section-content");
+      var mobile = document.getElementById("mobile-section");
+      var tabs = Array.prototype.slice.call(document.querySelectorAll(".section-tab"));
+      function bindContent() {
+        content.querySelectorAll(".switch").forEach(function (button) {
+          button.addEventListener("click", function () { button.setAttribute("aria-checked", button.getAttribute("aria-checked") === "true" ? "false" : "true"); });
+        });
+        content.querySelectorAll(".swatch").forEach(function (button) {
+          button.addEventListener("click", function () {
+            content.querySelectorAll(".swatch").forEach(function (item) { item.setAttribute("aria-pressed", "false"); });
+            button.setAttribute("aria-pressed", "true");
+            document.documentElement.style.setProperty("--accent", getComputedStyle(button).backgroundColor);
+          });
+        });
+        content.querySelectorAll(".style-option").forEach(function (button) {
+          button.addEventListener("click", function () {
+            content.querySelectorAll(".style-option").forEach(function (item) { item.setAttribute("aria-pressed", "false"); });
+            button.setAttribute("aria-pressed", "true");
+          });
+        });
+        var filter = document.getElementById("plugin-filter");
+        var state = document.getElementById("plugin-state");
+        if (filter && state) {
+          function filterPlugins() {
+            var query = filter.value.trim().toLowerCase();
+            var rows = Array.prototype.slice.call(content.querySelectorAll(".plugin-row"));
+            var visible = 0;
+            rows.forEach(function (row) {
+              var matchesText = row.textContent.toLowerCase().indexOf(query) !== -1;
+              var matchesState = state.value === "all" || row.getAttribute("data-enabled") === (state.value === "enabled" ? "true" : "false");
+              row.hidden = !matchesText || !matchesState;
+              if (!row.hidden) { visible += 1; }
+            });
+            var message = query || state.value !== "all" ? visible + " matching plugins shown (sample list)" : "Showing 1–5 of 24 · 5 per page";
+            document.getElementById("plugin-results").textContent = message;
+          }
+          filter.addEventListener("input", filterPlugins);
+          state.addEventListener("change", filterPlugins);
+        }
+      }
+      function renderSection(section) {
+        content.innerHTML = views[section] || views.plugins;
+        content.setAttribute("aria-label", names[section] + " settings");
+        tabs.forEach(function (tab) {
+          var active = tab.getAttribute("data-section") === section;
+          tab.setAttribute("aria-selected", active ? "true" : "false");
+          tab.setAttribute("tabindex", active ? "0" : "-1");
+        });
+        mobile.value = section;
+        bindContent();
+      }
+      tabs.forEach(function (tab) { tab.addEventListener("click", function () { renderSection(tab.getAttribute("data-section")); }); });
+      mobile.addEventListener("change", function () { renderSection(mobile.value); });
+      renderSection("plugins");
+    }());
+  </script>
+</body>
+</html>

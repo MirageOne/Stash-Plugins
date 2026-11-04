@@ -1,12 +1,12 @@
 name: Current Theme
-description: Current is a video-first Stash redesign with the Stash box mark on a violet tile, squared accent-aware switches, Geist typography, a new-arrivals carousel, Continue Watching, customizable four-item mobile navigation, light and dark modes, seven accent colors, and Soft Fill buttons.
-version: 0.1.35
+description: Current is a video-first Stash redesign with the Stash box mark on a violet tile, squared accent-aware switches, Geist typography, a new-arrivals carousel, Continue Watching, customizable four-item mobile navigation, theme-styled dropdown, select, and video-player menus, light and dark modes, seven accent colors, and Soft Fill buttons.
+version: 0.1.36
 url: https://github.com/MirageOne/Stash-Plugins
 ui:
   javascript:
-    - current-theme-0.1.35.js
+    - current-theme-0.1.36.js
   css:
-    - css/current-theme-0.1.35.css
+    - css/current-theme-0.1.36.css
   assets:
     /fonts: fonts
     /icons: icons

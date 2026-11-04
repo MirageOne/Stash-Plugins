@@ -1,6 +1,6 @@
 # Current Theme
 
-Current is a video-first Stash theme plugin with Geist typography, a responsive library rail, a large home carousel for new arrivals, a Continue Watching row, light and dark modes, seven accent colors, and Soft Fill buttons. Its sharp-cornered switches use Current's accent and surface colors. It preserves Stash's own player, library operations, and customizable recommendation shelves. The brand uses Stash's box mark on a violet tile. Its plugin ID and folder consistently use `current-theme`.
+Current is a video-first Stash theme plugin with Geist typography, a responsive library rail, a large home carousel for new arrivals, a Continue Watching row, and theme-styled dropdown menus across Stash actions, selects, and the video player. It also includes light and dark modes, seven accent colors, and Soft Fill buttons. Its sharp-cornered switches use Current's accent and surface colors. It preserves Stash's own player, library operations, and customizable recommendation shelves. The brand uses Stash's box mark on a violet tile. Its plugin ID and folder consistently use `current-theme`.
 
 The home carousel and Continue Watching shelf use Stash GraphQL scene data. New arrivals can sort by the library-add time or scene release date. Continue Watching filters scenes with a saved resume position and opens the normal Stash scene route, where the built-in player applies Stash's resume behavior.
 
@@ -12,7 +12,7 @@ Theme preferences are stored in the current browser. The login page is served ou
 
 Copy this directory into Stash's configured `plugins/` directory, reload plugins in **Settings → Plugins**, then enable **Current Theme**. After updating, reload the Stash UI in the browser so the new JavaScript and CSS load. Disable other full-app theme plugins while testing it so global styles do not conflict.
 
-For a packaged manual install, download [Current Theme 0.1.35](../../packages/current-theme/0.1.35-manual.zip) and extract its `current-theme/` folder into the configured plugins directory.
+For a packaged manual install, download [Current Theme 0.1.36](../../packages/current-theme/0.1.36-manual.zip) and extract its `current-theme/` folder into the configured plugins directory.
 
 ## Screenshots
 
@@ -58,6 +58,6 @@ The current UI was checked in a live Stash 0.32.0 instance at desktop and mobile
 
 The library in the screenshots contains fictional, non-explicit demo clips.
 
-The plugin has no external dependencies or build step. Its JavaScript and manifest can be syntax-checked directly with Node; its styles load from `css/current-theme-0.1.35.css`.
+The plugin has no external dependencies or build step. Its JavaScript and manifest can be syntax-checked directly with Node; its styles load from `css/current-theme-0.1.36.css`.
 
 Current is distributed under [AGPL-3.0](./LICENSE).

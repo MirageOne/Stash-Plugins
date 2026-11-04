@@ -483,13 +483,13 @@
     var nav = menu && menu.querySelector(".nav");
     var container = document.querySelector("#settings-container");
     if (!menu || !nav || !container) { return; }
-    var settingsRow = menu.parentElement;
-    if (!settingsRow || !settingsRow.classList.contains("row")) { settingsRow = menu.closest(".row"); }
-    if (settingsRow) {
-      settingsRow.classList.add("current-settings-layout");
-      settingsRow.style.setProperty("display", "block", "important");
-      settingsRow.style.marginLeft = "0";
-      settingsRow.style.marginRight = "0";
+    var settingsLayout = menu.parentElement;
+    while (settingsLayout && !settingsLayout.contains(container)) { settingsLayout = settingsLayout.parentElement; }
+    if (settingsLayout) {
+      settingsLayout.classList.add("current-settings-layout");
+      settingsLayout.style.setProperty("display", "block", "important");
+      settingsLayout.style.marginLeft = "0";
+      settingsLayout.style.marginRight = "0";
     }
     menu.style.setProperty("display", "block", "important");
     menu.style.width = "100%";

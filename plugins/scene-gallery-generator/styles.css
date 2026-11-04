@@ -93,6 +93,16 @@ h1, h2, p { margin-top: 0; }
 .sgg-gallery-state::before { width: 6px; height: 6px; border-radius: 50%; background: var(--sgg-subtle); content: ""; }
 .sgg-gallery-state.is-generated { color: #b8f0d3; }
 .sgg-gallery-state.is-generated::before { background: var(--sgg-green); }
+.sgg-task-state { display: inline-flex; align-items: center; gap: 6px; white-space: nowrap; }
+.sgg-task-state::before { width: 6px; height: 6px; flex: 0 0 auto; border-radius: 50%; background: var(--sgg-subtle); content: ""; }
+.sgg-task-state.is-running { color: var(--sgg-accent-bright); }
+.sgg-task-state.is-running::before { background: var(--sgg-accent); box-shadow: 0 0 0 3px var(--sgg-accent-soft); }
+.sgg-task-state.is-completed { color: #b8f0d3; }
+.sgg-task-state.is-completed::before { background: var(--sgg-green); }
+.sgg-task-state.is-failed { color: #ffc0c0; }
+.sgg-task-state.is-failed::before { background: #e76666; }
+.sgg-task-state.is-queued { color: var(--sgg-muted); }
+.sgg-task-state.is-cancelled, .sgg-task-state.is-not-started { color: var(--sgg-subtle); }
 .sgg-row-action { min-height: 32px; padding: 0 10px; font-size: .71rem; white-space: nowrap; }
 .sgg-table-message { padding: 28px 16px !important; color: var(--sgg-subtle) !important; text-align: center; }
 .sgg-pagination { display: flex; align-items: center; justify-content: space-between; gap: 12px; padding: 12px 16px; border-top: 1px solid var(--sgg-border); color: var(--sgg-subtle); font-size: .7rem; }

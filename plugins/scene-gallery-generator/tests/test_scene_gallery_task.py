@@ -96,6 +96,10 @@ class SceneGalleryTaskTests(unittest.TestCase):
                 with self.assertRaises(RuntimeError):
                     TASK.valid_scene_id(value)
 
+    def test_archive_filename_uses_a_portable_scene_title(self):
+        self.assertEqual(TASK.scene_archive_name({"id": "123", "title": "Déjà Vu: Chapter / Finale?"}), "Déjà Vu_ Chapter _ Finale_.zip")
+        self.assertEqual(TASK.scene_archive_name({"id": "123", "title": ""}), "Scene 123.zip")
+
     def test_output_directory_rejects_a_symlinked_plugin_folder(self):
         with tempfile.TemporaryDirectory() as root, tempfile.TemporaryDirectory() as outside:
             os.symlink(outside, os.path.join(root, "Scene Gallery Generator"))
@@ -130,16 +134,33 @@ class SceneGalleryTaskTests(unittest.TestCase):
     def test_gallery_scene_link_preserves_existing_scene_links(self):
         with patch.object(TASK, "graphql", side_effect=[
                 {"findGallery": {"scenes": [{"id": "existing-scene"}]}},
-                {"galleryUpdate": {"id": "gallery-1"}}]) as graphql:
+                {"galleryUpdate": {"id": "gallery-1"}},
+                {"findScene": {"galleries": [{"id": "another-gallery"}]}},
+                {"sceneUpdate": {"id": "new-scene"}}]) as graphql, patch.object(TASK, "introspect_fields", return_value={"gallery_ids"}):
             TASK.link_gallery_to_scene({}, "new-scene", "gallery-1", {"scene_ids"})
         mutation_variables = graphql.call_args_list[1].args[2]
         self.assertEqual(mutation_variables["input"]["scene_ids"], ["existing-scene", "new-scene"])
+        self.assertEqual(graphql.call_args_list[3].args[2]["input"]["gallery_ids"], ["another-gallery", "gallery-1"])
+
+    def test_image_metadata_update_does_not_mutate_zip_gallery_membership(self):
+        image = {"id": "image-1", "galleries": [{"id": "gallery-1"}]}
+        scene = {"id": "123", "title": "Sample scene", "details": "Scene details"}
+        with patch.object(TASK, "graphql") as graphql:
+            TASK.update_image_metadata({}, image, scene, {"id", "title", "details", "gallery_ids"}, 1)
+        update = graphql.call_args.args[2]["input"]
+        self.assertEqual(update["details"], "Scene details")
+        self.assertNotIn("gallery_ids", update)
 
     def test_gallery_generation_waits_for_every_frame_to_be_indexed(self):
         names = ["frame-001.jpg", "frame-002.jpg"]
-        with patch.object(TASK, "find_image_by_path", side_effect=lambda _server, path: {"id": os.path.basename(path)}):
-            images = TASK.wait_for_indexed_images({}, "/images/scene", names, timeout=0)
+        paths = []
+        def find_image(_server, path):
+            paths.append(path)
+            return {"id": os.path.basename(path)}
+        with patch.object(TASK, "find_image_by_path", side_effect=find_image):
+            images = TASK.wait_for_indexed_images({}, "/images/scene", names, "Sample scene.zip", timeout=0)
         self.assertEqual([image["id"] for image in images], names)
+        self.assertEqual(paths, ["/images/scene/Sample scene.zip/frame-001.jpg", "/images/scene/Sample scene.zip/frame-002.jpg"])
 
     def test_gallery_generation_does_not_continue_with_missing_indexed_frames(self):
         with patch.object(TASK, "find_image_by_path", side_effect=lambda _server, path: {"id": "frame-001"} if path.endswith("frame-001.jpg") else None):
@@ -181,6 +202,26 @@ class SceneGalleryTaskTests(unittest.TestCase):
             with self.assertRaisesRegex(RuntimeError, "frame list is invalid"):
                 TASK.create_gallery_archive(directory, ["frame-001.jpg", "frame-001.jpg"])
 
+    def test_stale_plugin_archives_are_removed_before_rescan(self):
+        with tempfile.TemporaryDirectory() as directory:
+            names = ["gallery.zip", "Old Scene.zip", "Current Scene.zip"]
+            for name in names:
+                with open(os.path.join(directory, name), "wb") as handle:
+                    handle.write(b"zip")
+            removed = TASK.remove_stale_gallery_archives(directory, {"plugin": TASK.PLUGIN_ID, "archive_file": "Old Scene.zip"}, "Current Scene.zip")
+            self.assertEqual(set(os.path.basename(path) for path in removed), {"gallery.zip", "Old Scene.zip"})
+            self.assertTrue(os.path.isfile(os.path.join(directory, "Current Scene.zip")))
+
+    def test_generated_frame_copies_are_removed_after_archiving(self):
+        with tempfile.TemporaryDirectory() as directory:
+            for name in ("frame-001.jpg", "frame-002.jpg", "cover.jpg"):
+                with open(os.path.join(directory, name), "wb") as handle:
+                    handle.write(b"image")
+            removed = TASK.remove_generated_frame_files(directory)
+            self.assertEqual(set(os.path.basename(path) for path in removed), {"frame-001.jpg", "frame-002.jpg"})
+            self.assertFalse(os.path.exists(os.path.join(directory, "frame-001.jpg")))
+            self.assertTrue(os.path.isfile(os.path.join(directory, "cover.jpg")))
+
     def test_gallery_creation_rejects_missing_frame_records_before_mutating_stash(self):
         with patch.object(TASK, "introspect_fields", side_effect=AssertionError("Stash must not be mutated")):
             with self.assertRaisesRegex(RuntimeError, "has not indexed every generated frame"):
@@ -192,10 +233,11 @@ class SceneGalleryTaskTests(unittest.TestCase):
             with open(frame_path, "wb") as handle:
                 handle.write(b"frame")
             scene = {"id": "123", "title": "Sample scene"}
-            TASK.create_gallery_archive(directory, ["frame-001.jpg"])
-            manifest = {"generated_files": ["frame-001.jpg"], "image_count": 1, "sampling_mode": "smart", "file_ids": ["file-1"]}
+            archive_name = TASK.scene_archive_name(scene)
+            TASK.create_gallery_archive(directory, ["frame-001.jpg"], archive_name)
+            manifest = {"generated_files": ["frame-001.jpg"], "image_count": 1, "sampling_mode": "smart", "file_ids": ["file-1"], "archive_file": archive_name}
             gallery = {"id": "gallery-1"}
-            snapshot = {"id": "gallery-1", "title": "Sample scene — Scene Gallery", "files": [{"id": "archive-1", "path": os.path.join(directory, "gallery.zip")}], "scenes": [{"id": "123"}]}
+            snapshot = {"id": "gallery-1", "title": "Sample scene — Scene Gallery", "files": [{"id": "archive-1", "path": os.path.join(directory, archive_name)}], "scenes": [{"id": "123"}]}
             with patch.object(TASK, "current_gallery_ids_for_scene", return_value=["gallery-1"]), patch.object(TASK, "get_gallery_snapshot", return_value=snapshot), patch.object(TASK, "images_linked_to_gallery", return_value=True):
                 self.assertTrue(TASK.existing_gallery_is_complete({}, scene, directory, 1, "smart", manifest, gallery))
             with patch.object(TASK, "current_gallery_ids_for_scene", return_value=[]), patch.object(TASK, "get_gallery_snapshot", return_value=snapshot), patch.object(TASK, "images_linked_to_gallery", return_value=True):

@@ -15,6 +15,7 @@
     var FIND_JOB_QUERY = "query SceneGalleryGeneratorJob($input:FindJobInput!) { findJob(input:$input) { id status progress error } }";
     var STOP_JOB_MUTATION = "mutation SceneGalleryGeneratorStop($jobId:ID!) { stopJob(job_id:$jobId) }";
     var scenes = [];
+    var sceneStatuses = Object.create(null);
     var sceneGalleryQuerySupported = true;
     var libraries = [];
     var pluginSettings = {};
@@ -22,6 +23,12 @@
     var currentPage = 1;
     var activeJobId = "";
     var taskStarting = false;
+    var taskQueue = [];
+    var taskQueueIndex = 0;
+    var taskFailures = [];
+    var taskWasCancelled = false;
+    var currentTaskSceneId = "";
+    var taskForce = false;
     var pollingTimer = null;
     var ui = {};
 
@@ -326,6 +333,14 @@
                 galleryCell.appendChild(state);
                 tr.appendChild(galleryCell);
 
+                var statusCell = document.createElement("td");
+                var taskState = document.createElement("span");
+                var statusText = sceneStatuses[String(scene.id)] || (generated ? "Completed" : "Not started");
+                taskState.className = "sgg-task-state is-" + statusText.toLocaleLowerCase().replace(/[^a-z0-9]+/g, "-");
+                taskState.textContent = statusText;
+                statusCell.appendChild(taskState);
+                tr.appendChild(statusCell);
+
                 var actionCell = document.createElement("td");
                 var action = document.createElement("button");
                 action.type = "button";
@@ -348,7 +363,7 @@
         ui.sceneBody.replaceChildren();
         var row = document.createElement("tr");
         var cell = document.createElement("td");
-        cell.colSpan = 4;
+        cell.colSpan = 5;
         cell.className = "sgg-table-message";
         cell.textContent = message;
         row.appendChild(cell);
@@ -374,6 +389,7 @@
         ui.library.disabled = busy || !libraries.length;
         ui.imageCount.disabled = busy;
         ui.sampling.disabled = busy;
+        ui.cancel.disabled = !busy || !activeJobId;
         ui.progress.hidden = !busy;
         renderScenes();
         if (!busy) updateActionAvailability();
@@ -405,30 +421,78 @@
     function startTask(extraArgs, label) {
         if (activeJobId || taskStarting) return Promise.resolve();
         hideMessages();
-        var args = Object.assign({
+        var options = extraArgs || {};
+        var requestedSceneId = String(options.scene_id || "");
+        taskQueue = requestedSceneId
+            ? scenes.filter(function (scene) { return String(scene.id) === requestedSceneId; })
+            : scenes.filter(function (scene) { return scene.files.length > 0; });
+        if (!taskQueue.length) {
+            showStatus(requestedSceneId ? "The selected scene is no longer available." : "No scenes with video files were found.");
+            return Promise.resolve();
+        }
+        taskQueueIndex = 0;
+        taskFailures = [];
+        taskWasCancelled = false;
+        currentTaskSceneId = "";
+        taskForce = requestedSceneId ? options.force === true : false;
+        taskQueue.forEach(function (scene) { sceneStatuses[String(scene.id)] = "Queued"; });
+        taskStarting = true;
+        setBusy(true);
+        setProgress("Queueing gallery generation…", label || "Preparing scene queue", 0);
+        startNextScene();
+        return Promise.resolve();
+    }
+
+    function startNextScene() {
+        if (taskQueueIndex >= taskQueue.length) {
+            finishTaskQueue();
+            return;
+        }
+        var scene = taskQueue[taskQueueIndex];
+        currentTaskSceneId = String(scene.id);
+        sceneStatuses[currentTaskSceneId] = "Running";
+        taskStarting = true;
+        setBusy(true);
+        var index = taskQueueIndex + 1;
+        var detail = "Scene " + index + " of " + taskQueue.length + ": " + (scene.title || "Scene " + scene.id);
+        setProgress("Generating scene galleries…", detail, (taskQueueIndex / taskQueue.length));
+        var args = {
             mode: "generate",
+            scene_id: currentTaskSceneId,
             image_count: getImageCount(),
             sampling_mode: getSamplingMode(),
             library_path: ui.library.value,
-            scope: "missing"
-        }, extraArgs || {});
-        taskStarting = true;
-        setBusy(true);
-        setProgress("Queueing gallery generation…", label || "Preparing library scan", 0);
-        return graphQLRequest(RUN_TASK_MUTATION, { pluginId: PLUGIN_ID, taskName: TASK_NAME, args: args }).then(function (data) {
+            force: taskForce
+        };
+        graphQLRequest(RUN_TASK_MUTATION, { pluginId: PLUGIN_ID, taskName: TASK_NAME, args: args }).then(function (data) {
             var jobId = data.runPluginTask;
             if (!jobId) throw new Error("Stash did not create a background job.");
             activeJobId = String(jobId);
             taskStarting = false;
             setBusy(true);
-            setProgress("Generating scene galleries…", label || "Queued in Stash", 0);
+            setProgress("Generating scene galleries…", detail + " · Queued in Stash", (taskQueueIndex / taskQueue.length));
             pollJob();
         }).catch(function (error) {
-            activeJobId = "";
-            taskStarting = false;
-            setBusy(false);
-            showError(error.message || String(error));
+            sceneStatuses[currentTaskSceneId] = "Failed";
+            taskFailures.push({ sceneId: currentTaskSceneId, message: error.message || String(error) });
+            taskQueueIndex += 1;
+            startNextScene();
         });
+    }
+
+    function finishTaskQueue() {
+        var completed = taskQueue.filter(function (scene) { return sceneStatuses[String(scene.id)] === "Completed"; }).length;
+        var failures = taskFailures.slice();
+        var cancelled = taskWasCancelled;
+        taskQueue = [];
+        currentTaskSceneId = "";
+        activeJobId = "";
+        taskStarting = false;
+        setBusy(false);
+        if (cancelled) showStatus("Generation cancelled after " + completed + " scene(s) completed.");
+        else if (failures.length) showError(failures.length + " scene(s) failed. First failure: scene " + failures[0].sceneId + ": " + failures[0].message);
+        else showStatus("Generation completed for " + completed + " scene(s).");
+        loadScenes();
     }
 
     function pollJob() {
@@ -437,26 +501,54 @@
             var job = data.findJob;
             if (!job) throw new Error("Stash could not find the gallery generation job.");
             var status = String(job.status || "").toUpperCase();
-            var detail = status === "RUNNING" ? "FFmpeg is extracting frames and Stash is indexing the gallery." : status === "READY" ? "Waiting in the Stash job queue." : status;
-            setProgress(status === "FINISHED" ? "Generation complete" : "Generating scene galleries…", detail, job.progress);
+            var scene = taskQueue[taskQueueIndex];
+            var detail = "Scene " + (taskQueueIndex + 1) + " of " + taskQueue.length + ": " + (scene && (scene.title || "Scene " + scene.id) || "");
+            if (status === "READY") detail += " · Waiting in the Stash job queue.";
+            else if (status === "RUNNING") detail += " · FFmpeg is extracting frames and Stash is indexing the gallery.";
+            else if (status === "STOPPING") detail += " · Stopping after the current frame.";
+            var localProgress = Number(job.progress || 0);
+            if (localProgress > 1) localProgress /= 100;
+            var overallProgress = (taskQueueIndex + Math.max(0, Math.min(1, localProgress))) / Math.max(1, taskQueue.length);
+            setProgress("Generating scene galleries…", detail, overallProgress);
             if (status === "FINISHED") {
+                sceneStatuses[currentTaskSceneId] = "Completed";
                 activeJobId = "";
                 taskStarting = false;
-                setBusy(false);
-                showStatus("Gallery generation finished. Scenes with a usable video and image-enabled library were processed; see Stash logs for any skipped scenes.");
-                loadScenes();
+                taskQueueIndex += 1;
+                renderScenes();
+                startNextScene();
                 return;
             }
-            if (status === "FAILED" || status === "CANCELLED" || status === "STOPPING") {
+            if (status === "FAILED") {
+                sceneStatuses[currentTaskSceneId] = "Failed";
+                taskFailures.push({ sceneId: currentTaskSceneId, message: job.error || "Stash marked the job as failed." });
                 activeJobId = "";
                 taskStarting = false;
-                setBusy(false);
-                if (status === "FAILED") showError(job.error || "Gallery generation failed. Check the Stash log for details.");
-                else showStatus("Gallery generation was cancelled.");
+                taskQueueIndex += 1;
+                renderScenes();
+                startNextScene();
+                return;
+            }
+            if (status === "CANCELLED") {
+                sceneStatuses[currentTaskSceneId] = "Cancelled";
+                taskWasCancelled = true;
+                taskQueue.slice(taskQueueIndex + 1).forEach(function (queuedScene) {
+                    if (sceneStatuses[String(queuedScene.id)] === "Queued") sceneStatuses[String(queuedScene.id)] = "Not started";
+                });
+                taskQueueIndex = taskQueue.length;
+                activeJobId = "";
+                taskStarting = false;
+                renderScenes();
+                finishTaskQueue();
                 return;
             }
             pollingTimer = window.setTimeout(pollJob, 1400);
         }).catch(function (error) {
+            if (currentTaskSceneId) {
+                showError("Could not read the current Stash job. The scene is still running; checking again shortly.");
+                pollingTimer = window.setTimeout(pollJob, 3000);
+                return;
+            }
             activeJobId = "";
             taskStarting = false;
             setBusy(false);
@@ -471,7 +563,7 @@
             setProgress("Stopping generation…", "FFmpeg will stop at the current frame.", 0);
         }).catch(function (error) {
             showError("Could not cancel the Stash job: " + (error.message || String(error)));
-        }).finally(function () { ui.cancel.disabled = false; });
+        }).finally(function () { ui.cancel.disabled = !activeJobId; });
     }
 
     function hideMessages() {

@@ -957,16 +957,15 @@ html[data-current-theme="active"] body.current-active .current-settings-plugin-l
 html[data-current-theme="active"] body.current-active .current-settings-plugin-list > *:last-child {
   border-bottom: 0;
 }
-html[data-current-theme="active"] body.current-active .current-plugin-settings-content {
+html[data-current-theme="active"] body.current-active .current-settings-plugin-toolbar {
   display: flex;
   align-items: center;
   flex-wrap: wrap;
   gap: 8px;
 }
-html[data-current-theme="active"] body.current-active .current-plugin-settings-content > .plugin-settings:empty {
-  display: none;
-}
-html[data-current-theme="active"] body.current-active .current-plugin-settings-content > .current-button {
+html[data-current-theme="active"] body.current-active .current-settings-plugin-link {
+  flex: 0 0 auto;
+  margin-left: auto;
   min-height: 34px;
 }
 

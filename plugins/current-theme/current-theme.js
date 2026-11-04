@@ -545,6 +545,16 @@
       var card = section && section.querySelector(":scope > .card");
       var toolbar = card && card.querySelector(":scope > .content");
       var pluginList = toolbar && toolbar.nextElementSibling;
+      if (toolbar && !toolbar.querySelector(".current-settings-plugin-link")) {
+        toolbar.classList.add("current-settings-plugin-toolbar");
+        var customizeLink = document.createElement("a");
+        customizeLink.className = "current-button current-button-quiet current-settings-plugin-link";
+        customizeLink.href = PLUGIN_ROUTE;
+        customizeLink.setAttribute("data-current-route", PLUGIN_ROUTE);
+        customizeLink.textContent = "Customize Current Theme";
+        customizeLink.addEventListener("click", function (event) { navigateFromLink(event, customizeLink); });
+        toolbar.appendChild(customizeLink);
+      }
       if (pluginList && !pluginList.classList.contains("current-settings-plugin-list")) {
         pluginList.classList.add("current-settings-plugin-list");
       }
@@ -1006,13 +1016,6 @@
       });
     }
     if (PluginApi.patch && PluginApi.patch.after) {
-      if (RouterLink) {
-        PluginApi.patch.after("PluginSettings", function (pluginProps, original) {
-          if (!pluginProps || pluginProps.pluginID !== "current-theme") { return original; }
-          return h("div", { className: "current-plugin-settings-content" }, original,
-            h(RouterLink, { to: PLUGIN_ROUTE, className: "current-button current-button-quiet" }, "Customize Current Theme"));
-        });
-      }
       PluginApi.patch.after("FrontPage", function () {
         var args = Array.prototype.slice.call(arguments);
         var stockContent = args[args.length - 1];

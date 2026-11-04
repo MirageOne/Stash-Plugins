@@ -1643,6 +1643,14 @@ body.current-active nav.top-nav .navbar-buttons i {
   line-height: 1 !important;
 }
 
+/* Stash hard-codes a slate fill for Tagger results; use the theme surface. */
+html[data-current-theme="active"] .tagger-container .search-item {
+  border: 1px solid var(--current-line) !important;
+  border-radius: var(--current-radius) !important;
+  background: var(--current-surface) !important;
+  color: var(--current-text) !important;
+}
+
 /* Keep the mobile filter controls neutral like the mockup; selected modes
    use the soft accent fill while Wall and Tagger remain native Stash buttons. */
 @media (max-width: 700px) {

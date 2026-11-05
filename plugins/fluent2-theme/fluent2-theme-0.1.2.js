@@ -1109,15 +1109,13 @@
           }, 0);
         }
       }
-      return h("div", { className: "fluent2-home" },
-        h("div", { className: "fluent2-dashboard-layout" },
-          h("main", { className: "fluent2-dashboard-main" },
-            h(NewArrivalsCarousel, { scenes: data.arrivals, loading: data.loading, onSelectScene: setSelectedId, onShowDetails: showSceneDetails }),
-            h(ContinueWatching, { scenes: data.resume, loading: data.loading }),
-            h(LibraryOverview, { stats: data.stats }),
-            h(RecentActivity, { events: data.activity, loading: data.loading })
-          ),
-          h(SceneInspector, { scene: selectedScene, open: detailsOpen, onToggle: function () { setDetailsOpen(!detailsOpen); } })
+      return h("main", { className: "fluent2-home fluent2-dashboard-layout" },
+        h(NewArrivalsCarousel, { scenes: data.arrivals, loading: data.loading, onSelectScene: setSelectedId, onShowDetails: showSceneDetails }),
+        h(SceneInspector, { scene: selectedScene, open: detailsOpen, onToggle: function () { setDetailsOpen(!detailsOpen); } }),
+        h("div", { className: "fluent2-dashboard-main" },
+          h(ContinueWatching, { scenes: data.resume, loading: data.loading }),
+          h(LibraryOverview, { stats: data.stats }),
+          h(RecentActivity, { events: data.activity, loading: data.loading })
         ));
     }
 

@@ -8,6 +8,6 @@ Fluent 2 has its own plugin ID, local preferences, routes, CSS namespace, and se
 
 ## Install
 
-Add or reload the MirageOne Stash Plugins source in **Settings → Plugins** and install **Fluent 2 Theme**, or manually extract the `fluent2-theme/` folder from [Fluent 2 Theme 0.1.1](../../packages/fluent2-theme/0.1.1-manual.zip) into Stash's configured `plugins/` directory. Reload the Stash UI after enabling it.
+Add or reload the MirageOne Stash Plugins source in **Settings → Plugins** and install **Fluent 2 Theme**, or manually extract the `fluent2-theme/` folder from [Fluent 2 Theme 0.1.2](../../packages/fluent2-theme/0.1.2-manual.zip) into Stash's configured `plugins/` directory. Reload the Stash UI after enabling it.
 
 The theme has no external dependencies or build step. User preferences are stored locally in the browser. It is distributed under [AGPL-3.0](./LICENSE).

@@ -2900,12 +2900,14 @@ body.fluent2-active .fluent2-nav-item { min-height: 38px; border-radius: 7px; fo
 
 html[data-fluent2-theme="active"] .fluent2-home { width: 100%; max-width: none; margin: 0; }
 html[data-fluent2-theme="active"] .fluent2-dashboard-layout {
-  display: grid; grid-template-columns: minmax(0,1fr) minmax(290px,330px); align-items: start;
+  display: grid; grid-template-columns: minmax(0,1fr) minmax(290px,330px);
+  grid-template-areas: "hero inspector" "content inspector"; align-items: start;
   gap: clamp(16px,2vw,26px); width: 100%;
 }
-html[data-fluent2-theme="active"] .fluent2-dashboard-main { min-width: 0; display: flex; flex-direction: column; gap: 22px; }
+html[data-fluent2-theme="active"] .fluent2-dashboard-main { grid-area: content; min-width: 0; display: flex; flex-direction: column; gap: 22px; }
 html[data-fluent2-theme="active"] .fluent2-dashboard-main > .fluent2-home-section { margin: 0; }
 html[data-fluent2-theme="active"] .fluent2-home-hero {
+  grid-area: hero;
   min-height: 0; height: clamp(270px,23vw,310px); align-items: center; border-radius: 12px;
   background: linear-gradient(135deg,#202630,#263444 58%,#374553);
 }
@@ -2979,6 +2981,7 @@ html[data-fluent2-theme="active"] .fluent2-artwork-small { width: 68px; height: 
 html[data-fluent2-theme="active"] .fluent2-artwork-small .fluent2-artwork-overlay { display: none; }
 
 html[data-fluent2-theme="active"] .fluent2-scene-inspector {
+  grid-area: inspector;
   position: sticky; top: 76px; min-width: 0; max-height: calc(100vh - 92px); overflow: auto; padding: 16px;
   border: 1px solid var(--fluent2-line); border-radius: 12px; background: var(--fluent2-surface);
   box-shadow: 0 10px 30px rgba(0,0,0,.12); scrollbar-width: thin;
@@ -3017,7 +3020,9 @@ html[data-fluent2-theme="active"] .fluent2-inspector-description p { margin: 0; 
   html[data-fluent2-theme="active"] .fluent2-library-stat-icon svg { width: 18px; height: 18px; }
 }
 @media (max-width: 1050px) {
-  html[data-fluent2-theme="active"] .fluent2-dashboard-layout { grid-template-columns: minmax(0,1fr); }
+  html[data-fluent2-theme="active"] .fluent2-dashboard-layout {
+    grid-template-columns: minmax(0,1fr); grid-template-areas: "hero" "inspector" "content";
+  }
   html[data-fluent2-theme="active"] .fluent2-scene-inspector { position: static; max-height: none; }
 }
 @media (max-width: 700px) {
@@ -3028,14 +3033,17 @@ html[data-fluent2-theme="active"] .fluent2-inspector-description p { margin: 0; 
   body.fluent2-active .fluent2-sidebar-brand-row { display: none; }
   html[data-fluent2-theme="active"] .fluent2-dashboard-layout { gap: 16px; }
   html[data-fluent2-theme="active"] .fluent2-dashboard-main { gap: 18px; }
-  html[data-fluent2-theme="active"] .fluent2-home-hero { height: 330px; min-height: 0; align-items: flex-end; border-radius: 10px; }
+  html[data-fluent2-theme="active"] .fluent2-home-hero { height: auto; min-height: 330px; display: flex; flex-direction: column; justify-content: flex-end; align-items: stretch; border-radius: 10px; }
   html[data-fluent2-theme="active"] .fluent2-home-hero::after { background: linear-gradient(0deg,rgba(9,12,17,.95),rgba(9,12,17,.7) 55%,rgba(9,12,17,.06)); }
-  html[data-fluent2-theme="active"] .fluent2-hero-copy { width: 100%; padding: 22px 17px 25px; }
+  html[data-fluent2-theme="active"] .fluent2-hero-copy { width: 100%; padding: 22px 17px 8px; }
   html[data-fluent2-theme="active"] .fluent2-hero-copy h1 { font-size: clamp(28px,8vw,36px); }
   html[data-fluent2-theme="active"] .fluent2-hero-meta { font-size: 12px; }
   html[data-fluent2-theme="active"] .fluent2-hero-performers { margin-top: 10px; }
   html[data-fluent2-theme="active"] .fluent2-person-chip { min-height: 30px; font-size: 11px; }
-  html[data-fluent2-theme="active"] .fluent2-carousel-controls { left: auto; right: 9px; bottom: 8px; }
+  html[data-fluent2-theme="active"] .fluent2-carousel-controls {
+    position: relative; inset: auto; z-index: 3; box-sizing: border-box; width: 100%; min-height: 42px;
+    margin: 0; padding: 0 17px 10px; justify-content: space-between;
+  }
   html[data-fluent2-theme="active"] .fluent2-hero-actions { margin-top: 14px; }
   html[data-fluent2-theme="active"] .fluent2-section-heading h2 { font-size: 18px; }
   html[data-fluent2-theme="active"] .fluent2-resume-grid { display: flex; gap: 10px; overflow-x: auto; padding: 0 0 5px; scroll-snap-type: x mandatory; scrollbar-width: thin; }

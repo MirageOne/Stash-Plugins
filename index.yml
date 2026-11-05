@@ -36,10 +36,10 @@
     description: Current is a video-first Stash theme with an accent-responsive Stash box mark, squared custom switches, Geist typography, an automatically cycling new-arrivals carousel, Continue Watching, customizable mobile navigation, distinct accent-filled tag chips, neutral Tagger result rows, square mobile include/exclude controls, wrapped performer controls, compact tag actions, dropdowns, selects, and video-player menus, theme settings integrated into Interface settings, light and dark modes, seven accent colors, and Soft Fill buttons.
 - id: performer-site-sync
   name: Performer Site Sync
-  version: 2.0.1
-  date: "2026-11-05 01:36:16"
-  path: packages/performer-site-sync/2.0.1.zip
-  sha256: 83970e5222814daa76fcdf9acd4b216fb4b1d6574d8a8fc65d8098d53f873d7b
+  version: 2.0.2
+  date: "2026-11-05 01:41:18"
+  path: packages/performer-site-sync/2.0.2.zip
+  sha256: 915826f2786f3e51b05633ffcf355a71ca9a18cca9c1beedb3eff23bb5f91592
   requires: []
   metadata:
     description: Stash 0.32 rewrite for syncing performer metadata and favorite performers or studios with configured StashBox sources.

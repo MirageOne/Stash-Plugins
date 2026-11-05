@@ -15,7 +15,7 @@ The upstream plugin called studios “sites” and attempted to query `me.favori
 
 ## Install and configure
 
-Install from the MirageOne Stash Plugins source described in the repository root README, or extract the [2.0.1 manual archive](../../packages/performer-site-sync/2.0.1-manual.zip) into Stash's configured plugin directory. Enable **Performer Site Sync** in **Settings → Plugins** and reload plugins.
+Install from the MirageOne Stash Plugins source described in the repository root README, or extract the [2.0.2 manual archive](../../packages/performer-site-sync/2.0.2-manual.zip) into Stash's configured plugin directory. Enable **Performer Site Sync** in **Settings → Plugins** and reload plugins.
 
 Add the StashBox sources you use under **Settings → Metadata Providers → Stash-boxes**. The plugin recognizes StashDB, ThePornDB, and FansDB by their configured name or endpoint. It does not read API keys from guessed config files or log credentials. Then review **Settings → Plugins → Performer Site Sync**:
 

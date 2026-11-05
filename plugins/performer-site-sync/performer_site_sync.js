@@ -125,9 +125,13 @@
     );
   }
 
-  api.patch.after("PerformerDetailsPanel", (props, rendered) => {
+  // Stash 0.32 may pass legacy context as a second render argument. The
+  // rendered component is always the final argument supplied to `after`.
+  api.patch.after("PerformerDetailsPanel", (...args) => {
+    const props = args[0];
+    const rendered = args[args.length - 1];
     const performerId = props?.performer?.id;
-    if (!performerId) return rendered;
+    if (!performerId || !React.isValidElement(rendered)) return rendered;
     return React.createElement(
       React.Fragment,
       null,

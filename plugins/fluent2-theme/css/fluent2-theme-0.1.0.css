@@ -1,0 +1,2881 @@
+html[data-fluent2-theme="active"] {
+  color-scheme: dark;
+  --fluent2-bg: #111111;
+  --fluent2-surface: #1c1c1c;
+  --fluent2-surface-raised: #242424;
+  --fluent2-surface-strong: #2d2d2d;
+  --fluent2-line: #3a3a3a;
+  --fluent2-line-strong: #555555;
+  --fluent2-text: #f5f5f5;
+  --fluent2-muted: #d6d6d6;
+  --fluent2-quiet: #adadad;
+  --fluent2-accent: #479ef5;
+  --fluent2-accent-button: #479ef5;
+  --fluent2-accent-soft: #115ea3;
+  --fluent2-accent-rgb: 71, 158, 245;
+  --fluent2-accent-ink: #ffffff;
+  --fluent2-danger: #ee777f;
+  --fluent2-danger-rgb: 238, 119, 127;
+  --fluent2-success: #7bd3a5;
+  --fluent2-shadow: 0 8px 24px rgba(0, 0, 0, .28);
+  --fluent2-sidebar-width: 232px;
+  --fluent2-radius: 8px;
+}
+
+html[data-fluent2-theme="active"][data-fluent2-accent="teal"] { --fluent2-accent:#42d7c2; --fluent2-accent-button:#42d7c2; --fluent2-accent-soft:#c7f2ec; --fluent2-accent-rgb:66,215,194; --fluent2-accent-ink:#08201d; }
+html[data-fluent2-theme="active"][data-fluent2-accent="blue"] { --fluent2-accent:#479ef5; --fluent2-accent-button:#479ef5; --fluent2-accent-soft:#115ea3; --fluent2-accent-rgb:71,158,245; --fluent2-accent-ink:#ffffff; }
+html[data-fluent2-theme="active"][data-fluent2-accent="coral"] { --fluent2-accent:#ff927a; --fluent2-accent-button:#ff927a; --fluent2-accent-soft:#ffd8cf; --fluent2-accent-rgb:255,146,122; --fluent2-accent-ink:#28130f; }
+html[data-fluent2-theme="active"][data-fluent2-accent="amber"] { --fluent2-accent:#f1c46d; --fluent2-accent-button:#f1c46d; --fluent2-accent-soft:#f8e7bf; --fluent2-accent-rgb:241,196,109; --fluent2-accent-ink:#211a0d; }
+html[data-fluent2-theme="active"][data-fluent2-accent="rose"] { --fluent2-accent:#f18bb6; --fluent2-accent-button:#f18bb6; --fluent2-accent-soft:#f8d1e1; --fluent2-accent-rgb:241,139,182; --fluent2-accent-ink:#26131d; }
+html[data-fluent2-theme="active"][data-fluent2-accent="green"] { --fluent2-accent:#83d79d; --fluent2-accent-button:#83d79d; --fluent2-accent-soft:#d0efd8; --fluent2-accent-rgb:131,215,157; --fluent2-accent-ink:#102116; }
+html[data-fluent2-theme="active"][data-fluent2-mode="light"] {
+  color-scheme: light;
+  --fluent2-bg: #f2f4f6;
+  --fluent2-surface: #ffffff;
+  --fluent2-surface-raised: #f8f9fb;
+  --fluent2-surface-strong: #edf0f3;
+  --fluent2-line: #dce1e6;
+  --fluent2-line-strong: #c5cdd5;
+  --fluent2-text: #1a2026;
+  --fluent2-muted: #4f5b66;
+  --fluent2-quiet: #6c7884;
+  --fluent2-shadow: 0 14px 36px rgba(23, 33, 45, .11);
+  --fluent2-accent-button: #7555c3;
+}
+html[data-fluent2-theme="active"][data-fluent2-mode="light"][data-fluent2-accent="teal"] { --fluent2-accent-button:#187a71; }
+html[data-fluent2-theme="active"][data-fluent2-mode="light"][data-fluent2-accent="blue"] { --fluent2-accent-button:#0f6cbd; }
+html[data-fluent2-theme="active"][data-fluent2-mode="light"][data-fluent2-accent="coral"] { --fluent2-accent-button:#b24b37; }
+html[data-fluent2-theme="active"][data-fluent2-mode="light"][data-fluent2-accent="amber"] { --fluent2-accent-button:#8e6110; }
+html[data-fluent2-theme="active"][data-fluent2-mode="light"][data-fluent2-accent="rose"] { --fluent2-accent-button:#a54369; }
+html[data-fluent2-theme="active"][data-fluent2-mode="light"][data-fluent2-accent="green"] { --fluent2-accent-button:#2f7040; }
+
+html[data-fluent2-theme="active"] body {
+  background: var(--fluent2-bg) !important;
+  color: var(--fluent2-text) !important;
+  font-family: "Segoe UI Variable", "Segoe UI", system-ui, -apple-system, BlinkMacSystemFont, "Helvetica Neue", Arial, sans-serif !important;
+  font-size: 14px;
+  line-height: 1.5;
+}
+
+html[data-fluent2-theme="active"] a { color: var(--fluent2-accent); }
+html[data-fluent2-theme="active"] a:hover { color: var(--fluent2-text); }
+html[data-fluent2-theme="active"] ::selection { color: var(--fluent2-accent-ink); background: var(--fluent2-accent); }
+html[data-fluent2-theme="active"] :focus-visible { outline: 2px solid var(--fluent2-accent) !important; outline-offset: 2px; }
+
+/* Persistent desktop rail and compact application bar. */
+body.fluent2-active nav.top-nav {
+  position: fixed !important;
+  z-index: 1030;
+  inset: 0 0 auto 0;
+  height: 60px;
+  display: flex !important;
+  flex-flow: row nowrap;
+  align-items: center;
+  padding: 0 24px;
+  border: 0 !important;
+  border-bottom: 1px solid var(--fluent2-line) !important;
+  background: var(--fluent2-surface) !important;
+  box-shadow: none !important;
+}
+body.fluent2-active nav.top-nav .navbar-brand,
+body.fluent2-active nav.top-nav .navbar-collapse,
+body.fluent2-active nav.top-nav .nav-menu-toggle { display: none !important; }
+body.fluent2-active nav.top-nav .fluent2-topbar-brand { display: none; }
+body.fluent2-active nav.top-nav .navbar-buttons .fluent2-mode-toggle,
+body.fluent2-active nav.top-nav .navbar-buttons .fluent2-topbar-help-hidden { display: none !important; }
+body.fluent2-active nav.top-nav .navbar-buttons {
+  display: flex !important;
+  align-items: center;
+  gap: 7px;
+  margin: 0 0 0 auto !important;
+}
+body.fluent2-active nav.top-nav .navbar-buttons > * { margin: 0 !important; }
+body.fluent2-active nav.top-nav .navbar-buttons .btn,
+body.fluent2-active nav.top-nav .navbar-buttons .nav-link {
+  min-width: 38px;
+  min-height: 38px;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  border: 1px solid transparent !important;
+  border-radius: 5px !important;
+  background: transparent !important;
+  color: var(--fluent2-muted) !important;
+  box-shadow: none !important;
+}
+body.fluent2-active nav.top-nav .navbar-buttons .btn:hover,
+body.fluent2-active nav.top-nav .navbar-buttons .nav-link:hover {
+  border-color: var(--fluent2-line) !important;
+  background: var(--fluent2-surface-raised) !important;
+  color: var(--fluent2-text) !important;
+}
+body.fluent2-active nav.top-nav .navbar-buttons .btn-primary,
+body.fluent2-active nav.top-nav .navbar-buttons [data-action="new"] {
+  border-color: var(--fluent2-accent-soft) !important;
+  background: var(--fluent2-accent-soft) !important;
+  color: var(--fluent2-accent-ink) !important;
+}
+body.fluent2-active nav.top-nav .navbar-buttons .donate { color: var(--fluent2-muted) !important; }
+body.fluent2-active nav.top-nav .navbar-buttons .nav-utility { padding: 0 !important; }
+
+body.fluent2-active .fluent2-sidebar {
+  position: fixed;
+  z-index: 1020;
+  inset: 60px auto 0 0;
+  width: var(--fluent2-sidebar-width);
+  display: flex;
+  flex-direction: column;
+  padding: 14px 12px 16px;
+  overflow: auto;
+  border-right: 1px solid var(--fluent2-line);
+  background: var(--fluent2-surface);
+  transition: width .18s ease;
+}
+body.fluent2-active .fluent2-sidebar-brand-row { display: flex; align-items: center; gap: 7px; padding: 2px 2px 18px; }
+body.fluent2-active .fluent2-brand { min-width: 0; flex: 1; display: flex; align-items: center; gap: 10px; color: var(--fluent2-text); text-decoration: none; }
+body.fluent2-active .fluent2-brand-mark {
+  width: 34px;
+  height: 34px;
+  flex: 0 0 34px;
+  display: grid;
+  place-items: center;
+  border-radius: 5px;
+  background: var(--fluent2-accent);
+  color: #15131b;
+  font-size: 0;
+  font-weight: 850;
+  letter-spacing: 0;
+}
+body.fluent2-active .fluent2-brand-mark svg { width: 100%; height: 100%; display: block; overflow: visible; stroke: none; stroke-width: 0; stroke-linecap: round; stroke-linejoin: round; }
+body.fluent2-active .fluent2-brand-mark svg > rect:first-of-type { fill: var(--fluent2-accent) !important; }
+body.fluent2-active .fluent2-brand-name { overflow: hidden; font-size: 15px; font-weight: 760; letter-spacing: -.035em; text-overflow: ellipsis; }
+body.fluent2-active .fluent2-sidebar-collapse {
+  width: 32px;
+  height: 32px;
+  flex: 0 0 32px;
+  display: grid;
+  place-items: center;
+  padding: 0;
+  border: 1px solid var(--fluent2-line);
+  border-radius: 4px;
+  background: transparent;
+  color: var(--fluent2-muted);
+}
+body.fluent2-active .fluent2-sidebar-collapse:hover { border-color: var(--fluent2-line-strong); color: var(--fluent2-text); }
+body.fluent2-active .fluent2-sidebar-collapse svg { width: 15px; height: 15px; }
+body.fluent2-active .fluent2-sidebar-nav { min-height: 0; flex: 1; display: flex; flex-direction: column; }
+body.fluent2-active .fluent2-sidebar-primary { display: flex; flex-direction: column; gap: 3px; }
+body.fluent2-active .fluent2-nav-item {
+  min-height: 40px;
+  display: flex;
+  align-items: center;
+  gap: 11px;
+  padding: 0 11px;
+  border: 1px solid transparent;
+  border-radius: 4px;
+  color: var(--fluent2-muted);
+  font-size: 12px;
+  font-weight: 560;
+  text-decoration: none;
+  transition: background-color .12s ease, color .12s ease;
+}
+body.fluent2-active .fluent2-nav-item:hover { background: var(--fluent2-surface-raised); color: var(--fluent2-text); }
+body.fluent2-active .fluent2-nav-item.is-active {
+  border-color: rgba(var(--fluent2-accent-rgb), .18);
+  background: rgba(var(--fluent2-accent-rgb), .11);
+  color: var(--fluent2-accent);
+}
+body.fluent2-active .fluent2-nav-icon { width: 18px; height: 18px; flex: 0 0 18px; display: grid; place-items: center; }
+body.fluent2-active .fluent2-nav-icon svg { width: 17px; height: 17px; }
+body.fluent2-active .fluent2-nav-label { min-width: 0; overflow: hidden; white-space: nowrap; text-overflow: ellipsis; }
+
+body.fluent2-active.fluent2-sidebar-collapsed { --fluent2-sidebar-width: 72px; }
+body.fluent2-active.fluent2-sidebar-collapsed .fluent2-sidebar { padding-inline: 10px; }
+body.fluent2-active.fluent2-sidebar-collapsed .fluent2-sidebar-brand-row { flex-direction: column; }
+body.fluent2-active.fluent2-sidebar-collapsed .fluent2-brand { flex: none; justify-content: center; }
+body.fluent2-active.fluent2-sidebar-collapsed .fluent2-brand-name,
+body.fluent2-active.fluent2-sidebar-collapsed .fluent2-nav-label { display: none; }
+body.fluent2-active.fluent2-sidebar-collapsed .fluent2-nav-item { justify-content: center; padding-inline: 0; }
+body.fluent2-active.fluent2-sidebar-collapsed .fluent2-sidebar-collapse svg { transform: rotate(180deg); }
+
+body.fluent2-active .main.container-fluid {
+  width: calc(100% - var(--fluent2-sidebar-width));
+  max-width: 1760px;
+  margin: 0 0 0 var(--fluent2-sidebar-width) !important;
+  padding: 88px clamp(22px, 3vw, 54px) 72px !important;
+  transition: width .18s ease, margin-left .18s ease;
+}
+
+/* Flat controls, crisp surfaces, and readable forms across Stash pages. */
+html[data-fluent2-theme="active"] .card,
+html[data-fluent2-theme="active"] .modal-content,
+html[data-fluent2-theme="active"] .popover,
+html[data-fluent2-theme="active"] .dropdown-menu,
+html[data-fluent2-theme="active"] .filter-section,
+html[data-fluent2-theme="active"] .plugin-settings,
+html[data-fluent2-theme="active"] .settings-section,
+html[data-fluent2-theme="active"] .settings-container {
+  border: 1px solid var(--fluent2-line) !important;
+  border-radius: var(--fluent2-radius) !important;
+  background: var(--fluent2-surface) !important;
+  color: var(--fluent2-text) !important;
+  box-shadow: none !important;
+}
+html[data-fluent2-theme="active"] .card-header,
+html[data-fluent2-theme="active"] .card-footer,
+html[data-fluent2-theme="active"] .modal-header,
+html[data-fluent2-theme="active"] .modal-footer,
+html[data-fluent2-theme="active"] .list-group-item,
+html[data-fluent2-theme="active"] .dropdown-divider {
+  border-color: var(--fluent2-line) !important;
+  background: var(--fluent2-surface-raised) !important;
+  color: var(--fluent2-text) !important;
+}
+html[data-fluent2-theme="active"] .text-muted,
+html[data-fluent2-theme="active"] .text-secondary,
+html[data-fluent2-theme="active"] .sub-heading,
+html[data-fluent2-theme="active"] .form-text { color: var(--fluent2-quiet) !important; }
+html[data-fluent2-theme="active"] .btn,
+html[data-fluent2-theme="active"] button.btn,
+html[data-fluent2-theme="active"] .page-link {
+  min-height: 34px;
+  border: 1px solid var(--fluent2-line-strong) !important;
+  border-radius: 4px !important;
+  background: var(--fluent2-surface-raised) !important;
+  color: var(--fluent2-text) !important;
+  box-shadow: none !important;
+  font-weight: 620;
+  transition: border-color .12s ease, background-color .12s ease, color .12s ease;
+}
+html[data-fluent2-theme="active"] .btn:hover,
+html[data-fluent2-theme="active"] .page-link:hover { border-color: var(--fluent2-accent) !important; color: var(--fluent2-accent) !important; }
+html[data-fluent2-theme="active"] .btn-primary:not(.minimal),
+html[data-fluent2-theme="active"] .btn-success:not(.minimal),
+html[data-fluent2-theme="active"] .btn-info:not(.minimal),
+html[data-fluent2-theme="active"] .btn-primary:not(.minimal):hover,
+html[data-fluent2-theme="active"] .btn-success:not(.minimal):hover,
+html[data-fluent2-theme="active"] .btn-info:not(.minimal):hover,
+html[data-fluent2-theme="active"] .btn-primary:not(.minimal):focus,
+html[data-fluent2-theme="active"] .btn-success:not(.minimal):focus,
+html[data-fluent2-theme="active"] .btn-info:not(.minimal):focus,
+html[data-fluent2-theme="active"] .btn-primary:not(.minimal):active,
+html[data-fluent2-theme="active"] .btn-success:not(.minimal):active,
+html[data-fluent2-theme="active"] .btn-info:not(.minimal):active {
+  border-color: var(--fluent2-accent-soft) !important;
+  background: var(--fluent2-accent-soft) !important;
+  color: var(--fluent2-accent-ink) !important;
+}
+html[data-fluent2-theme="active"] .btn-danger,
+html[data-fluent2-theme="active"] .btn-danger:hover,
+html[data-fluent2-theme="active"] .btn-outline-danger:hover {
+  border-color: rgba(var(--fluent2-danger-rgb), .58) !important;
+  background: rgba(var(--fluent2-danger-rgb), .20) !important;
+  color: var(--fluent2-text) !important;
+}
+html[data-fluent2-theme="active"] .btn-link { border-color: transparent !important; background: transparent !important; color: var(--fluent2-accent) !important; }
+html[data-fluent2-theme="active"] .form-control,
+html[data-fluent2-theme="active"] .custom-select,
+html[data-fluent2-theme="active"] .form-select,
+html[data-fluent2-theme="active"] input:not([type="checkbox"]):not([type="radio"]),
+html[data-fluent2-theme="active"] textarea,
+html[data-fluent2-theme="active"] select {
+  border: 1px solid var(--fluent2-line-strong) !important;
+  border-radius: 4px !important;
+  background-color: var(--fluent2-surface-raised) !important;
+  color: var(--fluent2-text) !important;
+  box-shadow: none !important;
+}
+html[data-fluent2-theme="active"] .form-control:focus,
+html[data-fluent2-theme="active"] input:focus,
+html[data-fluent2-theme="active"] textarea:focus,
+html[data-fluent2-theme="active"] select:focus { border-color: var(--fluent2-accent) !important; box-shadow: 0 0 0 2px rgba(var(--fluent2-accent-rgb), .18) !important; }
+html[data-fluent2-theme="active"] input[type="checkbox"],
+html[data-fluent2-theme="active"] input[type="radio"],
+html[data-fluent2-theme="active"] input[type="range"] { accent-color: var(--fluent2-accent); }
+html[data-fluent2-theme="active"] .custom-switch .custom-control-label::before {
+  width: 2.3rem;
+  height: 1.28rem;
+  top: .08rem;
+  left: -2.65rem;
+  border: 1px solid var(--fluent2-line-strong) !important;
+  border-radius: 4px !important;
+  background: var(--fluent2-surface-strong) !important;
+  box-shadow: none !important;
+}
+html[data-fluent2-theme="active"] .custom-switch .custom-control-label::after {
+  top: calc(.08rem + 3px);
+  left: calc(-2.65rem + 3px);
+  width: 12px;
+  height: 12px;
+  border-radius: 3px;
+  background: var(--fluent2-muted) !important;
+  box-shadow: none !important;
+  transition: transform .14s ease, background-color .14s ease;
+}
+html[data-fluent2-theme="active"] .custom-switch .custom-control-input:checked ~ .custom-control-label::before { border-color: var(--fluent2-accent) !important; background: rgba(var(--fluent2-accent-rgb), .18) !important; }
+html[data-fluent2-theme="active"] .custom-switch .custom-control-input:checked ~ .custom-control-label::after { background: var(--fluent2-accent) !important; transform: translateX(1.15rem); }
+html[data-fluent2-theme="active"] .custom-switch .custom-control-input:focus ~ .custom-control-label::before { box-shadow: 0 0 0 2px rgba(var(--fluent2-accent-rgb), .22) !important; }
+html[data-fluent2-theme="active"] table { color: var(--fluent2-muted); }
+html[data-fluent2-theme="active"] table th { border-color: var(--fluent2-line); background: var(--fluent2-surface-raised); color: var(--fluent2-quiet); }
+html[data-fluent2-theme="active"] table td { border-color: var(--fluent2-line); }
+html[data-fluent2-theme="active"] pre,
+html[data-fluent2-theme="active"] code { color: var(--fluent2-text); }
+html[data-fluent2-theme="active"] pre,
+html[data-fluent2-theme="active"] .log-entry,
+html[data-fluent2-theme="active"] .log-message { white-space: pre-wrap; overflow-wrap: anywhere; word-break: break-word; }
+html[data-fluent2-theme="active"] .page-title,
+html[data-fluent2-theme="active"] h1,
+html[data-fluent2-theme="active"] h2,
+html[data-fluent2-theme="active"] h3,
+html[data-fluent2-theme="active"] h4 { color: var(--fluent2-text); letter-spacing: -.025em; }
+html[data-fluent2-theme="active"] .page-title,
+html[data-fluent2-theme="active"] h1 { font-size: 27px; line-height: 1.15; }
+html[data-fluent2-theme="active"] h2 { font-size: 18px; line-height: 1.3; }
+html[data-fluent2-theme="active"] h3 { font-size: 14px; line-height: 1.35; }
+html[data-fluent2-theme="active"] h4 { font-size: 13px; line-height: 1.35; }
+html[data-fluent2-theme="active"] .nav-tabs { border-color: var(--fluent2-line); }
+html[data-fluent2-theme="active"] .nav-tabs .nav-link { border: 0; border-bottom: 2px solid transparent; border-radius: 0; color: var(--fluent2-muted); }
+html[data-fluent2-theme="active"] .nav-tabs .nav-link.active { border-color: var(--fluent2-accent); background: transparent; color: var(--fluent2-accent); }
+
+/* Playback controls remain Stash's player; Fluent 2 only reskins its chrome. */
+html[data-fluent2-theme="active"] .video-js,
+html[data-fluent2-theme="active"] .scene-player,
+html[data-fluent2-theme="active"] .scene-player-container { border-radius: 6px; }
+html[data-fluent2-theme="active"] .video-js .vjs-control-bar { background: rgba(9, 12, 15, .92); }
+html[data-fluent2-theme="active"] .video-js .vjs-play-progress,
+html[data-fluent2-theme="active"] .video-js .vjs-volume-level { background: var(--fluent2-accent); }
+html[data-fluent2-theme="active"] .video-js .vjs-play-progress::before { color: var(--fluent2-accent); }
+
+/* Main video-first homepage. */
+html[data-fluent2-theme="active"] .fluent2-home { width: 100%; max-width: 1500px; margin: 0 auto; }
+html[data-fluent2-theme="active"] .fluent2-home-hero {
+  min-height: 410px;
+  position: relative;
+  display: flex;
+  align-items: flex-end;
+  overflow: hidden;
+  border: 1px solid var(--fluent2-line);
+  border-radius: 8px;
+  background: linear-gradient(135deg, #14252b, #3b4849 52%, #8a6047);
+  isolation: isolate;
+  touch-action: pan-y;
+}
+html[data-fluent2-theme="active"] .fluent2-home-hero::after {
+  position: absolute;
+  z-index: 1;
+  inset: 0;
+  content: "";
+  background: linear-gradient(90deg, rgba(7, 10, 13, .92) 0%, rgba(7, 10, 13, .72) 34%, rgba(7, 10, 13, .14) 78%), linear-gradient(0deg, rgba(7, 10, 13, .48), transparent 58%);
+}
+html[data-fluent2-theme="active"] .fluent2-home-hero > .fluent2-artwork-large { position: absolute; z-index: 0; inset: 0; width: 100%; height: 100%; aspect-ratio: auto; border: 0; border-radius: 0; background-position: center 43%; }
+html[data-fluent2-theme="active"] .fluent2-artwork-large::after { display: none; }
+html[data-fluent2-theme="active"] .fluent2-artwork-large .fluent2-duration { display: none; }
+html[data-fluent2-theme="active"] .fluent2-artwork-large .fluent2-artwork-overlay { display: none; }
+html[data-fluent2-theme="active"] .fluent2-artwork {
+  aspect-ratio: 16 / 9;
+  position: relative;
+  overflow: hidden;
+  border: 1px solid var(--fluent2-line);
+  border-radius: 5px;
+  background-color: var(--fluent2-surface-strong);
+  background-size: cover;
+  background-position: center 35%;
+}
+html[data-fluent2-theme="active"] .fluent2-artwork-overlay { position: absolute; inset: 0; background: linear-gradient(0deg, rgba(0,0,0,.34), transparent 44%); }
+html[data-fluent2-theme="active"] .fluent2-duration { position: absolute; right: 8px; bottom: 8px; padding: 3px 6px; border-radius: 3px; background: rgba(0,0,0,.72); color: #fff; font-size: 10px; font-variant-numeric: tabular-nums; }
+html[data-fluent2-theme="active"] .fluent2-hero-copy { position: relative; z-index: 2; width: min(660px, 64%); padding: 44px clamp(24px, 5vw, 72px) 74px; }
+html[data-fluent2-theme="active"] .fluent2-kicker { display: block; color: var(--fluent2-accent); font-size: 10px; font-weight: 780; letter-spacing: .15em; line-height: 1.4; text-transform: uppercase; }
+html[data-fluent2-theme="active"] .fluent2-hero-copy h1 { max-width: 620px; margin: 11px 0 9px; color: #fff; font-size: clamp(32px, 4vw, 56px); font-weight: 780; line-height: 1.04; letter-spacing: -.045em; }
+html[data-fluent2-theme="active"] .fluent2-hero-copy p { max-width: 520px; margin: 12px 0 0; color: rgba(255,255,255,.78); font-size: 13px; }
+html[data-fluent2-theme="active"] .fluent2-hero-meta,
+html[data-fluent2-theme="active"] .fluent2-hero-performers { color: rgba(255,255,255,.76); font-size: 12px; }
+html[data-fluent2-theme="active"] .fluent2-hero-performers { margin-top: 6px; }
+html[data-fluent2-theme="active"] .fluent2-hero-actions { display: flex; flex-wrap: wrap; gap: 9px; margin-top: 21px; }
+html[data-fluent2-theme="active"] .fluent2-button { min-height: 40px; display: inline-flex; align-items: center; justify-content: center; gap: 8px; padding: 0 14px; border: 1px solid var(--fluent2-accent-button); border-radius: 6px; color: var(--fluent2-accent-button); font-size: 12px; font-weight: 680; text-decoration: none; transition: border-color .12s ease, background-color .12s ease, color .12s ease, filter .12s ease; }
+html[data-fluent2-theme="active"] .fluent2-button:hover { border-color: var(--fluent2-accent-button); background: rgba(var(--fluent2-accent-rgb), .10); color: var(--fluent2-accent-button); }
+html[data-fluent2-theme="active"] .fluent2-button-primary { border-color: var(--fluent2-accent-soft); background: var(--fluent2-accent-soft); color: var(--fluent2-accent-ink); }
+html[data-fluent2-theme="active"] .fluent2-button-primary:hover { border-color: var(--fluent2-accent-soft); filter: brightness(.96); color: var(--fluent2-accent-ink); }
+html[data-fluent2-theme="active"] .fluent2-button-quiet { background: transparent; }
+html[data-fluent2-theme="active"] .fluent2-button:focus-visible { outline: 2px solid var(--fluent2-accent-button) !important; outline-offset: 2px; }
+html[data-fluent2-theme="active"] .fluent2-play-icon svg { width: 15px; height: 15px; }
+html[data-fluent2-theme="active"] .fluent2-carousel-controls { position: absolute; right: 18px; bottom: 16px; z-index: 3; display: flex; align-items: center; gap: 8px; }
+html[data-fluent2-theme="active"] .fluent2-carousel-arrow { width: 34px; height: 34px; display: grid; place-items: center; padding: 0 0 3px; border: 1px solid var(--fluent2-accent-button); border-radius: 6px; background: transparent; color: var(--fluent2-accent-button); font-size: 25px; line-height: 1; }
+html[data-fluent2-theme="active"] .fluent2-carousel-arrow:hover { border-color: var(--fluent2-accent-button); background: rgba(var(--fluent2-accent-rgb), .10); color: var(--fluent2-accent-button); }
+html[data-fluent2-theme="active"] .fluent2-carousel-dots { display: flex; align-items: center; gap: 3px; }
+html[data-fluent2-theme="active"] .fluent2-carousel-dot { width: 20px; height: 25px; display: grid; place-items: center; padding: 0; border: 0; background: transparent; }
+html[data-fluent2-theme="active"] .fluent2-carousel-dot span { width: 6px; height: 6px; border-radius: 9px; background: rgba(255,255,255,.55); transition: width .15s ease; }
+html[data-fluent2-theme="active"] .fluent2-carousel-dot.is-active span { width: 18px; background: var(--fluent2-accent); }
+html[data-fluent2-theme="active"] .fluent2-carousel-count { min-width: 36px; color: rgba(255,255,255,.8); font-size: 10px; font-variant-numeric: tabular-nums; text-align: center; }
+html[data-fluent2-theme="active"] .fluent2-home-hero-empty { align-items: center; min-height: 350px; }
+html[data-fluent2-theme="active"] .fluent2-home-hero-empty::after { background: linear-gradient(100deg, rgba(7,10,13,.94), rgba(7,10,13,.38)), radial-gradient(ellipse at 78% 48%, rgba(var(--fluent2-accent-rgb),.16), transparent 36%); }
+html[data-fluent2-theme="active"] .fluent2-home-hero-empty .fluent2-hero-copy { width: min(740px, 82%); }
+html[data-fluent2-theme="active"] .fluent2-home-section { margin: 27px 0 35px; }
+html[data-fluent2-theme="active"] .fluent2-section-heading { min-height: 44px; display: flex; align-items: flex-end; justify-content: space-between; gap: 16px; margin-bottom: 14px; }
+html[data-fluent2-theme="active"] .fluent2-section-heading h2 { margin: 3px 0 0; color: var(--fluent2-text); font-size: 18px; font-weight: 730; letter-spacing: -.035em; }
+html[data-fluent2-theme="active"] .fluent2-section-link { flex: 0 0 auto; color: var(--fluent2-accent); font-size: 11px; font-weight: 650; text-decoration: none; }
+html[data-fluent2-theme="active"] .fluent2-resume-grid { display: grid; grid-template-columns: repeat(4, minmax(0, 1fr)); gap: 15px; }
+html[data-fluent2-theme="active"] .fluent2-resume-card { min-width: 0; }
+html[data-fluent2-theme="active"] .fluent2-resume-link { display: block; color: var(--fluent2-text); text-decoration: none; }
+html[data-fluent2-theme="active"] .fluent2-resume-link:hover .fluent2-artwork { border-color: rgba(var(--fluent2-accent-rgb), .8); }
+html[data-fluent2-theme="active"] .fluent2-resume-title { overflow: hidden; margin-top: 8px; color: var(--fluent2-text); font-size: 12px; font-weight: 680; text-overflow: ellipsis; white-space: nowrap; }
+html[data-fluent2-theme="active"] .fluent2-resume-meta { overflow: hidden; margin-top: 3px; color: var(--fluent2-quiet); font-size: 10px; text-overflow: ellipsis; white-space: nowrap; }
+html[data-fluent2-theme="active"] .fluent2-progress-track { height: 3px; overflow: hidden; border-radius: 4px; background: var(--fluent2-surface-strong); }
+html[data-fluent2-theme="active"] .fluent2-progress-track span { height: 100%; display: block; border-radius: inherit; background: var(--fluent2-accent); }
+html[data-fluent2-theme="active"] .fluent2-stock-recommendations { margin-top: 34px; }
+html[data-fluent2-theme="active"] .fluent2-empty-state { min-height: 76px; display: flex; align-items: center; gap: 12px; padding: 16px; border: 1px solid var(--fluent2-line); border-radius: 5px; color: var(--fluent2-quiet); font-size: 12px; }
+html[data-fluent2-theme="active"] .fluent2-empty-state p { margin: 0; }
+html[data-fluent2-theme="active"] .fluent2-empty-icon { width: 18px; height: 18px; color: var(--fluent2-accent); }
+html[data-fluent2-theme="active"] .fluent2-empty-icon svg { width: 18px; height: 18px; }
+
+/* Theme preferences are a regular Stash plugin route. */
+html[data-fluent2-theme="active"] .fluent2-settings-page { width: min(100%, 1060px); margin: 0 auto; }
+html[data-fluent2-theme="active"] .fluent2-settings-hero { display: flex; align-items: center; gap: 16px; margin-bottom: 17px; padding: 21px; border: 1px solid var(--fluent2-line); border-left: 3px solid var(--fluent2-accent); border-radius: 5px; background: var(--fluent2-surface); }
+html[data-fluent2-theme="active"] .fluent2-settings-hero .fluent2-brand-mark { width: 48px; height: 48px; flex-basis: 48px; font-size: 24px; }
+html[data-fluent2-theme="active"] .fluent2-settings-hero h1 { margin: 4px 0; font-size: 25px; }
+html[data-fluent2-theme="active"] .fluent2-settings-hero p { margin: 0; color: var(--fluent2-muted); font-size: 12px; }
+html[data-fluent2-theme="active"] .fluent2-settings-card { margin: 14px 0; padding: 18px 20px; border: 1px solid var(--fluent2-line); border-radius: 5px; background: var(--fluent2-surface); }
+html[data-fluent2-theme="active"] .fluent2-settings-card .fluent2-section-heading { padding-bottom: 12px; border-bottom: 1px solid var(--fluent2-line); }
+html[data-fluent2-theme="active"] .fluent2-settings-card .fluent2-section-heading h2 { font-size: 16px; }
+html[data-fluent2-theme="active"] .fluent2-setting-row { min-height: 70px; display: flex; align-items: center; justify-content: space-between; gap: 18px; padding: 14px 0; border-bottom: 1px solid var(--fluent2-line); }
+html[data-fluent2-theme="active"] .fluent2-setting-row:last-child { border-bottom: 0; }
+html[data-fluent2-theme="active"] .fluent2-setting-row strong { display: block; color: var(--fluent2-text); font-size: 12px; }
+html[data-fluent2-theme="active"] .fluent2-setting-row p { margin: 4px 0 0; color: var(--fluent2-quiet); font-size: 11px; }
+html[data-fluent2-theme="active"] .fluent2-switch { width: 40px; height: 22px; flex: 0 0 40px; position: relative; padding: 0; border: 1px solid var(--fluent2-line-strong); border-radius: 4px; background: var(--fluent2-surface-strong); transition: border-color .14s ease, background-color .14s ease; }
+html[data-fluent2-theme="active"] .fluent2-switch span { position: absolute; top: 4px; left: 4px; width: 12px; height: 12px; border-radius: 3px; background: var(--fluent2-muted); transition: transform .14s ease, background .14s ease; }
+html[data-fluent2-theme="active"] .fluent2-switch.is-on { border-color: var(--fluent2-accent); background: rgba(var(--fluent2-accent-rgb), .18); }
+html[data-fluent2-theme="active"] .fluent2-switch.is-on span { background: var(--fluent2-accent); transform: translateX(18px); }
+html[data-fluent2-theme="active"] .fluent2-switch:focus-visible { outline: 2px solid rgba(var(--fluent2-accent-rgb), .5); outline-offset: 2px; }
+html[data-fluent2-theme="active"] .fluent2-accent-swatches { display: flex; flex-wrap: wrap; gap: 9px; }
+html[data-fluent2-theme="active"] .fluent2-accent-swatch { width: 30px; height: 30px; flex: 0 0 30px; border: 2px solid var(--fluent2-surface) !important; border-radius: 4px; box-shadow: 0 0 0 1px var(--fluent2-line-strong); }
+html[data-fluent2-theme="active"] .fluent2-accent-swatch.is-selected { box-shadow: 0 0 0 2px var(--fluent2-accent); }
+html[data-fluent2-theme="active"] .fluent2-select { min-width: 210px; min-height: 36px; padding: 0 10px; }
+html[data-fluent2-theme="active"] .fluent2-settings-note { margin: 14px 2px; color: var(--fluent2-quiet); font-size: 10px; }
+
+/* Scene, performer, and gallery filters use Stash's native toolbar. Keep its
+   controls fully functional while giving them the grouped Fluent 2 surface
+   used by the design mockup. */
+html[data-fluent2-theme="active"] .item-list-container .sidebar-pane-content {
+  position: relative;
+  margin: 0 !important;
+  padding: 0 !important;
+  border: 0 !important;
+  border-radius: 0 !important;
+  background: transparent !important;
+  box-shadow: none !important;
+}
+html[data-fluent2-theme="active"] .item-list-container .sidebar-toggle-button-container {
+  position: absolute !important;
+  inset: 10px auto auto 10px !important;
+  width: 36px !important;
+  height: 36px !important;
+  display: flex !important;
+  align-items: center;
+  justify-content: center;
+  margin: 0 !important;
+  padding: 0 !important;
+}
+html[data-fluent2-theme="active"] .item-list-container .sidebar-toggle-button-container .sidebar-toggle-button {
+  width: 36px !important;
+  min-width: 36px !important;
+  height: 36px !important;
+  min-height: 36px !important;
+  padding: 0 !important;
+  border: 1px solid var(--fluent2-line-strong) !important;
+  border-radius: 5px !important;
+  background: var(--fluent2-surface-raised) !important;
+  color: var(--fluent2-muted) !important;
+}
+html[data-fluent2-theme="active"] .item-list-container .filtered-list-toolbar {
+  width: 100% !important;
+  min-height: 58px;
+  display: flex !important;
+  flex-wrap: wrap;
+  align-items: center !important;
+  justify-content: flex-start !important;
+  gap: 8px !important;
+  margin: 0 0 7px !important;
+  padding: 11px 11px 11px 57px !important;
+  border: 1px solid var(--fluent2-line) !important;
+  border-radius: var(--fluent2-radius) !important;
+  background: var(--fluent2-surface) !important;
+  box-shadow: none !important;
+}
+html[data-fluent2-theme="active"] .item-list-container .filtered-list-toolbar > *,
+html[data-fluent2-theme="active"] .item-list-container .filtered-list-toolbar .btn-group {
+  margin: 0 !important;
+}
+html[data-fluent2-theme="active"] .item-list-container .filtered-list-toolbar .search-term-input {
+  width: 220px;
+  max-width: 100%;
+  white-space: normal;
+  overflow-wrap: anywhere;
+  min-width: 140px;
+  flex: 0 1 220px;
+}
+html[data-fluent2-theme="active"] .item-list-container .filtered-list-toolbar .search-term-input .form-control {
+  width: 100%;
+  height: 34px !important;
+  min-height: 34px !important;
+  padding: 0 10px !important;
+  border: 1px solid var(--fluent2-line) !important;
+  border-radius: 4px !important;
+  background: var(--fluent2-bg) !important;
+  color: var(--fluent2-text) !important;
+  box-shadow: none !important;
+}
+html[data-fluent2-theme="active"] .item-list-container .filtered-list-toolbar .search-term-input .form-control:focus {
+  border-color: var(--fluent2-accent) !important;
+  box-shadow: 0 0 0 2px rgba(var(--fluent2-accent-rgb), .18) !important;
+}
+html[data-fluent2-theme="active"] .item-list-container .filtered-list-toolbar button.btn,
+html[data-fluent2-theme="active"] .item-list-container .filtered-list-toolbar .page-size-selector select {
+  min-width: 34px;
+  min-height: 34px !important;
+  height: 34px !important;
+  padding: 0 10px !important;
+  border: 1px solid var(--fluent2-line) !important;
+  border-radius: 5px !important;
+  background: var(--fluent2-bg) !important;
+  color: var(--fluent2-muted) !important;
+  box-shadow: none !important;
+  font-size: 12px;
+  font-weight: 620;
+}
+html[data-fluent2-theme="active"] .item-list-container .filtered-list-toolbar button.btn:hover,
+html[data-fluent2-theme="active"] .item-list-container .filtered-list-toolbar .page-size-selector select:hover {
+  border-color: var(--fluent2-accent) !important;
+  background: var(--fluent2-surface-raised) !important;
+  color: var(--fluent2-accent) !important;
+}
+html[data-fluent2-theme="active"] .item-list-container .filtered-list-toolbar .page-size-selector select {
+  width: auto;
+  padding-right: 26px !important;
+}
+html[data-fluent2-theme="active"] .item-list-container .filtered-list-toolbar > .list-operations {
+  margin-left: auto !important;
+}
+html[data-fluent2-theme="active"] .item-list-container .filtered-list-toolbar > .list-operations + .btn-group {
+  display: flex;
+  align-items: center;
+  gap: 0 !important;
+  overflow: hidden;
+  border: 1px solid var(--fluent2-line) !important;
+  border-radius: 5px !important;
+  background: var(--fluent2-bg) !important;
+}
+html[data-fluent2-theme="active"] .item-list-container .filtered-list-toolbar > .list-operations + .btn-group > button.btn {
+  width: 34px;
+  min-width: 34px;
+  height: 32px !important;
+  min-height: 32px !important;
+  padding: 0 !important;
+  border: 0 !important;
+  border-radius: 0 !important;
+  background: transparent !important;
+  color: var(--fluent2-quiet) !important;
+}
+html[data-fluent2-theme="active"] .item-list-container .filtered-list-toolbar > .list-operations + .btn-group > button.btn + button.btn {
+  border-left: 1px solid var(--fluent2-line) !important;
+}
+html[data-fluent2-theme="active"] .item-list-container .filtered-list-toolbar > .list-operations + .btn-group > button.btn:hover,
+html[data-fluent2-theme="active"] .item-list-container .filtered-list-toolbar > .list-operations + .btn-group > button.btn.active {
+  border-color: var(--fluent2-line) !important;
+  background: var(--fluent2-surface-soft) !important;
+  color: var(--fluent2-text) !important;
+}
+/* The sibling separator otherwise overrides the active view button's left edge. */
+html[data-fluent2-theme="active"] body.fluent2-active .item-list-container .filtered-list-toolbar > .list-operations + .btn-group > button.btn.active {
+  position: relative;
+  z-index: 1;
+  border: 1px solid var(--fluent2-accent) !important;
+  border-radius: 4px !important;
+  background: rgba(var(--fluent2-accent-rgb), .14) !important;
+  color: var(--fluent2-accent) !important;
+}
+html[data-fluent2-theme="active"] .item-list-container .filtered-list-toolbar .zoom-slider-container {
+  flex: 0 1 110px;
+  margin: 0 0 0 2px !important;
+  padding-inline: 4px;
+}
+html[data-fluent2-theme="active"] .item-list-container .filtered-list-toolbar .zoom-slider-container .zoom-slider {
+  width: 100%;
+  accent-color: var(--fluent2-accent);
+}
+html[data-fluent2-theme="active"] .item-list-container .pagination-index-container {
+  margin: 7px 0 15px !important;
+  color: var(--fluent2-quiet) !important;
+  font-size: 11px;
+  text-align: center;
+}
+html[data-fluent2-theme="active"] .item-list-container .pagination-index-container .page-link {
+  min-height: 28px;
+  padding: 3px 8px;
+  background: transparent !important;
+}
+
+/* Mobile navigation: a small dock and a complete, reachable route sheet. */
+body.fluent2-active .fluent2-mobile-dock,
+body.fluent2-active .fluent2-mobile-drawer { display: none; }
+@media (max-width: 1100px) and (min-width: 701px) {
+  html[data-fluent2-theme="active"] { --fluent2-sidebar-width: 72px; }
+  body.fluent2-active .fluent2-sidebar { padding-inline: 10px; }
+  body.fluent2-active .fluent2-sidebar-brand-row { flex-direction: column; }
+  body.fluent2-active .fluent2-brand { flex: none; justify-content: center; }
+  body.fluent2-active .fluent2-brand-name,
+  body.fluent2-active .fluent2-nav-label { display: none; }
+  body.fluent2-active .fluent2-nav-item { justify-content: center; padding-inline: 0; }
+  body.fluent2-active .fluent2-resume-grid { grid-template-columns: repeat(3, minmax(0,1fr)); }
+}
+@media (max-width: 700px) {
+  body.fluent2-active nav.top-nav { height: 54px; padding: 0 11px; }
+  body.fluent2-active nav.top-nav .fluent2-topbar-brand { display: flex; align-items: center; gap: 8px; margin-right: auto; color: var(--fluent2-text); font-size: 13px; font-weight: 740; text-decoration: none; }
+  body.fluent2-active nav.top-nav .fluent2-topbar-brand .fluent2-brand-mark { width: 29px; height: 29px; flex-basis: 29px; font-size: 15px; }
+  body.fluent2-active nav.top-nav .navbar-buttons { gap: 4px; }
+  body.fluent2-active nav.top-nav .navbar-buttons .btn,
+  body.fluent2-active nav.top-nav .navbar-buttons .nav-link { min-width: 34px; min-height: 34px; }
+  body.fluent2-active nav.top-nav .navbar-buttons .donate,
+  body.fluent2-active nav.top-nav .navbar-buttons .logout-button { display: none !important; }
+  body.fluent2-active .fluent2-sidebar { display: none; }
+  body.fluent2-active .main.container-fluid { width: 100%; max-width: none; margin: 0 !important; padding: 73px 13px 88px !important; }
+  body.fluent2-active .fluent2-mobile-dock { position: fixed; z-index: 1040; inset: auto 0 0; height: 62px; display: flex; align-items: stretch; justify-content: space-around; gap: 2px; padding: 5px 6px max(5px, env(safe-area-inset-bottom)); border-top: 1px solid var(--fluent2-line); background: var(--fluent2-surface); }
+  body.fluent2-active .fluent2-dock-item { min-width: 0; flex: 1; display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 3px; border: 0; border-radius: 4px; background: transparent; color: var(--fluent2-quiet); text-decoration: none; }
+  body.fluent2-active .fluent2-dock-item.is-active { background: rgba(var(--fluent2-accent-rgb), .1); color: var(--fluent2-accent); }
+  body.fluent2-active .fluent2-dock-item .fluent2-nav-icon svg { width: 18px; height: 18px; }
+  body.fluent2-active .fluent2-dock-item .fluent2-nav-label { max-width: 100%; overflow: hidden; font-size: 9px; line-height: 1; text-overflow: ellipsis; white-space: nowrap; }
+  body.fluent2-active .fluent2-mobile-drawer { position: fixed; z-index: 1050; inset: 0; display: block; padding: 12px; visibility: hidden; opacity: 0; background: rgba(0,0,0,.58); transition: opacity .16s ease, visibility .16s ease; }
+  body.fluent2-active.fluent2-drawer-open .fluent2-mobile-drawer { visibility: visible; opacity: 1; }
+  body.fluent2-active .fluent2-mobile-sheet { position: absolute; inset: auto 0 0; max-height: 78vh; overflow: auto; padding: 18px 15px calc(80px + env(safe-area-inset-bottom)); border: 1px solid var(--fluent2-line); border-radius: 12px 12px 0 0; background: var(--fluent2-surface); transform: translateY(12px); transition: transform .16s ease; }
+  body.fluent2-active.fluent2-drawer-open .fluent2-mobile-sheet { transform: translateY(0); }
+  body.fluent2-active .fluent2-mobile-sheet-heading { display: flex; align-items: center; justify-content: space-between; margin-bottom: 12px; color: var(--fluent2-text); font-size: 15px; }
+  body.fluent2-active .fluent2-mobile-close { width: 32px; height: 32px; border: 1px solid var(--fluent2-line); border-radius: 4px; background: var(--fluent2-surface-raised); color: var(--fluent2-text); font-size: 20px; }
+  body.fluent2-active .fluent2-mobile-nav-section { margin: 0; }
+  body.fluent2-active .fluent2-mobile-nav-section + .fluent2-mobile-nav-section { margin-top: 12px; }
+  body.fluent2-active .fluent2-mobile-nav-section-heading { margin: 0 0 4px; color: var(--fluent2-quiet); font-size: 10px; font-weight: 740; line-height: 16px; letter-spacing: .08em; }
+  body.fluent2-active .fluent2-mobile-sheet-link { box-sizing: border-box; min-height: 46px; display: flex; align-items: center; gap: 11px; padding: 0 10px; border-bottom: 1px solid var(--fluent2-line); color: var(--fluent2-muted); text-decoration: none; }
+  body.fluent2-active .fluent2-mobile-sheet-link .fluent2-nav-icon { width: 18px; height: 18px; flex: 0 0 18px; display: grid; place-items: center; }
+  body.fluent2-active .fluent2-mobile-sheet-link .fluent2-nav-icon svg { display: block; width: 18px; height: 18px; }
+  body.fluent2-active .fluent2-mobile-sheet .fluent2-mobile-sheet-link .fluent2-nav-label { display: block; flex: 1 1 auto; min-width: 0; overflow: hidden; font-size: 14px; line-height: 1.25; text-overflow: ellipsis; white-space: nowrap; }
+  body.fluent2-active .fluent2-mobile-sheet-link.is-active { color: var(--fluent2-accent); }
+  html[data-fluent2-theme="active"] .fluent2-home-hero { min-height: 440px; align-items: flex-end; }
+  html[data-fluent2-theme="active"] .fluent2-home-hero::after { background: linear-gradient(0deg, rgba(7,10,13,.94), rgba(7,10,13,.58) 45%, rgba(7,10,13,.04)); }
+  html[data-fluent2-theme="active"] .fluent2-hero-copy { width: 100%; padding: 24px 18px 78px; }
+  html[data-fluent2-theme="active"] .fluent2-hero-copy h1 { font-size: clamp(31px, 9vw, 42px); }
+  html[data-fluent2-theme="active"] .fluent2-carousel-controls { left: 13px; right: 13px; bottom: 12px; justify-content: flex-end; }
+  html[data-fluent2-theme="active"] .fluent2-carousel-dots { margin-right: auto; }
+  html[data-fluent2-theme="active"] .fluent2-resume-grid { grid-template-columns: repeat(2, minmax(0,1fr)); gap: 13px 9px; }
+  html[data-fluent2-theme="active"] .fluent2-settings-card { padding: 14px; }
+  html[data-fluent2-theme="active"] .item-list-container .sidebar-pane-content { padding: 0 !important; }
+  html[data-fluent2-theme="active"] .item-list-container .sidebar-toggle-button-container { position: absolute !important; inset: 12px 12px auto auto !important; z-index: 3; float: none !important; width: 36px !important; height: 36px !important; margin: 0 !important; }
+  html[data-fluent2-theme="active"] .item-list-container .sidebar-toggle-button-container .sidebar-toggle-button { width: 34px !important; min-width: 34px !important; height: 34px !important; min-height: 34px !important; }
+  /* On phones, give search its own row and keep every native control in
+     source order. Wrapped filter and view groups stay together at the same
+     left edge, including Stash's Wall and Tagger view buttons. */
+  html[data-fluent2-theme="active"] .item-list-container .filtered-list-toolbar {
+    clear: both;
+    box-sizing: border-box;
+    flex-wrap: wrap !important;
+    align-content: flex-start;
+    justify-content: flex-start !important;
+    column-gap: 6px !important;
+    row-gap: 8px !important;
+    padding: 11px !important;
+  }
+  html[data-fluent2-theme="active"] .item-list-container .filtered-list-toolbar > *:not(.search-term-input) {
+    order: 5;
+    min-width: 0;
+    max-width: 100%;
+    margin: 0 !important;
+    flex: 0 0 auto;
+  }
+  html[data-fluent2-theme="active"] .item-list-container .filtered-list-toolbar .search-term-input {
+    box-sizing: border-box;
+    order: 0;
+    flex: 1 1 100%;
+    width: 100%;
+    min-width: 0;
+    max-width: 100%;
+  }
+  html[data-fluent2-theme="active"] .item-list-container .filtered-list-toolbar .search-term-input .form-control {
+    box-sizing: border-box;
+    padding-right: 54px !important;
+  }
+  html[data-fluent2-theme="active"] .item-list-container .filtered-list-toolbar .filter-button,
+  html[data-fluent2-theme="active"] .item-list-container .filtered-list-toolbar > .btn-group:has(.filter-button) {
+    order: 1;
+  }
+  html[data-fluent2-theme="active"] .item-list-container .filtered-list-toolbar .sort-by-select { order: 2; }
+  html[data-fluent2-theme="active"] .item-list-container .filtered-list-toolbar .btn-group,
+  html[data-fluent2-theme="active"] .item-list-container .filtered-list-toolbar .sort-by-select,
+  html[data-fluent2-theme="active"] .item-list-container .filtered-list-toolbar .list-operations {
+    max-width: 100%;
+    flex-wrap: nowrap !important;
+    flex-shrink: 0 !important;
+  }
+  html[data-fluent2-theme="active"] .item-list-container .filtered-list-toolbar > .btn-group:has(.filter-button) {
+    display: contents !important;
+  }
+  html[data-fluent2-theme="active"] .item-list-container .filtered-list-toolbar > .btn-group:has(.filter-button) > * {
+    order: 5;
+  }
+  html[data-fluent2-theme="active"] .item-list-container .filtered-list-toolbar > .btn-group:has(.filter-button) > .filter-button {
+    order: 1;
+  }
+  html[data-fluent2-theme="active"] .item-list-container .filtered-list-toolbar > .list-operations { margin-left: 0 !important; }
+  html[data-fluent2-theme="active"] .item-list-container .filtered-list-toolbar > .list-operations + .btn-group {
+    display: contents !important;
+    order: 3;
+    gap: 6px !important;
+    overflow: visible;
+    border: 0 !important;
+    border-radius: 0 !important;
+    background: transparent !important;
+  }
+  html[data-fluent2-theme="active"] .item-list-container .filtered-list-toolbar > .list-operations + .btn-group > button.btn:nth-child(1),
+  html[data-fluent2-theme="active"] .item-list-container .filtered-list-toolbar > .list-operations + .btn-group > button.btn:nth-child(2) { order: 5; }
+  html[data-fluent2-theme="active"] .item-list-container .filtered-list-toolbar > .list-operations + .btn-group > button.btn:nth-child(3) { order: 3; }
+  html[data-fluent2-theme="active"] .item-list-container .filtered-list-toolbar > .list-operations + .btn-group > button.btn:nth-child(4) { order: 4; }
+  html[data-fluent2-theme="active"] .item-list-container .filtered-list-toolbar > .list-operations + .btn-group > button.btn {
+    width: 36px;
+    min-width: 36px;
+    height: 36px !important;
+    min-height: 36px !important;
+    padding: 0 !important;
+    border: 1px solid var(--fluent2-line) !important;
+    border-radius: 5px !important;
+    background: var(--fluent2-bg) !important;
+    color: var(--fluent2-muted) !important;
+  }
+  html[data-fluent2-theme="active"] .item-list-container .filtered-list-toolbar > .list-operations + .btn-group > button.btn + button.btn {
+    border-left: 1px solid var(--fluent2-line) !important;
+  }
+  html[data-fluent2-theme="active"] .item-list-container .filtered-list-toolbar > .list-operations + .btn-group > button.btn:is(.active, .btn-primary) {
+    border-color: var(--fluent2-accent) !important;
+    background: rgba(var(--fluent2-accent-rgb), .13) !important;
+    color: var(--fluent2-accent) !important;
+  }
+  html[data-fluent2-theme="active"] .item-list-container .filtered-list-toolbar .zoom-slider-container { flex: 1 1 80px; }
+  html[data-fluent2-theme="active"] .fluent2-setting-row { align-items: flex-start; }
+  html[data-fluent2-theme="active"] .fluent2-accent-row { flex-direction: column; }
+  html[data-fluent2-theme="active"] .fluent2-select { min-width: 0; max-width: 45%; }
+}
+
+/* Settings stay in one section at a time, with categories laid out as a
+   desktop tab strip and a compact native picker on narrow screens. */
+html[data-fluent2-theme="active"] body.fluent2-active #configuration-tabs {
+  width: 100%;
+}
+html[data-fluent2-theme="active"] body.fluent2-active #configuration-tabs > .row {
+  display: block;
+  margin-right: 0;
+  margin-left: 0;
+}
+html[data-fluent2-theme="active"] body.fluent2-active .fluent2-settings-layout {
+  display: block !important;
+  margin-right: 0;
+  margin-left: 0;
+}
+html[data-fluent2-theme="active"] body.fluent2-active .row:has(#settings-menu-container) {
+  display: block !important;
+  margin-right: 0;
+  margin-left: 0;
+}
+html[data-fluent2-theme="active"] body.fluent2-active .fluent2-settings-layout #settings-menu-container,
+html[data-fluent2-theme="active"] body.fluent2-active .fluent2-settings-layout #settings-container,
+html[data-fluent2-theme="active"] body.fluent2-active .row:has(#settings-menu-container) #settings-menu-container,
+html[data-fluent2-theme="active"] body.fluent2-active .row:has(#settings-menu-container) #settings-container {
+  display: block;
+  width: 100%;
+  max-width: 100%;
+  margin-left: 0 !important;
+}
+html[data-fluent2-theme="active"] body.fluent2-active #settings-menu-container {
+  position: static !important;
+  width: 100%;
+  max-width: 100%;
+  flex: 0 0 100%;
+  padding: 0;
+}
+html[data-fluent2-theme="active"] body.fluent2-active #settings-menu-container > .nav {
+  display: flex;
+  flex-direction: row !important;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 5px;
+  padding: 8px;
+  border: 1px solid var(--fluent2-line);
+  border-radius: 6px;
+  background: var(--fluent2-surface);
+}
+html[data-fluent2-theme="active"] body.fluent2-active #settings-menu-container > .nav > .nav-item {
+  flex: 0 0 auto;
+  margin: 0;
+}
+html[data-fluent2-theme="active"] body.fluent2-active #settings-menu-container .nav-link {
+  min-height: 34px;
+  display: inline-flex;
+  align-items: center;
+  padding: 0 11px;
+  border: 1px solid transparent;
+  border-radius: 4px;
+  background: transparent;
+  color: var(--fluent2-muted);
+  font-size: 12px;
+  font-weight: 580;
+  text-decoration: none;
+  white-space: nowrap;
+}
+html[data-fluent2-theme="active"] body.fluent2-active #settings-menu-container .nav-link:hover {
+  border-color: var(--fluent2-line);
+  background: var(--fluent2-surface-raised);
+  color: var(--fluent2-text);
+}
+html[data-fluent2-theme="active"] body.fluent2-active #settings-menu-container .nav-link.active,
+html[data-fluent2-theme="active"] body.fluent2-active #settings-menu-container .nav-link[aria-selected="true"] {
+  border-color: rgba(var(--fluent2-accent-rgb), .35);
+  background: rgba(var(--fluent2-accent-rgb), .12);
+  color: var(--fluent2-accent);
+}
+html[data-fluent2-theme="active"] body.fluent2-active #settings-menu-container .advanced-switch {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 0 8px;
+  color: var(--fluent2-muted);
+  font-size: 11px;
+}
+html[data-fluent2-theme="active"] body.fluent2-active #settings-menu-container .advanced-switch label {
+  margin: 0;
+}
+html[data-fluent2-theme="active"] body.fluent2-active #settings-menu-container > .nav > hr {
+  display: none;
+}
+html[data-fluent2-theme="active"] body.fluent2-active #settings-container {
+  width: 100%;
+  max-width: 100%;
+  flex: 0 0 100%;
+  margin-left: 0 !important;
+  padding: 20px 0 0;
+}
+html[data-fluent2-theme="active"] body.fluent2-active #settings-container > .tab-content {
+  width: min(100%, 1180px);
+  margin: 0 auto;
+}
+html[data-fluent2-theme="active"] body.fluent2-active #settings-container .setting-section > h1 {
+  margin: 0 0 7px;
+  color: var(--fluent2-text);
+  font-size: 20px;
+  font-weight: 680;
+  letter-spacing: -.025em;
+}
+html[data-fluent2-theme="active"] body.fluent2-active #settings-container .setting-section > .card {
+  overflow: hidden;
+  border: 1px solid var(--fluent2-line) !important;
+  border-radius: 6px !important;
+  background: var(--fluent2-surface) !important;
+}
+html[data-fluent2-theme="active"] body.fluent2-active .fluent2-settings-section-label,
+html[data-fluent2-theme="active"] body.fluent2-active .fluent2-settings-section-picker {
+  display: none;
+}
+html[data-fluent2-theme="active"] body.fluent2-active .fluent2-settings-plugin-list {
+  max-height: min(66vh, 620px);
+  overflow: auto;
+  overscroll-behavior: contain;
+  scrollbar-color: var(--fluent2-line-strong) transparent;
+  scrollbar-width: thin;
+}
+html[data-fluent2-theme="active"] body.fluent2-active .fluent2-settings-plugin-list > * {
+  border-bottom: 1px solid var(--fluent2-line);
+}
+html[data-fluent2-theme="active"] body.fluent2-active .fluent2-settings-plugin-list > *:last-child {
+  border-bottom: 0;
+}
+html[data-fluent2-theme="active"] body.fluent2-active .fluent2-theme-settings-section {
+  margin-top: 12px;
+}
+html[data-fluent2-theme="active"] body.fluent2-active .fluent2-theme-settings-host {
+  width: 100%;
+}
+
+@media (max-width: 700px) {
+  html[data-fluent2-theme="active"] body.fluent2-active #settings-menu-container > .nav {
+    display: block;
+    padding: 0;
+    border: 0;
+    background: transparent;
+  }
+  html[data-fluent2-theme="active"] body.fluent2-active #settings-menu-container > .nav > .fluent2-settings-link-item {
+    display: none;
+  }
+  html[data-fluent2-theme="active"] body.fluent2-active #settings-menu-container > .nav > .nav-item:not(.fluent2-settings-link-item) {
+    margin: 0 0 8px;
+  }
+  html[data-fluent2-theme="active"] body.fluent2-active .fluent2-settings-section-label {
+    display: block;
+    margin: 0 0 6px;
+    color: var(--fluent2-quiet);
+    font-size: 10px;
+    font-weight: 700;
+    letter-spacing: .08em;
+    text-transform: uppercase;
+  }
+  html[data-fluent2-theme="active"] body.fluent2-active .fluent2-settings-section-picker {
+    width: 100%;
+    min-height: 42px;
+    display: block;
+    margin: 0 0 10px;
+    padding: 0 12px;
+    border: 1px solid var(--fluent2-line-strong);
+    border-radius: 5px;
+    background-color: var(--fluent2-surface);
+    color: var(--fluent2-text);
+    font-size: 14px;
+  }
+  html[data-fluent2-theme="active"] body.fluent2-active #settings-container {
+    padding-top: 9px;
+  }
+  html[data-fluent2-theme="active"] body.fluent2-active #settings-container > .tab-content {
+    width: 100%;
+  }
+  html[data-fluent2-theme="active"] body.fluent2-active .fluent2-settings-plugin-list {
+    max-height: 58vh;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  html[data-fluent2-theme="active"] *,
+  html[data-fluent2-theme="active"] *::before,
+  html[data-fluent2-theme="active"] *::after { scroll-behavior: auto !important; animation-duration: .01ms !important; animation-iteration-count: 1 !important; transition-duration: .01ms !important; }
+}
+
+/* Complete the shared shell with the grouped navigation and search shown in
+   the Fluent 2 design. */
+html[data-fluent2-theme="active"] {
+  --fluent2-surface-soft: #171a1f;
+}
+html[data-fluent2-theme="active"][data-fluent2-mode="light"] {
+  --fluent2-surface-soft: #f1f3f5;
+}
+body.fluent2-active nav.top-nav .fluent2-topbar-context {
+  min-width: 0;
+  flex: 1;
+  display: flex;
+  align-items: center;
+  gap: clamp(20px, 4vw, 64px);
+  margin-left: 0;
+}
+body.fluent2-active nav.top-nav .fluent2-breadcrumb {
+  min-width: 150px;
+  display: flex;
+  align-items: center;
+  gap: 9px;
+  color: var(--fluent2-quiet);
+  font-size: 12px;
+  white-space: nowrap;
+}
+body.fluent2-active nav.top-nav .fluent2-breadcrumb a {
+  color: var(--fluent2-muted);
+  text-decoration: none;
+}
+body.fluent2-active nav.top-nav .fluent2-breadcrumb a:hover { color: var(--fluent2-accent); }
+body.fluent2-active nav.top-nav .fluent2-breadcrumb-current { color: var(--fluent2-text); font-weight: 650; }
+body.fluent2-active nav.top-nav .fluent2-global-search {
+  width: min(420px, 42vw);
+  height: 38px;
+  display: flex;
+  align-items: center;
+  gap: 9px;
+  margin: 0 auto;
+  padding: 0 11px;
+  border: 1px solid var(--fluent2-line);
+  border-radius: 5px;
+  background: var(--fluent2-surface-raised);
+  color: var(--fluent2-quiet);
+}
+body.fluent2-active nav.top-nav .fluent2-global-search:focus-within { border-color: var(--fluent2-accent); }
+body.fluent2-active nav.top-nav .fluent2-search-icon { width: 17px; height: 17px; display: grid; place-items: center; flex: none; }
+body.fluent2-active nav.top-nav .fluent2-search-icon svg { width: 16px; height: 16px; }
+body.fluent2-active nav.top-nav .fluent2-global-search input {
+  width: 100%;
+  min-width: 0;
+  height: 100%;
+  padding: 0;
+  border: 0 !important;
+  outline: 0;
+  background: transparent !important;
+  color: var(--fluent2-text);
+  font-size: 12px;
+}
+body.fluent2-active nav.top-nav .fluent2-global-search input:focus { box-shadow: none !important; }
+body.fluent2-active nav.top-nav .fluent2-global-search input::placeholder { color: var(--fluent2-quiet); }
+body.fluent2-active nav.top-nav .fluent2-global-search kbd {
+  flex: none;
+  padding: 2px 5px;
+  border: 1px solid var(--fluent2-line);
+  border-radius: 3px;
+  background: var(--fluent2-bg);
+  color: var(--fluent2-quiet);
+  font-family: inherit;
+  font-size: 9px;
+}
+body.fluent2-active nav.top-nav .navbar-buttons { margin-left: 20px !important; }
+body.fluent2-active nav.top-nav .navbar-buttons .btn-primary:not([data-action="new"]),
+body.fluent2-active nav.top-nav .navbar-buttons .donate {
+  border-color: transparent !important;
+  background: transparent !important;
+  color: var(--fluent2-muted) !important;
+}
+body.fluent2-active nav.top-nav .navbar-buttons .donate { display: none !important; }
+body.fluent2-active nav.top-nav .navbar-buttons .donate svg,
+body.fluent2-active nav.top-nav .navbar-buttons .donate svg * { color: var(--fluent2-muted) !important; fill: currentColor; }
+body.fluent2-active nav.top-nav .navbar-buttons [data-action="new"] {
+  border-color: var(--fluent2-accent-soft) !important;
+  background: var(--fluent2-accent-soft) !important;
+  color: var(--fluent2-accent-ink) !important;
+}
+body.fluent2-active .fluent2-sidebar-primary { gap: 10px; }
+body.fluent2-active .fluent2-nav-section { display: flex; flex-direction: column; gap: 2px; }
+body.fluent2-active .fluent2-nav-section-heading {
+  margin: 4px 10px 5px;
+  color: var(--fluent2-quiet);
+  font-size: 9px;
+  font-weight: 760;
+  letter-spacing: .12em;
+  line-height: 1.3;
+}
+body.fluent2-active .fluent2-nav-item { min-height: 35px; }
+body.fluent2-active.fluent2-sidebar-collapsed .fluent2-nav-section-heading { display: none; }
+body.fluent2-active.fluent2-sidebar-collapsed .fluent2-sidebar-primary { gap: 8px; }
+
+/* Native Settings must not retain Bootstrap/Refract blue or Fluent switches. */
+html[data-fluent2-theme="active"] .nav-pills .nav-link {
+  border: 1px solid transparent !important;
+  border-radius: 4px !important;
+  background: transparent !important;
+  color: var(--fluent2-muted) !important;
+}
+html[data-fluent2-theme="active"] .nav-pills .nav-link:hover {
+  background: var(--fluent2-surface-raised) !important;
+  color: var(--fluent2-text) !important;
+}
+html[data-fluent2-theme="active"] .nav-pills .nav-link.active,
+html[data-fluent2-theme="active"] .nav-pills .show > .nav-link {
+  border-color: rgba(var(--fluent2-accent-rgb), .24) !important;
+  background: rgba(var(--fluent2-accent-rgb), .13) !important;
+  color: var(--fluent2-accent) !important;
+}
+html[data-fluent2-theme="active"] .custom-control-input:checked ~ .custom-control-label::before,
+html[data-fluent2-theme="active"] .form-check-input:checked {
+  border-color: var(--fluent2-accent) !important;
+  background-color: var(--fluent2-accent) !important;
+}
+html[data-fluent2-theme="active"] .custom-switch .custom-control-input:checked ~ .custom-control-label::before {
+  background-color: rgba(var(--fluent2-accent-rgb), .18) !important;
+}
+html[data-fluent2-theme="active"] .custom-switch .custom-control-input:checked ~ .custom-control-label::after {
+  background: var(--fluent2-accent) !important;
+}
+html[data-fluent2-theme="active"] .tasks-panel-queue,
+html[data-fluent2-theme="active"] [class*="tasks-panel-queue"],
+html[data-fluent2-theme="active"] .tasks-panel,
+html[data-fluent2-theme="active"] .log-level-container,
+html[data-fluent2-theme="active"] .log-level {
+  border: 1px solid var(--fluent2-line) !important;
+  border-radius: var(--fluent2-radius) !important;
+  background: var(--fluent2-surface) !important;
+  color: var(--fluent2-text) !important;
+  box-shadow: none !important;
+}
+html[data-fluent2-theme="active"] .log-entry,
+html[data-fluent2-theme="active"] .log-message,
+html[data-fluent2-theme="active"] .log-container,
+html[data-fluent2-theme="active"] .logs {
+  max-width: 100%;
+  min-width: 0;
+  overflow-x: hidden;
+  overflow-wrap: anywhere;
+  word-break: break-word;
+}
+html[data-fluent2-theme="active"] .main.container-fluid { overflow-x: clip; }
+
+/* Media-library cards use restrained labels and a simple rating chip. */
+html[data-fluent2-theme="active"] .scene-card,
+html[data-fluent2-theme="active"] .image-card,
+html[data-fluent2-theme="active"] .gallery-card,
+html[data-fluent2-theme="active"] .performer-card,
+html[data-fluent2-theme="active"] .studio-card,
+html[data-fluent2-theme="active"] .group-card,
+html[data-fluent2-theme="active"] .tag-card {
+  overflow: hidden;
+  border: 1px solid var(--fluent2-line) !important;
+  border-radius: 6px !important;
+  background: var(--fluent2-surface) !important;
+  box-shadow: none !important;
+}
+html[data-fluent2-theme="active"] .scene-card:hover,
+html[data-fluent2-theme="active"] .image-card:hover,
+html[data-fluent2-theme="active"] .gallery-card:hover,
+html[data-fluent2-theme="active"] .performer-card:hover,
+html[data-fluent2-theme="active"] .studio-card:hover {
+  border-color: var(--fluent2-line-strong) !important;
+}
+html[data-fluent2-theme="active"] .scene-card-preview,
+html[data-fluent2-theme="active"] .image-card img,
+html[data-fluent2-theme="active"] .gallery-card img,
+html[data-fluent2-theme="active"] .performer-card img {
+  background-color: var(--fluent2-surface-strong);
+}
+html[data-fluent2-theme="active"] .scene-card-preview-image { object-fit: cover; }
+html[data-fluent2-theme="active"] .scene-card .rating-banner {
+  position: absolute !important;
+  z-index: 3;
+  inset: 9px auto auto 9px !important;
+  width: auto !important;
+  height: auto !important;
+  min-width: 0 !important;
+  padding: 3px 7px !important;
+  transform: none !important;
+  border: 1px solid rgba(255,255,255,.14) !important;
+  border-radius: 4px !important;
+  background: rgba(8,11,14,.82) !important;
+  color: #f2c66d !important;
+  font-size: 10px !important;
+  font-weight: 700;
+  line-height: 1.3;
+  text-align: center;
+  box-shadow: none !important;
+}
+html[data-fluent2-theme="active"] .scene-card .rating-banner::before,
+html[data-fluent2-theme="active"] .scene-card .rating-banner::after { display: none !important; }
+html[data-fluent2-theme="active"] .scene-card .card-body,
+html[data-fluent2-theme="active"] .image-card .card-body,
+html[data-fluent2-theme="active"] .gallery-card .card-body {
+  padding: 10px 11px !important;
+  background: var(--fluent2-surface) !important;
+  color: var(--fluent2-text) !important;
+}
+html[data-fluent2-theme="active"] .scene-card .scene-card-title,
+html[data-fluent2-theme="active"] .scene-card .scene-title,
+html[data-fluent2-theme="active"] .card-title,
+html[data-fluent2-theme="active"] .card-section-title,
+html[data-fluent2-theme="active"] .card-section-title .TruncatedText { color: var(--fluent2-text) !important; }
+html[data-fluent2-theme="active"] .scene-card .scene-card-details,
+html[data-fluent2-theme="active"] .scene-card .scene-card__details,
+html[data-fluent2-theme="active"] .scene-card .scene-card-performers,
+html[data-fluent2-theme="active"] .scene-card .scene-card__performers { color: var(--fluent2-quiet) !important; }
+html[data-fluent2-theme="active"] .scene-card .progress,
+html[data-fluent2-theme="active"] .scene-card .progress-bar { background-color: var(--fluent2-surface-strong) !important; background-image: none !important; }
+html[data-fluent2-theme="active"] .scene-card .progress-indicator { background-color: var(--fluent2-accent) !important; background-image: none !important; }
+html[data-fluent2-theme="active"] .slick-slider > .slick-arrow {
+  z-index: 4;
+  width: 30px;
+  height: 30px;
+  border: 1px solid var(--fluent2-line-strong) !important;
+  border-radius: 50% !important;
+  background: var(--fluent2-surface) !important;
+  color: var(--fluent2-muted) !important;
+  opacity: .92;
+}
+html[data-fluent2-theme="active"] .slick-slider > .slick-arrow::before {
+  color: var(--fluent2-muted) !important;
+  font-size: 14px !important;
+  opacity: 1 !important;
+}
+html[data-fluent2-theme="active"] .slick-slider > .slick-arrow:hover {
+  border-color: var(--fluent2-accent) !important;
+  background: var(--fluent2-surface-raised) !important;
+}
+html[data-fluent2-theme="active"] .slick-slider > .slick-arrow:hover::before { color: var(--fluent2-accent) !important; }
+html[data-fluent2-theme="active"] .slick-slider > .slick-arrow.slick-disabled { opacity: .38; }
+html[data-fluent2-theme="active"][data-fluent2-card-style="compact"] .scene-card .video-section { max-height: 148px; overflow: hidden; }
+html[data-fluent2-theme="active"][data-fluent2-card-style="compact"] .scene-card .scene-card-preview { aspect-ratio: 16 / 8; }
+html[data-fluent2-theme="active"][data-fluent2-card-style="compact"] .scene-card .card-body { padding: 7px 9px !important; }
+html[data-fluent2-theme="active"][data-fluent2-card-style="compact"] .scene-card .card-title { margin-bottom: 3px; font-size: 11px; }
+html[data-fluent2-theme="active"][data-fluent2-card-style="poster"] .scene-card .scene-card-preview { aspect-ratio: 2 / 3; }
+html[data-fluent2-theme="active"][data-fluent2-card-style="poster"] .scene-card .video-section { overflow: hidden; }
+html[data-fluent2-theme="active"][data-fluent2-card-style="poster"] .scene-card .scene-card-preview-image { object-position: center 28%; }
+
+/* Statistics match the mock's label/value cards and paired visual reports. */
+html[data-fluent2-theme="active"] .main.container-fluid .stats {
+  width: 100%;
+  max-width: none;
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(145px, 1fr));
+  gap: 10px;
+  margin: 0 0 10px !important;
+}
+html[data-fluent2-theme="active"] .main.container-fluid .stats-element {
+  min-width: 0;
+  display: flex;
+  flex-direction: column-reverse;
+  align-items: flex-start;
+  justify-content: center;
+  gap: 1px;
+  margin: 0 !important;
+  padding: 13px 15px;
+  border: 1px solid var(--fluent2-line);
+  border-radius: var(--fluent2-radius);
+  background: var(--fluent2-surface);
+}
+html[data-fluent2-theme="active"] .stats-element .heading {
+  margin: 0;
+  color: var(--fluent2-muted);
+  font-size: 11px;
+  font-weight: 550;
+}
+html[data-fluent2-theme="active"] .stats-element .title {
+  margin: 0;
+  color: var(--fluent2-text);
+  font-size: 22px;
+  font-weight: 740;
+  letter-spacing: -.04em;
+  font-variant-numeric: tabular-nums;
+}
+html[data-fluent2-theme="active"] .fluent2-stats-insights {
+  display: grid;
+  grid-template-columns: minmax(0, 1.2fr) minmax(0, 1fr);
+  gap: 12px;
+  margin-top: 3px;
+}
+html[data-fluent2-theme="active"] .fluent2-stats-panel {
+  min-width: 0;
+  padding: 16px 17px 13px;
+  border: 1px solid var(--fluent2-line);
+  border-radius: var(--fluent2-radius);
+  background: var(--fluent2-surface);
+}
+html[data-fluent2-theme="active"] .fluent2-stats-panel-heading { display: flex; align-items: center; justify-content: space-between; gap: 12px; margin-bottom: 9px; }
+html[data-fluent2-theme="active"] .fluent2-stats-panel-heading h2 { margin: 0; color: var(--fluent2-text); font-size: 14px; font-weight: 680; }
+html[data-fluent2-theme="active"] .fluent2-stats-panel-heading span { color: var(--fluent2-quiet); font-size: 10px; text-align: right; }
+html[data-fluent2-theme="active"] .fluent2-years-panel svg { display: block; width: 100%; height: 180px; overflow: visible; }
+html[data-fluent2-theme="active"] .fluent2-chart-grid { stroke: var(--fluent2-line); stroke-width: 1; }
+html[data-fluent2-theme="active"] .fluent2-chart-axis { fill: var(--fluent2-muted); font-family: inherit; font-size: 10px; }
+html[data-fluent2-theme="active"] .fluent2-chart-value { fill: var(--fluent2-text); font-family: inherit; font-size: 9px; }
+html[data-fluent2-theme="active"] .fluent2-chart-bar { fill: var(--fluent2-accent); }
+html[data-fluent2-theme="active"] .fluent2-chart-empty { fill: var(--fluent2-quiet); font-family: inherit; font-size: 12px; }
+html[data-fluent2-theme="active"] .fluent2-resolution-rows { display: grid; gap: 11px; padding: 12px 0 3px; }
+html[data-fluent2-theme="active"] .fluent2-resolution-row { min-width: 0; display: grid; grid-template-columns: 49px minmax(30px, 1fr) 78px; align-items: center; gap: 9px; }
+html[data-fluent2-theme="active"] .fluent2-resolution-label,
+html[data-fluent2-theme="active"] .fluent2-resolution-value { color: var(--fluent2-muted); font-size: 10px; font-variant-numeric: tabular-nums; }
+html[data-fluent2-theme="active"] .fluent2-resolution-value { color: var(--fluent2-text); text-align: right; }
+html[data-fluent2-theme="active"] .fluent2-resolution-track { height: 7px; overflow: hidden; border-radius: 99px; background: var(--fluent2-surface-strong); }
+html[data-fluent2-theme="active"] .fluent2-resolution-track span { height: 100%; display: block; border-radius: inherit; background: var(--fluent2-accent); }
+
+/* Theme settings now expose the mock's appearance, card, navigation, and
+   playback sections with working controls tied to real preferences. */
+html[data-fluent2-theme="active"] .fluent2-settings-page { max-width: 1080px; }
+html[data-fluent2-theme="active"] .fluent2-settings-card .fluent2-section-heading > div > p { margin: 4px 0 0; color: var(--fluent2-quiet); font-size: 11px; }
+html[data-fluent2-theme="active"] .fluent2-card-style-grid { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 10px; margin-top: 14px; }
+html[data-fluent2-theme="active"] .fluent2-card-style-option {
+  min-width: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+  padding: 8px;
+  border: 1px solid var(--fluent2-line) !important;
+  border-radius: 5px !important;
+  background: var(--fluent2-surface-raised) !important;
+  color: var(--fluent2-text) !important;
+  text-align: left;
+}
+html[data-fluent2-theme="active"] .fluent2-card-style-option:hover,
+html[data-fluent2-theme="active"] .fluent2-card-style-option.is-selected { border-color: var(--fluent2-accent) !important; }
+html[data-fluent2-theme="active"] .fluent2-card-style-option.is-selected { background: rgba(var(--fluent2-accent-rgb), .08) !important; }
+html[data-fluent2-theme="active"] .fluent2-card-style-option > strong { font-size: 11px; }
+html[data-fluent2-theme="active"] .fluent2-card-style-option > small { color: var(--fluent2-quiet); font-size: 10px; line-height: 1.4; }
+html[data-fluent2-theme="active"] .fluent2-card-style-preview {
+  height: 75px;
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  align-items: end;
+  gap: 4px;
+  padding: 6px;
+  border-radius: 3px;
+  background: linear-gradient(135deg, #252a31, #171a1f);
+}
+html[data-fluent2-theme="active"] .fluent2-card-style-preview i { height: 43px; display: block; border: 1px solid var(--fluent2-line-strong); border-radius: 3px; background: linear-gradient(150deg, rgba(var(--fluent2-accent-rgb),.42), #252a31 68%); }
+html[data-fluent2-theme="active"] .fluent2-card-style-preview.compact { grid-template-columns: repeat(4, 1fr); }
+html[data-fluent2-theme="active"] .fluent2-card-style-preview.compact i { height: 37px; }
+html[data-fluent2-theme="active"] .fluent2-card-style-preview.poster i { height: 57px; }
+html[data-fluent2-theme="active"] .fluent2-mobile-choice-row { min-height: 60px; }
+html[data-fluent2-theme="active"] .fluent2-selection-count { flex: none; color: var(--fluent2-quiet); font-size: 10px; }
+html[data-fluent2-theme="active"] .fluent2-mobile-choice-grid { display: flex; flex-wrap: wrap; gap: 7px; padding-top: 12px; }
+html[data-fluent2-theme="active"] .fluent2-choice-chip {
+  min-height: 31px;
+  padding: 0 10px;
+  border: 1px solid var(--fluent2-line) !important;
+  border-radius: 4px !important;
+  background: var(--fluent2-surface-raised) !important;
+  color: var(--fluent2-muted) !important;
+  font-size: 10px;
+}
+html[data-fluent2-theme="active"] .fluent2-choice-chip.is-selected { border-color: var(--fluent2-accent) !important; background: rgba(var(--fluent2-accent-rgb), .12) !important; color: var(--fluent2-accent) !important; }
+html[data-fluent2-theme="active"] .fluent2-choice-chip:disabled { opacity: .42; cursor: not-allowed; }
+html[data-fluent2-theme="active"] .fluent2-playback-note { display: flex; align-items: center; justify-content: space-between; gap: 18px; padding-top: 13px; }
+html[data-fluent2-theme="active"] .fluent2-playback-note p { max-width: 610px; margin: 0; color: var(--fluent2-muted); font-size: 11px; }
+html[data-fluent2-theme="active"] .fluent2-playback-note .fluent2-button { flex: none; }
+body.fluent2-active.fluent2-reduced-effects *,
+body.fluent2-active.fluent2-reduced-effects *::before,
+body.fluent2-active.fluent2-reduced-effects *::after { animation: none !important; transition: none !important; scroll-behavior: auto !important; backdrop-filter: none !important; }
+
+@media (max-width: 1100px) and (min-width: 701px) {
+  body.fluent2-active nav.top-nav { padding-inline: 15px; }
+  body.fluent2-active nav.top-nav .fluent2-topbar-context { gap: 14px; }
+  body.fluent2-active nav.top-nav .fluent2-breadcrumb { min-width: 125px; }
+  body.fluent2-active nav.top-nav .fluent2-global-search { width: min(320px, 34vw); }
+  body.fluent2-active nav.top-nav .fluent2-global-search kbd { display: none; }
+  body.fluent2-active .fluent2-nav-section-heading { display: none; }
+  body.fluent2-active .fluent2-nav-section { gap: 7px; }
+}
+@media (max-width: 700px) {
+  body.fluent2-active nav.top-nav .fluent2-topbar-brand { flex: none; margin-right: 8px; }
+  body.fluent2-active nav.top-nav .fluent2-topbar-brand > span:last-child { display: none; }
+  body.fluent2-active nav.top-nav .fluent2-topbar-context { flex: 1; gap: 0; }
+  body.fluent2-active nav.top-nav .fluent2-breadcrumb { display: none; }
+  body.fluent2-active nav.top-nav .fluent2-global-search { width: auto; min-width: 0; flex: 1; height: 34px; margin: 0; padding-inline: 8px; }
+  body.fluent2-active nav.top-nav .fluent2-global-search kbd { display: none; }
+  body.fluent2-active nav.top-nav .navbar-buttons { margin-left: 5px !important; }
+  html[data-fluent2-theme="active"] .fluent2-stats-insights { grid-template-columns: 1fr; }
+  html[data-fluent2-theme="active"] .fluent2-card-style-grid { grid-template-columns: 1fr; }
+  html[data-fluent2-theme="active"] .fluent2-card-style-option { display: grid; grid-template-columns: 108px 1fr; align-items: center; }
+  html[data-fluent2-theme="active"] .fluent2-card-style-preview { grid-row: span 2; }
+  html[data-fluent2-theme="active"] .fluent2-playback-note { align-items: flex-start; flex-direction: column; }
+}
+
+/* Match the review's compact controls while keeping every Stash toolbar action native. */
+html[data-fluent2-theme="active"] .btn,
+html[data-fluent2-theme="active"] button.btn,
+html[data-fluent2-theme="active"] .page-link {
+  min-height: 36px;
+  border-radius: 5px !important;
+  font-size: 12px;
+  font-weight: 680;
+}
+html[data-fluent2-theme="active"] .btn.btn-sm,
+html[data-fluent2-theme="active"] button.btn-sm,
+html[data-fluent2-theme="active"] .btn-group-sm > .btn,
+html[data-fluent2-theme="active"] .pagination-sm .page-link {
+  min-height: 30px;
+  font-size: 11px;
+}
+html[data-fluent2-theme="active"] .item-list-container .filtered-list-toolbar {
+  border-radius: 7px !important;
+}
+html[data-fluent2-theme="active"] .item-list-container .filtered-list-toolbar .btn-group > .btn,
+html[data-fluent2-theme="active"] .item-list-container .filtered-list-toolbar .list-operations .btn {
+  border-radius: 4px !important;
+}
+html[data-fluent2-theme="active"] .item-list-container .filtered-list-toolbar > .list-operations + .btn-group > button.btn.active {
+  background: rgba(var(--fluent2-accent-rgb), .14) !important;
+  color: var(--fluent2-accent) !important;
+}
+html[data-fluent2-theme="active"] .item-list-container .filtered-list-toolbar .zoom-slider {
+  width: 100% !important;
+  height: 18px !important;
+  min-height: 18px !important;
+  padding: 0 !important;
+  border: 0 !important;
+  border-radius: 0 !important;
+  background: transparent !important;
+  appearance: none !important;
+  -webkit-appearance: none !important;
+  accent-color: var(--fluent2-accent) !important;
+  cursor: pointer;
+}
+html[data-fluent2-theme="active"] .item-list-container .filtered-list-toolbar .zoom-slider::-webkit-slider-runnable-track {
+  height: 4px;
+  border-radius: 99px;
+  background: linear-gradient(to right, var(--fluent2-accent) 0 var(--fluent2-range-progress, 33%), var(--fluent2-surface-strong) var(--fluent2-range-progress, 33%) 100%);
+}
+html[data-fluent2-theme="active"] .item-list-container .filtered-list-toolbar .zoom-slider::-webkit-slider-thumb {
+  width: 13px;
+  height: 13px;
+  margin-top: -4.5px;
+  border: 2px solid var(--fluent2-surface);
+  border-radius: 50%;
+  background: var(--fluent2-accent);
+  -webkit-appearance: none;
+}
+html[data-fluent2-theme="active"] .item-list-container .filtered-list-toolbar .zoom-slider::-moz-range-track {
+  height: 4px;
+  border-radius: 99px;
+  background: var(--fluent2-surface-strong);
+}
+html[data-fluent2-theme="active"] .item-list-container .filtered-list-toolbar .zoom-slider::-moz-range-progress {
+  height: 4px;
+  border-radius: 99px;
+  background: var(--fluent2-accent);
+}
+html[data-fluent2-theme="active"] .item-list-container .filtered-list-toolbar .zoom-slider::-moz-range-thumb {
+  width: 9px;
+  height: 9px;
+  border: 2px solid var(--fluent2-surface);
+  border-radius: 50%;
+  background: var(--fluent2-accent);
+}
+
+/* Keep the native zoom control meaningful while matching the mock's denser
+   five-card desktop scene grid at the default zoom level. */
+html[data-fluent2-theme="active"] .item-list-container.scene-list .row.justify-content-center:has(> .scene-card.grid-card) {
+  width: 100%;
+  display: grid !important;
+  grid-template-columns: repeat(5, minmax(0, 1fr));
+  align-content: start;
+  gap: 15px 12px;
+  margin: 0 !important;
+}
+html[data-fluent2-theme="active"] .item-list-container.scene-list .row.justify-content-center:has(> .scene-card.zoom-0) { grid-template-columns: repeat(6, minmax(0, 1fr)); }
+html[data-fluent2-theme="active"] .item-list-container.scene-list .row.justify-content-center:has(> .scene-card.zoom-2) { grid-template-columns: repeat(4, minmax(0, 1fr)); }
+html[data-fluent2-theme="active"] .item-list-container.scene-list .row.justify-content-center:has(> .scene-card.zoom-3) { grid-template-columns: repeat(3, minmax(0, 1fr)); }
+html[data-fluent2-theme="active"] .item-list-container.scene-list .row.justify-content-center > .scene-card.grid-card {
+  width: auto !important;
+  max-width: none !important;
+  min-width: 0;
+  margin: 0 !important;
+  padding: 0;
+}
+@media (max-width: 1100px) {
+  html[data-fluent2-theme="active"] .item-list-container.scene-list .row.justify-content-center:has(> .scene-card.grid-card) { grid-template-columns: repeat(4, minmax(0, 1fr)); }
+  html[data-fluent2-theme="active"] .item-list-container.scene-list .row.justify-content-center:has(> .scene-card.zoom-0) { grid-template-columns: repeat(5, minmax(0, 1fr)); }
+  html[data-fluent2-theme="active"] .item-list-container.scene-list .row.justify-content-center:has(> .scene-card.zoom-2) { grid-template-columns: repeat(3, minmax(0, 1fr)); }
+}
+@media (max-width: 760px) {
+  html[data-fluent2-theme="active"] .item-list-container.scene-list .row.justify-content-center:has(> .scene-card.grid-card) { grid-template-columns: repeat(3, minmax(0, 1fr)); }
+  html[data-fluent2-theme="active"] .item-list-container.scene-list .row.justify-content-center:has(> .scene-card.zoom-0) { grid-template-columns: repeat(4, minmax(0, 1fr)); }
+  html[data-fluent2-theme="active"] .item-list-container.scene-list .row.justify-content-center:has(> .scene-card.zoom-2),
+  html[data-fluent2-theme="active"] .item-list-container.scene-list .row.justify-content-center:has(> .scene-card.zoom-3) { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+}
+@media (max-width: 520px) {
+  html[data-fluent2-theme="active"] .item-list-container.scene-list .row.justify-content-center:has(> .scene-card.grid-card),
+  html[data-fluent2-theme="active"] .item-list-container.scene-list .row.justify-content-center:has(> .scene-card.zoom-0) { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+}
+
+/* Soft Fill button system. Keep Stash's minimal card links untouched, while
+   overriding its later-loaded base styles for real action buttons. */
+html[data-fluent2-theme="active"] body.fluent2-active .btn:not(.minimal):not(.btn-link) {
+  min-height: 36px;
+  border: 1px solid var(--fluent2-accent-button) !important;
+  border-radius: 6px !important;
+  background-color: transparent !important;
+  color: var(--fluent2-accent-button) !important;
+  box-shadow: none !important;
+  transition: border-color .12s ease, background-color .12s ease, color .12s ease, filter .12s ease;
+}
+html[data-fluent2-theme="active"] body.fluent2-active .btn:not(.minimal):not(.btn-link):hover,
+html[data-fluent2-theme="active"] body.fluent2-active .btn:not(.minimal):not(.btn-link):focus-visible {
+  border-color: var(--fluent2-accent-button) !important;
+  background-color: rgba(var(--fluent2-accent-rgb), .10) !important;
+  color: var(--fluent2-accent-button) !important;
+}
+html[data-fluent2-theme="active"] body.fluent2-active .btn-primary:not(.minimal):not(.btn-link),
+html[data-fluent2-theme="active"] body.fluent2-active .btn-success:not(.minimal):not(.btn-link),
+html[data-fluent2-theme="active"] body.fluent2-active .btn-info:not(.minimal):not(.btn-link),
+html[data-fluent2-theme="active"] body.fluent2-active .btn-primary:not(.minimal):not(.btn-link):hover,
+html[data-fluent2-theme="active"] body.fluent2-active .btn-success:not(.minimal):not(.btn-link):hover,
+html[data-fluent2-theme="active"] body.fluent2-active .btn-info:not(.minimal):not(.btn-link):hover,
+html[data-fluent2-theme="active"] body.fluent2-active .btn-primary:not(.minimal):not(.btn-link):focus,
+html[data-fluent2-theme="active"] body.fluent2-active .btn-success:not(.minimal):not(.btn-link):focus,
+html[data-fluent2-theme="active"] body.fluent2-active .btn-info:not(.minimal):not(.btn-link):focus,
+html[data-fluent2-theme="active"] body.fluent2-active .btn-primary:not(.minimal):not(.btn-link):active,
+html[data-fluent2-theme="active"] body.fluent2-active .btn-success:not(.minimal):not(.btn-link):active,
+html[data-fluent2-theme="active"] body.fluent2-active .btn-info:not(.minimal):not(.btn-link):active {
+  border-color: var(--fluent2-accent-soft) !important;
+  background-color: var(--fluent2-accent-soft) !important;
+  color: var(--fluent2-accent-ink) !important;
+}
+html[data-fluent2-theme="active"] body.fluent2-active .btn-primary:not(.minimal):not(.btn-link):hover,
+html[data-fluent2-theme="active"] body.fluent2-active .btn-success:not(.minimal):not(.btn-link):hover,
+html[data-fluent2-theme="active"] body.fluent2-active .btn-info:not(.minimal):not(.btn-link):hover { filter: brightness(.96); }
+html[data-fluent2-theme="active"] body.fluent2-active .btn-danger:not(.minimal):not(.btn-link),
+html[data-fluent2-theme="active"] body.fluent2-active .btn-outline-danger:not(.minimal):not(.btn-link) {
+  border-color: rgba(var(--fluent2-danger-rgb), .58) !important;
+  background-color: rgba(var(--fluent2-danger-rgb), .18) !important;
+  color: var(--fluent2-text) !important;
+}
+html[data-fluent2-theme="active"] body.fluent2-active .btn-danger:not(.minimal):not(.btn-link):hover,
+html[data-fluent2-theme="active"] body.fluent2-active .btn-outline-danger:not(.minimal):not(.btn-link):hover {
+  background-color: rgba(var(--fluent2-danger-rgb), .28) !important;
+}
+html[data-fluent2-theme="active"] body.fluent2-active .btn-link:not(.minimal) {
+  border-color: transparent !important;
+  background-color: transparent !important;
+  color: var(--fluent2-accent-button) !important;
+}
+
+/* The app bar has its own quiet icon buttons and a single soft-filled action. */
+body.fluent2-active nav.top-nav .navbar-buttons .btn,
+body.fluent2-active nav.top-nav .navbar-buttons .nav-link {
+  border-color: transparent !important;
+  background-color: transparent !important;
+  color: var(--fluent2-muted) !important;
+}
+body.fluent2-active nav.top-nav .navbar-buttons .btn-primary:not([data-action="new"]),
+body.fluent2-active nav.top-nav .navbar-buttons .donate {
+  border-color: transparent !important;
+  background-color: transparent !important;
+  color: var(--fluent2-muted) !important;
+}
+body.fluent2-active nav.top-nav .navbar-buttons [data-action="new"] {
+  border-color: var(--fluent2-accent-soft) !important;
+  background-color: var(--fluent2-accent-soft) !important;
+  color: var(--fluent2-accent-ink) !important;
+}
+html[data-fluent2-theme="active"] body.fluent2-active .fluent2-carousel-arrow:focus-visible {
+  outline: 2px solid var(--fluent2-accent-button) !important;
+  outline-offset: 2px;
+}
+
+/* Plugin toolbar actions can supply oversized inline icon dimensions. Keep the
+   glyph compact while the existing button provides the full click target. */
+body.fluent2-active nav.top-nav .navbar-buttons svg,
+body.fluent2-active nav.top-nav .navbar-buttons img {
+  width: 18px !important;
+  height: 18px !important;
+  min-width: 18px !important;
+  min-height: 18px !important;
+  max-width: 18px !important;
+  max-height: 18px !important;
+  flex: 0 0 18px;
+  object-fit: contain;
+}
+body.fluent2-active nav.top-nav .navbar-buttons i {
+  font-size: 18px !important;
+  line-height: 1 !important;
+}
+
+/* Use neutral graphite for Tagger scene cards; Stash's blue-slate fill reads teal. */
+html[data-fluent2-theme="active"] .tagger-container .search-item {
+  border: 1px solid rgba(255, 255, 255, .2) !important;
+  border-radius: var(--fluent2-radius) !important;
+  background: #292929 !important;
+  background-image: none !important;
+  color: var(--fluent2-text) !important;
+}
+
+/* Keep the mobile filter controls neutral like the mockup; selected modes
+   use the soft accent fill while Wall and Tagger remain native Stash buttons. */
+@media (max-width: 700px) {
+  html[data-fluent2-theme="active"] body.fluent2-active .item-list-container .filtered-list-toolbar button.btn {
+    min-height: 36px !important;
+    height: 36px !important;
+    border: 1px solid var(--fluent2-line) !important;
+    border-radius: 5px !important;
+    background-color: var(--fluent2-bg) !important;
+    color: var(--fluent2-muted) !important;
+    box-shadow: none !important;
+  }
+  html[data-fluent2-theme="active"] body.fluent2-active .item-list-container .filtered-list-toolbar button.btn:hover,
+  html[data-fluent2-theme="active"] body.fluent2-active .item-list-container .filtered-list-toolbar button.btn:focus-visible {
+    border-color: var(--fluent2-accent) !important;
+    background-color: rgba(var(--fluent2-accent-rgb), .08) !important;
+    color: var(--fluent2-accent) !important;
+  }
+  html[data-fluent2-theme="active"] body.fluent2-active .item-list-container .filtered-list-toolbar button.btn:is(.active, .btn-primary) {
+    border-color: var(--fluent2-accent) !important;
+    background-color: rgba(var(--fluent2-accent-rgb), .14) !important;
+    color: var(--fluent2-accent) !important;
+  }
+  html[data-fluent2-theme="active"] body.fluent2-active .item-list-container .filtered-list-toolbar .filter-button {
+    width: auto !important;
+    padding: 0 9px !important;
+    display: inline-flex !important;
+    align-items: center;
+    justify-content: center;
+    gap: 5px;
+  }
+  html[data-fluent2-theme="active"] body.fluent2-active .item-list-container .filtered-list-toolbar .filter-button::after {
+    content: "Filter";
+    font-size: 11px;
+    font-weight: 620;
+  }
+  html[data-fluent2-theme="active"] body.fluent2-active .item-list-container .filtered-list-toolbar .sort-by-select::before {
+    content: "Sort";
+    display: inline-flex;
+    align-items: center;
+    padding: 0 4px 0 8px;
+    color: var(--fluent2-muted);
+    font-size: 11px;
+    font-weight: 620;
+    white-space: nowrap;
+  }
+  html[data-fluent2-theme="active"] body.fluent2-active .item-list-container .filtered-list-toolbar > .list-operations + .btn-group > button.btn:is(:nth-child(3), :nth-child(4)) {
+    width: auto !important;
+    padding: 0 8px !important;
+    display: inline-flex;
+    align-items: center;
+    gap: 5px;
+    white-space: nowrap;
+  }
+  html[data-fluent2-theme="active"] body.fluent2-active .item-list-container .filtered-list-toolbar > .list-operations + .btn-group > button.btn:nth-child(3)::after {
+    content: "Wall";
+  }
+  html[data-fluent2-theme="active"] body.fluent2-active .item-list-container .filtered-list-toolbar > .list-operations + .btn-group > button.btn:nth-child(4)::after {
+    content: "Tagger";
+  }
+  html[data-fluent2-theme="active"] body.fluent2-active .item-list-container .pagination-index-container {
+    box-sizing: border-box;
+    width: 100%;
+    margin: 0 0 15px !important;
+    padding: 0 14px 10px !important;
+    border: 1px solid var(--fluent2-line) !important;
+    border-top: 0 !important;
+    border-radius: 0 0 7px 7px !important;
+    background: var(--fluent2-surface) !important;
+    text-align: left !important;
+  }
+  html[data-fluent2-theme="active"] body.fluent2-active .item-list-container .filtered-list-toolbar {
+    margin-bottom: 0 !important;
+    border-bottom: 0 !important;
+    border-radius: 7px 7px 0 0 !important;
+  }
+}
+
+
+/* Space the native actions on scene and performer detail pages. */
+html[data-fluent2-theme="active"] body.fluent2-active .scene-toolbar {
+  column-gap: 12px;
+  row-gap: 8px;
+}
+html[data-fluent2-theme="active"] body.fluent2-active .scene-toolbar .rating-stars,
+html[data-fluent2-theme="active"] body.fluent2-active #performer-page .rating-stars {
+  column-gap: 6px !important;
+}
+html[data-fluent2-theme="active"] body.fluent2-active .scene-toolbar .rating-stars > button,
+html[data-fluent2-theme="active"] body.fluent2-active #performer-page .rating-stars > button {
+  box-sizing: border-box;
+  flex: 0 0 28px !important;
+  width: 28px !important;
+  min-width: 28px !important;
+  margin: 0 !important;
+  padding: 0 !important;
+}
+html[data-fluent2-theme="active"] body.fluent2-active .scene-toolbar .scene-toolbar-group {
+  column-gap: 16px !important;
+}
+html[data-fluent2-theme="active"] body.fluent2-active #performer-page .details-edit {
+  display: flex;
+  flex-wrap: nowrap;
+  width: max-content;
+  max-width: none;
+  column-gap: 16px;
+  row-gap: 12px;
+}
+html[data-fluent2-theme="active"] body.fluent2-active #performer-page .details-edit > div:empty {
+  display: none !important;
+}
+html[data-fluent2-theme="active"] body.fluent2-active #performer-page .details-edit > .btn,
+html[data-fluent2-theme="active"] body.fluent2-active #performer-page .details-edit > .btn-group {
+  margin-right: 0 !important;
+}
+html[data-fluent2-theme="active"] body.fluent2-active #performer-page .details-edit > div:has(> .btn),
+html[data-fluent2-theme="active"] body.fluent2-active #performer-page .details-edit > div:has(> .btn-group) {
+  display: inline-flex;
+  align-items: center;
+  gap: 10px;
+}
+@media (max-width: 320px) {
+  html[data-fluent2-theme="active"] body.fluent2-active #performer-page .details-edit {
+    column-gap: 8px;
+  }
+  html[data-fluent2-theme="active"] body.fluent2-active #performer-page .details-edit .btn {
+    padding-right: 7px !important;
+    padding-left: 7px !important;
+  }
+}
+@media (max-width: 576px) {
+  html[data-fluent2-theme="active"] body.fluent2-active .scene-toolbar {
+    flex-wrap: wrap;
+    justify-content: flex-start;
+  }
+  html[data-fluent2-theme="active"] body.fluent2-active .scene-toolbar .scene-toolbar-group {
+    width: auto;
+  }
+  html[data-fluent2-theme="active"] body.fluent2-active .scene-toolbar .scene-toolbar-group:first-child {
+    flex: 0 1 auto;
+  }
+  html[data-fluent2-theme="active"] body.fluent2-active .scene-toolbar .scene-toolbar-group:last-child {
+    flex: 1 1 100%;
+    justify-content: flex-start;
+    flex-wrap: wrap;
+  }
+}
+
+/* Keep active filter chips visually attached to the list toolbar. */
+html[data-fluent2-theme="active"] body.fluent2-active .item-list-container .filtered-list-toolbar:has(+ .wrap-tags.filter-tags .tag-item) {
+  margin-bottom: 0 !important;
+  border-bottom: 0 !important;
+  border-radius: 7px 7px 0 0 !important;
+}
+html[data-fluent2-theme="active"] body.fluent2-active .item-list-container .wrap-tags.filter-tags:has(.tag-item) {
+  box-sizing: border-box;
+  width: 100%;
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  justify-content: flex-start;
+  gap: 6px;
+  margin: 0 0 7px !important;
+  padding: 8px 11px 8px 57px !important;
+  border: 1px solid var(--fluent2-line) !important;
+  border-top: 0 !important;
+  border-radius: 0 0 7px 7px !important;
+  background: var(--fluent2-surface) !important;
+}
+html[data-fluent2-theme="active"] body.fluent2-active .item-list-container .wrap-tags.filter-tags .tag-item.badge.badge-secondary {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  max-width: 100%;
+  min-width: 0;
+  white-space: normal;
+  overflow-wrap: anywhere;
+  margin: 0 !important;
+  padding: 5px 8px !important;
+  border: 1px solid var(--fluent2-line-strong) !important;
+  border-radius: 5px !important;
+  background-color: var(--fluent2-surface-raised) !important;
+  color: var(--fluent2-muted) !important;
+  font-size: 11px;
+  font-weight: 560;
+}
+html[data-fluent2-theme="active"] body.fluent2-active .item-list-container .wrap-tags.filter-tags .tag-item.badge.badge-secondary > .btn {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  flex: 0 0 22px;
+  width: 22px;
+  min-width: 22px;
+  height: 22px;
+  min-height: 22px;
+  margin: 0 0 0 2px !important;
+  padding: 0 !important;
+  border: 1px solid var(--fluent2-line-strong) !important;
+  border-radius: 4px !important;
+  background: var(--fluent2-bg) !important;
+  color: var(--fluent2-quiet) !important;
+}
+html[data-fluent2-theme="active"] body.fluent2-active .item-list-container .wrap-tags.filter-tags .tag-item.badge.badge-secondary > .btn:hover {
+  border-color: var(--fluent2-accent) !important;
+  color: var(--fluent2-accent) !important;
+}
+@media (max-width: 700px) {
+  html[data-fluent2-theme="active"] body.fluent2-active .item-list-container .wrap-tags.filter-tags:has(.tag-item) {
+    margin: 0 !important;
+    padding: 8px 11px !important;
+    border-bottom: 0 !important;
+    border-radius: 0 !important;
+  }
+}
+
+/* Keep the long Measurements label clear of its value in performer forms. */
+@media (min-width: 576px) {
+  html[data-fluent2-theme="active"] body.fluent2-active .row.new-view [data-field="measurements"] > label {
+    box-sizing: border-box;
+    flex: 0 0 150px !important;
+    max-width: 150px !important;
+    white-space: nowrap;
+  }
+  html[data-fluent2-theme="active"] body.fluent2-active .row.new-view [data-field="measurements"] > div {
+    box-sizing: border-box;
+    flex: 1 1 0% !important;
+    min-width: 0;
+    max-width: none !important;
+  }
+}
+
+/* On phone and tablet layouts, keep Measurements above its value. */
+@media (max-width: 900px) {
+  html[data-fluent2-theme="active"] body.fluent2-active .row.new-view [data-field="measurements"] {
+    display: flex !important;
+    flex-direction: column !important;
+    align-items: stretch !important;
+  }
+  html[data-fluent2-theme="active"] body.fluent2-active .row.new-view [data-field="measurements"] > label {
+    flex: 0 0 auto !important;
+    width: 100% !important;
+    max-width: none !important;
+    white-space: normal !important;
+  }
+  html[data-fluent2-theme="active"] body.fluent2-active .row.new-view [data-field="measurements"] > div {
+    flex: 0 0 auto !important;
+    width: 100% !important;
+    max-width: none !important;
+  }
+  html[data-fluent2-theme="active"] body.fluent2-active #performer-page [data-field="measurements"] {
+    display: flex !important;
+    flex-direction: column !important;
+    align-items: stretch !important;
+  }
+  html[data-fluent2-theme="active"] body.fluent2-active #performer-page [data-field="measurements"] > label {
+    box-sizing: border-box;
+    flex: 0 0 auto !important;
+    width: 100% !important;
+    max-width: none !important;
+    white-space: normal !important;
+  }
+  html[data-fluent2-theme="active"] body.fluent2-active #performer-page [data-field="measurements"] > div {
+    box-sizing: border-box;
+    flex: 0 0 auto !important;
+    width: 100% !important;
+    max-width: none !important;
+  }
+  html[data-fluent2-theme="active"] body.fluent2-active .detail-item.measurements {
+    display: flex !important;
+    flex-direction: column !important;
+    align-items: flex-start !important;
+    gap: 3px !important;
+    min-width: 0;
+    max-width: 100%;
+  }
+  html[data-fluent2-theme="active"] body.fluent2-active .detail-item.measurements > .detail-item-title {
+    display: block !important;
+    width: auto;
+    white-space: normal;
+  }
+  html[data-fluent2-theme="active"] body.fluent2-active .detail-item.measurements > .detail-item-value {
+    display: block !important;
+    min-width: 0;
+    max-width: 100%;
+    overflow-wrap: anywhere;
+    word-break: break-word;
+  }
+}
+
+/* Center the Tagger result expansion chevron in its full hit area. */
+html[data-fluent2-theme="active"] .tagger-container .search-item .collapse-button {
+  box-sizing: border-box;
+  display: inline-flex !important;
+  align-items: center !important;
+  justify-content: center !important;
+  width: 36px !important;
+  min-width: 36px !important;
+  height: 36px !important;
+  min-height: 36px !important;
+  padding: 0 !important;
+  line-height: 1 !important;
+}
+
+html[data-fluent2-theme="active"] .tagger-container .search-item .collapse-button > svg {
+  display: block;
+  flex: 0 0 auto;
+  margin: 0 !important;
+}
+
+/* Give scene-detail ratings and actions one shared surface per control group. */
+html[data-fluent2-theme="active"] body.fluent2-active .scene-toolbar {
+  justify-content: flex-start !important;
+  column-gap: 12px !important;
+  row-gap: 8px;
+}
+
+html[data-fluent2-theme="active"] body.fluent2-active .scene-toolbar .scene-toolbar-group:first-child {
+  flex: 0 0 auto !important;
+  width: max-content !important;
+}
+
+html[data-fluent2-theme="active"] body.fluent2-active .scene-toolbar .rating-stars {
+  box-sizing: border-box;
+  display: inline-flex !important;
+  align-items: center;
+  gap: 0 !important;
+  width: max-content !important;
+  padding: 0 4px !important;
+  border: 1px solid var(--fluent2-line-strong) !important;
+  border-radius: 7px !important;
+  background: var(--fluent2-surface-raised) !important;
+}
+
+html[data-fluent2-theme="active"] body.fluent2-active .scene-toolbar .rating-stars > .star-rating-number:empty {
+  display: none !important;
+}
+
+html[data-fluent2-theme="active"] body.fluent2-active .scene-toolbar .rating-stars > button.btn {
+  box-sizing: border-box;
+  flex: 0 0 28px !important;
+  width: 28px !important;
+  min-width: 28px !important;
+  height: 34px !important;
+  min-height: 34px !important;
+  margin: 0 !important;
+  padding: 0 !important;
+  border: 0 !important;
+  border-radius: 0 !important;
+  background: transparent !important;
+  box-shadow: none !important;
+}
+
+html[data-fluent2-theme="active"] body.fluent2-active .scene-toolbar .rating-stars > button.btn:hover {
+  color: var(--fluent2-accent) !important;
+}
+
+html[data-fluent2-theme="active"] body.fluent2-active .scene-toolbar .scene-toolbar-group:last-child {
+  box-sizing: border-box;
+  display: inline-flex !important;
+  align-items: center;
+  justify-content: flex-start !important;
+  flex: 0 0 auto !important;
+  width: max-content !important;
+  max-width: 100%;
+  min-width: 0;
+  column-gap: 3px !important;
+  padding: 1px 4px !important;
+  border: 1px solid var(--fluent2-line-strong) !important;
+  border-radius: 7px !important;
+  background: var(--fluent2-surface-raised) !important;
+}
+
+html[data-fluent2-theme="active"] body.fluent2-active .scene-toolbar .scene-toolbar-group:last-child > span:not(:has(button)) {
+  display: none !important;
+}
+
+html[data-fluent2-theme="active"] body.fluent2-active .scene-toolbar .scene-toolbar-group:last-child > span:has(button) {
+  display: inline-flex;
+  align-items: center;
+}
+
+html[data-fluent2-theme="active"] body.fluent2-active .scene-toolbar .scene-toolbar-group:last-child .count-button {
+  border: 0 !important;
+  background: transparent !important;
+}
+
+html[data-fluent2-theme="active"] body.fluent2-active .scene-toolbar .scene-toolbar-group:last-child button.btn {
+  box-sizing: border-box;
+  height: 32px !important;
+  min-height: 32px !important;
+  margin: 0 !important;
+  padding-block: 0 !important;
+  border: 0 !important;
+  border-radius: 3px !important;
+  background: transparent !important;
+  box-shadow: none !important;
+}
+
+html[data-fluent2-theme="active"] body.fluent2-active .scene-toolbar .scene-toolbar-group:last-child button.btn:hover {
+  color: var(--fluent2-accent) !important;
+  background: var(--fluent2-surface-strong) !important;
+}
+
+@media (max-width: 364px) {
+  html[data-fluent2-theme="active"] body.fluent2-active .scene-toolbar {
+    flex-wrap: nowrap !important;
+    column-gap: 4px !important;
+  }
+  html[data-fluent2-theme="active"] body.fluent2-active .scene-toolbar .rating-stars {
+    padding-inline: 3px !important;
+  }
+  html[data-fluent2-theme="active"] body.fluent2-active .scene-toolbar .rating-stars > button.btn {
+    flex-basis: 24px !important;
+    width: 24px !important;
+    min-width: 24px !important;
+  }
+  html[data-fluent2-theme="active"] body.fluent2-active .scene-toolbar .scene-toolbar-group:last-child {
+    column-gap: 1px !important;
+    padding-inline: 2px !important;
+  }
+  html[data-fluent2-theme="active"] body.fluent2-active .scene-toolbar .scene-toolbar-group:last-child .count-button > .count-icon {
+    flex: 0 0 24px !important;
+    width: 24px !important;
+    min-width: 24px !important;
+    padding-inline: 0 !important;
+  }
+  html[data-fluent2-theme="active"] body.fluent2-active .scene-toolbar .scene-toolbar-group:last-child .count-button > .count-value {
+    min-width: 20px !important;
+    padding-inline: 2px !important;
+  }
+  html[data-fluent2-theme="active"] body.fluent2-active .scene-toolbar .scene-toolbar-group:last-child .organized-button,
+  html[data-fluent2-theme="active"] body.fluent2-active .scene-toolbar .scene-toolbar-group:last-child #operation-menu {
+    width: 32px !important;
+    min-width: 32px !important;
+    padding-inline: 0 !important;
+  }
+}
+
+/* Style Bootstrap dropdowns and their items with Fluent 2's active palette. */
+html[data-fluent2-theme="active"] .dropdown-menu {
+  box-sizing: border-box;
+  padding: 4px !important;
+  border: 1px solid var(--fluent2-line) !important;
+  border-radius: var(--fluent2-radius) !important;
+  background: var(--fluent2-surface) !important;
+  color: var(--fluent2-text) !important;
+  box-shadow: var(--fluent2-shadow) !important;
+}
+
+html[data-fluent2-theme="active"] .dropdown-menu .dropdown-item {
+  box-sizing: border-box;
+  display: flex;
+  align-items: center;
+  min-height: 32px;
+  margin: 1px 0;
+  padding: 6px 10px;
+  border: 0 !important;
+  border-radius: 4px !important;
+  background: transparent !important;
+  color: var(--fluent2-text) !important;
+  font-size: 12px;
+  line-height: 1.35;
+  text-decoration: none;
+}
+
+html[data-fluent2-theme="active"] .dropdown-menu .dropdown-item:hover,
+html[data-fluent2-theme="active"] .dropdown-menu .dropdown-item:focus,
+html[data-fluent2-theme="active"] .dropdown-menu .dropdown-item:focus-visible,
+html[data-fluent2-theme="active"] .dropdown-menu .dropdown-item.active,
+html[data-fluent2-theme="active"] .dropdown-menu .dropdown-item[aria-current="page"] {
+  background: rgba(var(--fluent2-accent-rgb), .14) !important;
+  color: var(--fluent2-accent) !important;
+}
+
+html[data-fluent2-theme="active"] .dropdown-menu .dropdown-item:active {
+  background: rgba(var(--fluent2-accent-rgb), .22) !important;
+  color: var(--fluent2-accent) !important;
+}
+
+html[data-fluent2-theme="active"] .dropdown-menu .dropdown-item.disabled,
+html[data-fluent2-theme="active"] .dropdown-menu .dropdown-item:disabled,
+html[data-fluent2-theme="active"] .dropdown-menu .dropdown-item[aria-disabled="true"] {
+  color: var(--fluent2-quiet) !important;
+  opacity: .58;
+  pointer-events: none;
+}
+
+html[data-fluent2-theme="active"] .dropdown-menu .dropdown-item.text-danger {
+  color: var(--fluent2-danger) !important;
+}
+
+html[data-fluent2-theme="active"] .dropdown-menu .dropdown-item.text-danger:hover,
+html[data-fluent2-theme="active"] .dropdown-menu .dropdown-item.text-danger:focus {
+  background: rgba(var(--fluent2-danger-rgb), .16) !important;
+  color: var(--fluent2-danger) !important;
+}
+
+html[data-fluent2-theme="active"] .dropdown-menu .dropdown-header {
+  padding: 6px 10px;
+  color: var(--fluent2-quiet);
+  font-size: 10px;
+  font-weight: 700;
+  text-transform: uppercase;
+}
+
+html[data-fluent2-theme="active"] .dropdown-menu .dropdown-divider {
+  margin: 4px 2px;
+  border-top-color: var(--fluent2-line) !important;
+  background: transparent !important;
+}
+
+/* Cover React Select and compatible select menus used by Stash and plugins. */
+html[data-fluent2-theme="active"] :is(.react-select__menu, .select__menu, .select2-dropdown) {
+  z-index: 1065 !important;
+  margin-top: 4px !important;
+  border: 1px solid var(--fluent2-line) !important;
+  border-radius: var(--fluent2-radius) !important;
+  background: var(--fluent2-surface) !important;
+  color: var(--fluent2-text) !important;
+  box-shadow: var(--fluent2-shadow) !important;
+}
+
+html[data-fluent2-theme="active"] :is(.react-select__menu-list, .select__menu-list, .select2-results, [role="listbox"]) {
+  padding: 4px !important;
+  background: var(--fluent2-surface) !important;
+  color: var(--fluent2-text) !important;
+}
+
+html[data-fluent2-theme="active"] :is(.react-select__option, .select__option, .select2-results__option, [role="listbox"] [role="option"]) {
+  min-height: 32px;
+  display: flex;
+  align-items: center;
+  padding: 6px 10px !important;
+  border-radius: 4px !important;
+  background: transparent !important;
+  color: var(--fluent2-muted) !important;
+  cursor: pointer;
+}
+
+html[data-fluent2-theme="active"] :is(.react-select__option--is-focused, .select__option--is-focused, .select2-results__option--highlighted) {
+  background: var(--fluent2-surface-strong) !important;
+  color: var(--fluent2-text) !important;
+}
+
+html[data-fluent2-theme="active"] :is(.react-select__option--is-selected, .select__option--is-selected, .select2-results__option[aria-selected="true"], [role="option"][aria-selected="true"]) {
+  background: rgba(var(--fluent2-accent-rgb), .14) !important;
+  color: var(--fluent2-accent) !important;
+}
+
+html[data-fluent2-theme="active"] :is(.react-select__option--is-focused.react-select__option--is-selected, .select__option--is-focused.select__option--is-selected) {
+  background: rgba(var(--fluent2-accent-rgb), .20) !important;
+  color: var(--fluent2-accent) !important;
+}
+
+html[data-fluent2-theme="active"] :is(.react-select__menu-notice, .select__menu-notice, .react-select__group-heading, .select__group-heading) {
+  color: var(--fluent2-quiet) !important;
+}
+
+html[data-fluent2-theme="active"] :is(.react-select__menu-portal, .select__menu-portal) {
+  z-index: 1065 !important;
+}
+
+/* Match the closed select controls to the menu they open. */
+html[data-fluent2-theme="active"] :is(.react-select__control, .select__control, .select2-selection) {
+  box-sizing: border-box;
+  min-height: 36px;
+  border: 1px solid var(--fluent2-line-strong) !important;
+  border-radius: 4px !important;
+  background: var(--fluent2-surface-raised) !important;
+  box-shadow: none !important;
+  color: var(--fluent2-text) !important;
+  transition: border-color .12s ease, box-shadow .12s ease;
+}
+
+html[data-fluent2-theme="active"] :is(.react-select__control, .select__control, .select2-selection):hover {
+  border-color: var(--fluent2-accent) !important;
+}
+
+html[data-fluent2-theme="active"] :is(.react-select__control--is-focused, .select__control--is-focused, .select2-container--focus .select2-selection) {
+  border-color: var(--fluent2-accent) !important;
+  box-shadow: 0 0 0 2px rgba(var(--fluent2-accent-rgb), .18) !important;
+}
+
+html[data-fluent2-theme="active"] :is(.react-select__control--is-disabled, .select__control--is-disabled) {
+  background: var(--fluent2-surface) !important;
+  color: var(--fluent2-quiet) !important;
+  opacity: .68;
+}
+
+html[data-fluent2-theme="active"] :is(.react-select__value-container, .select__value-container) {
+  padding: 2px 8px !important;
+}
+
+html[data-fluent2-theme="active"] :is(.react-select__placeholder, .select__placeholder) {
+  color: var(--fluent2-quiet) !important;
+}
+
+html[data-fluent2-theme="active"] :is(.react-select__single-value, .select__single-value) {
+  color: var(--fluent2-text) !important;
+}
+
+html[data-fluent2-theme="active"] :is(.react-select__input-container, .select__input-container) {
+  color: var(--fluent2-text) !important;
+}
+
+html[data-fluent2-theme="active"] :is(.react-select__input-container, .select__input-container) input {
+  margin: 0 !important;
+  padding: 0 !important;
+  border: 0 !important;
+  background: transparent !important;
+  color: var(--fluent2-text) !important;
+  box-shadow: none !important;
+}
+
+html[data-fluent2-theme="active"] :is(.react-select__indicator-separator, .select__indicator-separator) {
+  background: var(--fluent2-line) !important;
+}
+
+html[data-fluent2-theme="active"] :is(.react-select__dropdown-indicator, .react-select__clear-indicator, .select__dropdown-indicator, .select__clear-indicator) {
+  color: var(--fluent2-quiet) !important;
+}
+
+html[data-fluent2-theme="active"] :is(.react-select__dropdown-indicator, .react-select__clear-indicator, .select__dropdown-indicator, .select__clear-indicator):hover {
+  color: var(--fluent2-accent) !important;
+}
+
+html[data-fluent2-theme="active"] :is(.react-select__multi-value, .select__multi-value) {
+  border: 1px solid rgba(var(--fluent2-accent-rgb), .52) !important;
+  border-radius: 4px;
+  background: rgba(var(--fluent2-accent-rgb), .24) !important;
+}
+
+html[data-fluent2-theme="active"] :is(.react-select__multi-value__label, .select__multi-value__label) {
+  color: var(--fluent2-accent) !important;
+}
+
+html[data-fluent2-theme="active"] :is(.react-select__multi-value__remove, .select__multi-value__remove) {
+  color: var(--fluent2-quiet) !important;
+}
+
+html[data-fluent2-theme="active"] :is(.react-select__multi-value__remove, .select__multi-value__remove):hover {
+  background: rgba(var(--fluent2-danger-rgb), .18) !important;
+  color: var(--fluent2-danger) !important;
+}
+
+/* Match Video.js player popups to the same surface and option states. */
+html[data-fluent2-theme="active"] .video-js .vjs-menu {
+  border: 0 !important;
+  background: transparent !important;
+  box-shadow: none !important;
+  color: var(--fluent2-text) !important;
+}
+
+html[data-fluent2-theme="active"] .video-js .vjs-menu-content {
+  box-sizing: border-box;
+  border: 1px solid var(--fluent2-line) !important;
+  border-radius: var(--fluent2-radius) !important;
+  background: var(--fluent2-surface) !important;
+  box-shadow: var(--fluent2-shadow) !important;
+  color: var(--fluent2-text) !important;
+}
+
+html[data-fluent2-theme="active"] .video-js .vjs-menu-content {
+  padding: 4px !important;
+}
+
+html[data-fluent2-theme="active"] .video-js .vjs-menu-item {
+  display: flex;
+  align-items: center;
+  min-height: 32px;
+  margin: 1px 0;
+  padding: 6px 10px !important;
+  border-radius: 4px;
+  background: transparent !important;
+  color: var(--fluent2-text) !important;
+  line-height: 1.35;
+  text-align: left;
+}
+
+html[data-fluent2-theme="active"] .video-js .vjs-menu-item:hover,
+html[data-fluent2-theme="active"] .video-js .vjs-menu-item:focus {
+  background: rgba(var(--fluent2-accent-rgb), .14) !important;
+  color: var(--fluent2-accent) !important;
+}
+
+html[data-fluent2-theme="active"] .video-js .vjs-menu-item.vjs-selected {
+  background: rgba(var(--fluent2-accent-rgb), .18) !important;
+  color: var(--fluent2-accent) !important;
+}
+
+html[data-fluent2-theme="active"] .video-js .vjs-menu-item.vjs-selected::before {
+  color: var(--fluent2-accent) !important;
+}
+
+/* Native select popups and Stash settings options use the same active palette. */
+html[data-fluent2-theme="active"] select option,
+html[data-fluent2-theme="active"] select optgroup {
+  background: var(--fluent2-surface-raised) !important;
+  color: var(--fluent2-text) !important;
+}
+
+html[data-fluent2-theme="active"] select option:checked {
+  background: var(--fluent2-accent-soft) !important;
+  color: var(--fluent2-accent-ink) !important;
+}
+
+/* Give detail-page tags an accent-tinted fill that stands apart from the page. */
+html[data-fluent2-theme="active"] body.fluent2-active .tag-item.badge,
+html[data-fluent2-theme="active"] body.fluent2-active .tag-item.badge-secondary {
+  box-sizing: border-box;
+  display: inline-flex !important;
+  align-items: center !important;
+  max-width: 100%;
+  margin: 0 5px 5px 0 !important;
+  padding: .22em .7em !important;
+  border: 1px solid rgba(var(--fluent2-accent-rgb), .48) !important;
+  border-radius: 5px !important;
+  background: rgba(var(--fluent2-accent-rgb), .20) !important;
+  color: var(--fluent2-accent) !important;
+  font-size: 12px !important;
+  font-weight: 550 !important;
+  line-height: 1.35 !important;
+  text-decoration: none !important;
+  vertical-align: middle;
+  transition: background-color .14s ease, border-color .14s ease, color .14s ease;
+}
+
+html[data-fluent2-theme="active"] body.fluent2-active .tag-item.badge a,
+html[data-fluent2-theme="active"] body.fluent2-active .tag-item.badge-secondary a {
+  color: inherit !important;
+  text-decoration: none !important;
+}
+
+html[data-fluent2-theme="active"] body.fluent2-active .tag-item.badge:hover,
+html[data-fluent2-theme="active"] body.fluent2-active .tag-item.badge:focus-visible,
+html[data-fluent2-theme="active"] body.fluent2-active .tag-item.badge:focus-within,
+html[data-fluent2-theme="active"] body.fluent2-active .tag-item.badge-secondary:hover,
+html[data-fluent2-theme="active"] body.fluent2-active .tag-item.badge-secondary:focus-visible,
+html[data-fluent2-theme="active"] body.fluent2-active .tag-item.badge-secondary:focus-within {
+  border-color: rgba(var(--fluent2-accent-rgb), .78) !important;
+  background: rgba(var(--fluent2-accent-rgb), .30) !important;
+  color: var(--fluent2-accent) !important;
+}
+
+html[data-fluent2-theme="active"] body.fluent2-active .tag-item.badge:hover a,
+html[data-fluent2-theme="active"] body.fluent2-active .tag-item.badge:focus-visible a,
+html[data-fluent2-theme="active"] body.fluent2-active .tag-item.badge:focus-within a,
+html[data-fluent2-theme="active"] body.fluent2-active .tag-item.badge-secondary:hover a,
+html[data-fluent2-theme="active"] body.fluent2-active .tag-item.badge-secondary:focus-visible a,
+html[data-fluent2-theme="active"] body.fluent2-active .tag-item.badge-secondary:focus-within a {
+  color: var(--fluent2-accent) !important;
+}
+
+html[data-fluent2-theme="active"] body.fluent2-active .tag-item .vertical-line {
+  margin-inline: 5px !important;
+  color: var(--fluent2-line-strong) !important;
+}
+
+html[data-fluent2-theme="active"] body.fluent2-active .tag-item .tag-icon {
+  width: 12px !important;
+  height: 12px !important;
+  color: var(--fluent2-quiet) !important;
+}
+
+html[data-fluent2-theme="active"][data-fluent2-mode="light"] :is(.react-select__multi-value, .select__multi-value),
+html[data-fluent2-theme="active"][data-fluent2-mode="light"] body.fluent2-active .tag-item.badge,
+html[data-fluent2-theme="active"][data-fluent2-mode="light"] body.fluent2-active .tag-item.badge-secondary {
+  border-color: rgba(var(--fluent2-accent-rgb), .40) !important;
+  background: var(--fluent2-accent-soft) !important;
+  color: var(--fluent2-accent-ink) !important;
+}
+
+html[data-fluent2-theme="active"][data-fluent2-mode="light"] .tagger-container .search-item {
+  border-color: var(--fluent2-line-strong) !important;
+  background: #ffffff !important;
+}
+
+html[data-fluent2-theme="active"][data-fluent2-mode="light"] :is(.react-select__multi-value__label, .select__multi-value__label),
+html[data-fluent2-theme="active"][data-fluent2-mode="light"] body.fluent2-active .tag-item.badge a,
+html[data-fluent2-theme="active"][data-fluent2-mode="light"] body.fluent2-active .tag-item.badge-secondary a {
+  color: var(--fluent2-accent-ink) !important;
+}
+
+html[data-fluent2-theme="active"][data-fluent2-mode="light"] body.fluent2-active .tag-item.badge:hover,
+html[data-fluent2-theme="active"][data-fluent2-mode="light"] body.fluent2-active .tag-item.badge:focus-visible,
+html[data-fluent2-theme="active"][data-fluent2-mode="light"] body.fluent2-active .tag-item.badge:focus-within,
+html[data-fluent2-theme="active"][data-fluent2-mode="light"] body.fluent2-active .tag-item.badge-secondary:hover,
+html[data-fluent2-theme="active"][data-fluent2-mode="light"] body.fluent2-active .tag-item.badge-secondary:focus-visible,
+html[data-fluent2-theme="active"][data-fluent2-mode="light"] body.fluent2-active .tag-item.badge-secondary:focus-within {
+  border-color: rgba(var(--fluent2-accent-rgb), .64) !important;
+  background: var(--fluent2-accent-soft) !important;
+  color: var(--fluent2-accent-ink) !important;
+}
+
+/* Keep Tagger actions neutral in every state, including the focused fragment button. */
+html[data-fluent2-theme="active"] body.fluent2-active .tagger-container .btn-primary:not(.minimal):not(.btn-link),
+html[data-fluent2-theme="active"] body.fluent2-active .tagger-container .btn-primary:not(.minimal):not(.btn-link):hover,
+html[data-fluent2-theme="active"] body.fluent2-active .tagger-container .btn-primary:not(.minimal):not(.btn-link):focus,
+html[data-fluent2-theme="active"] body.fluent2-active .tagger-container .btn-primary:not(.minimal):not(.btn-link):focus-visible,
+html[data-fluent2-theme="active"] body.fluent2-active .tagger-container .btn-primary:not(.minimal):not(.btn-link):active,
+html[data-fluent2-theme="active"] body.fluent2-active .tagger-container .btn-primary:not(.minimal):not(.btn-link).active {
+  border: 1px solid var(--fluent2-line-strong) !important;
+  background: var(--fluent2-surface-raised) !important;
+  background-image: none !important;
+  color: var(--fluent2-text) !important;
+  box-shadow: none !important;
+}
+
+html[data-fluent2-theme="active"] body.fluent2-active .tagger-container .btn-primary:not(.minimal):not(.btn-link):hover,
+html[data-fluent2-theme="active"] body.fluent2-active .tagger-container .btn-primary:not(.minimal):not(.btn-link):focus,
+html[data-fluent2-theme="active"] body.fluent2-active .tagger-container .btn-primary:not(.minimal):not(.btn-link):focus-visible,
+html[data-fluent2-theme="active"] body.fluent2-active .tagger-container .btn-primary:not(.minimal):not(.btn-link):active,
+html[data-fluent2-theme="active"] body.fluent2-active .tagger-container .btn-primary:not(.minimal):not(.btn-link).active {
+  border-color: var(--fluent2-accent) !important;
+  background: var(--fluent2-surface-strong) !important;
+  background-image: none !important;
+  color: var(--fluent2-accent-button) !important;
+}
+
+html[data-fluent2-theme="active"] body.fluent2-active .tagger-container .btn-primary:not(.minimal):not(.btn-link):focus-visible {
+  outline: 2px solid rgba(var(--fluent2-accent-rgb), .56) !important;
+  outline-offset: 2px;
+}
+
+/* Contain Tagger actions in a panel and allow the controls to wrap on phones. */
+html[data-fluent2-theme="active"] .tagger-container .tagger-container-header {
+  box-sizing: border-box;
+  width: 100%;
+  margin-bottom: 12px;
+  padding: 10px 12px;
+  border: 1px solid var(--fluent2-line) !important;
+  border-radius: var(--fluent2-radius) !important;
+  background: var(--fluent2-surface) !important;
+}
+
+html[data-fluent2-theme="active"] .tagger-container .tagger-container-header > .d-flex {
+  box-sizing: border-box;
+  display: flex;
+  align-items: flex-end;
+  justify-content: space-between;
+  flex-wrap: wrap;
+  gap: 8px;
+  width: 100%;
+  max-width: 100%;
+  min-width: 0;
+}
+
+html[data-fluent2-theme="active"] .tagger-container .tagger-container-header > .d-flex > .d-flex {
+  display: flex;
+  align-items: center;
+  justify-content: flex-end;
+  flex: 1 1 220px;
+  flex-wrap: wrap;
+  gap: 8px;
+  min-width: 0;
+  max-width: 100%;
+}
+
+html[data-fluent2-theme="active"] .tagger-container .tagger-container-header .ml-1,
+html[data-fluent2-theme="active"] .tagger-container .tagger-container-header .ml-2,
+html[data-fluent2-theme="active"] .tagger-container .tagger-container-header .ml-auto {
+  margin-left: 0 !important;
+}
+
+html[data-fluent2-theme="active"] .tagger-container .tagger-container-header button,
+html[data-fluent2-theme="active"] .tagger-container .search-item button {
+  box-sizing: border-box;
+  min-width: 0;
+  max-width: 100%;
+  white-space: normal;
+}
+
+html[data-fluent2-theme="active"] .tagger-container .search-item .mt-2.text-right {
+  box-sizing: border-box;
+  display: flex;
+  align-items: center;
+  justify-content: flex-end;
+  flex-wrap: wrap;
+  gap: 8px;
+  width: 100%;
+  max-width: 100%;
+}
+
+@media (max-width: 360px) {
+  html[data-fluent2-theme="active"] .tagger-container .tagger-container-header > .d-flex {
+    justify-content: flex-start;
+  }
+  html[data-fluent2-theme="active"] .tagger-container .tagger-container-header > .d-flex > .d-flex {
+    flex-basis: 100%;
+    justify-content: flex-start;
+  }
+}
+
+/* Keep the selected Scene Tagger result on Fluent 2's neutral surface. */
+html[data-fluent2-theme="active"] body.fluent2-active li.search-result.selected-result.active {
+  box-sizing: border-box;
+  width: 100%;
+  max-width: 100%;
+  min-width: 0;
+  border: 1px solid var(--fluent2-line-strong) !important;
+  border-radius: var(--fluent2-radius) !important;
+  background: var(--fluent2-surface-raised) !important;
+  background-image: none !important;
+  color: var(--fluent2-text) !important;
+}
+
+html[data-fluent2-theme="active"] body.fluent2-active li.search-result > .col-lg-6 {
+  box-sizing: border-box;
+  min-width: 0;
+  max-width: 100%;
+}
+
+html[data-fluent2-theme="active"] body.fluent2-active li.search-result .scene-details,
+html[data-fluent2-theme="active"] body.fluent2-active li.search-result .optional-field,
+html[data-fluent2-theme="active"] body.fluent2-active li.search-result .optional-field-content,
+html[data-fluent2-theme="active"] body.fluent2-active li.search-result .stash-id-pill {
+  box-sizing: border-box;
+  min-width: 0;
+  max-width: 100%;
+}
+
+html[data-fluent2-theme="active"] body.fluent2-active li.search-result a {
+  box-sizing: border-box;
+  display: inline-block;
+  min-width: 0;
+  max-width: 100%;
+  white-space: normal !important;
+  overflow-wrap: anywhere;
+  word-break: break-word;
+}
+
+html[data-fluent2-theme="active"] body.fluent2-active li.search-result .stash-id-pill {
+  display: inline-flex;
+  width: 100%;
+  max-width: 100%;
+  min-width: 0;
+}
+
+html[data-fluent2-theme="active"] body.fluent2-active li.search-result .stash-id-pill a {
+  display: inline-block;
+  width: auto;
+  max-width: 100%;
+  min-width: 0;
+  white-space: normal !important;
+  overflow-wrap: anywhere;
+  word-break: break-word;
+}
+
+html[data-fluent2-theme="active"] body.fluent2-active li.search-result .react-select__control,
+html[data-fluent2-theme="active"] body.fluent2-active li.search-result .react-select__value-container {
+  box-sizing: border-box;
+  display: flex !important;
+  align-items: center !important;
+  flex-wrap: nowrap !important;
+  min-width: 0;
+  max-width: 100%;
+}
+
+html[data-fluent2-theme="active"] body.fluent2-active li.search-result .react-select__value-container {
+  flex: 1 1 0%;
+}
+
+html[data-fluent2-theme="active"] body.fluent2-active li.search-result .react-select__value-container--is-multi {
+  flex-wrap: wrap !important;
+}
+
+html[data-fluent2-theme="active"] body.fluent2-active li.search-result .react-select__multi-value {
+  box-sizing: border-box;
+  display: inline-flex !important;
+  align-items: center !important;
+  flex: 0 1 auto;
+  min-width: 0;
+  max-width: 100%;
+}
+
+html[data-fluent2-theme="active"] body.fluent2-active li.search-result .react-select__multi-value__label {
+  min-width: 0;
+  max-width: 100%;
+  white-space: normal;
+  overflow-wrap: anywhere;
+}
+
+html[data-fluent2-theme="active"] body.fluent2-active li.search-result .react-select__single-value {
+  flex: 0 1 auto;
+  min-width: 0;
+  max-width: 100%;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+html[data-fluent2-theme="active"] body.fluent2-active li.search-result .react-select__multi-value__remove {
+  box-sizing: border-box;
+  display: inline-flex !important;
+  align-items: center !important;
+  justify-content: center !important;
+  flex: 0 0 22px;
+  width: 22px;
+  min-width: 22px;
+  height: 22px;
+}
+
+/* Lay tag suggestions out as separate chips with distinct, non-overlapping actions. */
+html[data-fluent2-theme="active"] body.fluent2-active li.search-result .mt-2:has(> .tag-item.badge-secondary) {
+  box-sizing: border-box;
+  display: flex;
+  align-items: flex-start;
+  flex-wrap: wrap;
+  gap: 6px;
+  width: 100%;
+  max-width: 100%;
+  min-width: 0;
+}
+
+html[data-fluent2-theme="active"] body.fluent2-active li.search-result .mt-2:has(> .tag-item.badge-secondary) > div:first-child {
+  box-sizing: border-box;
+  flex: 0 0 100%;
+  width: 100%;
+  max-width: 100%;
+  min-width: 0;
+}
+
+html[data-fluent2-theme="active"] body.fluent2-active li.search-result .mt-2:has(> .tag-item.badge-secondary) > div:first-child .form-group.row {
+  box-sizing: border-box;
+  width: 100% !important;
+  max-width: 100% !important;
+  margin-left: 0 !important;
+  margin-right: 0 !important;
+}
+
+html[data-fluent2-theme="active"] body.fluent2-active li.search-result .tag-item.badge-secondary {
+  box-sizing: border-box;
+  display: inline-flex !important;
+  align-items: center !important;
+  flex: 0 1 auto;
+  gap: 4px;
+  min-width: 0;
+  max-width: 100%;
+  margin: 0 !important;
+  white-space: normal;
+  overflow-wrap: anywhere;
+}
+
+html[data-fluent2-theme="active"] body.fluent2-active li.search-result .tag-item.badge-secondary > .btn {
+  box-sizing: border-box;
+  display: inline-flex !important;
+  align-items: center !important;
+  justify-content: center !important;
+  flex: 0 0 22px !important;
+  width: 22px !important;
+  min-width: 22px !important;
+  max-width: 22px !important;
+  height: 22px !important;
+  min-height: 22px !important;
+  max-height: 22px !important;
+  margin: 0 !important;
+  padding: 0 !important;
+  border: 1px solid rgba(var(--fluent2-accent-rgb), .52) !important;
+  border-radius: 4px !important;
+  background: var(--fluent2-bg) !important;
+  color: var(--fluent2-accent) !important;
+  box-shadow: none !important;
+}
+
+html[data-fluent2-theme="active"] body.fluent2-active li.search-result .tag-item.badge-secondary > .btn:hover,
+html[data-fluent2-theme="active"] body.fluent2-active li.search-result .tag-item.badge-secondary > .btn:focus-visible,
+html[data-fluent2-theme="active"] body.fluent2-active li.search-result .tag-item.badge-secondary > .btn:active {
+  border-color: var(--fluent2-accent) !important;
+  background: var(--fluent2-surface-strong) !important;
+  color: var(--fluent2-accent-button) !important;
+}
+
+/* Wrap the performer action group instead of letting its select and icon buttons
+   extend past the mobile result card. */
+@media (max-width: 700px) {
+  html[data-fluent2-theme="active"] body.fluent2-active li.search-result .row.no-gutters.align-items-center.mt-2:has(> .btn-group > .react-select) {
+    box-sizing: border-box;
+    display: flex !important;
+    align-items: center !important;
+    flex-wrap: wrap !important;
+    gap: 6px;
+    width: 100%;
+    max-width: 100%;
+    min-width: 0;
+    margin-left: 0 !important;
+    margin-right: 0 !important;
+  }
+
+  html[data-fluent2-theme="active"] body.fluent2-active li.search-result .btn-group:has(> .react-select) {
+    box-sizing: border-box;
+    display: flex !important;
+    align-items: center !important;
+    flex: 1 1 100%;
+    flex-wrap: wrap !important;
+    gap: 4px;
+    width: 100%;
+    max-width: 100%;
+    min-width: 0;
+  }
+
+  html[data-fluent2-theme="active"] body.fluent2-active li.search-result .btn-group:has(> .react-select) > .react-select {
+    box-sizing: border-box;
+    flex: 1 1 150px;
+    width: auto !important;
+    min-width: 120px;
+    max-width: 100%;
+  }
+
+  html[data-fluent2-theme="active"] body.fluent2-active li.search-result .btn-group:has(> .react-select) > .btn {
+    box-sizing: border-box;
+    flex: 0 0 auto !important;
+    margin: 0 !important;
+    border-radius: 5px !important;
+  }
+
+  html[data-fluent2-theme="active"] body.fluent2-active li.search-result .performer-select-value-hover-trigger {
+    box-sizing: border-box;
+    min-width: 0;
+    max-width: 100%;
+  }
+
+  html[data-fluent2-theme="active"] body.fluent2-active li.search-result .performer-select-value {
+    box-sizing: border-box;
+    display: block;
+    min-width: 0;
+    max-width: 100%;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+  }
+}
+
+/* Keep the include/exclude check controls square instead of letting their
+   checkmark buttons shrink into narrow vertical pills. */
+html[data-fluent2-theme="active"] body.fluent2-active li.search-result .include-exclude-button {
+  box-sizing: border-box;
+  display: inline-flex !important;
+  flex: 0 0 36px !important;
+  align-items: center !important;
+  justify-content: center !important;
+  width: 36px !important;
+  min-width: 36px !important;
+  max-width: 36px !important;
+  height: 36px !important;
+  min-height: 36px !important;
+  max-height: 36px !important;
+  padding: 0 !important;
+}
+
+html[data-fluent2-theme="active"] body.fluent2-active li.search-result .optional-field-content {
+  flex: 1 1 auto;
+  min-width: 0;
+  max-width: 100%;
+}
+
+
+/* Fluent 2 visual layer: mica-like chrome, neutral surfaces, rounded controls,
+   and Fluent's blue brand color while preserving Stash's native components. */
+html[data-fluent2-theme="active"] {
+  --fluent2-bg: #111111;
+  --fluent2-surface: #1c1c1c;
+  --fluent2-surface-raised: #242424;
+  --fluent2-surface-strong: #2d2d2d;
+  --fluent2-line: #3a3a3a;
+  --fluent2-line-strong: #555555;
+  --fluent2-text: #f5f5f5;
+  --fluent2-muted: #d6d6d6;
+  --fluent2-quiet: #adadad;
+  --fluent2-radius: 8px;
+}
+html[data-fluent2-theme="active"][data-fluent2-mode="light"] {
+  --fluent2-bg: #f5f5f5;
+  --fluent2-surface: #ffffff;
+  --fluent2-surface-raised: #fafafa;
+  --fluent2-surface-strong: #f0f0f0;
+  --fluent2-line: #e1e1e1;
+  --fluent2-line-strong: #c8c8c8;
+  --fluent2-text: #242424;
+  --fluent2-muted: #424242;
+  --fluent2-quiet: #616161;
+  --fluent2-shadow: 0 8px 24px rgba(0,0,0,.10);
+}
+html[data-fluent2-theme="active"] body {
+  font-family: "Segoe UI Variable", "Segoe UI", system-ui, -apple-system, BlinkMacSystemFont, "Helvetica Neue", Arial, sans-serif !important;
+  letter-spacing: normal;
+}
+body.fluent2-active nav.top-nav {
+  border-bottom-color: rgba(255,255,255,.08) !important;
+  background: rgba(28,28,28,.88) !important;
+  -webkit-backdrop-filter: saturate(150%) blur(22px);
+  backdrop-filter: saturate(150%) blur(22px);
+}
+html[data-fluent2-mode="light"] body.fluent2-active nav.top-nav {
+  border-bottom-color: rgba(0,0,0,.08) !important;
+  background: rgba(255,255,255,.88) !important;
+}
+body.fluent2-active .fluent2-sidebar {
+  border-right-color: rgba(255,255,255,.07);
+  background: rgba(24,24,24,.94);
+  -webkit-backdrop-filter: saturate(140%) blur(20px);
+  backdrop-filter: saturate(140%) blur(20px);
+}
+html[data-fluent2-mode="light"] body.fluent2-active .fluent2-sidebar {
+  border-right-color: rgba(0,0,0,.07);
+  background: rgba(250,250,250,.94);
+}
+body.fluent2-active .fluent2-brand-mark,
+body.fluent2-active .fluent2-topbar-brand .fluent2-brand-mark {
+  border-radius: 9px;
+}
+body.fluent2-active .fluent2-nav-item {
+  position: relative;
+  min-height: 38px;
+  border-radius: 6px;
+  font-size: 13px;
+  font-weight: 500;
+}
+body.fluent2-active .fluent2-nav-item::before {
+  position: absolute;
+  inset: 9px auto 9px 0;
+  width: 3px;
+  border-radius: 0 3px 3px 0;
+  background: transparent;
+  content: "";
+}
+body.fluent2-active .fluent2-nav-item.is-active {
+  border-color: transparent;
+  background: rgba(var(--fluent2-accent-rgb),.14);
+  color: var(--fluent2-text);
+}
+body.fluent2-active .fluent2-nav-item.is-active::before { background: var(--fluent2-accent); }
+body.fluent2-active .fluent2-nav-item.is-active .fluent2-nav-icon { color: var(--fluent2-accent); }
+body.fluent2-active nav.top-nav .navbar-buttons .btn,
+body.fluent2-active nav.top-nav .navbar-buttons .nav-link,
+html[data-fluent2-theme="active"] .btn,
+html[data-fluent2-theme="active"] button.btn,
+html[data-fluent2-theme="active"] .page-link {
+  border-radius: 6px !important;
+}
+html[data-fluent2-theme="active"] .card,
+html[data-fluent2-theme="active"] .modal-content,
+html[data-fluent2-theme="active"] .popover,
+html[data-fluent2-theme="active"] .dropdown-menu,
+html[data-fluent2-theme="active"] .filter-section,
+html[data-fluent2-theme="active"] .plugin-settings,
+html[data-fluent2-theme="active"] .settings-section,
+html[data-fluent2-theme="active"] .settings-container {
+  border-radius: 8px !important;
+  box-shadow: 0 2px 8px rgba(0,0,0,.12) !important;
+}
+html[data-fluent2-theme="active"] .dropdown-menu {
+  border-color: var(--fluent2-line-strong) !important;
+  background: var(--fluent2-surface) !important;
+}
+html[data-fluent2-theme="active"] .form-control,
+html[data-fluent2-theme="active"] input:not([type="checkbox"]):not([type="radio"]),
+html[data-fluent2-theme="active"] textarea,
+html[data-fluent2-theme="active"] select,
+html[data-fluent2-theme="active"] .form-select {
+  border-radius: 6px !important;
+}
+html[data-fluent2-theme="active"] .form-control:focus,
+html[data-fluent2-theme="active"] input:focus,
+html[data-fluent2-theme="active"] textarea:focus,
+html[data-fluent2-theme="active"] select:focus,
+html[data-fluent2-theme="active"] .form-select:focus {
+  border-color: var(--fluent2-accent) !important;
+  box-shadow: 0 0 0 1px var(--fluent2-accent) !important;
+}
+html[data-fluent2-theme="active"] .fluent2-home-hero {
+  min-height: 430px;
+  overflow: hidden;
+  border: 1px solid rgba(255,255,255,.08);
+  border-radius: 12px;
+  box-shadow: 0 8px 26px rgba(0,0,0,.2);
+}
+html[data-fluent2-theme="active"] .fluent2-home-hero::after {
+  background: linear-gradient(90deg, rgba(12,14,17,.94), rgba(12,14,17,.66) 46%, rgba(12,14,17,.05)), linear-gradient(0deg, rgba(12,14,17,.76), transparent 60%);
+}
+html[data-fluent2-theme="active"] .fluent2-hero-copy h1 {
+  font-size: clamp(30px, 3.7vw, 52px);
+  font-weight: 650;
+  letter-spacing: -.025em;
+}
+html[data-fluent2-theme="active"] .fluent2-home-section { margin-top: 30px; }
+html[data-fluent2-theme="active"] .fluent2-section-heading h2 {
+  font-size: 20px;
+  font-weight: 600;
+  letter-spacing: -.015em;
+}
+html[data-fluent2-theme="active"] .fluent2-artwork,
+html[data-fluent2-theme="active"] .fluent2-resume-link .fluent2-artwork {
+  border-radius: 8px;
+}
+html[data-fluent2-theme="active"] .fluent2-artwork-large { border-radius: 0; }
+html[data-fluent2-theme="active"] .fluent2-resume-link:hover .fluent2-artwork {
+  border-color: var(--fluent2-accent);
+  box-shadow: 0 0 0 1px var(--fluent2-accent);
+}
+html[data-fluent2-theme="active"] .fluent2-settings-card,
+html[data-fluent2-theme="active"] .fluent2-stats-panel {
+  border-radius: 10px;
+}
+html[data-fluent2-theme="active"] .fluent2-choice-chip,
+html[data-fluent2-theme="active"] .fluent2-card-style-option {
+  border-radius: 6px !important;
+}
+html[data-fluent2-theme="active"] .fluent2-mobile-sheet {
+  border-radius: 16px 16px 0 0;
+}
+@media (max-width: 700px) {
+  body.fluent2-active .fluent2-mobile-dock {
+    inset: auto 10px max(8px, env(safe-area-inset-bottom));
+    height: 58px;
+    border: 1px solid var(--fluent2-line);
+    border-radius: 14px;
+    background: rgba(28,28,28,.94);
+    box-shadow: 0 8px 24px rgba(0,0,0,.3);
+    -webkit-backdrop-filter: blur(20px);
+    backdrop-filter: blur(20px);
+  }
+  html[data-fluent2-mode="light"] body.fluent2-active .fluent2-mobile-dock {
+    background: rgba(255,255,255,.94);
+    box-shadow: 0 8px 24px rgba(0,0,0,.12);
+  }
+  body.fluent2-active .main.container-fluid { padding-bottom: 96px !important; }
+}

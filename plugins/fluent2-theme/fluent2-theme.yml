@@ -1,0 +1,11 @@
+name: Fluent 2 Theme
+description: A Stash 0.32-compatible redesign inspired by Microsoft's Fluent 2 system, with a responsive navigation rail, library search, automatically cycling arrivals, Continue Watching, native section settings, accessibility-aware controls, and theme fixes carried over from Current.
+version: 0.1.0
+url: https://github.com/MirageOne/Stash-Plugins
+ui:
+  javascript:
+    - fluent2-theme-0.1.0.js
+  css:
+    - css/fluent2-theme-0.1.0.css
+  assets:
+    /icons: icons

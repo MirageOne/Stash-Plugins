@@ -36,13 +36,13 @@
     description: Current is a video-first Stash theme with an accent-responsive Stash box mark, squared custom switches, Geist typography, an automatically cycling new-arrivals carousel, Continue Watching, customizable mobile navigation, distinct accent-filled tag chips, neutral Tagger result rows, square mobile include/exclude controls, wrapped performer controls, compact tag actions, dropdowns, selects, and video-player menus, theme settings integrated into Interface settings, light and dark modes, seven accent colors, and Soft Fill buttons.
 - id: fluent2-theme
   name: Fluent 2 Theme
-  version: 0.1.0
-  date: "2026-11-05 02:08:59"
-  path: packages/fluent2-theme/0.1.0.zip
-  sha256: 1e89b46b42edf9f459ec27e24aa2eb6cefd2d499c65a19009a4b74324595364e
+  version: 0.1.1
+  date: "2026-11-05 12:43:38"
+  path: packages/fluent2-theme/0.1.1.zip
+  sha256: addf386a4da617c36b1facbb06f7744215845acc76dd8c989fdfae3a73289039
   requires: []
   metadata:
-    description: A Stash 0.32-compatible Fluent 2-inspired redesign with Segoe UI typography, responsive navigation, Mica-like chrome, accent-aware controls, Interface theme settings, an automatic arrivals carousel, Continue Watching, and the mobile and Tagger fixes from Current.
+    description: A Stash 0.32-compatible Fluent 2 redesign with a featured Recently Added scene, Continue Watching, library counts, recent activity, a scene details inspector, responsive navigation, and the mobile and Tagger fixes from Current.
 - id: performer-site-sync
   name: Performer Site Sync
   version: 2.0.2

@@ -113,8 +113,8 @@
     brand.className = "fluent2-topbar-brand";
     brand.href = "/";
     brand.setAttribute("data-fluent2-route", "/");
-    brand.setAttribute("aria-label", "Fluent 2 home");
-    brand.innerHTML = '<span class="fluent2-brand-mark">' + FLUENT2_MARK + '</span><span>Fluent 2</span>';
+    brand.setAttribute("aria-label", "Stash home");
+    brand.innerHTML = '<span class="fluent2-brand-mark">' + FLUENT2_MARK + '</span><span>Stash</span>';
     brand.addEventListener("click", function (event) { navigateFromLink(event, brand); });
     navbar.insertBefore(brand, navbar.firstChild);
     return true;
@@ -257,9 +257,9 @@
 
   function navigationSections(items) {
     var definitions = [
-      ["LIBRARY", ["/", "/scenes", "/images", "/galleries"]],
-      ["PEOPLE & METADATA", ["/performers", "/studios", "/groups", "/tags", "/scenes/markers"]],
-      ["ACTIVITY", ["/stats", "/settings?tab=tasks", "/settings?tab=logs"]],
+      ["", ["/"]],
+      ["LIBRARY", ["/scenes", "/performers", "/studios", "/galleries", "/groups", "/images", "/tags"]],
+      ["ACTIVITY", ["/scenes/markers", "/stats", "/settings?tab=tasks", "/settings?tab=logs"]],
       ["SETTINGS", ["/settings"]]
     ];
     return definitions.map(function (definition) {
@@ -339,7 +339,7 @@
       sidebar = document.createElement("aside");
       sidebar.className = "fluent2-sidebar";
       sidebar.setAttribute("aria-label", "Primary navigation");
-      sidebar.innerHTML = '<div class="fluent2-sidebar-brand-row"><a class="fluent2-brand" href="/" data-fluent2-route="/" aria-label="Fluent 2 home"><span class="fluent2-brand-mark">' + FLUENT2_MARK + '</span><span class="fluent2-brand-name">Fluent 2</span></a><button type="button" class="fluent2-sidebar-collapse" aria-label="Collapse navigation" aria-pressed="false" title="Collapse navigation">' + icon("collapse") + "</button></div><nav class=\"fluent2-sidebar-nav\" aria-label=\"Fluent 2 sections\"><div class=\"fluent2-sidebar-primary\"></div></nav>";
+      sidebar.innerHTML = '<div class="fluent2-sidebar-brand-row"><a class="fluent2-brand" href="/" data-fluent2-route="/" aria-label="Stash home"><span class="fluent2-brand-mark">' + FLUENT2_MARK + '</span><span class="fluent2-brand-name">Stash</span></a><button type="button" class="fluent2-sidebar-collapse" aria-label="Collapse navigation" aria-pressed="false" title="Collapse navigation">' + icon("collapse") + "</button></div><nav class=\"fluent2-sidebar-nav\" aria-label=\"Stash sections\"><div class=\"fluent2-sidebar-primary\"></div></nav>";
       document.body.appendChild(sidebar);
       sidebar.addEventListener("click", function (event) {
         var collapse = event.target.closest(".fluent2-sidebar-collapse");
@@ -597,6 +597,24 @@
     return "Added " + new Intl.DateTimeFormat(undefined, { dateStyle: "medium" }).format(new Date(timestamp));
   }
 
+  function formatDashboardDate(value, includeTime) {
+    var timestamp = Date.parse(value || "");
+    if (!Number.isFinite(timestamp)) { return "Date not set"; }
+    var options = includeTime
+      ? { month: "short", day: "numeric", year: "numeric", hour: "numeric", minute: "2-digit" }
+      : { month: "short", day: "numeric", year: "numeric" };
+    return new Intl.DateTimeFormat(undefined, options).format(new Date(timestamp));
+  }
+
+  function formatFileSize(value) {
+    var bytes = Number(value) || 0;
+    if (bytes <= 0) { return ""; }
+    var units = ["B", "KB", "MB", "GB", "TB"];
+    var unit = 0;
+    while (bytes >= 1000 && unit < units.length - 1) { bytes /= 1000; unit += 1; }
+    return bytes.toFixed(unit > 1 ? 1 : 0) + " " + units[unit];
+  }
+
   var statisticsScenesPromise = null;
   function loadStatisticsScenes() {
     if (statisticsScenesPromise) { return statisticsScenesPromise; }
@@ -748,12 +766,62 @@
       image: scene && scene.paths && scene.paths.screenshot || "",
       duration: Number(file.duration || 0),
       height: Number(file.height || 0),
+      size: Number(file.size || 0),
       date: scene && scene.date || "",
       createdAt: scene && scene.created_at || "",
+      updatedAt: scene && scene.updated_at || "",
+      lastPlayedAt: scene && scene.last_played_at || "",
+      playCount: Number(scene && scene.play_count || 0),
+      details: scene && scene.details || "",
       studio: scene && scene.studio && scene.studio.name || "",
+      studioId: String(scene && scene.studio && scene.studio.id || ""),
+      performerItems: (scene && scene.performers || []).map(function (performer) {
+        return { id: String(performer && performer.id || ""), name: performer && performer.name || "" };
+      }).filter(function (performer) { return performer.name; }),
       performers: (scene && scene.performers || []).map(function (performer) { return performer && performer.name; }).filter(Boolean),
+      tagItems: (scene && scene.tags || []).map(function (tag) {
+        return { id: String(tag && tag.id || ""), name: tag && tag.name || "" };
+      }).filter(function (tag) { return tag.name; }),
       resumeTime: Number(scene && scene.resume_time || 0)
     };
+  }
+
+  function buildDashboardActivity(recentScenes, recentPerformers, recentlyPlayed) {
+    var events = [];
+    (recentScenes || []).forEach(function (scene) {
+      if (!scene.createdAt) { return; }
+      events.push({
+        kind: "added",
+        title: "Added a new scene",
+        subject: scene.title,
+        date: scene.createdAt,
+        image: scene.image,
+        href: "/scenes/" + encodeURIComponent(scene.id)
+      });
+    });
+    (recentPerformers || []).forEach(function (performer) {
+      if (!performer || !performer.updated_at || !performer.id) { return; }
+      events.push({
+        kind: "metadata",
+        title: "Updated performer metadata",
+        subject: performer.name || "Performer",
+        date: performer.updated_at,
+        image: performer.image_path || "",
+        href: "/performers/" + encodeURIComponent(performer.id)
+      });
+    });
+    (recentlyPlayed || []).forEach(function (scene) {
+      if (!scene.lastPlayedAt) { return; }
+      events.push({
+        kind: "played",
+        title: "Played a scene",
+        subject: scene.title,
+        date: scene.lastPlayedAt,
+        image: scene.image,
+        href: "/scenes/" + encodeURIComponent(scene.id)
+      });
+    });
+    return events.sort(function (a, b) { return Date.parse(b.date) - Date.parse(a.date); }).slice(0, 4);
   }
 
   function buildPlugin(PluginApi) {
@@ -762,7 +830,7 @@
     var RouterLink = PluginApi.libraries && PluginApi.libraries.ReactRouterDOM && PluginApi.libraries.ReactRouterDOM.Link;
     var gql = createGraphQLClient();
 
-    function routeLink(href, className, children) {
+    function routeLink(href, className, children, key) {
       var props = {
         className: className,
         onClick: function (event) {
@@ -771,13 +839,14 @@
           }
         }
       };
+      if (key !== undefined) { props.key = key; }
       if (RouterLink) { props.to = href; return h(RouterLink, props, children); }
       props.href = href;
       return h("a", props, children);
     }
 
     function SceneArtwork(props) {
-      return h("div", { className: "fluent2-artwork" + (props.large ? " fluent2-artwork-large" : ""), style: props.image ? { backgroundImage: "url(\"" + props.image.replace(/\"/g, "%22") + "\")" } : undefined },
+      return h("div", { className: "fluent2-artwork" + (props.large ? " fluent2-artwork-large" : "") + (props.small ? " fluent2-artwork-small" : "") + (props.className ? " " + props.className : ""), style: props.image ? { backgroundImage: "url(\"" + props.image.replace(/\"/g, "%22") + "\")" } : undefined },
         h("div", { className: "fluent2-artwork-overlay" }),
         props.duration ? h("span", { className: "fluent2-duration" }, formatDuration(props.duration)) : null,
         props.children);
@@ -795,6 +864,7 @@
       var setIndex = state[1];
       var scenes = props.scenes || [];
       var touchStart = React.useRef(null);
+      var selectedSceneId = React.useRef("");
       React.useEffect(function () { if (index >= scenes.length) { setIndex(0); } }, [scenes.length, index]);
       React.useEffect(function () {
         if (scenes.length < 2) { return; }
@@ -818,6 +888,12 @@
           document.removeEventListener("visibilitychange", onVisibilityChange);
         };
       }, [scenes.length]);
+      React.useEffect(function () {
+        var scene = scenes[index];
+        if (!scene || !props.onSelectScene || scene.id === selectedSceneId.current) { return; }
+        selectedSceneId.current = scene.id;
+        props.onSelectScene(scene.id);
+      }, [scenes, index, props.onSelectScene]);
       if (!scenes.length) {
         return h("section", { className: "fluent2-home-hero fluent2-home-hero-empty", "aria-label": "New arrivals" },
           h("div", { className: "fluent2-hero-copy" },
@@ -828,13 +904,9 @@
       }
       var scene = scenes[index];
       var metadata = [];
-      if (scene.studio) { metadata.push(scene.studio); }
-      if (readPreferences().newContentSort === "date") {
-        if (scene.date) { metadata.push("Released " + String(scene.date).slice(0, 10)); }
-      } else if (scene.createdAt) { metadata.push(formatAdded(scene.createdAt)); }
+      if (scene.date || scene.createdAt) { metadata.push(formatDashboardDate(scene.date || scene.createdAt, false)); }
       if (scene.duration) { metadata.push(formatDuration(scene.duration)); }
       if (scene.height) { metadata.push(Math.round(scene.height) + "p"); }
-      var performers = scene.performers.slice(0, 3).join(" · ");
       return h("section", {
         className: "fluent2-home-hero",
         "aria-roledescription": "carousel",
@@ -855,20 +927,24 @@
       },
         h(SceneArtwork, { image: scene.image, duration: scene.duration, large: true }),
         h("div", { className: "fluent2-hero-copy" },
-          h("span", { className: "fluent2-kicker" }, "Newly added to your library"),
+          h("span", { className: "fluent2-kicker" }, "Recently added"),
           h("h1", { "aria-live": "polite" }, scene.title),
           h("div", { className: "fluent2-hero-meta" }, metadata.join(" · ")),
-          performers ? h("div", { className: "fluent2-hero-performers" }, performers) : null,
+          scene.performerItems.length ? h("div", { className: "fluent2-hero-performers" }, scene.performerItems.slice(0, 3).map(function (performer) {
+            return performer.id
+              ? routeLink("/performers/" + encodeURIComponent(performer.id), "fluent2-person-chip", h(React.Fragment, null, h("span", { className: "fluent2-person-chip-icon", dangerouslySetInnerHTML: { __html: icon("performers") } }), performer.name), performer.id)
+              : h("span", { className: "fluent2-person-chip", key: performer.name }, performer.name);
+          })) : null,
           h("div", { className: "fluent2-hero-actions" },
-            routeLink("/scenes/" + encodeURIComponent(scene.id), "fluent2-button fluent2-button-primary", h(React.Fragment, null, h("span", { className: "fluent2-play-icon", dangerouslySetInnerHTML: { __html: "<svg viewBox='0 0 24 24' fill='currentColor' aria-hidden='true'><path d='M8 5v14l11-7z'/></svg>" } }), "Play scene")),
-            routeLink("/scenes", "fluent2-button fluent2-button-quiet", "Browse library"))),
-        h("div", { className: "fluent2-carousel-controls", role: "group", "aria-label": "New arrivals controls" },
+            routeLink("/scenes/" + encodeURIComponent(scene.id), "fluent2-button fluent2-button-primary", h(React.Fragment, null, h("span", { className: "fluent2-play-icon", dangerouslySetInnerHTML: { __html: "<svg viewBox='0 0 24 24' fill='currentColor' aria-hidden='true'><path d='M8 5v14l11-7z'/></svg>" } }), "Play")),
+            h("button", { type: "button", className: "fluent2-button fluent2-button-quiet", onClick: props.onShowDetails }, "Details"))),
+        scenes.length > 1 ? h("div", { className: "fluent2-carousel-controls", role: "group", "aria-label": "New arrivals controls" },
           h("button", { type: "button", className: "fluent2-carousel-arrow", "aria-label": "Previous scene", onClick: function () { setIndex((index - 1 + scenes.length) % scenes.length); } }, "‹"),
           h("div", { className: "fluent2-carousel-dots" }, scenes.map(function (item, dotIndex) {
             return h("button", { type: "button", key: item.id, className: "fluent2-carousel-dot" + (dotIndex === index ? " is-active" : ""), "aria-label": "Show " + item.title, "aria-current": dotIndex === index ? "true" : undefined, onClick: function () { setIndex(dotIndex); } }, h("span", null));
           })),
           h("span", { className: "fluent2-carousel-count", "aria-live": "polite" }, (index + 1) + " / " + scenes.length),
-          h("button", { type: "button", className: "fluent2-carousel-arrow", "aria-label": "Next scene", onClick: function () { setIndex((index + 1) % scenes.length); } }, "›")));
+          h("button", { type: "button", className: "fluent2-carousel-arrow", "aria-label": "Next scene", onClick: function () { setIndex((index + 1) % scenes.length); } }, "›")) : null);
     }
 
     function ContinueWatching(props) {
@@ -890,10 +966,93 @@
         })) : h(EmptyState, { icon: "scenes" }, props.loading ? "Checking for saved playback…" : "Scenes you have started will appear here."));
     }
 
+    function LibraryOverview(props) {
+      var stats = props.stats || {};
+      var items = [
+        ["/scenes", "Scenes", stats.scene_count, "scenes"],
+        ["/performers", "Performers", stats.performer_count, "performers"],
+        ["/studios", "Studios", stats.studio_count, "studios"],
+        ["/galleries", "Galleries", stats.gallery_count, "galleries"],
+        ["/images", "Images", stats.image_count, "images"]
+      ];
+      return h("section", { className: "fluent2-home-section fluent2-library-overview", "aria-labelledby": "fluent2-library-heading" },
+        h("div", { className: "fluent2-section-heading" }, h("h2", { id: "fluent2-library-heading" }, "Your library")),
+        h("div", { className: "fluent2-library-stat-grid" }, items.map(function (item) {
+          return routeLink(item[0], "fluent2-library-stat", h(React.Fragment, null,
+            h("span", { className: "fluent2-library-stat-icon", dangerouslySetInnerHTML: { __html: icon(item[3]) } }),
+            h("span", { className: "fluent2-library-stat-copy" }, h("strong", null, Number(item[2] || 0).toLocaleString()), h("span", null, item[1]))
+          ), item[1]);
+        })));
+    }
+
+    function RecentActivity(props) {
+      var events = props.events || [];
+      var activityIcons = { added: "scenes", metadata: "performers", played: "activity" };
+      return h("section", { className: "fluent2-home-section fluent2-recent-activity", "aria-labelledby": "fluent2-activity-heading" },
+        h("div", { className: "fluent2-section-heading" }, h("h2", { id: "fluent2-activity-heading" }, "Recent activity")),
+        events.length ? h("div", { className: "fluent2-activity-list" }, events.map(function (event, index) {
+          return routeLink(event.href, "fluent2-activity-row", h(React.Fragment, null,
+            h("span", { className: "fluent2-activity-icon", dangerouslySetInnerHTML: { __html: icon(activityIcons[event.kind] || "activity") } }),
+            h("span", { className: "fluent2-activity-copy" },
+              h("strong", null, event.title),
+              h("span", { className: "fluent2-activity-subject" }, event.subject),
+              h("small", null, formatDashboardDate(event.date, true))),
+            event.image ? h(SceneArtwork, { image: event.image, small: true, className: "fluent2-activity-thumb" }) : null
+          ), event.kind + "-" + index);
+        })) : h(EmptyState, { icon: "activity" }, props.loading ? "Loading recent library activity…" : "New scenes and performer updates will appear here."));
+    }
+
+    function SceneInspector(props) {
+      var scene = props.scene;
+      var performers = scene && scene.performerItems || [];
+      var tags = scene && scene.tagItems || [];
+      function metadataRow(label, value) {
+        return h("div", { className: "fluent2-inspector-meta-row", key: label }, h("span", null, label), h("strong", null, value || "—"));
+      }
+      function personChip(person) {
+        return person.id
+          ? routeLink("/performers/" + encodeURIComponent(person.id), "fluent2-detail-chip", person.name, person.id)
+          : h("span", { className: "fluent2-detail-chip", key: person.name }, person.name);
+      }
+      function tagChip(tag) {
+        return tag.id
+          ? routeLink("/tags/" + encodeURIComponent(tag.id), "fluent2-detail-chip", tag.name, tag.id)
+          : h("span", { className: "fluent2-detail-chip", key: tag.name }, tag.name);
+      }
+      var date = scene && (scene.date || scene.createdAt);
+      return h("aside", { id: "fluent2-scene-inspector", className: "fluent2-scene-inspector" + (props.open ? " is-mobile-open" : "") },
+        h("div", { className: "fluent2-inspector-heading" },
+          h("h2", null, "Scene details"),
+          h("button", { type: "button", className: "fluent2-inspector-toggle", "aria-expanded": Boolean(props.open), onClick: props.onToggle }, props.open ? "Hide details" : "Show details")),
+        h("div", { className: "fluent2-inspector-body" }, scene ? h(React.Fragment, null,
+          h(SceneArtwork, { image: scene.image, className: "fluent2-inspector-artwork" }),
+          h("h3", { className: "fluent2-inspector-title" }, scene.title),
+          h("p", { className: "fluent2-inspector-subtitle" }, "Scene" + (date ? " · " + formatDashboardDate(date, false) : "")),
+          routeLink("/scenes/" + encodeURIComponent(scene.id), "fluent2-inspector-primary", h(React.Fragment, null,
+            h("span", { className: "fluent2-play-icon", dangerouslySetInnerHTML: { __html: "<svg viewBox='0 0 24 24' fill='currentColor' aria-hidden='true'><path d='M8 5v14l11-7z'/></svg>" } }), "View scene")),
+          h("div", { className: "fluent2-inspector-metadata" },
+            metadataRow("Duration", scene.duration ? formatDuration(scene.duration) : "—"),
+            metadataRow("Resolution", scene.height ? Math.round(scene.height) + "p" : "—"),
+            metadataRow("Size", formatFileSize(scene.size) || "—"),
+            h("div", { className: "fluent2-inspector-meta-row", key: "Studio" }, h("span", null, "Studio"), scene.studioId
+              ? routeLink("/studios/" + encodeURIComponent(scene.studioId), "fluent2-inspector-studio", scene.studio)
+              : h("strong", null, scene.studio || "—"))),
+          performers.length ? h("section", { className: "fluent2-inspector-group" }, h("h3", null, "Performers (" + performers.length + ")"), h("div", { className: "fluent2-detail-chips" }, performers.map(personChip))) : null,
+          tags.length ? h("section", { className: "fluent2-inspector-group" }, h("h3", null, "Tags (" + tags.length + ")"), h("div", { className: "fluent2-detail-chips" }, tags.slice(0, 8).map(tagChip))) : null,
+          h("section", { className: "fluent2-inspector-group fluent2-inspector-description" }, h("h3", null, "Description"), h("p", null, scene.details || "No description has been added for this scene."))
+        ) : h(EmptyState, { icon: "scenes" }, "Select a recently added scene to see its details.")));
+    }
+
     function Fluent2Home(props) {
-      var state = React.useState({ arrivals: [], resume: [], loading: true });
+      var state = React.useState({ arrivals: [], resume: [], stats: null, activity: [], loading: true });
       var data = state[0];
       var setData = state[1];
+      var selectedState = React.useState("");
+      var selectedId = selectedState[0];
+      var setSelectedId = selectedState[1];
+      var detailState = React.useState(false);
+      var detailsOpen = detailState[0];
+      var setDetailsOpen = detailState[1];
       React.useEffect(function () {
         var active = true;
         var requestId = 0;
@@ -905,18 +1064,29 @@
           controller = new AbortController();
           setData(function (old) { return Object.assign({}, old, { loading: true }); });
           var sort = readPreferences().newContentSort === "date" ? "date" : "created_at";
+          var sceneFields = "id title details date created_at updated_at last_played_at play_count resume_time studio { id name } performers { id name } tags { id name } files { basename duration height size } paths { screenshot }";
           var query = "query Fluent2Home { " +
-            "newArrivals: findScenes(filter: { per_page: 7, sort: \"" + sort + "\", direction: DESC }) { scenes { id title date created_at resume_time studio { name } performers { name } files { basename duration height } paths { screenshot } } } " +
-            "continueWatching: findScenes(scene_filter: { resume_time: { value: 0, modifier: GREATER_THAN } }, filter: { per_page: 8, sort: \"last_played_at\", direction: DESC }) { scenes { id title date created_at resume_time studio { name } performers { name } files { basename duration height } paths { screenshot } } } }";
+            "newArrivals: findScenes(filter: { per_page: 7, sort: \"" + sort + "\", direction: DESC }) { scenes { " + sceneFields + " } } " +
+            "continueWatching: findScenes(scene_filter: { resume_time: { value: 0, modifier: GREATER_THAN } }, filter: { per_page: 8, sort: \"last_played_at\", direction: DESC }) { scenes { " + sceneFields + " } } " +
+            "recentScenes: findScenes(filter: { per_page: 4, sort: \"created_at\", direction: DESC }) { scenes { " + sceneFields + " } } " +
+            "recentPlays: findScenes(filter: { per_page: 4, sort: \"last_played_at\", direction: DESC }) { scenes { " + sceneFields + " } } " +
+            "recentPerformers: findPerformers(filter: { per_page: 3, sort: \"updated_at\", direction: DESC }) { performers { id name updated_at image_path } } " +
+            "stats { scene_count performer_count studio_count gallery_count image_count } }";
           gql(query, controller.signal).then(function (result) {
             if (!active || currentRequest !== requestId) { return; }
+            var arrivals = (result.newArrivals && result.newArrivals.scenes || []).map(sceneView).filter(function (scene) { return scene.id; });
+            var resume = (result.continueWatching && result.continueWatching.scenes || []).map(sceneView).filter(function (scene) { return scene.id; });
+            var recentScenes = (result.recentScenes && result.recentScenes.scenes || []).map(sceneView).filter(function (scene) { return scene.id; });
+            var recentPlays = (result.recentPlays && result.recentPlays.scenes || []).map(sceneView).filter(function (scene) { return scene.id && scene.lastPlayedAt; });
             setData({
-              arrivals: (result.newArrivals && result.newArrivals.scenes || []).map(sceneView).filter(function (scene) { return scene.id; }),
-              resume: (result.continueWatching && result.continueWatching.scenes || []).map(sceneView).filter(function (scene) { return scene.id; }),
+              arrivals: arrivals,
+              resume: resume,
+              stats: result.stats || {},
+              activity: buildDashboardActivity(recentScenes, result.recentPerformers && result.recentPerformers.performers || [], recentPlays),
               loading: false
             });
           }).catch(function () {
-            if (active && currentRequest === requestId) { setData({ arrivals: [], resume: [], loading: false }); }
+            if (active && currentRequest === requestId) { setData({ arrivals: [], resume: [], stats: null, activity: [], loading: false }); }
           });
         }
         function onPreferencesChanged() { load(); }
@@ -929,10 +1099,26 @@
           window.removeEventListener(PREFERENCES_EVENT, onPreferencesChanged);
         };
       }, []);
+      var selectedScene = data.arrivals.filter(function (scene) { return scene.id === selectedId; })[0] || data.arrivals[0] || null;
+      function showSceneDetails() {
+        setDetailsOpen(true);
+        if (window.matchMedia && window.matchMedia("(max-width: 1000px)").matches) {
+          window.setTimeout(function () {
+            var inspector = document.getElementById("fluent2-scene-inspector");
+            if (inspector) { inspector.scrollIntoView({ behavior: readPreferences().reduceEffects ? "auto" : "smooth", block: "start" }); }
+          }, 0);
+        }
+      }
       return h("div", { className: "fluent2-home" },
-        h(NewArrivalsCarousel, { scenes: data.arrivals, loading: data.loading }),
-        h(ContinueWatching, { scenes: data.resume, loading: data.loading }),
-        props.stockContent ? h("section", { className: "fluent2-stock-recommendations", "aria-label": "Stash recommendations" }, props.stockContent) : null);
+        h("div", { className: "fluent2-dashboard-layout" },
+          h("main", { className: "fluent2-dashboard-main" },
+            h(NewArrivalsCarousel, { scenes: data.arrivals, loading: data.loading, onSelectScene: setSelectedId, onShowDetails: showSceneDetails }),
+            h(ContinueWatching, { scenes: data.resume, loading: data.loading }),
+            h(LibraryOverview, { stats: data.stats }),
+            h(RecentActivity, { events: data.activity, loading: data.loading })
+          ),
+          h(SceneInspector, { scene: selectedScene, open: detailsOpen, onToggle: function () { setDetailsOpen(!detailsOpen); } })
+        ));
     }
 
     function Fluent2SettingsPage(props) {

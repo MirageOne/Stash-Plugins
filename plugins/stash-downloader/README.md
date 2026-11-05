@@ -1,6 +1,6 @@
 # Stash Downloader
 
-Stash Downloader adds a URL queue for downloading videos and images, extracting metadata, and importing completed downloads into Stash. The bundled React interface uses Stash's shared `PluginApi` and Fluent Mica or Noir theme tokens, with its navigation shortcut beside the right-side utility buttons.
+Stash Downloader adds a URL queue for downloading videos and images, extracting metadata, and importing completed downloads into Stash. The bundled React interface uses Stash's shared `PluginApi` and adapts to supported host theme tokens, with its navigation shortcut beside the right-side utility buttons.
 
 ## Features
 

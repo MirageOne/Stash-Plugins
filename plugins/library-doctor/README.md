@@ -18,4 +18,4 @@ Run a scan to see counts, filter findings, search by scene title, studio, perfor
 
 Install from the repository source in the root README or download [the 1.6.4 manual archive](../../packages/library-doctor/1.6.4-manual.zip) and extract the `library-doctor/` directory into Stash's configured plugins directory. Enable the plugin in **Settings → Plugins**. Reload the plugin page after updating so its versioned assets load.
 
-The dashboard mirrors the active Fluent Mica or Noir theme, including its surfaces, typography, borders, and accent color.
+The dashboard follows supported host theme styling for its surfaces, typography, borders, and accent color.

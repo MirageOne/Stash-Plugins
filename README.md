@@ -4,8 +4,6 @@ This repository hosts independent Stash plugins. Each plugin keeps its manifest,
 
 ## Available plugins
 
-- [Fluent Mica](plugins/fluent-mica/README.md) — a Fluent 2 theme with a dark Mica foundation, Acrylic surfaces, Refract-based layout, and configurable Fluent accent colors.
-- [Noir](plugins/noir-theme/README.md) — a video-first redesign with flat charcoal surfaces, violet accents, the Archive Monogram, a collapsible desktop sidebar, and responsive mobile navigation.
 - [Library Doctor](plugins/library-doctor/README.md) — Health Check, FFmpeg encoding audit and re-encoding, metadata assistance, scraping, tagging, and duplicate or alternate-version review.
 - [Scene Gallery Generator](plugins/scene-gallery-generator/README.md) — Extract a user-selected number of still frames from scene videos and create metadata-rich galleries linked to their source scenes.
 - [Stash Downloader](plugins/stash-downloader/README.md) — a Stash-integrated image and video URL queue with metadata extraction and server-side downloads.
@@ -25,8 +23,6 @@ Reload plugins, then install any listed plugin from **Available Plugins**. New p
 
 Download a plugin's manual archive, extract its included plugin folder into Stash's configured plugins directory, then enable it in **Settings → Plugins**.
 
-- [Fluent Mica manual archive](packages/fluent-mica/1.0.5-manual.zip)
-- [Noir manual archive](packages/noir-theme/1.1.21-manual.zip)
 - [Library Doctor manual archive](packages/library-doctor/1.6.4-manual.zip)
 - [Scene Gallery Generator manual archive](packages/scene-gallery-generator/1.0.5-manual.zip)
 - [Stash Downloader manual archive](packages/stash-downloader/0.6.2-manual.zip)

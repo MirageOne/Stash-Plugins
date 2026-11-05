@@ -31,9 +31,8 @@
         link.style.order = "89";
         link.innerHTML = ICON;
 
-        /* Fluent Mica orders Settings at 90, so this sits directly beside it.
-           In stock Stash the high flex order keeps it with the right-side
-           utility controls instead of the primary library routes. */
+        /* Place the action beside Settings in the utility controls instead of
+           among the primary library routes. */
         var settings = buttons.querySelector('a[href="/settings"]');
         if (settings) {
             buttons.insertBefore(link, settings);

@@ -15,7 +15,7 @@ The upstream plugin called studios “sites” and attempted to query `me.favori
 
 ## Install and configure
 
-Install from the MirageOne Stash Plugins source described in the repository root README, or extract the [2.0.0 manual archive](../../packages/performer-site-sync/2.0.0-manual.zip) into Stash's configured plugin directory. Enable **Performer Site Sync** in **Settings → Plugins** and reload plugins.
+Install from the MirageOne Stash Plugins source described in the repository root README, or extract the [2.0.1 manual archive](../../packages/performer-site-sync/2.0.1-manual.zip) into Stash's configured plugin directory. Enable **Performer Site Sync** in **Settings → Plugins** and reload plugins.
 
 Add the StashBox sources you use under **Settings → Metadata Providers → Stash-boxes**. The plugin recognizes StashDB, ThePornDB, and FansDB by their configured name or endpoint. It does not read API keys from guessed config files or log credentials. Then review **Settings → Plugins → Performer Site Sync**:
 
@@ -35,7 +35,7 @@ Favorite imports use the StashBox `queryPerformers` and `queryStudios` queries w
 
 ## Stash 0.32 compatibility
 
-The backend uses Stash's `raw` plugin task input (`server_connection`, `args`), `SessionCookie`, `configuration.plugins(include: ...)`, `findPerformers`, `findStudios`, `performerUpdate`, `performerCreate`, `studioUpdate`, and `studioCreate`. It uses 0.32 field names and types, including `alias_list: [String!]`, `urls: [String!]`, `height_cm`, `career_start`, and `career_end`; it has no Python package dependencies.
+The backend uses Stash's `raw` plugin task input (`server_connection`, `args`), `SessionCookie`, `configuration.plugins(include: ...)`, `findPerformers`, `findStudios`, `performerUpdate`, `performerCreate`, `studioUpdate`, and `studioCreate`. It uses 0.32 field names and types, including `alias_list: [String!]`, `urls: [String!]`, `height_cm`, `career_start`, and `career_end`; it has no Python package dependencies. Task progress uses Stash's `SOH p STX` stderr protocol so progress updates are not recorded as errors.
 
 ## License
 

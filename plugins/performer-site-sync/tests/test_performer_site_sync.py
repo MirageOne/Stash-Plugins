@@ -1,7 +1,9 @@
 import importlib.util
 import json
+import io
 import tempfile
 import unittest
+from contextlib import redirect_stderr
 from pathlib import Path
 from unittest.mock import patch
 
@@ -27,6 +29,14 @@ class Response:
 
 
 class PerformerSiteSyncTests(unittest.TestCase):
+    def test_progress_uses_stash_protocol_instead_of_plain_stderr_error(self):
+        stream = io.StringIO()
+        with redirect_stderr(stream):
+            plugin.report_progress(27, 243)
+
+        self.assertEqual(stream.getvalue(), f"{plugin.PROGRESS_PREFIX}{27 / 243}\n")
+        self.assertNotIn("Processed", stream.getvalue())
+
     def test_stash_032_local_auth_and_configuration_query(self):
         seen = {}
 

@@ -18,6 +18,7 @@ from typing import Any
 
 PLUGIN_ID = "performer-site-sync"
 PAGE_SIZE = 100
+PROGRESS_PREFIX = "\x01p\x02"
 LOCAL_PERFORMER_FIELDS = """
   id name disambiguation alias_list gender urls birthdate death_date ethnicity country
   eye_color hair_color height_cm measurements fake_tits career_start career_end
@@ -34,6 +35,14 @@ STASHBOX_PERFORMER_FIELDS = """
 
 class PluginError(RuntimeError):
     pass
+
+
+def report_progress(completed: int, total: int) -> None:
+    """Send progress using Stash's raw-plugin stderr protocol, not a plain error log."""
+    if total <= 0:
+        return
+    fraction = min(1.0, max(0.0, completed / total))
+    print(f"{PROGRESS_PREFIX}{fraction}", file=sys.stderr, flush=True)
 
 
 def normalize_endpoint(value: Any) -> str:
@@ -349,7 +358,7 @@ class SyncService:
                 failed_performers += 1
                 if len(error_samples) < 20:
                     error_samples.append(f"{performer.get('name', performer.get('id'))}: {exc}")
-            print(f"[Performer Site Sync] Processed {index}/{len(performers)} performers", file=sys.stderr, flush=True)
+            report_progress(index, len(performers))
         source_samples = self.source_errors[:20]
         errors = failed_performers + len(self.source_errors)
         return {"processed": len(performers), "updated": updated, "failed_performers": failed_performers,

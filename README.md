@@ -28,7 +28,7 @@ Download a plugin's manual archive, extract its included plugin folder into Stas
 - [Scene Gallery Generator manual archive](packages/scene-gallery-generator/1.0.5-manual.zip)
 - [Stash Downloader manual archive](packages/stash-downloader/0.6.2-manual.zip)
 - [Current Theme manual archive](packages/current-theme/0.1.44-manual.zip)
-- [Performer Site Sync manual archive](packages/performer-site-sync/2.0.0-manual.zip)
+- [Performer Site Sync manual archive](packages/performer-site-sync/2.0.1-manual.zip)
 
 Each plugin's README links to its current manual archive.
 

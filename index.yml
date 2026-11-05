@@ -27,13 +27,13 @@
     description: Server-side image and video downloads with yt-dlp, proxy settings, library-aware imports, and metadata extraction.
 - id: current-theme
   name: Current Theme
-  version: 0.1.45
-  date: "2026-11-05 22:55:26"
-  path: packages/current-theme/0.1.45.zip
-  sha256: aa7d5c6601725d40e14e65c6ba4f1e9c11bd9f0d204e93f09c27ab1839b77179
+  version: 0.1.46
+  date: "2026-11-05 23:20:24"
+  path: packages/current-theme/0.1.46.zip
+  sha256: fa23e0ad5c3605cbb71baf60cebf1c079750eebf63a31df177d432a603c7f060
   requires: []
   metadata:
-    description: Current is a video-first Stash theme with an accent-responsive Stash box mark, squared custom switches, Geist typography, an automatically cycling new-arrivals carousel, Continue Watching, a compact Settings task queue, customizable mobile navigation, distinct accent-filled tag chips, neutral Tagger result rows, square mobile include/exclude controls, wrapped performer controls, compact tag actions, dropdowns, selects, and video-player menus, theme settings integrated into Interface settings, light and dark modes, seven accent colors, and Soft Fill buttons.
+    description: Current is a video-first Stash theme with an accent-responsive Stash box mark, squared custom switches, Geist typography, an automatically cycling new-arrivals carousel, Continue Watching, themed native Settings sections, a compact Settings task queue, customizable mobile navigation, distinct accent-filled tag chips, neutral Tagger result rows, square mobile include/exclude controls, wrapped performer controls, compact tag actions, dropdowns, selects, and video-player menus, theme settings integrated into Interface settings, light and dark modes, seven accent colors, and Soft Fill buttons.
 - id: fluent2-theme
   name: Fluent 2 Theme
   version: 0.1.2

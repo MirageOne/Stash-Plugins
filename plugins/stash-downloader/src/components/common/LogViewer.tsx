@@ -79,7 +79,7 @@ export const LogViewer: React.FC<LogViewerProps> = ({
   };
 
   return (
-    <div className="card text-light mt-3" style={{ backgroundColor: 'var(--glass-bg, rgba(39, 39, 39, 0.90))' }}>
+    <div className="card text-light mt-3 ld-log-card" style={{ backgroundColor: 'var(--glass-bg, rgba(39, 39, 39, 0.90))' }}>
       <div className="card-header" style={{ backgroundColor: 'var(--mica-elevated, #292929)' }}>
         <div className="d-flex justify-content-between align-items-center">
           <div className="d-flex align-items-center gap-2">

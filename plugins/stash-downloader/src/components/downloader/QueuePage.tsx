@@ -736,36 +736,49 @@ export const QueuePage: React.FC = () => {
     <div className="d-flex flex-column min-vh-100">
       <div className="container-lg py-4">
         <div className="d-flex flex-column gap-3">
-          {/* Logo, Title, and Info Button */}
-          <div className="d-flex align-items-center justify-content-between mb-2">
-            <div className="d-flex align-items-center gap-3">
-              <img
-                src={logoSvg}
-                alt="Stash Downloader Logo"
-                style={{ width: '40px', height: '40px' }}
-              />
-              <h4 className="mb-0 text-light">{PLUGIN_NAME}</h4>
+          <header className="ld-header">
+            <div className="ld-brand-row">
+              <a className="ld-back" href="/scenes" aria-label="Back to Stash scenes">
+                <svg viewBox="0 0 24 24" aria-hidden="true"><path d="m14.5 5-7 7 7 7" /></svg>
+                <span>Stash</span>
+              </a>
+              <span className="ld-brand-divider" aria-hidden="true" />
+              <img src={logoSvg} alt="" className="ld-brand-logo" />
+              <span className="ld-brand-name">{PLUGIN_NAME}</span>
             </div>
+            <div className="ld-header-actions">
             <button
               type="button"
-              className="btn btn-outline-light btn-sm"
+              className="ld-button ld-button-secondary"
               onClick={() => setShowAboutModal(true)}
               title={`About ${PLUGIN_NAME}`}
-              style={{ display: 'flex', alignItems: 'center', gap: '6px' }}
             >
-              <svg height="16" width="16" viewBox="0 0 16 16" fill="currentColor">
+              <svg height="18" width="18" viewBox="0 0 16 16" fill="none" stroke="currentColor" strokeWidth="1.7" aria-hidden="true">
                 <path d="M8 0a8 8 0 100 16A8 8 0 008 0zm0 14.5a6.5 6.5 0 110-13 6.5 6.5 0 010 13z" />
                 <path d="M8 6a1 1 0 110-2 1 1 0 010 2zm1.5 5.5a.5.5 0 01-.5.5H7a.5.5 0 010-1h.5V8H7a.5.5 0 010-1h1.5a.5.5 0 01.5.5v3.5h.5a.5.5 0 010 1z" />
               </svg>
               About
             </button>
-          </div>
+            </div>
+          </header>
+
+          <section className="ld-intro" aria-labelledby="downloaderTitle">
+            <div>
+              <p className="ld-eyebrow">DOWNLOAD &amp; IMPORT</p>
+              <h1 id="downloaderTitle">Bring media into your library.</h1>
+              <p className="ld-subtitle">Queue a source URL, review its metadata, and save the finished media to Stash.</p>
+            </div>
+            <div className="ld-workflow-note">
+              <span className="ld-workflow-dot" aria-hidden="true" />
+              <span>Choose a profile · Review · Import</span>
+            </div>
+          </section>
 
           {/* Proxy and Server Status */}
           {isStashEnvironment && (
-            <div className="card text-light mb-3" style={{ backgroundColor: 'var(--glass-bg, rgba(39, 39, 39, 0.90))', borderColor: 'var(--glass-border, rgba(255, 255, 255, 0.09))' }}>
+            <div className="card text-light mb-3 ld-server-card" style={{ backgroundColor: 'var(--glass-bg, rgba(39, 39, 39, 0.90))', borderColor: 'var(--glass-border, rgba(255, 255, 255, 0.09))' }}>
               <div
-                className="card-header d-flex justify-content-between align-items-center"
+                className="card-header d-flex justify-content-between align-items-center ld-server-card-header"
                 style={{ backgroundColor: 'var(--mica-elevated, #292929)', borderColor: 'var(--glass-border, rgba(255, 255, 255, 0.09))', cursor: 'pointer' }}
                 onClick={() => setServerConfigExpanded(!serverConfigExpanded)}
               >
@@ -862,7 +875,7 @@ export const QueuePage: React.FC = () => {
             onValueChange={setUrlFieldValue}
           />
 
-          <div className="card text-light" style={{ backgroundColor: 'var(--glass-bg, rgba(39, 39, 39, 0.90))' }}>
+          <div className="card text-light ld-profile-panel" style={{ backgroundColor: 'var(--glass-bg, rgba(39, 39, 39, 0.90))' }}>
             <div className="card-body d-flex flex-wrap align-items-center gap-2 py-2">
               <label htmlFor="importProfileSelect" className="form-label mb-0">Import profile</label>
               <select
@@ -883,7 +896,7 @@ export const QueuePage: React.FC = () => {
           </div>
 
           {/* Batch Import */}
-          <div className="mb-3">
+          <div className="mb-3 ld-batch-area">
             <BatchImport
               onImport={handleBatchImport}
               onSingleUrl={(url) => {
@@ -893,32 +906,16 @@ export const QueuePage: React.FC = () => {
           </div>
 
           {/* Queue Statistics */}
-          <div className="card text-light mb-3" style={{ backgroundColor: 'var(--glass-bg, rgba(39, 39, 39, 0.90))' }}>
-            <div className="card-body">
-              <div className="d-flex justify-content-around align-items-center">
-                <div className="text-center">
-                  <h5 className="mb-0">{queue.stats.total}</h5>
-                  <small style={{ color: 'var(--text-muted, rgba(255, 255, 255, 0.66))' }}>Total</small>
-                </div>
-                <div className="text-center">
-                  <h5 className="mb-0 text-info">{queue.stats.downloading}</h5>
-                  <small style={{ color: 'var(--text-muted, rgba(255, 255, 255, 0.66))' }}>Downloading</small>
-                </div>
-                <div className="text-center">
-                  <h5 className="mb-0 text-success">{queue.stats.complete}</h5>
-                  <small style={{ color: 'var(--text-muted, rgba(255, 255, 255, 0.66))' }}>Complete</small>
-                </div>
-                <div className="text-center">
-                  <h5 className="mb-0 text-danger">{queue.stats.failed}</h5>
-                  <small style={{ color: 'var(--text-muted, rgba(255, 255, 255, 0.66))' }}>Failed</small>
-                </div>
-              </div>
-            </div>
-          </div>
+          <section className="ld-summary" aria-label="Download queue summary">
+            <article className="ld-stat-card"><span className="ld-stat-label">In queue</span><strong>{queue.stats.total}</strong><span className="ld-stat-caption">all queue items</span></article>
+            <article className="ld-stat-card"><span className="ld-stat-label">Downloading</span><strong>{queue.stats.downloading + queue.stats.processing}</strong><span className="ld-stat-caption">active Stash work</span></article>
+            <article className="ld-stat-card"><span className="ld-stat-label">Completed</span><strong>{queue.stats.complete}</strong><span className="ld-stat-caption">saved to Stash</span></article>
+            <article className="ld-stat-card"><span className="ld-stat-label">Needs review</span><strong>{queue.stats.failed}</strong><span className="ld-stat-caption">failed or interrupted</span></article>
+          </section>
 
           {/* Bulk Actions */}
           {queue.items.length > 0 && (
-            <div className="d-flex gap-2 mb-3">
+            <div className="d-flex gap-2 mb-3 ld-queue-actions">
               <button
                 className="btn btn-primary"
                 onClick={() => {
@@ -972,7 +969,7 @@ export const QueuePage: React.FC = () => {
           )}
 
           {/* Queue Toolbar - Preview toggle, Auto-import toggle, and Log level */}
-          <div className="d-flex justify-content-between align-items-center mb-2 px-2">
+          <div className="d-flex justify-content-between align-items-center mb-2 px-2 ld-queue-toolbar">
             <div className="d-flex align-items-center gap-2">
               <button
                 type="button"
@@ -1017,12 +1014,16 @@ export const QueuePage: React.FC = () => {
 
           {/* Queue Items */}
           {queue.items.length === 0 ? (
-            <div className="text-center py-5">
-              <h5 className="text-muted mb-2">No downloads in queue</h5>
-              <small className="text-muted">Enter a URL above to get started</small>
+            <div className="ld-empty-state">
+              <div className="ld-empty-art" aria-hidden="true">
+                <svg viewBox="0 0 96 96" fill="none"><path d="M22 16h35l18 18v43a5 5 0 0 1-5 5H27a5 5 0 0 1-5-5V21a5 5 0 0 1 5-5Z" /><path d="M57 17v18h17M34 51h28M34 62h19" /><circle cx="65" cy="66" r="16" /><path d="m76 78 9 9m-20-22v8m-4-4h8" /></svg>
+              </div>
+              <p className="ld-eyebrow">READY WHEN YOU ARE</p>
+              <h2>No downloads in your queue yet.</h2>
+              <p>Add a media URL above to scrape its details, choose an import profile, and prepare it for Stash.</p>
             </div>
           ) : (
-            <div className="d-flex flex-column gap-2">
+            <div className="d-flex flex-column gap-2 ld-queue-list">
               {queue.items.map((item) => (
                 <QueueItem
                   key={item.id}

@@ -265,7 +265,7 @@ export const QueueItem: React.FC<QueueItemProps> = ({ item, onRemove, onEdit, on
   const isScrapingMetadata = !item.metadata && !item.error && item.status === DownloadStatus.Pending;
 
   return (
-    <div className="card text-light mb-3" style={{ backgroundColor: 'var(--glass-bg, rgba(39, 39, 39, 0.90))' }}>
+    <div className="card text-light mb-3 ld-queue-card" style={{ backgroundColor: 'var(--glass-bg, rgba(39, 39, 39, 0.90))' }}>
       <div className="card-body">
         <div className="d-flex gap-3 align-items-start">
           {/* Thumbnail preview, skeleton, or placeholder */}

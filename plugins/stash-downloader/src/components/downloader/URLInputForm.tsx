@@ -55,17 +55,16 @@ export const URLInputForm: React.FC<URLInputFormProps> = ({
   };
 
   return (
-    <form onSubmit={handleSubmit} className="mb-3">
+    <form onSubmit={handleSubmit} className="mb-3 ld-url-form">
       <div className="mb-3">
-        <label htmlFor="url-input" className="form-label text-light">
+        <label htmlFor="url-input" className="form-label text-light ld-url-label">
           Download URL
         </label>
-        <div className="d-flex gap-2">
+        <div className="d-flex gap-2 ld-url-row">
           <input
             id="url-input"
             type="text"
-            className={`form-control text-light flex-grow-1 ${error ? 'is-invalid' : ''}`}
-            style={{ backgroundColor: 'var(--mica-elevated, #292929)', borderColor: 'var(--glass-border, rgba(255, 255, 255, 0.09))' }}
+            className={`form-control text-light flex-grow-1 ld-url-input ${error ? 'is-invalid' : ''}`}
             placeholder="https://example.com/video.mp4"
             value={url}
             onChange={(e) => {
@@ -78,13 +77,7 @@ export const URLInputForm: React.FC<URLInputFormProps> = ({
             disabled={disabled}
           />
           <select
-            className="form-select text-light"
-            style={{
-              backgroundColor: 'var(--mica-elevated, #292929)',
-              borderColor: 'var(--glass-border, rgba(255, 255, 255, 0.09))',
-              width: '140px',
-              flexShrink: 0,
-            }}
+            className="form-select text-light ld-url-type"
             value={contentType}
             onChange={(e) => setContentType(e.target.value as ContentTypeOption)}
             disabled={disabled}
@@ -96,13 +89,13 @@ export const URLInputForm: React.FC<URLInputFormProps> = ({
             <option value={ContentType.Gallery}>Gallery</option>
           </select>
         </div>
-        <div className={error ? 'invalid-feedback d-block' : 'form-text'} style={{ color: error ? undefined : 'var(--text-muted, rgba(255, 255, 255, 0.66))' }}>
+        <div className={`${error ? 'invalid-feedback d-block' : 'form-text'} ld-url-help`}>
           {error || 'Enter a URL from a supported site. Use the dropdown to specify content type.'}
         </div>
       </div>
       <button
         type="submit"
-        className="btn btn-success"
+        className="btn btn-primary ld-url-submit"
         disabled={disabled || !url.trim()}
       >
         ➕ Add to Queue

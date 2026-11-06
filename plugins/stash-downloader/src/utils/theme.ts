@@ -138,11 +138,31 @@ export function syncHostTheme(root: HTMLElement): void {
     const mutedText = themeToken('--text-muted', visible(styles.muted.color, text));
     const accent = themeToken('--accent', visible(styles.primary.backgroundColor, '#0d6efd'));
     const accentRgb = visible(styles.primary.backgroundColor, accent);
+    const accentChannels = colorChannels(accentRgb);
     const accentText = themeToken('--accent-contrast', visible(styles.primary.color, '#fff'));
     const accentBright = themeToken('--accent-bright', visible(styles.link.color, accent));
     const shadow = themeToken('--shadow-lg', styles.card.boxShadow || 'none');
 
     const variables: Record<string, string> = {
+      '--ld-bg': themeToken('--bg-0', bodySurface),
+      '--ld-surface': surface,
+      '--ld-surface-strong': themeToken('--glass-bg-strong', visible(styles.menu.backgroundColor, raised)),
+      '--ld-border': border,
+      '--ld-border-strong': themeToken('--glass-border-bright', alphaColor(border, 1.6)),
+      '--ld-text': text,
+      '--ld-muted': mutedText,
+      '--ld-subtle': alphaColor(mutedText, 0.76),
+      '--ld-accent': accent,
+      '--ld-accent-bright': accentBright,
+      '--ld-accent-light': themeToken('--accent-light', accentBright),
+      '--ld-accent-rgb': accentChannels?.join(', ') ?? '0, 120, 212',
+      '--ld-accent-soft': themeToken('--accent-tint', alphaColor(accentRgb, 0.16)),
+      '--ld-green': visible(styles.successText.color, '#4cc38a'),
+      '--ld-orange': visible(styles.warningText.color, '#f2a65a'),
+      '--ld-red': visible(styles.dangerText.color, '#f07575'),
+      '--ld-radius': '14px',
+      '--ld-radius-sm': '8px',
+      '--ld-font': styles.card.fontFamily || styles.app.fontFamily || styles.body.fontFamily,
       '--glass-bg': surface,
       '--glass-bg-strong': themeToken('--glass-bg-strong', visible(styles.menu.backgroundColor, raised)),
       '--mica-elevated': raised,

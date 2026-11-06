@@ -299,7 +299,6 @@
   background-color: var(--downloader-warning-bg, rgba(255, 193, 7, 0.15));
 }
 
-/* Small button refinements */
 .stash-downloader-plugin .btn-sm {
   font-size: var(--downloader-compact-button-font-size, 0.8125rem);
   padding: var(--downloader-compact-button-padding, 0.25rem 0.5rem);
@@ -653,3 +652,283 @@
     padding: 0.875rem;
   }
 }
+
+/* Library Doctor visual system: compact surfaces, editorial hierarchy, and quiet borders. */
+.stash-downloader-plugin {
+  --ld-bg: var(--theme-base, var(--stash-input-bg));
+  --ld-surface: var(--glass-bg, var(--stash-card-bg));
+  --ld-surface-strong: var(--glass-bg-strong, var(--stash-header-bg));
+  --ld-border: var(--glass-border, var(--stash-border));
+  --ld-border-strong: var(--glass-border-bright, var(--stash-border));
+  --ld-text: var(--text, var(--stash-text));
+  --ld-muted: var(--text-muted, var(--stash-muted));
+  --ld-subtle: var(--text-muted, var(--stash-muted));
+  --ld-accent: var(--accent, #0078d4);
+  --ld-accent-bright: var(--accent-bright, #2899f5);
+  --ld-accent-light: var(--accent-light, #c7e0f4);
+  --ld-accent-rgb: 0, 120, 212;
+  --ld-accent-soft: var(--accent-tint, rgba(0, 120, 212, 0.16));
+  --ld-green: #4cc38a;
+  --ld-orange: #f2a65a;
+  --ld-red: #f07575;
+  --ld-radius: 14px;
+  --ld-radius-sm: 8px;
+  --ld-font: var(--theme-font-stack, "Segoe UI", system-ui, -apple-system, BlinkMacSystemFont, sans-serif);
+  box-sizing: border-box;
+  min-height: 100vh;
+  overflow-x: clip;
+  background:
+    radial-gradient(ellipse at 18% 0%, rgba(var(--ld-accent-rgb), 0.09), transparent 36rem),
+    radial-gradient(ellipse at 98% 40%, rgba(var(--ld-accent-rgb), 0.045), transparent 32rem),
+    var(--ld-bg);
+  color: var(--ld-text);
+  font-family: var(--ld-font);
+}
+
+.stash-downloader-plugin *,
+.stash-downloader-plugin *::before,
+.stash-downloader-plugin *::after { box-sizing: border-box; }
+.stash-downloader-plugin .container-lg {
+  width: min(1260px, calc(100% - 48px));
+  max-width: none;
+  padding-right: 0;
+  padding-left: 0;
+}
+.stash-downloader-plugin .ld-header {
+  min-height: 70px;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 20px;
+  border-bottom: 1px solid var(--ld-border);
+}
+.stash-downloader-plugin .ld-brand-row,
+.stash-downloader-plugin .ld-header-actions { display: flex; align-items: center; }
+.stash-downloader-plugin .ld-brand-row { gap: 14px; min-width: 0; }
+.stash-downloader-plugin .ld-back {
+  display: inline-flex;
+  align-items: center;
+  gap: 7px;
+  color: var(--ld-muted);
+  font-size: 0.9rem;
+  font-weight: 600;
+  text-decoration: none;
+}
+.stash-downloader-plugin .ld-back:hover { color: var(--ld-text); }
+.stash-downloader-plugin .ld-back svg {
+  width: 18px;
+  height: 18px;
+  flex: 0 0 auto;
+  fill: none;
+  stroke: currentColor;
+  stroke-width: 1.8;
+  stroke-linecap: round;
+  stroke-linejoin: round;
+}
+.stash-downloader-plugin .ld-brand-divider { width: 1px; height: 22px; background: var(--ld-border-strong); }
+.stash-downloader-plugin .ld-brand-logo { width: 30px; height: 30px; object-fit: contain; }
+.stash-downloader-plugin .ld-brand-name { overflow: hidden; font-weight: 650; letter-spacing: 0.01em; text-overflow: ellipsis; white-space: nowrap; }
+.stash-downloader-plugin .ld-header-actions { gap: 10px; }
+.stash-downloader-plugin .ld-button {
+  min-height: 40px;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  padding: 0 15px;
+  border: 1px solid transparent;
+  border-radius: 9px;
+  font-family: var(--ld-font);
+  font-size: 0.875rem;
+  font-weight: 650;
+  text-decoration: none;
+  cursor: pointer;
+  transition: background-color 140ms ease, border-color 140ms ease, transform 140ms ease;
+}
+.stash-downloader-plugin .ld-button:active:not(:disabled) { transform: translateY(1px); }
+.stash-downloader-plugin .ld-button:focus-visible,
+.stash-downloader-plugin .ld-back:focus-visible {
+  outline: 2px solid var(--ld-accent);
+  outline-offset: 2px;
+}
+.stash-downloader-plugin .ld-button:disabled { opacity: 0.45; cursor: not-allowed; }
+.stash-downloader-plugin .ld-button-secondary { background: var(--ld-surface); border-color: var(--ld-border); color: var(--ld-text); }
+.stash-downloader-plugin .ld-button-secondary:hover:not(:disabled) { background: var(--ld-surface-strong); border-color: var(--ld-border-strong); }
+.stash-downloader-plugin .ld-intro {
+  display: flex;
+  align-items: flex-end;
+  justify-content: space-between;
+  gap: 28px;
+  padding: 40px 0 25px;
+}
+.stash-downloader-plugin .ld-eyebrow { margin: 0 0 9px; color: var(--ld-accent-bright); font-size: 0.7rem; font-weight: 750; letter-spacing: 0.13em; }
+.stash-downloader-plugin .ld-intro h1,
+.stash-downloader-plugin .ld-empty-state h2 { margin-top: 0; }
+.stash-downloader-plugin .ld-intro h1 { max-width: 740px; margin-bottom: 8px; color: var(--ld-text); font-size: clamp(1.65rem, 3vw, 2.25rem); line-height: 1.16; letter-spacing: -0.035em; }
+.stash-downloader-plugin .ld-subtitle { max-width: 720px; margin: 0; color: var(--ld-muted); font-size: 0.95rem; line-height: 1.55; }
+.stash-downloader-plugin .ld-workflow-note {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  flex: 0 0 auto;
+  margin-bottom: 3px;
+  padding: 9px 12px;
+  border: 1px solid var(--ld-border);
+  border-radius: 999px;
+  background: rgba(255, 255, 255, 0.025);
+  color: var(--ld-muted);
+  font-size: 0.76rem;
+  white-space: nowrap;
+}
+.stash-downloader-plugin .ld-workflow-dot { width: 7px; height: 7px; border-radius: 50%; background: var(--ld-green); box-shadow: 0 0 10px rgba(76, 195, 138, 0.45); }
+.stash-downloader-plugin .card,
+.stash-downloader-plugin .ld-stat-card {
+  border: 1px solid var(--ld-border) !important;
+  border-radius: var(--ld-radius) !important;
+  background: linear-gradient(145deg, rgba(255,255,255,0.035), rgba(255,255,255,0.008)), var(--ld-surface) !important;
+  box-shadow: inset 0 1px 0 rgba(255,255,255,0.035), 0 12px 38px rgba(0,0,0,0.12);
+  color: var(--ld-text);
+}
+.stash-downloader-plugin .card-header,
+.stash-downloader-plugin .card-footer {
+  border-color: var(--ld-border) !important;
+  background: rgba(255,255,255,0.018) !important;
+  color: var(--ld-text);
+}
+.stash-downloader-plugin .card-header:first-child { border-radius: calc(var(--ld-radius) - 1px) calc(var(--ld-radius) - 1px) 0 0; }
+.stash-downloader-plugin .ld-profile-panel .card-body { gap: 9px 12px; padding: 13px 16px; }
+.stash-downloader-plugin .ld-profile-panel .form-label { color: var(--ld-muted) !important; font-size: 0.82rem; font-weight: 650; }
+.stash-downloader-plugin .ld-summary { display: grid; grid-template-columns: repeat(4, minmax(0, 1fr)); gap: 12px; margin: 0 0 19px; }
+.stash-downloader-plugin .ld-stat-card {
+  min-height: 116px;
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  padding: 17px 18px;
+}
+.stash-downloader-plugin .ld-stat-label { color: var(--ld-muted); font-size: 0.77rem; font-weight: 600; }
+.stash-downloader-plugin .ld-stat-card strong { margin-top: 7px; color: var(--ld-text); font-size: 1.75rem; font-weight: 700; font-variant-numeric: tabular-nums; letter-spacing: -0.04em; }
+.stash-downloader-plugin .ld-stat-caption { margin-top: auto; color: var(--ld-subtle); font-size: 0.72rem; }
+.stash-downloader-plugin .ld-url-form { margin-bottom: 12px !important; }
+.stash-downloader-plugin .ld-url-label { margin-bottom: 7px; color: var(--ld-muted) !important; font-size: 0.8rem; font-weight: 700; letter-spacing: 0.06em; text-transform: uppercase; }
+.stash-downloader-plugin .ld-url-row { align-items: stretch; }
+.stash-downloader-plugin .ld-url-input { min-width: 0; min-height: 44px; border-radius: 9px !important; background: var(--ld-surface-strong) !important; color: var(--ld-text) !important; }
+.stash-downloader-plugin .ld-url-type { width: 150px; flex: 0 0 150px; min-height: 44px; border-radius: 9px !important; background-color: var(--ld-surface-strong) !important; color: var(--ld-text) !important; }
+.stash-downloader-plugin .ld-url-help { margin-top: 7px; color: var(--ld-subtle) !important; font-size: 0.73rem; }
+.stash-downloader-plugin .ld-url-submit { min-height: 42px; padding-inline: 16px; border-radius: 9px; font-weight: 650; }
+.stash-downloader-plugin .form-control,
+.stash-downloader-plugin .form-select {
+  border-color: var(--ld-border-strong) !important;
+  border-radius: 8px;
+  background-color: var(--ld-surface-strong) !important;
+  color: var(--ld-text) !important;
+}
+.stash-downloader-plugin .form-control:focus,
+.stash-downloader-plugin .form-select:focus { border-color: var(--ld-accent) !important; box-shadow: 0 0 0 3px var(--ld-accent-soft) !important; }
+.stash-downloader-plugin .form-control::placeholder { color: var(--ld-subtle); }
+.stash-downloader-plugin .btn {
+  min-height: 34px;
+  border-radius: 8px;
+  font-weight: 620;
+  transition: background-color 140ms ease, border-color 140ms ease, color 140ms ease, transform 140ms ease;
+}
+.stash-downloader-plugin .btn:focus-visible { outline: 2px solid var(--ld-accent); outline-offset: 2px; box-shadow: none; }
+.stash-downloader-plugin .btn:active:not(:disabled) { transform: translateY(1px); }
+.stash-downloader-plugin .btn-primary { background: var(--ld-accent) !important; border-color: var(--ld-accent) !important; color: var(--accent-contrast, #fff) !important; }
+.stash-downloader-plugin .btn-primary:hover:not(:disabled) { filter: brightness(1.08); }
+.stash-downloader-plugin .btn-outline-primary { color: var(--ld-accent-bright); border-color: var(--ld-accent); }
+.stash-downloader-plugin .btn-outline-primary:hover { background: var(--ld-accent-soft); color: var(--ld-text); }
+.stash-downloader-plugin .btn-outline-light,
+.stash-downloader-plugin .btn-outline-secondary { color: var(--ld-muted); border-color: var(--ld-border-strong); }
+.stash-downloader-plugin .btn-outline-light:hover,
+.stash-downloader-plugin .btn-outline-secondary:hover { background: rgba(255,255,255,0.06); color: var(--ld-text); }
+.stash-downloader-plugin .badge { border-radius: 6px; font-weight: 650; }
+.stash-downloader-plugin .text-light,
+.stash-downloader-plugin .text-white { color: var(--ld-text) !important; }
+.stash-downloader-plugin .text-muted { color: var(--ld-muted) !important; }
+.stash-downloader-plugin .ld-queue-actions { flex-wrap: wrap; }
+.stash-downloader-plugin .ld-queue-toolbar { gap: 12px; min-width: 0; padding: 0 0 2px !important; }
+.stash-downloader-plugin .ld-queue-toolbar > div { flex-wrap: wrap; }
+.stash-downloader-plugin .ld-queue-list { gap: 10px !important; }
+.stash-downloader-plugin .ld-queue-card { margin: 0 !important; overflow: hidden; }
+.stash-downloader-plugin .ld-queue-card .card-body { padding: 16px; }
+.stash-downloader-plugin .ld-queue-card .card-body > .d-flex { min-width: 0; }
+.stash-downloader-plugin .ld-queue-card .card-body > .d-flex > .flex-grow-1 { min-width: 0; }
+.stash-downloader-plugin .ld-queue-card h6 { color: var(--ld-text); font-weight: 650; line-height: 1.4; overflow-wrap: anywhere; }
+.stash-downloader-plugin .ld-queue-card small { overflow-wrap: anywhere; }
+.stash-downloader-plugin .ld-queue-card .progress { height: 6px; overflow: hidden; border-radius: 999px; background: rgba(255,255,255,0.08); }
+.stash-downloader-plugin .ld-queue-card .progress-bar { border-radius: inherit; }
+.stash-downloader-plugin .ld-queue-card .badge { padding: 0.42em 0.65em; }
+.stash-downloader-plugin .ld-empty-state { display: grid; justify-items: center; max-width: 570px; margin: 66px auto 60px; text-align: center; }
+.stash-downloader-plugin .ld-empty-art { width: 88px; height: 88px; display: grid; place-items: center; margin-bottom: 22px; border: 1px solid var(--ld-border); border-radius: 23px; background: linear-gradient(145deg, rgba(var(--ld-accent-rgb),0.16), rgba(255,255,255,0.025)); box-shadow: inset 0 1px 0 rgba(255,255,255,0.07), 0 15px 40px rgba(0,0,0,0.18); }
+.stash-downloader-plugin .ld-empty-art svg { width: 68px; height: 68px; stroke: var(--ld-accent-bright); stroke-width: 2; stroke-linecap: round; stroke-linejoin: round; }
+.stash-downloader-plugin .ld-empty-art svg circle { fill: var(--ld-bg); }
+.stash-downloader-plugin .ld-empty-state .ld-eyebrow { margin-bottom: 8px; }
+.stash-downloader-plugin .ld-empty-state h2 { margin-bottom: 8px; color: var(--ld-text); font-size: 1.45rem; letter-spacing: -0.025em; }
+.stash-downloader-plugin .ld-empty-state > p:not(.ld-eyebrow) { max-width: 520px; margin: 0; color: var(--ld-muted); font-size: 0.9rem; line-height: 1.6; }
+.stash-downloader-plugin .ld-log-card { overflow: hidden; }
+.stash-downloader-plugin .table { --bs-table-bg: transparent; --bs-table-color: var(--ld-muted); --bs-table-border-color: var(--ld-border); color: var(--ld-muted); }
+.stash-downloader-plugin .table thead th { border-color: var(--ld-border); background: rgba(255,255,255,0.018); color: var(--ld-subtle); font-size: 0.68rem; font-weight: 700; letter-spacing: 0.06em; text-transform: uppercase; }
+.stash-downloader-plugin .table tbody tr:hover { --bs-table-bg: rgba(255,255,255,0.025); }
+.stash-downloader-plugin .modal-content {
+  overflow: hidden;
+  border: 1px solid var(--ld-border-strong) !important;
+  border-radius: 16px !important;
+  background: var(--ld-surface-strong) !important;
+  color: var(--ld-text) !important;
+  box-shadow: 0 28px 90px rgba(0,0,0,0.48), inset 0 1px 0 rgba(255,255,255,0.04);
+}
+.stash-downloader-plugin .modal-header,
+.stash-downloader-plugin .modal-footer { border-color: var(--ld-border) !important; background: rgba(255,255,255,0.018); }
+.stash-downloader-plugin .modal-backdrop.show { background-color: rgba(0,0,0,0.68); opacity: 1; backdrop-filter: blur(5px); }
+.stash-downloader-plugin .dropdown-menu { border: 1px solid var(--ld-border-strong); border-radius: 9px; background: var(--ld-surface-strong); box-shadow: 0 14px 34px rgba(0,0,0,0.28); }
+.stash-downloader-plugin .dropdown-item { color: var(--ld-muted); }
+.stash-downloader-plugin .dropdown-item:hover,
+.stash-downloader-plugin .dropdown-item:focus { background: rgba(255,255,255,0.06); color: var(--ld-text); }
+.stash-downloader-plugin :is(input, select, textarea) { accent-color: var(--ld-accent); }
+
+@media (max-width: 900px) {
+  .stash-downloader-plugin .container-lg { width: min(calc(100% - 32px), 720px); }
+  .stash-downloader-plugin .ld-header { min-height: 64px; }
+  .stash-downloader-plugin .ld-intro { align-items: flex-start; flex-direction: column; gap: 15px; padding: 30px 0 20px; }
+  .stash-downloader-plugin .ld-workflow-note { margin: 0; }
+  .stash-downloader-plugin .ld-summary { grid-template-columns: repeat(2, minmax(0, 1fr)); margin-bottom: 18px; }
+  .stash-downloader-plugin .ld-stat-card { min-height: 105px; padding: 14px; }
+}
+@media (max-width: 620px) {
+  .stash-downloader-plugin .container-lg { width: calc(100% - 24px); }
+  .stash-downloader-plugin .ld-header { align-items: flex-start; flex-direction: column; gap: 12px; padding: 13px 0; }
+  .stash-downloader-plugin .ld-brand-row { gap: 9px; }
+  .stash-downloader-plugin .ld-brand-name { font-size: 0.9rem; }
+  .stash-downloader-plugin .ld-header-actions { width: 100%; }
+  .stash-downloader-plugin .ld-header-actions .ld-button { flex: 1 1 auto; }
+  .stash-downloader-plugin .ld-intro { padding-top: 25px; }
+  .stash-downloader-plugin .ld-intro h1 { font-size: 1.6rem; }
+  .stash-downloader-plugin .ld-subtitle { font-size: 0.85rem; }
+  .stash-downloader-plugin .ld-workflow-note { max-width: 100%; padding: 8px 10px; font-size: 0.7rem; white-space: normal; }
+  .stash-downloader-plugin .ld-summary { gap: 8px; }
+  .stash-downloader-plugin .ld-stat-card { min-height: 100px; padding: 12px; }
+  .stash-downloader-plugin .ld-stat-label { font-size: 0.7rem; }
+  .stash-downloader-plugin .ld-stat-card strong { font-size: 1.5rem; }
+  .stash-downloader-plugin .ld-stat-caption { font-size: 0.64rem; }
+  .stash-downloader-plugin .ld-url-row { flex-direction: column; }
+  .stash-downloader-plugin .ld-url-type { width: 100%; flex: 0 0 auto; }
+  .stash-downloader-plugin .ld-url-submit { width: 100%; }
+  .stash-downloader-plugin .ld-queue-toolbar { align-items: stretch !important; flex-direction: column; padding-inline: 0 !important; }
+  .stash-downloader-plugin .ld-queue-toolbar > div { align-items: stretch; }
+  .stash-downloader-plugin .ld-queue-toolbar .btn { flex: 1 1 145px; min-width: 0 !important; }
+  .stash-downloader-plugin .ld-queue-toolbar .form-select { width: auto !important; flex: 1 1 auto; }
+  .stash-downloader-plugin .ld-queue-actions .btn { flex: 1 1 140px; }
+  .stash-downloader-plugin .ld-queue-card .card-body { padding: 12px; }
+  .stash-downloader-plugin .ld-queue-card .card-body > .d-flex { flex-wrap: wrap; gap: 10px !important; }
+  .stash-downloader-plugin .ld-queue-card .card-body > .d-flex > .flex-grow-1 { flex-basis: calc(100% - 60px); }
+  .stash-downloader-plugin .ld-queue-card .card-body > .d-flex > .flex-grow-1 + .d-flex { width: 100%; }
+  .stash-downloader-plugin .ld-queue-card .btn { flex: 1 1 auto; }
+  .stash-downloader-plugin .ld-empty-state { margin: 54px auto; }
+  .stash-downloader-plugin .ld-empty-state h2 { font-size: 1.25rem; }
+  .stash-downloader-plugin .ld-empty-state > p:not(.ld-eyebrow) { font-size: 0.82rem; }
+  .stash-downloader-plugin .modal-dialog { width: calc(100% - 20px); max-width: none; margin: 10px auto; }
+  .stash-downloader-plugin .modal-dialog-scrollable { height: calc(100% - 20px); }
+}
+
+/* Small button refinements */

@@ -53,7 +53,7 @@
     .palette-card.is-selected { border-color: rgba(var(--accent-rgb), .74); box-shadow: 0 0 0 1px rgba(var(--accent-rgb), .18), 0 10px 32px rgba(0,0,0,.2); }
     .palette-card[data-palette="cobalt"] { --accent: #6486ed; --accent-rgb: 100, 134, 237; --accent-ink: #101728; }
     .palette-card[data-palette="orchid"] { --accent: #a076e8; --accent-rgb: 160, 118, 232; --accent-ink: #20152e; }
-    .palette-card[data-palette="jade"] { --accent: #35b38f; --accent-rgb: 53, 179, 143; --accent-ink: #10251f; }
+    .palette-card[data-palette="teal"] { --accent: #269ba6; --accent-rgb: 38, 155, 166; --accent-ink: #0e2528; }
     .palette-card[data-palette="terracotta"] { --accent: #de795a; --accent-rgb: 222, 121, 90; --accent-ink: #2a1712; }
     .palette-head { display: flex; align-items: start; justify-content: space-between; gap: 12px; padding: 17px 17px 13px; }
     .palette-number { display: block; margin-bottom: 5px; color: var(--quiet); font-size: 10px; font-weight: 700; letter-spacing: .12em; }
@@ -97,7 +97,7 @@
     .accent-inventory-head { display: flex; align-items: baseline; justify-content: space-between; gap: 12px; margin-bottom: 12px; }
     .accent-inventory-head strong { font-size: 13px; }
     .accent-inventory-head span { color: var(--muted); font-size: 11px; }
-    .accent-inventory-grid { display: grid; grid-template-columns: repeat(7, minmax(0, 1fr)); gap: 8px; }
+    .accent-inventory-grid { display: grid; grid-template-columns: repeat(4, minmax(0, 1fr)); gap: 8px; }
     .accent-chip { display: flex; align-items: center; gap: 8px; min-width: 0; padding: 9px 10px; border: 1px solid var(--line); border-radius: 7px; background: var(--surface-raised); }
     .accent-chip i { width: 13px; height: 13px; flex: 0 0 auto; border: 1px solid rgba(255,255,255,.22); border-radius: 4px; background: var(--chip); }
     .accent-chip span { min-width: 0; overflow: hidden; color: var(--text); font-size: 10px; font-weight: 650; text-overflow: ellipsis; white-space: nowrap; }
@@ -127,7 +127,7 @@
     body.light .action-primary { color: #fff; }
     body.light .palette-card[data-palette="cobalt"] .action-primary { background: #4268ce; border-color: #4268ce; }
     body.light .palette-card[data-palette="orchid"] .action-primary { background: #8055ce; border-color: #8055ce; }
-    body.light .palette-card[data-palette="jade"] .action-primary { background: #177e60; border-color: #177e60; }
+    body.light .palette-card[data-palette="teal"] .action-primary { background: #126e79; border-color: #126e79; }
     body.light .palette-card[data-palette="terracotta"] .action-primary { background: #b95637; border-color: #b95637; }
     body.light .note-mark { background: rgba(66,104,206,.11); color: #4268ce; }
     @media (max-width: 1120px) { .palette-grid { grid-template-columns: repeat(2, minmax(0, 1fr)); } }
@@ -162,7 +162,7 @@
       <div class="intro-copy">
         <div class="eyebrow">Accent color directions</div>
         <h1 id="page-title">More presence.<br>Still easy on the eyes.</h1>
-        <p>The four previews show the palette directions from the first mockup. The Settings picker keeps all seven existing choices, with deeper color values so selected controls read clearly at a glance. Library cards and page surfaces stay neutral.</p>
+        <p>The previews use clearer, more distinct hues: Teal moves toward blue-green, and Red joins the palette. The Settings picker keeps every existing choice, with deeper colors for active controls while library cards and page surfaces stay neutral.</p>
       </div>
       <aside class="principle"><strong>Design rule</strong>Use a confident color in small, meaningful places. Keep large surfaces dark or light so the library stays the focus.</aside>
     </section>
@@ -187,15 +187,15 @@
         </div>
         <footer class="palette-foot"><div class="swatch-info"><span class="swatch"></span><div class="swatch-label"><strong>Rich orchid</strong><span>#A076E8</span></div></div><button class="choose" type="button" aria-pressed="false">Compare</button></footer>
       </article>
-      <article class="palette-card" data-palette="jade">
-        <header class="palette-head"><div><span class="palette-number">OPTION 03</span><h2>Jade</h2><p>Calm, but easy to spot</p></div></header>
+      <article class="palette-card" data-palette="teal">
+        <header class="palette-head"><div><span class="palette-number">OPTION 03</span><h2>Teal</h2><p>Cooler, distinct from green</p></div></header>
         <div class="preview">
           <div class="preview-bar"><div class="preview-brand"><span class="preview-logo"></span>Rebirth</div><span class="preview-avatar"></span></div>
-          <div class="preview-body"><nav class="preview-nav" aria-label="Jade preview"><div class="nav-item active"><svg viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.5"><path d="m2 7 6-5 6 5v7H9V9H7v5H2z"/></svg>Home</div><div class="nav-item">▸ &nbsp;Scenes</div><div class="nav-item">▧ &nbsp;Performers</div><div class="nav-item">⚙ &nbsp;Settings</div></nav>
+          <div class="preview-body"><nav class="preview-nav" aria-label="Teal preview"><div class="nav-item active"><svg viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.5"><path d="m2 7 6-5 6 5v7H9V9H7v5H2z"/></svg>Home</div><div class="nav-item">▸ &nbsp;Scenes</div><div class="nav-item">▧ &nbsp;Performers</div><div class="nav-item">⚙ &nbsp;Settings</div></nav>
             <div class="preview-content"><div class="crumb">Library / Scenes</div><h3>New arrivals</h3><p class="sub">Your recently added scenes</p><div class="scene-card"><div class="scene-title">Scene details <span class="status">IN PROGRESS</span></div><div class="progress"><span></span></div><div class="chips"><span class="tag">Drama</span><span class="tag">Favorites</span></div><div class="preview-actions"><button class="action-primary">Open scene</button><button class="action-secondary">Edit tags</button></div><div class="switch-row"><span>Include in carousel</span><span class="switch"></span></div></div></div>
           </div>
         </div>
-        <footer class="palette-foot"><div class="swatch-info"><span class="swatch"></span><div class="swatch-label"><strong>Deep jade</strong><span>#35B38F</span></div></div><button class="choose" type="button" aria-pressed="false">Compare</button></footer>
+        <footer class="palette-foot"><div class="swatch-info"><span class="swatch"></span><div class="swatch-label"><strong>Cool teal</strong><span>#269BA6</span></div></div><button class="choose" type="button" aria-pressed="false">Compare</button></footer>
       </article>
       <article class="palette-card" data-palette="terracotta">
         <header class="palette-head"><div><span class="palette-number">OPTION 04</span><h2>Terracotta</h2><p>Warm, distinct, and grounded</p></div></header>
@@ -208,15 +208,16 @@
         <footer class="palette-foot"><div class="swatch-info"><span class="swatch"></span><div class="swatch-label"><strong>Soft terracotta</strong><span>#DE795A</span></div></div><button class="choose" type="button" aria-pressed="false">Compare</button></footer>
       </article>
     </section>
-    <section class="accent-inventory" aria-label="All seven updated accent colors">
-      <div class="accent-inventory-head"><strong>Updated Settings palette</strong><span>All seven color choices remain available</span></div>
+    <section class="accent-inventory" aria-label="All eight updated accent colors">
+      <div class="accent-inventory-head"><strong>Updated Settings palette</strong><span>All eight color choices are available</span></div>
       <div class="accent-inventory-grid">
-        <div class="accent-chip" style="--chip:#35b38f"><i></i><span>Teal</span><code>#35B38F</code></div>
+        <div class="accent-chip" style="--chip:#269ba6"><i></i><span>Teal</span><code>#269BA6</code></div>
         <div class="accent-chip" style="--chip:#6486ed"><i></i><span>Blue</span><code>#6486ED</code></div>
         <div class="accent-chip" style="--chip:#a076e8"><i></i><span>Violet</span><code>#A076E8</code></div>
         <div class="accent-chip" style="--chip:#de795a"><i></i><span>Coral</span><code>#DE795A</code></div>
         <div class="accent-chip" style="--chip:#d5a239"><i></i><span>Amber</span><code>#D5A239</code></div>
         <div class="accent-chip" style="--chip:#d56794"><i></i><span>Rose</span><code>#D56794</code></div>
+        <div class="accent-chip" style="--chip:#e45a63"><i></i><span>Red</span><code>#E45A63</code></div>
         <div class="accent-chip" style="--chip:#3a9e67"><i></i><span>Green</span><code>#3A9E67</code></div>
       </div>
     </section>

@@ -18,13 +18,13 @@
     description: Theme-adaptive server-side image and video downloads with yt-dlp, proxy settings, library-aware imports, and metadata extraction.
 - id: rebirth
   name: Rebirth
-  version: 1.0.6
-  date: "2026-11-06 14:14:08"
-  path: packages/rebirth/1.0.6.zip
-  sha256: 9189bb6a1935608838fe85936ec640433e054e648f7aaaeaedd616e1a80a2fc4
+  version: 1.0.7
+  date: "2026-11-06 14:19:27"
+  path: packages/rebirth/1.0.7.zip
+  sha256: 04141ef18d72c40499fcb5053a529554ec03277230d7ee51468ff730f9fc049c
   requires: []
   metadata:
-    description: Rebirth is a video-first Stash theme with appearance preferences synced per signed-in user, a selectable one- or two-column mobile scene grid, an accent-responsive Stash box mark, squared custom switches with comfortable thumb insets, Geist typography, an automatically cycling new-arrivals carousel, Continue Watching, themed native Settings sections with inline mobile switches, a stable Plugins filter and action layout, a compact Settings task queue, customizable mobile navigation, distinct accent-filled tag chips, neutral Tagger result rows, square mobile include/exclude controls, wrapped performer controls, compact tag actions, dropdowns, selects, and video-player menus, theme settings integrated into Interface settings, light and dark modes, eight distinct accent colors including blue-green Teal and Red, selected-accent primary buttons, outlined secondary actions, and semantic destructive actions.
+    description: Rebirth is a video-first Stash theme with appearance preferences synced per signed-in user, a selectable one- or two-column mobile scene grid, an accent-responsive Stash box mark, squared custom switches with matching on/off thumb insets, Geist typography, an automatically cycling new-arrivals carousel, Continue Watching, themed native Settings sections with inline mobile switches, a stable Plugins filter and action layout, a compact Settings task queue, customizable mobile navigation, distinct accent-filled tag chips, neutral Tagger result rows, square mobile include/exclude controls, wrapped performer controls, compact tag actions, dropdowns, selects, and video-player menus, theme settings integrated into Interface settings, light and dark modes, eight distinct accent colors including blue-green Teal and Red, selected-accent primary buttons, outlined secondary actions, and semantic destructive actions.
 - id: performer-site-sync
   name: Performer Site Sync
   version: 2.0.2

@@ -1,12 +1,12 @@
 - id: library-doctor
   name: Library Doctor
-  version: 1.6.4
-  date: "2026-11-01 17:01:52"
-  path: packages/library-doctor/1.6.4.zip
-  sha256: 2eac14af5c89d21a71dbac86aa0aa06f3a813c34b339e9741736b34c4226c5a9
+  version: 1.6.5
+  date: "2026-11-05 21:56:15"
+  path: packages/library-doctor/1.6.5.zip
+  sha256: 8bd34bf79e6d5925f89656b5ecc28323204b19a9b2391d88d6ad1d480f6fdab6
   requires: []
   metadata:
-    description: Health checks, FFmpeg encoding audit and re-encoding, metadata assistance, scraping, tagging, and duplicate or alternate-version review.
+    description: Theme-adaptive library health checks, FFmpeg encoding audit and re-encoding, metadata assistance, scraping, tagging, and duplicate or alternate-version review.
 - id: scene-gallery-generator
   name: Scene Gallery Generator
   version: 1.0.5

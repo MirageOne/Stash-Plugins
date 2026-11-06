@@ -5,6 +5,16 @@
     var SCAN_PAGE_SIZE = 200;
     var SCRAPE_BATCH_SIZE = 25;
     var REVIEWED_DUPLICATES_KEY = "library-doctor.reviewedDuplicates";
+    var HOST_THEME_KEY = "library-doctor.host-theme.v1";
+    var HOST_THEME_PROPERTIES = [
+        "--ld-bg", "--ld-surface", "--ld-surface-strong", "--ld-border", "--ld-border-strong",
+        "--ld-text", "--ld-muted", "--ld-subtle", "--ld-accent", "--ld-accent-contrast",
+        "--ld-primary-bg", "--ld-primary-border", "--ld-primary-text",
+        "--ld-accent-bright", "--ld-accent-light", "--ld-accent-rgb", "--ld-accent-soft",
+        "--ld-green", "--ld-orange", "--ld-red", "--ld-radius", "--ld-radius-sm",
+        "--ld-font", "--ld-button-font", "--ld-button-size", "--ld-button-weight",
+        "--ld-button-line-height", "--ld-button-radius"
+    ];
     var FRESH_SCENE_QUERY = "query LibraryDoctorFreshScene($id: ID!) { findScene(id: $id) { id title date tags { id name } } }";
     var UPDATE_SCENE_MUTATION = "mutation LibraryDoctorUpdateScene($input: SceneUpdateInput!) { sceneUpdate(input: $input) { id title date tags { id name } } }";
     var SCRAPERS_QUERY = "query LibraryDoctorScrapers { listScrapers(types: [SCENE]) { id name } }";
@@ -106,7 +116,7 @@
         return validDate(date) ? { value: date, source: source } : null;
     }
 
-    function setAccent() {
+    function applyHostTheme() {
         var root = document.documentElement;
         var tokenMap = {
             "--ld-bg": "--bg-0",
@@ -118,6 +128,7 @@
             "--ld-muted": "--text-muted",
             "--ld-subtle": "--text-muted",
             "--ld-accent": "--accent",
+            "--ld-accent-contrast": "--accent-contrast",
             "--ld-accent-soft": "--accent-tint",
             "--ld-accent-bright": "--accent-bright",
             "--ld-accent-light": "--accent-light",
@@ -127,6 +138,20 @@
             "--ld-radius-sm": "--radius-sm"
         };
         try {
+            var hostTheme = JSON.parse(localStorage.getItem(HOST_THEME_KEY) || "null");
+            if (hostTheme && hostTheme.version === 1 && hostTheme.tokens && typeof hostTheme.tokens === "object") {
+                HOST_THEME_PROPERTIES.forEach(function (name) {
+                    var value = hostTheme.tokens[name];
+                    if (typeof value === "string" && value) { root.style.setProperty(name, value); }
+                });
+                if (hostTheme.colorScheme === "light" || hostTheme.colorScheme === "dark") {
+                    root.style.colorScheme = hostTheme.colorScheme;
+                }
+                return;
+            }
+            HOST_THEME_PROPERTIES.forEach(function (name) { root.style.removeProperty(name); });
+            root.style.removeProperty("color-scheme");
+
             var snapshot = JSON.parse(localStorage.getItem("stash.theme.tokens.v1") || "null");
             var tokens = snapshot && snapshot.version === 1 && snapshot.tokens && typeof snapshot.tokens === "object"
                 ? snapshot.tokens : null;
@@ -160,10 +185,10 @@
     }
 
     window.addEventListener("storage", function (event) {
-        if (event.key === "stash.theme.tokens.v1" || event.key === "mv.theme.accent" ||
+        if (event.key === HOST_THEME_KEY || event.key === "stash.theme.tokens.v1" || event.key === "mv.theme.accent" ||
                 event.key === "mv.theme.accentTint" || event.key === "mv.theme.accentRgb" ||
                 event.key === "fluent-mica.accent" || event.key === "noir-theme.accent") {
-            setAccent();
+            applyHostTheme();
         }
     });
 
@@ -2225,6 +2250,6 @@
         els.fixDialog.addEventListener("close", function () { pendingFixScene = null; });
     }
 
-    setAccent();
+    applyHostTheme();
     bind();
 }());

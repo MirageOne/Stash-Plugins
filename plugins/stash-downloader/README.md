@@ -35,7 +35,7 @@ Add the MirageOne Stash Plugins source in **Settings → Plugins → Add source*
 https://raw.githubusercontent.com/MirageOne/Stasher/main/index.yml
 ```
 
-Reload sources and install **Stash Downloader**. For a manual installation, extract the [manual archive](../../packages/stash-downloader/0.6.2-manual.zip) into Stash's configured plugin directory, install the Python dependencies, then enable the plugin.
+Reload sources and install **Stash Downloader**. For a manual installation, extract the [manual archive](../../packages/stash-downloader/0.6.3-manual.zip) into Stash's configured plugin directory, install the Python dependencies, then enable the plugin.
 
 ## Configure
 

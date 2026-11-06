@@ -18,13 +18,13 @@
     description: Choose 1–30 still frames per scene, then create ZIP-backed galleries with matching metadata and scene links using FFmpeg.
 - id: stash-downloader
   name: Stash Downloader
-  version: 0.6.2
-  date: "2026-11-01 16:36:42"
-  path: packages/stash-downloader/0.6.2.zip
-  sha256: 171aa9504b0d64e959fb18e99eede6f9ee64719bdb04e881e3ba79a65f083672
+  version: 0.6.3
+  date: "2026-11-06 01:28:45"
+  path: packages/stash-downloader/0.6.3.zip
+  sha256: 53f77ded1b71773ef375f0c5383686d6991481acbc034d1c1b11062d8cebc573
   requires: []
   metadata:
-    description: Server-side image and video downloads with yt-dlp, proxy settings, library-aware imports, and metadata extraction.
+    description: Theme-aware server-side image and video downloads with yt-dlp, proxy settings, library-aware imports, and metadata extraction.
 - id: current-theme
   name: Current Theme
   version: 0.1.47

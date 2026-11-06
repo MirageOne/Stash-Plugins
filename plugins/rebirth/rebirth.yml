@@ -1,0 +1,12 @@
+name: Rebirth
+description: Rebirth is a video-first Stash theme with appearance preferences synced to the signed-in Stash account, a selectable one- or two-column mobile scene grid, an accent-responsive Stash box mark, squared accent-aware switches, Geist typography, an automatically cycling new-arrivals carousel, Continue Watching, themed native Settings sections with inline mobile switches, a compact Settings task queue, customizable four-item mobile navigation, distinct accent-filled tag chips, neutral Tagger result rows, square mobile Tagger include/exclude controls, wrapped performer and tag actions, styled dropdowns and selects, light and dark modes, seven accent colors, and Soft Fill buttons.
+version: 1.0.0
+url: https://github.com/MirageOne/Stash-Plugins/tree/main/plugins/rebirth
+ui:
+  javascript:
+    - rebirth-1.0.0.js
+  css:
+    - css/rebirth-1.0.0.css
+  assets:
+    /fonts: fonts
+    /icons: icons

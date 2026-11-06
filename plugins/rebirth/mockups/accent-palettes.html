@@ -93,6 +93,15 @@
     .swatch-label { min-width: 0; }
     .swatch-label strong { display: block; font-size: 11px; font-weight: 680; }
     .swatch-label span { color: var(--muted); font-size: 10px; font-variant-numeric: tabular-nums; }
+    .accent-inventory { margin-top: 16px; padding: 16px; border: 1px solid var(--line); border-radius: 10px; background: var(--surface); }
+    .accent-inventory-head { display: flex; align-items: baseline; justify-content: space-between; gap: 12px; margin-bottom: 12px; }
+    .accent-inventory-head strong { font-size: 13px; }
+    .accent-inventory-head span { color: var(--muted); font-size: 11px; }
+    .accent-inventory-grid { display: grid; grid-template-columns: repeat(7, minmax(0, 1fr)); gap: 8px; }
+    .accent-chip { display: flex; align-items: center; gap: 8px; min-width: 0; padding: 9px 10px; border: 1px solid var(--line); border-radius: 7px; background: var(--surface-raised); }
+    .accent-chip i { width: 13px; height: 13px; flex: 0 0 auto; border: 1px solid rgba(255,255,255,.22); border-radius: 4px; background: var(--chip); }
+    .accent-chip span { min-width: 0; overflow: hidden; color: var(--text); font-size: 10px; font-weight: 650; text-overflow: ellipsis; white-space: nowrap; }
+    .accent-chip code { margin-left: auto; color: var(--muted); font: 9px/1.2 var(--font); font-variant-numeric: tabular-nums; }
     .choose { min-height: 30px; padding: 0 10px; border: 1px solid var(--line-strong); border-radius: 5px; background: transparent; color: var(--muted); font-size: 10px; font-weight: 650; cursor: pointer; }
     .palette-card.is-selected .choose { border-color: rgba(var(--accent-rgb), .55); background: rgba(var(--accent-rgb), .13); color: var(--accent); }
     .choose:focus-visible, .mode-toggle button:focus-visible { outline: 2px solid var(--accent); outline-offset: 2px; }
@@ -129,6 +138,9 @@
       .intro p { font-size: 14px; }
       .principle { max-width: none; margin-top: 16px; }
       .palette-grid { grid-template-columns: 1fr; gap: 12px; }
+      .accent-inventory-grid { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+      .accent-inventory-head { display: block; }
+      .accent-inventory-head span { display: block; margin-top: 3px; }
       .palette-card { display: grid; grid-template-columns: minmax(0, 1fr); }
       .preview { min-height: 270px; }
       .preview-body { min-height: 232px; }
@@ -150,7 +162,7 @@
       <div class="intro-copy">
         <div class="eyebrow">Accent color directions</div>
         <h1 id="page-title">More presence.<br>Still easy on the eyes.</h1>
-        <p>These options deepen the accent so selected controls read clearly at a glance. Library cards and page surfaces stay neutral; color is reserved for active navigation, tags, focus, progress, and primary actions.</p>
+        <p>The four previews show the palette directions from the first mockup. The Settings picker keeps all seven existing choices, with deeper color values so selected controls read clearly at a glance. Library cards and page surfaces stay neutral.</p>
       </div>
       <aside class="principle"><strong>Design rule</strong>Use a confident color in small, meaningful places. Keep large surfaces dark or light so the library stays the focus.</aside>
     </section>
@@ -195,6 +207,18 @@
         </div>
         <footer class="palette-foot"><div class="swatch-info"><span class="swatch"></span><div class="swatch-label"><strong>Soft terracotta</strong><span>#DE795A</span></div></div><button class="choose" type="button" aria-pressed="false">Compare</button></footer>
       </article>
+    </section>
+    <section class="accent-inventory" aria-label="All seven updated accent colors">
+      <div class="accent-inventory-head"><strong>Updated Settings palette</strong><span>All seven color choices remain available</span></div>
+      <div class="accent-inventory-grid">
+        <div class="accent-chip" style="--chip:#35b38f"><i></i><span>Teal</span><code>#35B38F</code></div>
+        <div class="accent-chip" style="--chip:#6486ed"><i></i><span>Blue</span><code>#6486ED</code></div>
+        <div class="accent-chip" style="--chip:#a076e8"><i></i><span>Violet</span><code>#A076E8</code></div>
+        <div class="accent-chip" style="--chip:#de795a"><i></i><span>Coral</span><code>#DE795A</code></div>
+        <div class="accent-chip" style="--chip:#d5a239"><i></i><span>Amber</span><code>#D5A239</code></div>
+        <div class="accent-chip" style="--chip:#d56794"><i></i><span>Rose</span><code>#D56794</code></div>
+        <div class="accent-chip" style="--chip:#3a9e67"><i></i><span>Green</span><code>#3A9E67</code></div>
+      </div>
     </section>
     <aside class="note"><span class="note-mark" aria-hidden="true">i</span><span><strong>What changes:</strong> deeper accent hues, more visible selected states, and clearer progress and tag treatments. The accent stays off large page backgrounds, so scenes and artwork remain the visual focus. Use the Dark and Light controls above to compare both modes.</span></aside>
   </main>

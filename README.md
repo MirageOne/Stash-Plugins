@@ -25,7 +25,7 @@ Download a plugin's manual archive, extract its included plugin folder into Stas
 
 - [Library Doctor manual archive](packages/library-doctor/1.6.5-manual.zip)
 - [Stash Downloader manual archive](packages/stash-downloader/0.6.6-manual.zip)
-- [Current Theme manual archive](packages/current-theme/0.1.48-manual.zip)
+- [Current Theme manual archive](packages/current-theme/0.1.49-manual.zip)
 - [Performer Site Sync manual archive](packages/performer-site-sync/2.0.2-manual.zip)
 
 Each plugin's README links to its current manual archive.

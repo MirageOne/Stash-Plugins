@@ -6,13 +6,13 @@ The home carousel and Continue Watching shelf use Stash GraphQL scene data. New 
 
 Geist Variable Sans 5.3.0 from Fontsource is bundled under the SIL Open Font License 1.1 and loads through Stash's local plugin asset route, so the theme does not need a remote font request.
 
-Theme preferences are stored in the current browser. The login page is served outside Stash's plugin UI, so a theme plugin alone cannot restyle it. FrontPage component patching uses Stash's documented experimental UI plugin API and should be checked against each Stash release.
+When signed in, Current syncs appearance preferences to the server-side plugin settings keyed by the authenticated Stash user ID. Existing browser preferences are copied to the account the first time it is seen; later signed-in sessions use the account copy across browsers, including incognito. The browser keeps a local cache and remains the fallback when the session identity or server-side plugin settings are unavailable. No preferences are written to Stash's user record. The login page is served outside Stash's plugin UI, so a theme plugin alone cannot restyle it. FrontPage component patching uses Stash's documented experimental UI plugin API and should be checked against each Stash release.
 
 ## Development install
 
 Copy this directory into Stash's configured `plugins/` directory, reload plugins in **Settings → Plugins**, then enable **Current Theme**. After updating, reload the Stash UI in the browser so the new JavaScript and CSS load. Disable other full-app theme plugins while testing it so global styles do not conflict.
 
-For a packaged manual install, download [Current Theme 0.1.48](../../packages/current-theme/0.1.48-manual.zip) and extract its `current-theme/` folder into the configured plugins directory.
+For a packaged manual install, download [Current Theme 0.1.49](../../packages/current-theme/0.1.49-manual.zip) and extract its `current-theme/` folder into the configured plugins directory.
 
 ## Screenshots
 
@@ -58,6 +58,6 @@ The current UI was checked in a live Stash 0.32.0 instance at desktop and mobile
 
 The library in the screenshots contains fictional, non-explicit demo clips.
 
-The plugin has no external dependencies or build step. Its JavaScript and manifest can be syntax-checked directly with Node; its styles load from `css/current-theme-0.1.48.css`.
+The plugin has no external dependencies or build step. Its JavaScript and manifest can be syntax-checked directly with Node; its styles load from `css/current-theme-0.1.49.css`.
 
 Current is distributed under [AGPL-3.0](./LICENSE).

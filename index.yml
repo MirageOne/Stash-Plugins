@@ -18,13 +18,13 @@
     description: Theme-adaptive server-side image and video downloads with yt-dlp, proxy settings, library-aware imports, and metadata extraction.
 - id: rebirth
   name: Rebirth
-  version: 1.0.9
-  date: "2026-11-06 14:54:11"
-  path: packages/rebirth/1.0.9.zip
-  sha256: aadf1bfec4b72da03b3f655ee8e95dc063448d37dd477c222df88357783a1088
+  version: 1.1.0
+  date: "2026-11-06 15:07:40"
+  path: packages/rebirth/1.1.0.zip
+  sha256: 8c36df11876eef4630bb715663e566c60068e70e4ed8da8d2c0975a431fd6832
   requires: []
   metadata:
-    description: Rebirth is a video-first Stash theme with appearance preferences synced per signed-in user, a selectable one- or two-column mobile scene grid, an accent-responsive Stash box mark, squared custom switches with matching on/off thumb insets, Geist typography, an automatically cycling new-arrivals carousel, Continue Watching, themed native Settings sections with inline mobile switches, responsive scene and performer pagination with a result range beside page controls on desktop and stacked controls on phones, a Plugins package-manager toolbar that keeps its filter above fixed action positions, a compact Settings task queue, customizable mobile navigation, distinct accent-filled tag chips, neutral Tagger result rows, square mobile include/exclude controls, wrapped performer controls, compact tag actions, dropdowns, selects, and video-player menus, theme settings integrated into Interface settings, light and dark modes, eight distinct accent colors including blue-green Teal and Red, selected-accent primary buttons, outlined secondary actions, and semantic destructive actions.
+    description: Rebirth is a video-first Stash theme with appearance preferences synced per signed-in user, a selectable one- or two-column mobile scene grid, an accent-responsive Stash box mark, squared custom switches with matching on/off thumb insets, Geist typography, an automatically cycling new-arrivals carousel, Continue Watching, themed native Settings sections with inline mobile switches and selected-accent help popovers, informational utilities tied to the selected accent, responsive scene and performer pagination with a result range beside page controls on desktop and stacked controls on phones, a Plugins package-manager toolbar that keeps its filter above fixed action positions, a compact Settings task queue, customizable mobile navigation, distinct accent-filled tag chips, neutral Tagger result rows, square mobile include/exclude controls, wrapped performer controls, compact tag actions, dropdowns, selects, and video-player menus, theme settings integrated into Interface settings, light and dark modes, eight distinct accent colors including blue-green Teal and Red, selected-accent primary buttons, outlined secondary actions, and semantic destructive actions.
 - id: performer-site-sync
   name: Performer Site Sync
   version: 2.0.2

@@ -1,12 +1,12 @@
 name: Rebirth
-description: Rebirth is a video-first Stash theme with appearance preferences synced to the signed-in Stash account, a selectable one- or two-column mobile scene grid, an accent-responsive Stash box mark, squared accent-aware switches with matching on/off thumb insets, Geist typography, an automatically cycling new-arrivals carousel, Continue Watching, themed native Settings sections with inline mobile switches, a Plugins package-manager toolbar that keeps its filter above fixed action positions, a compact Settings task queue, customizable four-item mobile navigation, Rebirth-styled scene and performer pagination with a responsive range summary and page controls, distinct accent-filled tag chips, neutral Tagger result rows, square mobile Tagger include/exclude controls, wrapped performer and tag actions, styled dropdowns and selects, light and dark modes, eight distinct accent colors including blue-green Teal and Red, selected-accent primary buttons, outlined secondary actions, and semantic destructive actions.
-version: 1.0.9
+description: Rebirth is a video-first Stash theme with appearance preferences synced to the signed-in Stash account, a selectable one- or two-column mobile scene grid, an accent-responsive Stash box mark, squared accent-aware switches with matching on/off thumb insets, Geist typography, an automatically cycling new-arrivals carousel, Continue Watching, themed native Settings sections with inline mobile switches and selected-accent help popovers, an informational color system tied to the selected accent, a Plugins package-manager toolbar that keeps its filter above fixed action positions, a compact Settings task queue, customizable four-item mobile navigation, Rebirth-styled scene and performer pagination with a responsive range summary and page controls, distinct accent-filled tag chips, neutral Tagger result rows, square mobile Tagger include/exclude controls, wrapped performer and tag actions, styled dropdowns and selects, light and dark modes, eight distinct accent colors including blue-green Teal and Red, selected-accent primary buttons, outlined secondary actions, and semantic destructive actions.
+version: 1.1.0
 url: https://github.com/MirageOne/Stash-Plugins/tree/main/plugins/rebirth
 ui:
   javascript:
-    - rebirth-1.0.9.js
+    - rebirth-1.1.0.js
   css:
-    - css/rebirth-1.0.9.css
+    - css/rebirth-1.1.0.css
   assets:
     /fonts: fonts
     /icons: icons

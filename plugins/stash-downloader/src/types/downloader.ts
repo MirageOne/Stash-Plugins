@@ -24,6 +24,26 @@ export enum ContentType {
  */
 export type PostImportAction = 'none' | 'identify' | 'scrape_url';
 
+/** Per-source defaults captured on each queued item. */
+export interface IImportProfile {
+  id: string;
+  name: string;
+  /** Host names that select this profile automatically (supports *.example.com). */
+  domains: string[];
+  autoImport: boolean;
+  createPerformers: boolean;
+  createTags: boolean;
+  createStudios: boolean;
+  filenameTemplate: string;
+  postImportAction: PostImportAction;
+}
+
+export interface IServerDownloadTracking {
+  jobId?: string;
+  progressId: string;
+  resultId: string;
+}
+
 export interface IDownloadProgress {
   bytesDownloaded: number;
   totalBytes: number;
@@ -145,11 +165,13 @@ export interface IDownloadItem {
   stashId?: string; // Scene/Image/Gallery ID after creation
   existsInStash?: { id: string; title?: string }; // If scene already exists in Stash before import
   postImportAction?: PostImportAction; // Action to take after import (none, identify, scrape_url)
+  importProfile?: IImportProfile; // Snapshot of the profile used when this item was queued
 
   // Download tracking (for reconnecting after navigation)
   downloadProgressId?: string; // Progress file ID for polling
   downloadResultId?: string; // Result file ID for completion check
   stashJobId?: string; // Stash job ID for cancellation
+  recoveryState?: 'pending' | 'checking' | 'interrupted';
   lastActivityAt?: Date; // Last progress update timestamp (for stale detection)
 
   // Logs for this specific item
@@ -180,6 +202,9 @@ export interface IPluginSettings {
   showThumbnailPreviews: boolean;
   /** Auto-import items after scraping without manual confirmation */
   autoImport: boolean;
+  /** Browser-local import behavior profiles. */
+  importProfiles: IImportProfile[];
+  activeImportProfileId: string;
 }
 
 // Metadata scraper interface

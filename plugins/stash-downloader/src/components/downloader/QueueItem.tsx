@@ -144,6 +144,9 @@ export const QueueItem: React.FC<QueueItemProps> = ({ item, onRemove, onEdit, on
   };
 
   const getStatusChip = () => {
+    if (item.recoveryState === 'checking') {
+      return <span className="badge bg-info">Reconnecting</span>;
+    }
     const statusConfig = {
       [DownloadStatus.Pending]: { label: 'Pending', color: 'bg-secondary' },
       [DownloadStatus.Downloading]: { label: 'Downloading', color: 'bg-primary' },
@@ -520,6 +523,9 @@ export const QueueItem: React.FC<QueueItemProps> = ({ item, onRemove, onEdit, on
               <small className="text-danger mt-2 d-block">
                 {item.error}
               </small>
+            )}
+            {item.recoveryState === 'checking' && (
+              <small className="text-info mt-2 d-block">Reconnecting to the Stash job…</small>
             )}
           </div>
           <div className="d-flex gap-1 flex-wrap">

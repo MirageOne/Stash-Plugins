@@ -4,7 +4,7 @@
  */
 
 import { DownloadStatus } from '@/types';
-import type { IDownloadProgress, IItemLogEntry } from '@/types';
+import type { IDownloadProgress, IItemLogEntry, IServerDownloadTracking } from '@/types';
 import type { IDownloadItem } from '@/types';
 
 type UpdateItemFn = (
@@ -28,13 +28,14 @@ export function createImportCallbacks({ itemId, updateItem, debugLog }: ImportCa
         progress,
         status: DownloadStatus.Downloading,
         lastActivityAt: new Date(),
+        error: undefined,
       });
     },
     onStatusChange: (status: string) => {
       const newStatus = status.includes('Downloading')
         ? DownloadStatus.Downloading
         : DownloadStatus.Processing;
-      updateItem(itemId, { status: newStatus });
+      updateItem(itemId, { status: newStatus, lastActivityAt: new Date(), error: undefined });
     },
     onLog: (level: IItemLogEntry['level'], message: string, details?: string) => {
       const newLog: IItemLogEntry = {
@@ -53,6 +54,24 @@ export function createImportCallbacks({ itemId, updateItem, debugLog }: ImportCa
         stashJobId: jobId,
         lastActivityAt: new Date(),
       });
+    },
+    onTrackingIds: (tracking: IServerDownloadTracking) => {
+      updateItem(itemId, {
+        stashJobId: tracking.jobId,
+        downloadProgressId: tracking.progressId,
+        downloadResultId: tracking.resultId,
+        lastActivityAt: new Date(),
+      });
+    },
+    onServerFileSaved: (filePath: string, fileSize?: number) => {
+      updateItem(itemId, {
+        filePath,
+        ...(fileSize !== undefined ? { fileSize } : {}),
+        lastActivityAt: new Date(),
+      });
+    },
+    onActivity: () => {
+      updateItem(itemId, { lastActivityAt: new Date() });
     },
   };
 }

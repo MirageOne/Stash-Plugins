@@ -26,6 +26,7 @@ import type {
   ScrapeContentType,
 } from '@/types';
 import { createLogger } from '@/utils';
+import { getDuplicateUrlCandidates } from '@/utils/importProfiles';
 
 const log = createLogger('StashGraphQL');
 
@@ -220,12 +221,16 @@ export class StashGraphQLService {
       }
     `;
 
-    const result = await this.gqlRequest<{ findScenes: { scenes: IStashScene[] } }>(
-      query,
-      { url }
-    );
-    const scenes = result.data?.findScenes?.scenes || [];
-    return scenes.length > 0 ? scenes[0]! : null;
+    for (const candidate of getDuplicateUrlCandidates(url)) {
+      const result = await this.gqlRequest<{ findScenes: { scenes: IStashScene[] } }>(
+        query,
+        { url: candidate }
+      );
+      if (result.errors?.length) throw new Error(result.errors.map(error => error.message).join('; '));
+      const scenes = result.data?.findScenes?.scenes || [];
+      if (scenes.length > 0) return scenes[0]!;
+    }
+    return null;
   }
 
   /**
@@ -903,6 +908,22 @@ export class StashGraphQLService {
     error?: string;
     description: string;
   } | null> {
+    try {
+      return await this.findJobStrict(jobId);
+    } catch (error) {
+      log.error(`findJob failed: ${String(error)}`);
+      return null;
+    }
+  }
+
+  /** Find a job without hiding transport or GraphQL errors (used during recovery). */
+  async findJobStrict(jobId: string): Promise<{
+    id: string;
+    status: 'READY' | 'RUNNING' | 'FINISHED' | 'STOPPING' | 'CANCELLED' | 'FAILED';
+    progress?: number;
+    error?: string;
+    description: string;
+  } | null> {
     const query = `
       query FindJob($input: FindJobInput!) {
         findJob(input: $input) {
@@ -915,14 +936,10 @@ export class StashGraphQLService {
       }
     `;
 
-    try {
-      // eslint-disable-next-line @typescript-eslint/no-explicit-any -- Job type is complex and varies by operation
-      const result = await this.gqlRequest<{ findJob: any }>(query, { input: { id: jobId } });
-      return result.data?.findJob || null;
-    } catch (error) {
-      log.error(`findJob failed: ${String(error)}`);
-      return null;
-    }
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any -- Job type is complex and varies by operation
+    const result = await this.gqlRequest<{ findJob: any }>(query, { input: { id: jobId } });
+    if (result.errors?.length) throw new Error(result.errors.map(error => error.message).join('; '));
+    return result.data?.findJob || null;
   }
 
   /**
@@ -1187,6 +1204,29 @@ export class StashGraphQLService {
     // Timeout
     log.warn(`Job ${jobId} timed out after ${maxWait}ms`);
     return { success: false, error: 'Job timed out' };
+  }
+
+  /** Wait for a previously-started job. Missing jobs are resolved by checking their result file. */
+  async waitForTrackedJob(
+    jobId: string,
+    options?: { pollIntervalMs?: number; maxWaitMs?: number; onProgress?: (progress: number) => void }
+  ): Promise<{ success: boolean; error?: string }> {
+    const pollInterval = options?.pollIntervalMs || 1000;
+    const maxWait = options?.maxWaitMs || 21600000;
+    const startTime = Date.now();
+
+    while (Date.now() - startTime < maxWait) {
+      const job = await this.findJobStrict(jobId);
+      if (!job) return { success: true };
+      if (options?.onProgress && job.progress !== undefined) options.onProgress(job.progress);
+      if (job.status === 'FINISHED') return { success: true };
+      if (job.status === 'FAILED') return { success: false, error: job.error || 'Stash job failed' };
+      if (job.status === 'CANCELLED' || job.status === 'STOPPING') {
+        return { success: false, error: job.status === 'CANCELLED' ? 'Stash job was cancelled' : 'Stash job is stopping' };
+      }
+      await new Promise(resolve => setTimeout(resolve, pollInterval));
+    }
+    return { success: false, error: 'Stash job recovery timed out' };
   }
 
   /**

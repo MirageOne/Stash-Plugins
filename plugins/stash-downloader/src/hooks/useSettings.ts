@@ -6,6 +6,7 @@ import { useState, useEffect } from 'react';
 import type { IPluginSettings } from '@/types';
 import { DEFAULT_SETTINGS, STORAGE_KEYS } from '@/constants';
 import { getStorageItem, setStorageItem, createLogger } from '@/utils';
+import { normalizeImportProfiles } from '@/utils/importProfiles';
 
 const log = createLogger('Settings');
 
@@ -14,6 +15,8 @@ function getLocalSettings(settings: Partial<IPluginSettings>): Partial<IPluginSe
     logLevel: settings.logLevel,
     showThumbnailPreviews: settings.showThumbnailPreviews,
     autoImport: settings.autoImport,
+    importProfiles: settings.importProfiles,
+    activeImportProfileId: settings.activeImportProfileId,
   };
 }
 
@@ -28,7 +31,11 @@ export function useSettings() {
   const [settings, setSettings] = useState<IPluginSettings>(() => {
     // Keep server-only settings (proxy credentials, executable and paths) out of browser storage.
     const stored = getStorageItem<Partial<IPluginSettings>>(STORAGE_KEYS.SETTINGS, {});
-    return { ...DEFAULT_SETTINGS, ...getLocalSettings(stored) };
+    const importProfiles = normalizeImportProfiles(stored.importProfiles, stored.autoImport === true);
+    const activeImportProfileId = importProfiles.some(profile => profile.id === stored.activeImportProfileId)
+      ? stored.activeImportProfileId!
+      : importProfiles[0]!.id;
+    return { ...DEFAULT_SETTINGS, ...getLocalSettings(stored), importProfiles, activeImportProfileId };
   });
 
   // Only persist browser preferences. Stash server settings are loaded into memory from GraphQL.

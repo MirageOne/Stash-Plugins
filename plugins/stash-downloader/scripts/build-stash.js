@@ -60,6 +60,7 @@ function copyDirSync(src, dest, filter) {
     const destPath = path.join(dest, entry.name);
 
     if (entry.isDirectory()) {
+      if (entry.name === '__pycache__') continue;
       copyDirSync(srcPath, destPath, filter);
     } else if (!filter || filter(entry.name)) {
       fs.copyFileSync(srcPath, destPath);

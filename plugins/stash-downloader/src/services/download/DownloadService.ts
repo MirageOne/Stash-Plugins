@@ -9,6 +9,7 @@
 /* eslint-disable @typescript-eslint/no-explicit-any -- Python plugin task results have dynamic structure */
 
 import type { IDownloadProgress, IGalleryProgress } from '@/types';
+import type { IServerDownloadTracking } from '@/types';
 import { ContentType } from '@/types';
 import { fetchWithTimeout, createLogger } from '@/utils';
 import { getStashService } from '@/services/stash/StashGraphQLService';
@@ -31,6 +32,14 @@ export interface IDownloadOptions {
   quality?: 'best' | '1080p' | '720p' | '480p';
   /** Fallback URL for yt-dlp if direct download fails (e.g., original page URL) */
   fallbackUrl?: string;
+  /** Persisted Stash task IDs used only when recovering an interrupted import. */
+  resumeTracking?: IServerDownloadTracking;
+  onTrackingIds?: (tracking: IServerDownloadTracking) => void;
+  /** Persist the finished server file path before the temporary task result is cleaned up. */
+  onServerFileSaved?: (filePath: string, fileSize?: number) => void;
+  onActivity?: () => void;
+  /** Continue an import from a server file that was already downloaded. */
+  resumeFilePath?: string;
 }
 
 export interface IServerDownloadResult {
@@ -81,10 +90,16 @@ export class DownloadService {
         return { success: false, error: 'Not in Stash environment' };
       }
 
-      // Generate IDs for result and progress tracking
-      const uniqueId = `${Date.now()}-${Math.random().toString(36).substring(2, 9)}`;
-      const resultId = `download-${uniqueId}`;
-      const progressId = uniqueId; // Progress file will be "progress-{uniqueId}"
+      if (options.resumeFilePath) {
+        options.onServerFileSaved?.(options.resumeFilePath);
+        return { success: true, file_path: options.resumeFilePath };
+      }
+
+      // Persist IDs before task creation so a page reload can reconnect to this exact job.
+      const uniqueId = options.resumeTracking?.progressId || `${Date.now()}-${Math.random().toString(36).substring(2, 9)}`;
+      const resultId = options.resumeTracking?.resultId || `download-${uniqueId}`;
+      const progressId = options.resumeTracking?.progressId || uniqueId; // Progress file will be "progress-{uniqueId}"
+      options.onTrackingIds?.({ jobId: options.resumeTracking?.jobId, progressId, resultId });
       log.debug('Result ID:', resultId);
       log.debug('Progress ID:', progressId);
 
@@ -140,33 +155,42 @@ export class DownloadService {
         }, 1000); // Poll every second
       }
 
-      const taskResult = await stashService.runPluginTaskAndWait(
-        PLUGIN_ID,
-        'Download Media',
-        {
-          mode: 'download',
-          url: url,
-          media_type: mediaType,
-          fallback_url: options.fallbackUrl, // Original page URL for yt-dlp fallback
-          filename: options.filename,
-          quality: options.quality || 'best',
-          result_id: resultId,
-          progress_id: progressId, // For real-time progress updates
-        },
-        {
-          maxWaitMs: 21600000, // Allow long server-side transfers; backend also enforces a six-hour ceiling.
-          onProgress: (_stashJobProgress) => {
-            // This is Stash job progress (usually stays at 0), not download progress
-            // Real progress comes from progress polling above
-          },
-          onJobStart: (jobId) => {
-            log.debug(`Download job started with ID: ${jobId}`);
-            if (options.onJobStart) {
-              options.onJobStart(jobId);
+      const taskResult = options.resumeTracking
+        ? {
+            ...(options.resumeTracking.jobId
+              ? await stashService.waitForTrackedJob(options.resumeTracking.jobId, {
+                  maxWaitMs: 21600000,
+                  onProgress: () => options.onActivity?.(),
+                })
+              : { success: true }),
+            jobId: options.resumeTracking.jobId,
+          }
+        : await stashService.runPluginTaskAndWait(
+            PLUGIN_ID,
+            'Download Media',
+            {
+              mode: 'download',
+              url: url,
+              media_type: mediaType,
+              fallback_url: options.fallbackUrl,
+              filename: options.filename,
+              quality: options.quality || 'best',
+              result_id: resultId,
+              progress_id: progressId,
+            },
+            {
+              maxWaitMs: 21600000,
+              onProgress: (_stashJobProgress) => {
+                // Media progress comes from the result file poll above.
+                options.onActivity?.();
+              },
+              onJobStart: (jobId) => {
+                log.debug(`Download job started with ID: ${jobId}`);
+                options.onJobStart?.(jobId);
+                options.onTrackingIds?.({ jobId, progressId, resultId });
+              },
             }
-          },
-        }
-      );
+          );
 
       // Stop progress polling
       if (progressPollInterval) {
@@ -231,6 +255,8 @@ export class DownloadService {
         log.error('Download completed but no file_path in result. Full result:', JSON.stringify(result));
         return { success: false, error: 'Download completed but no file_path in result', jobId };
       }
+
+      options.onServerFileSaved?.(filePath, fileSize);
 
       log.success('Server-side download succeeded', filePath);
 

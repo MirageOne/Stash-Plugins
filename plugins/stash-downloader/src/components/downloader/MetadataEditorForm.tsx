@@ -33,7 +33,7 @@ export const MetadataEditorForm: React.FC<MetadataEditorFormProps> = ({
 }) => {
   const { settings } = useSettings();
   const [title, setTitle] = useState(item.editedMetadata?.title || item.metadata?.title || '');
-  const [postImportAction, setPostImportAction] = useState<PostImportAction>(item.postImportAction || 'none');
+  const [postImportAction, setPostImportAction] = useState<PostImportAction>(item.postImportAction || item.importProfile?.postImportAction || 'none');
   const [previewOpen, setPreviewOpen] = useState(false);
   const [previewType, setPreviewType] = useState<'image' | 'video'>('image');
   const [previewUrl, setPreviewUrl] = useState('');
@@ -66,9 +66,7 @@ export const MetadataEditorForm: React.FC<MetadataEditorFormProps> = ({
     } else if (item.metadata?.title) {
       setTitle(item.metadata.title);
     }
-    if (item.postImportAction) {
-      setPostImportAction(item.postImportAction);
-    }
+    setPostImportAction(item.postImportAction || item.importProfile?.postImportAction || 'none');
     // Initialize editable metadata from scraped data
     setPerformers(item.metadata?.performers || []);
     setTags(item.metadata?.tags || []);

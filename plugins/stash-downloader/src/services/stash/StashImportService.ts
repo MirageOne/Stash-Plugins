@@ -6,19 +6,19 @@ import type {
   IDownloadItem,
   IStashScene,
   IStashImage,
-  IStashPerformer,
-  IStashTag,
-  IStashStudio,
   IDownloadProgress,
   IItemLogEntry,
   PostImportAction,
+  IServerDownloadTracking,
 } from '@/types';
 import { ContentType } from '@/types';
 import { getStashService } from './StashGraphQLService';
 import { getDownloadService } from '@/services/download';
+import type { IDownloadOptions } from '@/services/download/DownloadService';
 import { getBrowserDownloadService } from '@/services/download/BrowserDownloadService';
 import { createLogger } from '@/utils';
-import { PLUGIN_ID } from '@/constants';
+import { DEFAULT_IMPORT_PROFILE, PLUGIN_ID } from '@/constants';
+import { formatImportFilename } from '@/utils/importProfiles';
 
 const log = createLogger('StashImport');
 
@@ -47,9 +47,13 @@ export class StashImportService {
       onLog?: (level: IItemLogEntry['level'], message: string, details?: string) => void;
       /** Called when the Stash job starts, with the jobId for potential cancellation */
       onJobStart?: (jobId: string) => void;
-    }
+      onTrackingIds?: (tracking: IServerDownloadTracking) => void;
+      onServerFileSaved?: (filePath: string, fileSize?: number) => void;
+      onActivity?: () => void;
+    },
+    options?: { resumeDownload?: boolean }
   ): Promise<IStashScene | IStashImage> {
-    const { onProgress, onStatusChange, onLog, onJobStart } = callbacks || {};
+    const { onProgress, onStatusChange, onLog, onJobStart, onTrackingIds, onServerFileSaved, onActivity } = callbacks || {};
     if (!item.editedMetadata) {
       throw new Error('Item must have edited metadata before import');
     }
@@ -122,12 +126,13 @@ export class StashImportService {
 
     // Pass the title as filename so yt-dlp uses it instead of extracting from page
     // (some sites don't have proper title metadata, resulting in names like "2160p.av1.mp4")
-    const downloadFilename = item.editedMetadata?.title || item.metadata?.title;
+    const importProfile = item.importProfile || { ...DEFAULT_IMPORT_PROFILE };
+    const downloadFilename = formatImportFilename(item, importProfile);
     if (downloadFilename) {
       log.debug('Using custom filename for download:', downloadFilename);
     }
 
-    const blob = await this.downloadService.download(downloadUrl, {
+    const downloadOptions: IDownloadOptions = {
       onProgress: (progress) => {
         log.debug('Download progress:',
           `${progress.percentage.toFixed(1)}% - ${progress.bytesDownloaded}/${progress.totalBytes} bytes`
@@ -138,9 +143,22 @@ export class StashImportService {
         log.debug('Download job started:', jobId);
         if (onJobStart) onJobStart(jobId);
       },
+      onTrackingIds,
+      onServerFileSaved,
+      onActivity,
       fallbackUrl, // Original page URL for yt-dlp if direct download fails
       filename: downloadFilename, // Use scraped title as filename
-    }, undefined, undefined, item.metadata?.contentType || ContentType.Video);
+      ...(options?.resumeDownload && item.filePath
+        ? { resumeFilePath: item.filePath }
+        : options?.resumeDownload && item.downloadResultId && item.downloadProgressId
+          ? { resumeTracking: {
+              jobId: item.stashJobId,
+              progressId: item.downloadProgressId,
+              resultId: item.downloadResultId,
+            } }
+          : {}),
+    };
+    const blob = await this.downloadService.download(downloadUrl, downloadOptions, undefined, undefined, item.metadata?.contentType || ContentType.Video);
 
     // Check if this was a server-side download (file already on disk)
     // eslint-disable-next-line @typescript-eslint/no-explicit-any -- Custom properties added to Blob for server download info
@@ -203,24 +221,19 @@ export class StashImportService {
           rating100: edited?.rating,
         };
         const performerNames = edited?.performerNames || edited?.performers?.map(value => value.name) || scraped?.performers || [];
-        const performerIds: string[] = [];
-        for (const name of performerNames) {
-          try { performerIds.push((await this.stashService.getOrCreatePerformer(name)).id); }
-          catch (error) { log.warn(`Could not resolve image performer "${name}": ${String(error)}`); }
-        }
+        const performerIds = await this.resolvePerformerNames(performerNames, importProfile.createPerformers);
         if (performerIds.length) update.performer_ids = performerIds;
 
         const tagNames = edited?.tagNames || edited?.tags?.map(value => value.name) || scraped?.tags || [];
-        const tagIds: string[] = [];
-        for (const name of tagNames) {
-          try { tagIds.push((await this.stashService.getOrCreateTag(name)).id); }
-          catch (error) { log.warn(`Could not resolve image tag "${name}": ${String(error)}`); }
-        }
+        const tagIds = await this.resolveTagNames(tagNames, importProfile.createTags);
         if (tagIds.length) update.tag_ids = tagIds;
 
         const studioName = edited?.studioName || edited?.studio?.name || scraped?.studio;
         if (studioName) {
-          try { update.studio_id = (await this.stashService.getOrCreateStudio(studioName)).id; }
+          try {
+            const studioId = await this.resolveStudioName(studioName, importProfile.createStudios);
+            if (studioId) update.studio_id = studioId;
+          }
           catch (error) { log.warn(`Could not resolve image studio "${studioName}": ${String(error)}`); }
         }
 
@@ -249,18 +262,7 @@ export class StashImportService {
         log.warn('Could not find scene by path after scan');
         if (onLog) onLog('warning', 'Scene not found in Stash - metadata will not be applied');
         if (onLog) onLog('info', 'You may need to run a manual scan and apply metadata');
-
-        // Return placeholder since we couldn't find the scene
-        return {
-          id: `pending-scan-${Date.now()}`,
-          title: item.editedMetadata?.title || 'Pending scan',
-          path: serverFilePath,
-          organized: false,
-          created_at: new Date().toISOString(),
-          updated_at: new Date().toISOString(),
-          files: [],
-          paths: { screenshot: '', preview: '', stream: '', webp: '', vtt: '', chapters_vtt: '' },
-        } as IStashScene;
+        throw new Error('Stash saved the file but did not index it as a scene. Check the selected library and run a scan before retrying.');
       }
 
       if (onLog) onLog('success', `Found scene in Stash (ID: ${scene.id})`);
@@ -281,19 +283,10 @@ export class StashImportService {
       };
 
       // Use edited performer names if available, otherwise use scraped
-      const performerNames = editedMeta?.performerNames || scrapedMeta?.performers || [];
+      const performerNames = editedMeta?.performerNames || editedMeta?.performers?.map(value => value.name) || scrapedMeta?.performers || [];
       if (performerNames.length > 0) {
         if (onLog) onLog('info', `Resolving ${performerNames.length} performer(s)...`);
-        const performerIds: string[] = [];
-        for (const name of performerNames) {
-          try {
-            const performer = await this.stashService.getOrCreatePerformer(name);
-            performerIds.push(performer.id);
-            log.debug(`Resolved performer: ${name} -> ${performer.id}`);
-          } catch (err) {
-            log.warn(`Failed to resolve performer "${name}": ${String(err)}`);
-          }
-        }
+        const performerIds = await this.resolvePerformerNames(performerNames, importProfile.createPerformers);
         if (performerIds.length > 0) {
           updateInput.performer_ids = performerIds;
           if (onLog) onLog('success', `Linked ${performerIds.length} performer(s)`);
@@ -301,19 +294,10 @@ export class StashImportService {
       }
 
       // Use edited tag names if available, otherwise use scraped
-      const tagNames = editedMeta?.tagNames || scrapedMeta?.tags || [];
+      const tagNames = editedMeta?.tagNames || editedMeta?.tags?.map(value => value.name) || scrapedMeta?.tags || [];
       if (tagNames.length > 0) {
         if (onLog) onLog('info', `Resolving ${tagNames.length} tag(s)...`);
-        const tagIds: string[] = [];
-        for (const name of tagNames) {
-          try {
-            const tag = await this.stashService.getOrCreateTag(name);
-            tagIds.push(tag.id);
-            log.debug(`Resolved tag: ${name} -> ${tag.id}`);
-          } catch (err) {
-            log.warn(`Failed to resolve tag "${name}": ${String(err)}`);
-          }
-        }
+        const tagIds = await this.resolveTagNames(tagNames, importProfile.createTags);
         if (tagIds.length > 0) {
           updateInput.tag_ids = tagIds;
           if (onLog) onLog('success', `Linked ${tagIds.length} tag(s)`);
@@ -321,14 +305,16 @@ export class StashImportService {
       }
 
       // Use edited studio name if available, otherwise use scraped
-      const studioName = editedMeta?.studioName || scrapedMeta?.studio;
+      const studioName = editedMeta?.studioName || editedMeta?.studio?.name || scrapedMeta?.studio;
       if (studioName) {
         if (onLog) onLog('info', `Resolving studio: ${studioName}...`);
         try {
-          const studio = await this.stashService.getOrCreateStudio(studioName);
-          updateInput.studio_id = studio.id;
-          log.debug(`Resolved studio: ${studioName} -> ${studio.id}`);
-          if (onLog) onLog('success', `Linked studio: ${studio.name}`);
+          const studioId = await this.resolveStudioName(studioName, importProfile.createStudios);
+          if (studioId) {
+            updateInput.studio_id = studioId;
+            log.debug(`Resolved studio: ${studioName} -> ${studioId}`);
+            if (onLog) onLog('success', `Linked studio: ${studioName}`);
+          }
         } catch (err) {
           log.warn(`Failed to resolve studio "${studioName}": ${String(err)}`);
         }
@@ -356,7 +342,7 @@ export class StashImportService {
       if (onLog) onLog('success', 'Metadata applied');
 
       // Execute post-import action (optional additional processing)
-      const postImportAction: PostImportAction = item.postImportAction || 'none';
+      const postImportAction: PostImportAction = item.postImportAction || importProfile.postImportAction || 'none';
 
       if (postImportAction === 'identify') {
         // Trigger Stash's Identify (StashDB + scrapers)
@@ -416,13 +402,20 @@ export class StashImportService {
     // Get or create performers, tags, studio
     if (onStatusChange) onStatusChange('Resolving metadata...');
     if (onLog) onLog('info', 'Resolving performers, tags, and studio...');
-    const performerIds = await this.resolvePerformers(
-      item.editedMetadata.performers || []
-    );
-    const tagIds = await this.resolveTags(item.editedMetadata.tags || []);
-    const studioId = item.editedMetadata.studio
-      ? await this.resolveStudio(item.editedMetadata.studio)
-      : undefined;
+    const performerNames = item.editedMetadata.performerNames
+      ?? item.editedMetadata.performers?.map(performer => performer.name)
+      ?? item.metadata?.performers
+      ?? [];
+    const tagNames = item.editedMetadata.tagNames
+      ?? item.editedMetadata.tags?.map(tag => tag.name)
+      ?? item.metadata?.tags
+      ?? [];
+    const studioName = item.editedMetadata.studioName
+      ?? item.editedMetadata.studio?.name
+      ?? item.metadata?.studio;
+    const performerIds = await this.resolvePerformerNames(performerNames, importProfile.createPerformers);
+    const tagIds = await this.resolveTagNames(tagNames, importProfile.createTags);
+    const studioId = studioName ? await this.resolveStudioName(studioName, importProfile.createStudios) : undefined;
 
     if (onLog) onLog('info', `Resolved ${performerIds.length} performers, ${tagIds.length} tags, ${studioId ? '1 studio' : '0 studios'}`);
 
@@ -475,89 +468,64 @@ export class StashImportService {
     return result;
   }
 
-  /**
-   * Resolve performer IDs - creates new performers in Stash for temp IDs
-   */
-  private async resolvePerformers(performers: IStashPerformer[]): Promise<string[]> {
-    const resolvedIds: string[] = [];
-
-    for (const performer of performers) {
-      if (performer.id.startsWith('temp-')) {
-        // Create new performer in Stash
-        log.debug('Creating new performer:', performer.name);
-        try {
-          const created = await this.stashService.createPerformer({
-            name: performer.name,
-            disambiguation: performer.disambiguation,
-            aliases: performer.aliases,
-          });
-          log.debug('Created performer:', `${created.id} ${created.name}`);
-          resolvedIds.push(created.id);
-        } catch (error) {
-          log.error('Failed to create performer:', `${performer.name} - ${String(error)}`);
-          // Continue with other performers even if one fails
-        }
-      } else {
-        // Use existing performer ID
-        resolvedIds.push(performer.id);
-      }
-    }
-
-    return resolvedIds;
-  }
-
-  /**
-   * Resolve tag IDs - creates new tags in Stash for temp IDs
-   */
-  private async resolveTags(tags: IStashTag[]): Promise<string[]> {
-    const resolvedIds: string[] = [];
-
-    for (const tag of tags) {
-      if (tag.id.startsWith('temp-')) {
-        // Create new tag in Stash
-        log.debug('Creating new tag:', tag.name);
-        try {
-          const created = await this.stashService.createTag({
-            name: tag.name,
-            aliases: tag.aliases,
-            description: tag.description,
-          });
-          log.debug('Created tag:', `${created.id} ${created.name}`);
-          resolvedIds.push(created.id);
-        } catch (error) {
-          log.error('Failed to create tag:', `${tag.name} - ${String(error)}`);
-          // Continue with other tags even if one fails
-        }
-      } else {
-        // Use existing tag ID
-        resolvedIds.push(tag.id);
-      }
-    }
-
-    return resolvedIds;
-  }
-
-  /**
-   * Resolve studio ID - creates new studio in Stash for temp ID
-   */
-  private async resolveStudio(studio: IStashStudio): Promise<string | undefined> {
-    if (studio.id.startsWith('temp-')) {
-      // Create new studio in Stash
-      log.debug('Creating new studio:', studio.name);
+  private async resolvePerformerNames(names: string[], createMissing: boolean): Promise<string[]> {
+    const ids: string[] = [];
+    for (const rawName of names) {
+      const name = rawName.trim();
+      if (!name) continue;
       try {
-        const created = await this.stashService.createStudio({
-          name: studio.name,
-          url: studio.url,
-          aliases: studio.aliases,
-        });
-        log.debug('Created studio:', `${created.id} ${created.name}`);
-        return created.id;
+        const matches = await this.stashService.findPerformersByName(name);
+        const normalized = name.toLocaleLowerCase();
+        const existing = matches.find(performer => performer.name.trim().toLocaleLowerCase() === normalized
+          || (performer.alias_list || performer.aliases || []).some(alias => alias.trim().toLocaleLowerCase() === normalized));
+        if (existing) {
+          ids.push(existing.id);
+        } else if (createMissing) {
+          ids.push((await this.stashService.createPerformer({ name })).id);
+        }
       } catch (error) {
-        log.error('Failed to create studio:', `${studio.name} - ${String(error)}`);
-        return undefined;
+        log.warn(`Could not resolve performer "${name}": ${String(error)}`);
       }
     }
-    return studio.id;
+    return ids;
+  }
+
+  private async resolveTagNames(names: string[], createMissing: boolean): Promise<string[]> {
+    const ids: string[] = [];
+    for (const rawName of names) {
+      const name = rawName.trim();
+      if (!name) continue;
+      try {
+        const matches = await this.stashService.findTagsByName(name);
+        const normalized = name.toLocaleLowerCase();
+        const existing = matches.find(tag => tag.name.trim().toLocaleLowerCase() === normalized
+          || (tag.aliases || []).some(alias => alias.trim().toLocaleLowerCase() === normalized));
+        if (existing) {
+          ids.push(existing.id);
+        } else if (createMissing) {
+          ids.push((await this.stashService.createTag({ name })).id);
+        }
+      } catch (error) {
+        log.warn(`Could not resolve tag "${name}": ${String(error)}`);
+      }
+    }
+    return ids;
+  }
+
+  private async resolveStudioName(name: string, createMissing: boolean): Promise<string | undefined> {
+    const normalized = name.trim().toLocaleLowerCase();
+    if (!normalized) return undefined;
+    try {
+      const studio = await this.stashService.findStudioByName(name);
+      if (studio && (studio.name.trim().toLocaleLowerCase() === normalized
+        || (studio.aliases || []).some(alias => alias.trim().toLocaleLowerCase() === normalized))) {
+        return studio.id;
+      }
+      if (createMissing) return (await this.stashService.createStudio({ name: name.trim() })).id;
+    } catch (error) {
+      log.warn(`Could not resolve studio "${name}": ${String(error)}`);
+    }
+    return undefined;
   }
 
   /**

@@ -6,6 +6,18 @@ export const PLUGIN_ID = 'stash-downloader';
 export const PLUGIN_NAME = 'Stash Downloader';
 // Version is injected at build time via __APP_VERSION__ (from package.json)
 
+export const DEFAULT_IMPORT_PROFILE = {
+  id: 'default',
+  name: 'Default',
+  domains: [] as string[],
+  autoImport: false,
+  createPerformers: true,
+  createTags: true,
+  createStudios: true,
+  filenameTemplate: '{title}',
+  postImportAction: 'none' as const,
+};
+
 export const ROUTES = {
   MAIN: '/plugin/stash-downloader',
   QUEUE: '/plugin/stash-downloader/queue',
@@ -19,6 +31,8 @@ export const DEFAULT_SETTINGS = {
   logLevel: 'info' as const,
   showThumbnailPreviews: true,
   autoImport: false,
+  importProfiles: [DEFAULT_IMPORT_PROFILE],
+  activeImportProfileId: DEFAULT_IMPORT_PROFILE.id,
 };
 
 export const STORAGE_KEYS = {

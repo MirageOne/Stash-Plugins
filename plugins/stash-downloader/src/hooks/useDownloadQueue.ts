@@ -2,11 +2,12 @@
  * useDownloadQueue - Hook for managing download queue with localStorage persistence
  */
 
-import { useState, useCallback, useEffect, useRef } from 'react';
-import type { IDownloadItem, IScrapedMetadata } from '@/types';
+import { useState, useCallback, useRef } from 'react';
+import type { IDownloadItem, IImportProfile, IScrapedMetadata } from '@/types';
 import { DownloadStatus } from '@/types';
 import { generateId, createLogger } from '@/utils';
 import { STORAGE_KEYS } from '@/constants';
+import { canonicalizeSourceUrl } from '@/utils/importProfiles';
 
 const log = createLogger('DownloadQueue');
 
@@ -53,30 +54,11 @@ function loadQueue(): IDownloadItem[] {
 
     const items = deserializeQueue(stored);
 
-    // For "downloading" items, check if they've been stuck for too long
-    // If started more than 15 minutes ago, assume interrupted and reset to pending
-    const MAX_DOWNLOAD_TIME_MS = 15 * 60 * 1000; // 15 minutes
-    const now = Date.now();
-
     return items.map(item => {
       if (item.status === DownloadStatus.Downloading || item.status === DownloadStatus.Processing) {
-        const startTime = item.startedAt ? new Date(item.startedAt).getTime() : 0;
-        const elapsed = now - startTime;
-
-        if (elapsed > MAX_DOWNLOAD_TIME_MS || !item.startedAt) {
-          // Download was interrupted or took too long
-          log.info(`Resetting stale download: ${item.url} (elapsed: ${Math.round(elapsed / 1000)}s)`);
-          return {
-            ...item,
-            status: DownloadStatus.Pending,
-            progress: undefined,
-            error: 'Download was interrupted. Click retry to restart.',
-          };
-        }
-
-        // Still within timeout - keep status but clear progress (will need to reconnect)
-        log.info(`Keeping active download: ${item.url} (elapsed: ${Math.round(elapsed / 1000)}s)`);
-        return { ...item, progress: undefined };
+        // Reconcile against Stash jobs after mount; age alone cannot tell whether a job is alive.
+        log.info(`Queue item requires Stash job recovery: ${item.url}`);
+        return { ...item, progress: undefined, recoveryState: 'pending' as const, lastActivityAt: new Date() };
       }
       return item;
     });
@@ -89,31 +71,44 @@ function loadQueue(): IDownloadItem[] {
 export function useDownloadQueue() {
   // Initialize from localStorage
   const [items, setItems] = useState<IDownloadItem[]>(() => loadQueue());
+  const itemsRef = useRef(items);
 
-  // Track if this is the initial load to avoid duplicate saves
-  const isInitialLoad = useRef(true);
+  const replaceItems = useCallback((updater: IDownloadItem[] | ((current: IDownloadItem[]) => IDownloadItem[])) => {
+    const nextItems = typeof updater === 'function' ? updater(itemsRef.current) : updater;
+    itemsRef.current = nextItems;
+    setItems(nextItems);
+    try {
+      localStorage.setItem(STORAGE_KEYS.QUEUE, serializeQueue(nextItems));
+    } catch (e) {
+      log.error('Failed to save queue to localStorage:', e instanceof Error ? e.message : String(e));
+    }
+  }, []);
 
   /**
    * Check if a URL is already in the queue
    */
   const isUrlInQueue = useCallback((url: string): boolean => {
-    return items.some((item) => item.url === url);
-  }, [items]);
+    const canonicalUrl = canonicalizeSourceUrl(url);
+    return itemsRef.current.some((item) => canonicalizeSourceUrl(item.url) === canonicalUrl);
+  }, []);
 
   /**
    * Find an existing item by URL
    */
   const findByUrl = useCallback((url: string): IDownloadItem | undefined => {
-    return items.find((item) => item.url === url);
-  }, [items]);
+    const canonicalUrl = canonicalizeSourceUrl(url);
+    return itemsRef.current.find((item) => canonicalizeSourceUrl(item.url) === canonicalUrl);
+  }, []);
 
   /**
    * Add a URL to the queue
    * Returns the item ID if added, null if duplicate
    */
-  const addToQueue = useCallback((url: string, metadata?: IScrapedMetadata): string | null => {
+  const addToQueue = useCallback((url: string, metadata?: IScrapedMetadata, importProfile?: IImportProfile): string | null => {
     // Check for duplicate URL in queue
-    const existing = items.find((item) => item.url === url);
+    const canonicalUrl = canonicalizeSourceUrl(url);
+    const currentItems = itemsRef.current;
+    const existing = currentItems.find((item) => canonicalizeSourceUrl(item.url) === canonicalUrl);
     if (existing) {
       log.debug(`Duplicate URL detected: ${url} (existing ID: ${existing.id})`);
       return null; // Indicate duplicate
@@ -124,22 +119,24 @@ export function useDownloadQueue() {
       url,
       status: DownloadStatus.Pending,
       metadata,
+      importProfile,
       addedAt: new Date(),
     };
 
-    setItems((prev) => [...prev, newItem]);
+    const nextItems = [...currentItems, newItem];
+    replaceItems(nextItems);
     return newItem.id;
-  }, [items]);
+  }, [replaceItems]);
 
   const removeFromQueue = useCallback((id: string) => {
-    setItems((prev) => prev.filter((item) => item.id !== id));
-  }, []);
+    replaceItems((prev) => prev.filter((item) => item.id !== id));
+  }, [replaceItems]);
 
   const updateItem = useCallback((
     id: string,
     updates: Partial<IDownloadItem> | ((currentItem: IDownloadItem) => Partial<IDownloadItem>)
   ) => {
-    setItems((prev) =>
+    replaceItems((prev) =>
       prev.map((item) => {
         if (item.id !== id) return item;
         // Support functional updates to avoid stale closure issues
@@ -147,32 +144,17 @@ export function useDownloadQueue() {
         return { ...item, ...actualUpdates };
       })
     );
-  }, []);
+  }, [replaceItems]);
 
   const clearCompleted = useCallback(() => {
-    setItems((prev) =>
+    replaceItems((prev) =>
       prev.filter((item) => item.status !== DownloadStatus.Complete)
     );
-  }, []);
+  }, [replaceItems]);
 
   const clearAll = useCallback(() => {
-    setItems([]);
-  }, []);
-
-  // Persist to localStorage when items change
-  useEffect(() => {
-    // Skip the initial load to avoid overwriting with the same data
-    if (isInitialLoad.current) {
-      isInitialLoad.current = false;
-      return;
-    }
-
-    try {
-      localStorage.setItem(STORAGE_KEYS.QUEUE, serializeQueue(items));
-    } catch (e) {
-      log.error('Failed to save queue to localStorage:', e instanceof Error ? e.message : String(e));
-    }
-  }, [items]);
+    replaceItems([]);
+  }, [replaceItems]);
 
   // Statistics
   const stats = {

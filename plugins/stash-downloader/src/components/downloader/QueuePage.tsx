@@ -11,6 +11,8 @@ import { URLInputForm, type ContentTypeOption } from './URLInputForm';
 import { QueueItem } from './QueueItem';
 import { BatchImport } from './BatchImport';
 import { EditMetadataModal } from './EditMetadataModal';
+import { ImportProfilesModal } from './ImportProfilesModal';
+import { DuplicateSceneModal, type IDuplicateSceneCandidate } from './DuplicateSceneModal';
 import { LogViewer } from '@/components/common';
 import { useDownloadQueue, useExternalQueue } from '@/hooks';
 import { useToast } from '@/contexts/ToastContext';
@@ -18,10 +20,10 @@ import { useLog } from '@/contexts/LogContext';
 import { getScraperRegistry } from '@/services/metadata';
 import { getStashService, getStashImportService } from '@/services/stash';
 import { DownloadStatus } from '@/types';
-import type { IDownloadItem, IScrapedMetadata, IEditedMetadata } from '@/types';
-import { createLogger, createImportCallbacks, processConcurrently } from '@/utils';
+import type { IDownloadItem, IScrapedMetadata, IEditedMetadata, IImportProfile } from '@/types';
+import { createLogger, createImportCallbacks, processConcurrently, getImportProfileForUrl } from '@/utils';
 import { useSettings } from '@/hooks';
-import { PLUGIN_ID, PLUGIN_NAME } from '@/constants';
+import { DEFAULT_IMPORT_PROFILE, PLUGIN_ID, PLUGIN_NAME } from '@/constants';
 import type { IPluginSettings } from '@/types';
 import logoSvg from '@/assets/logo.svg';
 
@@ -29,6 +31,8 @@ const debugLog = createLogger('QueuePage');
 
 export const QueuePage: React.FC = () => {
   const queue = useDownloadQueue();
+  const queueItems = queue.items;
+  const updateQueueItem = queue.updateItem;
   const toast = useToast();
   const log = useLog();
   const scraperRegistry = getScraperRegistry();
@@ -45,11 +49,19 @@ export const QueuePage: React.FC = () => {
   const [ytDlpResolutionMethod, setYtDlpResolutionMethod] = useState<string | null>(null);
   const [videoLibraryPath, setVideoLibraryPath] = useState('');
   const [imageLibraryPath, setImageLibraryPath] = useState('');
+  const [showImportProfiles, setShowImportProfiles] = useState(false);
+  const [duplicateCandidate, setDuplicateCandidate] = useState<{
+    scene: IDuplicateSceneCandidate;
+    submittedUrl: string;
+    contentTypeOption: ContentTypeOption;
+    profile: IImportProfile;
+  } | null>(null);
 
   // Batch import state
   const [isBatchImporting, setIsBatchImporting] = useState(false);
   const [batchImportProgress, setBatchImportProgress] = useState({ current: 0, total: 0 });
   const batchImportCancelledRef = useRef(false);
+  const recoveryStartedRef = useRef(new Set<string>());
 
   // Re-scrape modal state
   const [rescrapeItem, setRescrapeItem] = useState<IDownloadItem | null>(null);
@@ -73,6 +85,11 @@ export const QueuePage: React.FC = () => {
   const configuredDownloadPath = String(settings.serverDownloadPath || '').trim();
   const videoDownloadPath = configuredDownloadPath || videoLibraryPath || 'No video-enabled Stash library';
   const imageDownloadPath = configuredDownloadPath || imageLibraryPath || 'No image-enabled Stash library';
+  const importProfiles = settings.importProfiles?.length ? settings.importProfiles : [{ ...DEFAULT_IMPORT_PROFILE }];
+  const activeImportProfile = importProfiles.find(profile => profile.id === settings.activeImportProfileId) || importProfiles[0]!;
+  const profileForCurrentUrl = getImportProfileForUrl(urlFieldValue, importProfiles, activeImportProfile.id);
+  const pendingItems = queue.items.filter(item => item.status === DownloadStatus.Pending);
+  const autoImportPending = pendingItems.length > 0 && pendingItems.every(item => (item.importProfile || activeImportProfile).autoImport);
 
   // Fetch and sync settings from Stash on mount (once, no polling)
   useEffect(() => {
@@ -119,6 +136,78 @@ export const QueuePage: React.FC = () => {
   // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [isStashEnvironment]);
 
+  // Resume persisted Stash downloads by their saved job/result IDs. Never infer
+  // that a task is dead from elapsed time alone.
+  useEffect(() => {
+    if (!isStashEnvironment) return;
+    const recover = async (item: IDownloadItem) => {
+      if (recoveryStartedRef.current.has(item.id)) return;
+      recoveryStartedRef.current.add(item.id);
+      updateQueueItem(item.id, { recoveryState: 'checking', progress: undefined, lastActivityAt: new Date() });
+
+      const editedMetadata = item.editedMetadata || (item.metadata ? {
+        title: item.metadata.title,
+        description: item.metadata.description,
+        date: item.metadata.date,
+        performerNames: item.metadata.performers || [],
+        tagNames: item.metadata.tags || [],
+        studioName: item.metadata.studio,
+      } : undefined);
+
+      const canResumeSavedFile = !!item.filePath;
+      const canResumeStashJob = !!item.downloadResultId && !!item.downloadProgressId;
+      if (!editedMetadata || !item.metadata || (!canResumeSavedFile && !canResumeStashJob)) {
+        updateQueueItem(item.id, {
+          status: DownloadStatus.Failed,
+          recoveryState: 'interrupted',
+          error: 'Stash cannot resume this older queue item because its download result was not saved. Check Stash for the file, then retry if needed.',
+        });
+        return;
+      }
+
+      try {
+        const callbacks = createImportCallbacks({ itemId: item.id, updateItem: updateQueueItem, debugLog });
+        const result = await getStashImportService().importToStash({ ...item, editedMetadata }, callbacks, { resumeDownload: true });
+        updateQueueItem(item.id, {
+          status: DownloadStatus.Complete,
+          stashId: result.id,
+          completedAt: new Date(),
+          progress: undefined,
+          stashJobId: undefined,
+          recoveryState: undefined,
+          error: undefined,
+        });
+        log.addLog('success', 'download', `Recovered import: ${item.metadata.title || item.url}`, `Stash ID: ${result.id}`);
+      } catch (error) {
+        const errorMessage = error instanceof Error ? error.message : String(error);
+        const couldNotReachStash = /graphql|failed to fetch|fetch failed|networkerror|network error|load failed/i.test(errorMessage);
+        if (couldNotReachStash) {
+          updateQueueItem(item.id, {
+            recoveryState: 'checking',
+            error: 'Waiting for Stash connection to verify this running job. Reload the downloader to reconnect.',
+          });
+          debugLog.warn(`Could not reconnect queue item ${item.id}:`, errorMessage);
+          return;
+        }
+        updateQueueItem(item.id, {
+          status: DownloadStatus.Failed,
+          recoveryState: 'interrupted',
+          stashJobId: undefined,
+          progress: undefined,
+          error: `Recovered import stopped: ${errorMessage}`,
+        });
+        log.addLog('error', 'download', `Could not recover import: ${item.metadata.title || item.url}`, errorMessage);
+      }
+    };
+
+    const pendingRecovery = queueItems.filter(item => item.recoveryState === 'pending');
+    if (pendingRecovery.length > 0) {
+      void (async () => {
+        for (const item of pendingRecovery) await recover(item);
+      })();
+    }
+  }, [isStashEnvironment, queueItems, updateQueueItem, log]);
+
   // Fetch yt-dlp version on mount
   useEffect(() => {
     if (!isStashEnvironment) return;
@@ -145,196 +234,87 @@ export const QueuePage: React.FC = () => {
     checkYtDlp();
   }, [isStashEnvironment]);
 
-  const handleAddUrl = async (url: string, contentTypeOption: ContentTypeOption = 'auto') => {
-    // Clear URL field after adding
-    setUrlFieldValue('');
-
-    // Convert content type option to actual ContentType (undefined for auto)
-    const preferredContentType = contentTypeOption === 'auto' ? undefined : contentTypeOption;
-
-    // Check for duplicate in queue
-    if (queue.isUrlInQueue(url)) {
-      const existing = queue.findByUrl(url);
-      log.addLog('warning', 'scrape', `Duplicate URL: ${url} (already in queue as "${existing?.metadata?.title || 'Pending'}")`);
+  const enqueueUrl = (url: string, contentTypeOption: ContentTypeOption, profile: IImportProfile, existsInStash?: { id: string; title?: string }) => {
+    const itemId = queue.addToQueue(url, undefined, profile);
+    if (!itemId) {
       toast.showToast('warning', 'Duplicate URL', 'This URL is already in the queue.');
       return;
     }
+    if (existsInStash) queue.updateItem(itemId, { existsInStash });
+    log.addLog('info', 'scrape', `Added URL to queue using profile "${profile.name}": ${url}`);
 
-    // Check for existing scene in Stash database
-    let existingSceneInfo: { id: string; title?: string } | undefined;
+    void (async () => {
+      try {
+        const preferredContentType = contentTypeOption === 'auto' ? undefined : contentTypeOption;
+        const metadata = await scraperRegistry.scrapeWithEnhancement(url, preferredContentType);
+        queue.updateItem(itemId, { metadata });
+        const details = [
+          `Title: ${metadata.title || 'N/A'}`,
+          `Content Type: ${metadata.contentType}`,
+          `Description: ${metadata.description ? `${metadata.description.substring(0, 100)}...` : 'N/A'}`,
+          `Thumbnail: ${metadata.thumbnailUrl ? 'Available' : 'N/A'}`,
+          ...(metadata.videoUrl ? [`Video URL: ${metadata.videoUrl.substring(0, 80)}`] : []),
+          ...(metadata.imageUrl ? [`Image URL: ${metadata.imageUrl.substring(0, 80)}`] : []),
+          ...(metadata.quality ? [`Quality: ${metadata.quality}`] : []),
+          ...(metadata.availableQualities?.length ? [`Available Qualities: ${metadata.availableQualities.join(', ')}`] : []),
+          ...(metadata.duration ? [`Duration: ${Math.floor(metadata.duration / 60)}m ${metadata.duration % 60}s`] : []),
+          `Performers: ${metadata.performers?.length || 0}`,
+          `Tags: ${metadata.tags?.length || 0}`,
+          ...(metadata.studio ? [`Studio: ${metadata.studio}`] : []),
+          ...(metadata.artist ? [`Artist: ${metadata.artist}`] : []),
+          ...(metadata.sourceId ? [`Source ID: ${metadata.sourceId}`] : []),
+          ...(metadata.sourceRating ? [`Rating: ${metadata.sourceRating}`] : []),
+          ...(metadata.sourceScore !== undefined ? [`Score: ${metadata.sourceScore}`] : []),
+          ...(metadata.galleryImages?.length ? [`Gallery Images: ${metadata.galleryImages.length}`] : []),
+          ...(metadata.capabilities ? [`Capabilities: ${Object.entries(metadata.capabilities).filter(([, enabled]) => enabled).map(([name]) => name.replace(/^has/, '').toLowerCase()).join(', ')}`] : []),
+        ];
+        log.addLog('success', 'scrape', `Successfully scraped metadata: ${metadata.title || url}`, details.join('\n'));
+        toast.showToast('success', 'Metadata Scraped', `Successfully scraped metadata for ${metadata.title || url}`);
+      } catch (error) {
+        const errorMessage = error instanceof Error ? error.message : 'Unknown error';
+        debugLog.error('Metadata scrape failed:', errorMessage);
+        log.addLog('error', 'scrape', `Failed to scrape metadata: ${errorMessage}`);
+        toast.showToast('warning', 'Scrape Failed', `Failed to scrape metadata: ${errorMessage}. Item added without metadata.`);
+        queue.updateItem(itemId, { error: `Scraping failed: ${errorMessage}` });
+      }
+    })();
+  };
+
+  const handleAddUrl = async (url: string, contentTypeOption: ContentTypeOption = 'auto') => {
+    setUrlFieldValue('');
+    const profile = getImportProfileForUrl(url, importProfiles, activeImportProfile.id);
+
+    if (queue.isUrlInQueue(url)) {
+      const existing = queue.findByUrl(url);
+      log.addLog('warning', 'scrape', `Duplicate URL: ${url} (already queued as "${existing?.metadata?.title || 'Pending'}")`);
+      toast.showToast('warning', 'Already Queued', `This URL is already in the queue${existing?.metadata?.title ? ` as “${existing.metadata.title}”` : ''}.`);
+      return;
+    }
+
     if (isStashEnvironment) {
       try {
         const existingScene = await stashService.findSceneByURL(url);
         if (existingScene) {
-          existingSceneInfo = { id: existingScene.id, title: existingScene.title };
-          log.addLog('warning', 'scrape', `Scene already exists in Stash: "${existingScene.title || existingScene.id}"`);
-          toast.showToast('warning', 'Scene Exists', `This scene already exists in Stash: "${existingScene.title || 'ID: ' + existingScene.id}". Adding anyway.`);
-          // Continue adding - user can choose to skip manually
+          setDuplicateCandidate({
+            scene: { id: existingScene.id, title: existingScene.title, url: existingScene.url || url },
+            submittedUrl: url,
+            contentTypeOption,
+            profile,
+          });
+          return;
         }
       } catch (error) {
-        // Log but don't block if duplicate check fails
+        // Keep import available if duplicate lookup is temporarily unavailable.
         debugLog.warn('Failed to check for existing scene:', String(error));
       }
     }
 
-    // Add to queue
-    const itemId = queue.addToQueue(url);
-    if (!itemId) {
-      // This shouldn't happen if our duplicate check worked, but handle it
-      toast.showToast('error', 'Add Failed', 'Failed to add URL to queue.');
-      return;
-    }
+    enqueueUrl(url, contentTypeOption, profile);
+  };
 
-    // If scene exists in Stash, mark the item
-    if (existingSceneInfo) {
-      queue.updateItem(itemId, { existsInStash: existingSceneInfo });
-    }
-
-    log.addLog('info', 'scrape', `Added URL to queue: ${url}`);
-
-    // Scrape metadata in background and update the item
-    (async () => {
-      try {
-        debugLog.debug(`======== Starting metadata scrape ========`);
-        debugLog.debug(`URL: ${url}`);
-        debugLog.debug(`Item ID: ${itemId}`);
-        debugLog.debug(`Current queue items: ${queue.items.length}`);
-
-        // Note: We don't need to find the item - React state updates are async
-        // We can update it directly using the itemId
-
-        // Scrape metadata from URL (use enhancement flow for better fallback)
-        debugLog.debug(`Calling scraperRegistry.scrapeWithEnhancement() (preferredContentType: ${preferredContentType || 'auto'})...`);
-        const metadata = await scraperRegistry.scrapeWithEnhancement(url, preferredContentType);
-        debugLog.debug(`Scraping completed:`, JSON.stringify({
-          title: metadata.title,
-          hasVideoUrl: !!metadata.videoUrl,
-          hasImageUrl: !!metadata.imageUrl,
-          contentType: metadata.contentType,
-        }));
-
-        // Update the queue item with scraped metadata
-        debugLog.debug(`Updating item ${itemId} with metadata...`);
-        queue.updateItem(itemId, {
-          metadata,
-        });
-        debugLog.debug(`Item updated successfully`);
-
-        // Build detailed log message with all available metadata
-        const logDetails: string[] = [
-          `Title: ${metadata.title || 'N/A'}`,
-          `Content Type: ${metadata.contentType}`,
-          `Description: ${metadata.description ? metadata.description.substring(0, 100) + '...' : 'N/A'}`,
-          `Thumbnail: ${metadata.thumbnailUrl ? 'Available ✓' : 'N/A'}`,
-        ];
-
-        // Video/Image URL info with actual URLs for troubleshooting
-        if (metadata.videoUrl) {
-          // Truncate URL but show enough to identify the source
-          const truncatedUrl = metadata.videoUrl.length > 80
-            ? metadata.videoUrl.substring(0, 80) + '...'
-            : metadata.videoUrl;
-          logDetails.push(`Video URL: ${truncatedUrl}`);
-        }
-        if (metadata.imageUrl) {
-          const truncatedUrl = metadata.imageUrl.length > 80
-            ? metadata.imageUrl.substring(0, 80) + '...'
-            : metadata.imageUrl;
-          logDetails.push(`Image URL: ${truncatedUrl}`);
-        }
-
-        // Quality info
-        if (metadata.quality) {
-          logDetails.push(`Quality: ${metadata.quality}`);
-        }
-        if (metadata.availableQualities?.length) {
-          logDetails.push(`Available Qualities: ${metadata.availableQualities.join(', ')}`);
-        }
-
-        // Duration for videos
-        if (metadata.duration) {
-          const mins = Math.floor(metadata.duration / 60);
-          const secs = metadata.duration % 60;
-          logDetails.push(`Duration: ${mins}m ${secs}s`);
-        }
-
-        // Performers/Tags/Studio
-        logDetails.push(`Performers: ${metadata.performers?.length || 0}`);
-        logDetails.push(`Tags: ${metadata.tags?.length || 0}`);
-        if (metadata.studio) {
-          logDetails.push(`Studio: ${metadata.studio}`);
-        }
-
-        // Booru-specific metadata
-        if (metadata.artist) {
-          logDetails.push(`Artist: ${metadata.artist}`);
-        }
-        if (metadata.sourceId) {
-          logDetails.push(`Source ID: ${metadata.sourceId}`);
-        }
-        if (metadata.sourceRating) {
-          logDetails.push(`Rating: ${metadata.sourceRating}`);
-        }
-        if (metadata.sourceScore !== undefined) {
-          logDetails.push(`Score: ${metadata.sourceScore}`);
-        }
-
-        // Gallery info
-        if (metadata.galleryImages?.length) {
-          logDetails.push(`Gallery Images: ${metadata.galleryImages.length}`);
-        }
-
-        // Capabilities
-        if (metadata.capabilities) {
-          const caps = metadata.capabilities;
-          const capsList: string[] = [];
-          if (caps.hasPerformers) capsList.push('performers');
-          if (caps.hasTags) capsList.push('tags');
-          if (caps.hasStudio) capsList.push('studio');
-          if (caps.hasRating) capsList.push('rating');
-          if (capsList.length > 0) {
-            logDetails.push(`Capabilities: ${capsList.join(', ')}`);
-          }
-        }
-
-        log.addLog('success', 'scrape', `Successfully scraped metadata: ${metadata.title || url}`,
-          logDetails.join('\n')
-        );
-
-        if (metadata.videoUrl) {
-          debugLog.debug('✓ Scraper extracted videoUrl:', metadata.videoUrl.substring(0, 100) + '...');
-        } else if (metadata.imageUrl) {
-          debugLog.debug('✓ Scraper extracted imageUrl:', metadata.imageUrl.substring(0, 100) + '...');
-        } else {
-          // This is normal for Stash's built-in scraper - it doesn't return direct video URLs
-          // The download service will use yt-dlp or the page URL as fallback
-          debugLog.debug('ℹ️ No direct video/image URL extracted - download service will use yt-dlp or page URL');
-        }
-        toast.showToast('success', 'Metadata Scraped', `Successfully scraped metadata for ${metadata.title || url}`);
-      } catch (error) {
-        const errorMessage = error instanceof Error ? error.message : 'Unknown error';
-        const errorStack = error instanceof Error ? error.stack : undefined;
-        const errorDetails = error instanceof Error ?
-          `Error: ${errorMessage}\n\nStack trace:\n${errorStack || 'No stack trace available'}` :
-          `Error: ${String(error)}`;
-
-        debugLog.error('Scraping failed with full details:', JSON.stringify({
-          url,
-          errorMessage,
-          errorStack: errorStack || 'No stack trace',
-        }));
-
-        log.addLog('error', 'scrape', `Failed to scrape metadata: ${errorMessage}`, errorDetails);
-        toast.showToast('warning', 'Scrape Failed', `Failed to scrape metadata: ${errorMessage}. Item added to queue without metadata.`);
-
-        // Update item with error so user knows scraping failed
-        queue.updateItem(itemId, {
-          error: `Scraping failed: ${errorMessage}`,
-        });
-
-        // Item is already in queue with error status - no need for additional log
-      }
-    })();
+  const updateActiveProfile = (updates: Partial<IImportProfile>) => {
+    const nextProfiles = importProfiles.map(profile => profile.id === activeImportProfile.id ? { ...profile, ...updates } : profile);
+    updateSettings({ importProfiles: nextProfiles });
   };
 
 // Update ref when handleAddUrl changes
@@ -380,6 +360,8 @@ export const QueuePage: React.FC = () => {
       status: DownloadStatus.Complete,
       stashId,
       completedAt: new Date(),
+      stashJobId: undefined,
+      recoveryState: undefined,
     });
 
     // Auto-advance to next pending item immediately (modal stays open)
@@ -489,6 +471,12 @@ export const QueuePage: React.FC = () => {
       status: DownloadStatus.Pending,
       error: undefined,
       progress: undefined,
+      stashJobId: undefined,
+      downloadProgressId: undefined,
+      downloadResultId: undefined,
+      filePath: undefined,
+      fileSize: undefined,
+      recoveryState: undefined,
     });
 
     // If we already have metadata, we don't need to re-scrape - just need to trigger download again
@@ -545,6 +533,7 @@ export const QueuePage: React.FC = () => {
           status: DownloadStatus.Cancelled,
           error: 'Download cancelled by user',
           stashJobId: undefined,
+          recoveryState: undefined,
         });
 
         log.addLog('warning', 'download', `Download cancelled: ${item.metadata?.title || item.url}`);
@@ -610,13 +599,21 @@ export const QueuePage: React.FC = () => {
           const itemForImport: IDownloadItem = {
             ...item,
             editedMetadata,
-            postImportAction: 'none',
+            postImportAction: item.postImportAction || item.importProfile?.postImportAction || 'none',
           };
 
-          // Update status to Processing (preserve existing logs from scraping phase)
+          // Persist import metadata and task intent for queue recovery after reload.
           queue.updateItem(item.id, {
+            editedMetadata,
+            postImportAction: itemForImport.postImportAction,
             status: DownloadStatus.Processing,
             startedAt: new Date(),
+            stashJobId: undefined,
+            downloadProgressId: undefined,
+            downloadResultId: undefined,
+            filePath: undefined,
+            fileSize: undefined,
+            recoveryState: undefined,
           });
 
           try {
@@ -634,6 +631,8 @@ export const QueuePage: React.FC = () => {
               status: DownloadStatus.Complete,
               stashId: result.id,
               completedAt: new Date(),
+              stashJobId: undefined,
+              recoveryState: undefined,
             });
 
             completedCount++;
@@ -706,6 +705,7 @@ export const QueuePage: React.FC = () => {
         status: DownloadStatus.Cancelled,
         error: 'Batch import cancelled by user',
         stashJobId: undefined,
+        recoveryState: undefined,
       });
     }
 
@@ -862,6 +862,26 @@ export const QueuePage: React.FC = () => {
             onValueChange={setUrlFieldValue}
           />
 
+          <div className="card text-light" style={{ backgroundColor: 'var(--glass-bg, rgba(39, 39, 39, 0.90))' }}>
+            <div className="card-body d-flex flex-wrap align-items-center gap-2 py-2">
+              <label htmlFor="importProfileSelect" className="form-label mb-0">Import profile</label>
+              <select
+                id="importProfileSelect"
+                className="form-select form-select-sm"
+                value={activeImportProfile.id}
+                onChange={event => updateSettings({ activeImportProfileId: event.target.value })}
+                style={{ width: 'auto', minWidth: '150px', backgroundColor: 'var(--stash-input-bg)', borderColor: 'var(--stash-border)', color: 'var(--stash-text)' }}
+              >
+                {importProfiles.map(profile => <option key={profile.id} value={profile.id}>{profile.name}</option>)}
+              </select>
+              <button type="button" className="btn btn-sm btn-outline-secondary" onClick={() => setShowImportProfiles(true)}>Manage profiles</button>
+              {urlFieldValue.trim() && profileForCurrentUrl.id !== activeImportProfile.id && (
+                <small className="text-muted">This URL will use “{profileForCurrentUrl.name}” by domain.</small>
+              )}
+              {!urlFieldValue.trim() && <small className="text-muted">Queued items keep a snapshot of their profile.</small>}
+            </div>
+          </div>
+
           {/* Batch Import */}
           <div className="mb-3">
             <BatchImport
@@ -902,7 +922,7 @@ export const QueuePage: React.FC = () => {
               <button
                 className="btn btn-primary"
                 onClick={() => {
-                  if (settings.autoImport) {
+                  if (autoImportPending) {
                     // Auto-import: process all pending items without edit modal
                     handleBatchAutoImport();
                   } else {
@@ -912,14 +932,14 @@ export const QueuePage: React.FC = () => {
                   }
                 }}
                 disabled={queue.stats.pending === 0 || isBatchImporting}
-                title={settings.autoImport
+                title={autoImportPending
                   ? 'Download and import all pending items without editing'
                   : 'Review and import each item individually'
                 }
               >
                 {isBatchImporting
                   ? `⏳ Importing ${batchImportProgress.current}/${batchImportProgress.total}...`
-                  : settings.autoImport
+                  : autoImportPending
                     ? `⚡ Import All (${queue.stats.pending} items)`
                     : `📝 Edit & Import (${queue.stats.pending} items)`
                 }
@@ -964,15 +984,15 @@ export const QueuePage: React.FC = () => {
               </button>
               <button
                 type="button"
-                className={`btn btn-sm ${settings.autoImport ? 'btn-primary' : 'btn-outline-secondary'}`}
-                onClick={() => updateSettings({ autoImport: !settings.autoImport })}
-                title={settings.autoImport
-                  ? 'ON: Click "Import All" to download & import all pending items at once (skips edit modal)'
-                  : 'OFF: Click "Edit & Import" to review each item before importing'
+                className={`btn btn-sm ${activeImportProfile.autoImport ? 'btn-primary' : 'btn-outline-secondary'}`}
+                onClick={() => updateActiveProfile({ autoImport: !activeImportProfile.autoImport })}
+                title={activeImportProfile.autoImport
+                  ? `Auto-import is on for the ${activeImportProfile.name} profile`
+                  : `Auto-import is off for the ${activeImportProfile.name} profile`
                 }
                 style={{ minWidth: '140px' }}
               >
-                {settings.autoImport ? '⚡ Auto-Import On' : '⚡ Auto-Import Off'}
+                {activeImportProfile.autoImport ? '⚡ Auto-Import On' : '⚡ Auto-Import Off'}
               </button>
             </div>
             <div className="d-flex align-items-center gap-2">
@@ -1048,6 +1068,39 @@ export const QueuePage: React.FC = () => {
         totalPending={queuePosition?.total}
         onSkip={handleSkipToNext}
       />
+
+      {showImportProfiles && (
+        <ImportProfilesModal
+          profiles={importProfiles}
+          activeProfileId={activeImportProfile.id}
+          onClose={() => setShowImportProfiles(false)}
+          onSave={(profiles, nextActiveProfileId) => {
+            updateSettings({ importProfiles: profiles, activeImportProfileId: nextActiveProfileId });
+            setShowImportProfiles(false);
+            toast.showToast('success', 'Profiles Saved', `${profiles.length} import profile${profiles.length === 1 ? '' : 's'} saved.`);
+          }}
+        />
+      )}
+
+      {duplicateCandidate && (
+        <DuplicateSceneModal
+          scene={duplicateCandidate.scene}
+          onSkip={() => setDuplicateCandidate(null)}
+          onOpen={() => {
+            window.open(`/scenes/${encodeURIComponent(duplicateCandidate.scene.id)}`, '_blank', 'noopener,noreferrer');
+            setDuplicateCandidate(null);
+          }}
+          onAddAnyway={() => {
+            enqueueUrl(
+              duplicateCandidate.submittedUrl,
+              duplicateCandidate.contentTypeOption,
+              duplicateCandidate.profile,
+              { id: duplicateCandidate.scene.id, title: duplicateCandidate.scene.title }
+            );
+            setDuplicateCandidate(null);
+          }}
+        />
+      )}
 
       {/* yt-dlp Warning Modal */}
       <InfoModal

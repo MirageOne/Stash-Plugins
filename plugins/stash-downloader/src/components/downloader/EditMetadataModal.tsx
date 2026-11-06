@@ -91,6 +91,12 @@ export const EditMetadataModal: React.FC<EditMetadataModalProps> = ({
       editedMetadata,
       postImportAction,
       status: DownloadStatus.Processing,
+      stashJobId: undefined,
+      downloadProgressId: undefined,
+      downloadResultId: undefined,
+      filePath: undefined,
+      fileSize: undefined,
+      recoveryState: undefined,
     });
 
     setError(null);
@@ -114,12 +120,14 @@ export const EditMetadataModal: React.FC<EditMetadataModalProps> = ({
         editedMetadata,
         postImportAction,
         status: DownloadStatus.Processing,
+        recoveryState: undefined,
       };
 
       // Set start time for reconnection tracking (preserve existing logs from scraping)
       onUpdateItem(item.id, {
         startedAt: new Date(),
         status: DownloadStatus.Processing,
+        recoveryState: undefined,
       });
 
       // Modal stays open to show progress - will auto-advance on complete

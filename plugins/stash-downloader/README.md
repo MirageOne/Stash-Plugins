@@ -11,6 +11,9 @@ Stash Downloader adds a URL queue for downloading videos and images, extracting 
 - Configure the server's yt-dlp executable and optional HTTP/SOCKS proxy in Stash plugin settings.
 - Use Stash's configured FFmpeg path for yt-dlp format merging when it is available.
 - Persist queue state in the browser and review task logs.
+- Save reusable import profiles with domain matching, metadata creation rules, filename templates, auto-import behavior, and post-import actions.
+- Check Stash and the queue for duplicate source URLs before adding work, with controls to open, skip, or add an existing scene anyway.
+- Recover active server downloads after a page reload by reconnecting to the Stash job or resuming from the saved library file.
 
 ## Requirements
 
@@ -35,7 +38,7 @@ Add the MirageOne Stash Plugins source in **Settings → Plugins → Add source*
 https://raw.githubusercontent.com/MirageOne/Stasher/main/index.yml
 ```
 
-Reload sources and install **Stash Downloader**. For a manual installation, extract the [manual archive](../../packages/stash-downloader/0.6.4-manual.zip) into Stash's configured plugin directory, install the Python dependencies, then enable the plugin.
+Reload sources and install **Stash Downloader**. For a manual installation, extract the [manual archive](../../packages/stash-downloader/0.6.5-manual.zip) into Stash's configured plugin directory, install the Python dependencies, then enable the plugin.
 
 ## Configure
 
@@ -43,8 +46,12 @@ In **Settings → Plugins → Stash Downloader**, set `yt-dlp Path` or `HTTP Pro
 
 The browser cannot choose a server filesystem path or executable. Downloads use the plugin settings saved in Stash, and result/progress files are kept in a private temporary directory and removed after use or after 24 hours.
 
+On the downloader queue page, use **Import profile → Manage profiles** to create per-site behavior. Domain patterns accept one host per line and `*.example.com`; a matching profile is copied onto each new queue item. Profiles can control whether missing performers, tags, and studios are created, choose `{title}`, `{site}`, `{date}`, and `{id}` filename tokens, select a post-import action, and enable no-review batch importing. Existing queued items keep the profile values they were added with.
+
+When a source URL already belongs to a Stash scene, the downloader offers **Open existing**, **Skip**, and **Add anyway**. Queue-level duplicate checks normalize host casing, `www`, trailing slashes, query ordering, and common tracking parameters.
+
 ## Notes and follow-up ideas
 
 - The URL importer can access network addresses reachable from the Stash server. For shared or untrusted Stash accounts, restrict server egress to the media sites users are allowed to download from.
-- The upstream source declares controls for automatic performer/tag/studio creation, a filename template, and notifications, but does not wire those controls to behavior. The importer currently resolves metadata names automatically. Those unused controls are omitted here so the Stash settings page only exposes working fields. Useful next steps are opt-out controls, a filename template, and post-import automation settings.
+- Import profiles and the browser queue are stored in the current browser's local storage. Stash server settings such as download paths and proxy credentials remain in Stash plugin settings.
 - Browser-extension support from the upstream monorepo is not included in this Stash plugin package.

@@ -18,13 +18,13 @@
     description: Theme-adaptive server-side image and video downloads with yt-dlp, proxy settings, library-aware imports, and metadata extraction.
 - id: rebirth
   name: Rebirth
-  version: 1.0.0
-  date: "2026-11-06 12:58:46"
-  path: packages/rebirth/1.0.0.zip
-  sha256: ed66718f6ef780d2a5ed2eb4f9756d01e7b774486bfc6290feefa96777229034
+  version: 1.0.1
+  date: "2026-11-06 13:22:13"
+  path: packages/rebirth/1.0.1.zip
+  sha256: 5e832f50a1f128e0e83520a7420f12a9af97431c28e5bd2c2637f860a2dd373d
   requires: []
   metadata:
-    description: Rebirth is a video-first Stash theme with appearance preferences synced per signed-in user, a selectable one- or two-column mobile scene grid, an accent-responsive Stash box mark, squared custom switches, Geist typography, an automatically cycling new-arrivals carousel, Continue Watching, themed native Settings sections with inline mobile switches, a compact Settings task queue, customizable mobile navigation, distinct accent-filled tag chips, neutral Tagger result rows, square mobile include/exclude controls, wrapped performer controls, compact tag actions, dropdowns, selects, and video-player menus, theme settings integrated into Interface settings, light and dark modes, seven accent colors, and Soft Fill buttons.
+    description: Rebirth is a video-first Stash theme with appearance preferences synced per signed-in user, a selectable one- or two-column mobile scene grid, an accent-responsive Stash box mark, squared custom switches, Geist typography, an automatically cycling new-arrivals carousel, Continue Watching, themed native Settings sections with inline mobile switches, a compact Settings task queue, customizable mobile navigation, distinct accent-filled tag chips, neutral Tagger result rows, square mobile include/exclude controls, wrapped performer controls, compact tag actions, dropdowns, selects, and video-player menus, theme settings integrated into Interface settings, light and dark modes, four stronger accent colors, and Soft Fill buttons.
 - id: performer-site-sync
   name: Performer Site Sync
   version: 2.0.2

@@ -1,0 +1,221 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Rebirth — Accent color directions</title>
+  <style>
+    :root {
+      color-scheme: dark;
+      --page: #0c0e12;
+      --surface: #14171d;
+      --surface-raised: #1b2028;
+      --surface-soft: #222832;
+      --line: #2d333e;
+      --line-strong: #414957;
+      --text: #f2f4f8;
+      --muted: #a1a9b7;
+      --quiet: #7e8795;
+      --accent: #6486ed;
+      --accent-rgb: 100, 134, 237;
+      --accent-ink: #101728;
+      --font: Geist, Inter, ui-sans-serif, system-ui, sans-serif;
+      font-family: var(--font);
+    }
+    @font-face {
+      font-family: Geist;
+      font-style: normal;
+      font-weight: 100 900;
+      font-display: swap;
+      src: url("../fonts/geist-latin-wght-normal.woff2") format("woff2-variations");
+    }
+    * { box-sizing: border-box; }
+    body { min-width: 320px; margin: 0; background: var(--page); color: var(--text); font: 14px/1.5 var(--font); }
+    button { color: inherit; font: inherit; }
+    .page { width: min(1440px, calc(100% - 48px)); margin: 0 auto; padding: 44px 0 56px; }
+    .topline { display: flex; align-items: center; justify-content: space-between; gap: 20px; margin-bottom: 40px; }
+    .brand { display: flex; align-items: center; gap: 10px; font-size: 14px; font-weight: 720; letter-spacing: -.02em; }
+    .brand-mark { display: grid; width: 31px; height: 31px; place-items: center; border: 1px solid rgba(255,255,255,.13); border-radius: 8px; background: #9b79eb; color: #17121f; }
+    .brand-mark svg { width: 19px; height: 19px; }
+    .mode-toggle { display: flex; align-items: center; gap: 4px; padding: 4px; border: 1px solid var(--line); border-radius: 8px; background: var(--surface); }
+    .mode-toggle button { min-height: 30px; padding: 0 11px; border: 0; border-radius: 5px; background: transparent; color: var(--muted); font-size: 12px; cursor: pointer; }
+    .mode-toggle button[aria-pressed="true"] { background: var(--surface-soft); color: var(--text); }
+    .eyebrow { margin-bottom: 9px; color: #a990f3; font-size: 10px; font-weight: 780; letter-spacing: .15em; text-transform: uppercase; }
+    h1 { margin: 0; font-size: clamp(31px, 4vw, 43px); font-weight: 690; line-height: 1.08; letter-spacing: -.045em; }
+    .intro { display: flex; align-items: end; justify-content: space-between; gap: 34px; margin-bottom: 30px; }
+    .intro-copy { max-width: 760px; }
+    .intro p { max-width: 700px; margin: 14px 0 0; color: var(--muted); font-size: 15px; }
+    .principle { max-width: 290px; padding: 13px 15px; border: 1px solid var(--line); border-radius: 9px; background: var(--surface); color: var(--muted); font-size: 12px; }
+    .principle strong { display: block; margin-bottom: 4px; color: var(--text); font-size: 12px; }
+    .palette-grid { display: grid; grid-template-columns: repeat(4, minmax(0, 1fr)); gap: 15px; }
+    .palette-card { --accent: #6486ed; --accent-rgb: 100, 134, 237; --accent-ink: #101728; min-width: 0; overflow: hidden; border: 1px solid var(--line); border-radius: 12px; background: var(--surface); transition: border-color .18s ease, transform .18s ease, box-shadow .18s ease; }
+    .palette-card:hover { transform: translateY(-2px); }
+    .palette-card.is-selected { border-color: rgba(var(--accent-rgb), .74); box-shadow: 0 0 0 1px rgba(var(--accent-rgb), .18), 0 10px 32px rgba(0,0,0,.2); }
+    .palette-card[data-palette="cobalt"] { --accent: #6486ed; --accent-rgb: 100, 134, 237; --accent-ink: #101728; }
+    .palette-card[data-palette="orchid"] { --accent: #a076e8; --accent-rgb: 160, 118, 232; --accent-ink: #20152e; }
+    .palette-card[data-palette="jade"] { --accent: #35b38f; --accent-rgb: 53, 179, 143; --accent-ink: #10251f; }
+    .palette-card[data-palette="terracotta"] { --accent: #de795a; --accent-rgb: 222, 121, 90; --accent-ink: #2a1712; }
+    .palette-head { display: flex; align-items: start; justify-content: space-between; gap: 12px; padding: 17px 17px 13px; }
+    .palette-number { display: block; margin-bottom: 5px; color: var(--quiet); font-size: 10px; font-weight: 700; letter-spacing: .12em; }
+    .palette-head h2 { margin: 0; font-size: 19px; font-weight: 680; letter-spacing: -.03em; }
+    .palette-head p { margin: 4px 0 0; color: var(--muted); font-size: 12px; }
+    .recommended { flex: 0 0 auto; margin-top: 2px; padding: 4px 7px; border: 1px solid rgba(var(--accent-rgb), .38); border-radius: 999px; background: rgba(var(--accent-rgb), .12); color: var(--accent); font-size: 9px; font-weight: 720; }
+    .preview { min-height: 298px; margin: 0 11px; overflow: hidden; border: 1px solid var(--line); border-radius: 8px; background: #0f1217; }
+    .preview-bar { display: flex; align-items: center; justify-content: space-between; height: 36px; padding: 0 11px; border-bottom: 1px solid var(--line); background: #14181e; }
+    .preview-brand { display: flex; align-items: center; gap: 7px; font-size: 10px; font-weight: 700; }
+    .preview-logo { width: 14px; height: 14px; border-radius: 4px; background: var(--accent); box-shadow: 0 0 12px rgba(var(--accent-rgb), .25); }
+    .preview-avatar { width: 17px; height: 17px; border: 1px solid var(--line-strong); border-radius: 50%; background: var(--surface-soft); }
+    .preview-body { display: grid; grid-template-columns: 91px minmax(0, 1fr); min-height: 260px; }
+    .preview-nav { padding: 10px 6px; border-right: 1px solid var(--line); background: #12151a; }
+    .nav-item { display: flex; align-items: center; gap: 6px; min-height: 27px; margin-bottom: 3px; padding: 0 6px; border-radius: 5px; color: #949cab; font-size: 9px; white-space: nowrap; }
+    .nav-item svg { width: 12px; height: 12px; flex: 0 0 auto; }
+    .nav-item.active { background: rgba(var(--accent-rgb), .16); color: var(--accent); font-weight: 680; }
+    .preview-content { min-width: 0; padding: 12px 11px; }
+    .crumb { color: var(--quiet); font-size: 8px; }
+    .preview-content h3 { margin: 4px 0 2px; font-size: 17px; font-weight: 670; letter-spacing: -.035em; }
+    .preview-content .sub { margin: 0; color: var(--muted); font-size: 9px; }
+    .scene-card { margin-top: 11px; padding: 9px; border: 1px solid var(--line); border-radius: 7px; background: var(--surface); }
+    .scene-title { display: flex; align-items: center; justify-content: space-between; gap: 8px; font-size: 9px; font-weight: 680; }
+    .scene-title .status { color: var(--accent); font-size: 8px; font-weight: 700; }
+    .progress { height: 4px; margin: 8px 0 9px; overflow: hidden; border-radius: 4px; background: #272d36; }
+    .progress span { display: block; width: 63%; height: 100%; border-radius: inherit; background: var(--accent); }
+    .chips { display: flex; flex-wrap: wrap; gap: 5px; }
+    .tag { padding: 3px 6px; border: 1px solid rgba(var(--accent-rgb), .4); border-radius: 4px; background: rgba(var(--accent-rgb), .15); color: var(--accent); font-size: 8px; font-weight: 630; }
+    .preview-actions { display: flex; align-items: center; gap: 7px; margin-top: 11px; }
+    .action-primary { min-height: 27px; padding: 0 9px; border: 1px solid var(--accent); border-radius: 5px; background: var(--accent); color: var(--accent-ink); font-size: 9px; font-weight: 750; }
+    .action-secondary { min-height: 27px; padding: 0 8px; border: 1px solid rgba(var(--accent-rgb), .54); border-radius: 5px; background: rgba(var(--accent-rgb), .08); color: var(--accent); font-size: 9px; font-weight: 650; }
+    .switch-row { display: flex; align-items: center; justify-content: space-between; gap: 8px; margin-top: 11px; padding-top: 9px; border-top: 1px solid var(--line); color: var(--muted); font-size: 8px; }
+    .switch { display: flex; align-items: center; width: 29px; height: 16px; padding: 2px; border: 1px solid rgba(var(--accent-rgb), .65); border-radius: 99px; background: rgba(var(--accent-rgb), .3); }
+    .switch::after { width: 10px; height: 10px; margin-left: auto; border-radius: 50%; background: var(--accent); content: ""; }
+    .palette-foot { display: flex; align-items: center; justify-content: space-between; gap: 12px; padding: 14px 17px 15px; }
+    .swatch-info { display: flex; align-items: center; gap: 9px; min-width: 0; }
+    .swatch { width: 26px; height: 26px; flex: 0 0 auto; border: 2px solid rgba(255,255,255,.78); border-radius: 7px; background: var(--accent); box-shadow: 0 0 0 1px rgba(var(--accent-rgb), .35); }
+    .swatch-label { min-width: 0; }
+    .swatch-label strong { display: block; font-size: 11px; font-weight: 680; }
+    .swatch-label span { color: var(--muted); font-size: 10px; font-variant-numeric: tabular-nums; }
+    .choose { min-height: 30px; padding: 0 10px; border: 1px solid var(--line-strong); border-radius: 5px; background: transparent; color: var(--muted); font-size: 10px; font-weight: 650; cursor: pointer; }
+    .palette-card.is-selected .choose { border-color: rgba(var(--accent-rgb), .55); background: rgba(var(--accent-rgb), .13); color: var(--accent); }
+    .choose:focus-visible, .mode-toggle button:focus-visible { outline: 2px solid var(--accent); outline-offset: 2px; }
+    .note { display: flex; align-items: start; gap: 10px; margin-top: 21px; padding: 14px 16px; border: 1px solid var(--line); border-radius: 8px; background: var(--surface); color: var(--muted); font-size: 12px; }
+    .note-mark { display: grid; width: 20px; height: 20px; flex: 0 0 auto; place-items: center; border-radius: 6px; background: rgba(100,134,237,.15); color: #8eabff; font-weight: 750; }
+    .note strong { color: var(--text); }
+    body.light {
+      color-scheme: light;
+      --page: #f3f5f8;
+      --surface: #fff;
+      --surface-raised: #f5f6f9;
+      --surface-soft: #e9edf3;
+      --line: #dce1e9;
+      --line-strong: #c6ced9;
+      --text: #202530;
+      --muted: #596273;
+      --quiet: #798394;
+    }
+    body.light .preview { background: #fff; }
+    body.light .preview-bar, body.light .preview-nav { background: #f8f9fb; }
+    body.light .nav-item { color: #697386; }
+    body.light .progress { background: #e2e6ed; }
+    body.light .action-primary { color: #fff; }
+    body.light .palette-card[data-palette="cobalt"] .action-primary { background: #4268ce; border-color: #4268ce; }
+    body.light .palette-card[data-palette="orchid"] .action-primary { background: #8055ce; border-color: #8055ce; }
+    body.light .palette-card[data-palette="jade"] .action-primary { background: #177e60; border-color: #177e60; }
+    body.light .palette-card[data-palette="terracotta"] .action-primary { background: #b95637; border-color: #b95637; }
+    body.light .note-mark { background: rgba(66,104,206,.11); color: #4268ce; }
+    @media (max-width: 1120px) { .palette-grid { grid-template-columns: repeat(2, minmax(0, 1fr)); } }
+    @media (max-width: 720px) {
+      .page { width: min(100% - 28px, 520px); padding: 24px 0 36px; }
+      .topline { margin-bottom: 31px; }
+      .intro { display: block; margin-bottom: 23px; }
+      .intro p { font-size: 14px; }
+      .principle { max-width: none; margin-top: 16px; }
+      .palette-grid { grid-template-columns: 1fr; gap: 12px; }
+      .palette-card { display: grid; grid-template-columns: minmax(0, 1fr); }
+      .preview { min-height: 270px; }
+      .preview-body { min-height: 232px; }
+      .preview-content { padding: 12px 13px; }
+    }
+    @media (prefers-reduced-motion: reduce) { *, *::before, *::after { scroll-behavior: auto !important; transition-duration: .01ms !important; } }
+  </style>
+</head>
+<body>
+  <main class="page">
+    <header class="topline">
+      <div class="brand"><span class="brand-mark" aria-hidden="true"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M4 7h16M4 12h10M4 17h16"/><circle cx="17" cy="12" r="2"/></svg></span>Rebirth design preview</div>
+      <div class="mode-toggle" role="group" aria-label="Preview appearance">
+        <button type="button" data-mode="dark" aria-pressed="true">Dark</button>
+        <button type="button" data-mode="light" aria-pressed="false">Light</button>
+      </div>
+    </header>
+    <section class="intro" aria-labelledby="page-title">
+      <div class="intro-copy">
+        <div class="eyebrow">Accent color directions</div>
+        <h1 id="page-title">More presence.<br>Still easy on the eyes.</h1>
+        <p>These options deepen the accent so selected controls read clearly at a glance. Library cards and page surfaces stay neutral; color is reserved for active navigation, tags, focus, progress, and primary actions.</p>
+      </div>
+      <aside class="principle"><strong>Design rule</strong>Use a confident color in small, meaningful places. Keep large surfaces dark or light so the library stays the focus.</aside>
+    </section>
+    <section class="palette-grid" aria-label="Accent palette comparison">
+      <article class="palette-card is-selected" data-palette="cobalt">
+        <header class="palette-head"><div><span class="palette-number">OPTION 01</span><h2>Cobalt</h2><p>Clear, familiar, and crisp</p></div><span class="recommended">BALANCED</span></header>
+        <div class="preview">
+          <div class="preview-bar"><div class="preview-brand"><span class="preview-logo"></span>Rebirth</div><span class="preview-avatar"></span></div>
+          <div class="preview-body"><nav class="preview-nav" aria-label="Cobalt preview"><div class="nav-item active"><svg viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.5"><path d="m2 7 6-5 6 5v7H9V9H7v5H2z"/></svg>Home</div><div class="nav-item">▸ &nbsp;Scenes</div><div class="nav-item">▧ &nbsp;Performers</div><div class="nav-item">⚙ &nbsp;Settings</div></nav>
+            <div class="preview-content"><div class="crumb">Library / Scenes</div><h3>New arrivals</h3><p class="sub">Your recently added scenes</p><div class="scene-card"><div class="scene-title">Scene details <span class="status">IN PROGRESS</span></div><div class="progress"><span></span></div><div class="chips"><span class="tag">Drama</span><span class="tag">Favorites</span></div><div class="preview-actions"><button class="action-primary">Open scene</button><button class="action-secondary">Edit tags</button></div><div class="switch-row"><span>Include in carousel</span><span class="switch"></span></div></div></div>
+          </div>
+        </div>
+        <footer class="palette-foot"><div class="swatch-info"><span class="swatch"></span><div class="swatch-label"><strong>Focused blue</strong><span>#6486ED</span></div></div><button class="choose" type="button" aria-pressed="true">Selected</button></footer>
+      </article>
+      <article class="palette-card" data-palette="orchid">
+        <header class="palette-head"><div><span class="palette-number">OPTION 02</span><h2>Orchid</h2><p>Expressive, with a cooler edge</p></div></header>
+        <div class="preview">
+          <div class="preview-bar"><div class="preview-brand"><span class="preview-logo"></span>Rebirth</div><span class="preview-avatar"></span></div>
+          <div class="preview-body"><nav class="preview-nav" aria-label="Orchid preview"><div class="nav-item active"><svg viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.5"><path d="m2 7 6-5 6 5v7H9V9H7v5H2z"/></svg>Home</div><div class="nav-item">▸ &nbsp;Scenes</div><div class="nav-item">▧ &nbsp;Performers</div><div class="nav-item">⚙ &nbsp;Settings</div></nav>
+            <div class="preview-content"><div class="crumb">Library / Scenes</div><h3>New arrivals</h3><p class="sub">Your recently added scenes</p><div class="scene-card"><div class="scene-title">Scene details <span class="status">IN PROGRESS</span></div><div class="progress"><span></span></div><div class="chips"><span class="tag">Drama</span><span class="tag">Favorites</span></div><div class="preview-actions"><button class="action-primary">Open scene</button><button class="action-secondary">Edit tags</button></div><div class="switch-row"><span>Include in carousel</span><span class="switch"></span></div></div></div>
+          </div>
+        </div>
+        <footer class="palette-foot"><div class="swatch-info"><span class="swatch"></span><div class="swatch-label"><strong>Rich orchid</strong><span>#A076E8</span></div></div><button class="choose" type="button" aria-pressed="false">Compare</button></footer>
+      </article>
+      <article class="palette-card" data-palette="jade">
+        <header class="palette-head"><div><span class="palette-number">OPTION 03</span><h2>Jade</h2><p>Calm, but easy to spot</p></div></header>
+        <div class="preview">
+          <div class="preview-bar"><div class="preview-brand"><span class="preview-logo"></span>Rebirth</div><span class="preview-avatar"></span></div>
+          <div class="preview-body"><nav class="preview-nav" aria-label="Jade preview"><div class="nav-item active"><svg viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.5"><path d="m2 7 6-5 6 5v7H9V9H7v5H2z"/></svg>Home</div><div class="nav-item">▸ &nbsp;Scenes</div><div class="nav-item">▧ &nbsp;Performers</div><div class="nav-item">⚙ &nbsp;Settings</div></nav>
+            <div class="preview-content"><div class="crumb">Library / Scenes</div><h3>New arrivals</h3><p class="sub">Your recently added scenes</p><div class="scene-card"><div class="scene-title">Scene details <span class="status">IN PROGRESS</span></div><div class="progress"><span></span></div><div class="chips"><span class="tag">Drama</span><span class="tag">Favorites</span></div><div class="preview-actions"><button class="action-primary">Open scene</button><button class="action-secondary">Edit tags</button></div><div class="switch-row"><span>Include in carousel</span><span class="switch"></span></div></div></div>
+          </div>
+        </div>
+        <footer class="palette-foot"><div class="swatch-info"><span class="swatch"></span><div class="swatch-label"><strong>Deep jade</strong><span>#35B38F</span></div></div><button class="choose" type="button" aria-pressed="false">Compare</button></footer>
+      </article>
+      <article class="palette-card" data-palette="terracotta">
+        <header class="palette-head"><div><span class="palette-number">OPTION 04</span><h2>Terracotta</h2><p>Warm, distinct, and grounded</p></div></header>
+        <div class="preview">
+          <div class="preview-bar"><div class="preview-brand"><span class="preview-logo"></span>Rebirth</div><span class="preview-avatar"></span></div>
+          <div class="preview-body"><nav class="preview-nav" aria-label="Terracotta preview"><div class="nav-item active"><svg viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.5"><path d="m2 7 6-5 6 5v7H9V9H7v5H2z"/></svg>Home</div><div class="nav-item">▸ &nbsp;Scenes</div><div class="nav-item">▧ &nbsp;Performers</div><div class="nav-item">⚙ &nbsp;Settings</div></nav>
+            <div class="preview-content"><div class="crumb">Library / Scenes</div><h3>New arrivals</h3><p class="sub">Your recently added scenes</p><div class="scene-card"><div class="scene-title">Scene details <span class="status">IN PROGRESS</span></div><div class="progress"><span></span></div><div class="chips"><span class="tag">Drama</span><span class="tag">Favorites</span></div><div class="preview-actions"><button class="action-primary">Open scene</button><button class="action-secondary">Edit tags</button></div><div class="switch-row"><span>Include in carousel</span><span class="switch"></span></div></div></div>
+          </div>
+        </div>
+        <footer class="palette-foot"><div class="swatch-info"><span class="swatch"></span><div class="swatch-label"><strong>Soft terracotta</strong><span>#DE795A</span></div></div><button class="choose" type="button" aria-pressed="false">Compare</button></footer>
+      </article>
+    </section>
+    <aside class="note"><span class="note-mark" aria-hidden="true">i</span><span><strong>What changes:</strong> deeper accent hues, more visible selected states, and clearer progress and tag treatments. The accent stays off large page backgrounds, so scenes and artwork remain the visual focus. Use the Dark and Light controls above to compare both modes.</span></aside>
+  </main>
+  <script>
+    document.querySelectorAll("[data-mode]").forEach(function (button) {
+      button.addEventListener("click", function () {
+        var light = button.dataset.mode === "light";
+        document.body.classList.toggle("light", light);
+        document.querySelectorAll("[data-mode]").forEach(function (item) { item.setAttribute("aria-pressed", item === button ? "true" : "false"); });
+      });
+    });
+    document.querySelectorAll(".palette-card").forEach(function (card) {
+      card.querySelector(".choose").addEventListener("click", function () {
+        document.querySelectorAll(".palette-card").forEach(function (item) {
+          var selected = item === card;
+          item.classList.toggle("is-selected", selected);
+          item.querySelector(".choose").textContent = selected ? "Selected" : "Compare";
+          item.querySelector(".choose").setAttribute("aria-pressed", selected ? "true" : "false");
+        });
+      });
+    });
+  </script>
+</body>
+</html>

@@ -1,6 +1,6 @@
 # Rebirth
 
-Rebirth is a video-first Stash theme plugin with Geist typography, a responsive library rail, a large home carousel for new arrivals, a Continue Watching row, and a Stash box mark whose tile follows the selected accent. It also themes the native Settings sections, including their form rows, scraper tables, task queue, logs, and status colors; Settings switches remain beside their labels on phones. Its Interface settings let you choose one or two scene columns on mobile. Other features include distinct accent-filled tag chips, neutral Tagger results, square mobile include/exclude controls, wrapped performer controls, compact tag actions, theme-styled dropdown menus across Stash actions, selects, and the video player, light and dark modes, seven accent colors, and Soft Fill buttons. Its sharp-cornered switches use Rebirth's accent and surface colors. It preserves Stash's own player, library operations, and customizable recommendation shelves. Its plugin ID and folder consistently use `rebirth`.
+Rebirth is a video-first Stash theme plugin with Geist typography, a responsive library rail, a large home carousel for new arrivals, a Continue Watching row, and a Stash box mark whose tile follows the selected accent. It also themes the native Settings sections, including their form rows, scraper tables, task queue, logs, and status colors; Settings switches remain beside their labels on phones. Its Interface settings let you choose one or two scene columns on mobile. Other features include distinct accent-filled tag chips, neutral Tagger results, square mobile include/exclude controls, wrapped performer controls, compact tag actions, theme-styled dropdown menus across Stash actions, selects, and the video player, light and dark modes, four bolder accents—Cobalt, Orchid, Jade, and Terracotta—and Soft Fill buttons. Its sharp-cornered switches use Rebirth's accent and surface colors. Saved selections from the previous palette are mapped to their closest new color. It preserves Stash's own player, library operations, and customizable recommendation shelves. Its plugin ID and folder consistently use `rebirth`.
 
 The home carousel and Continue Watching shelf use Stash GraphQL scene data. New arrivals can sort by the library-add time or scene release date. Continue Watching filters scenes with a saved resume position and opens the normal Stash scene route, where the built-in player applies Stash's resume behavior.
 
@@ -12,7 +12,7 @@ When signed in, Rebirth syncs appearance preferences to server-side plugin setti
 
 Copy this directory into Stash's configured `plugins/` directory, reload plugins in **Settings → Plugins**, then enable **Rebirth**. After updating, reload the Stash UI in the browser so the new JavaScript and CSS load. Disable other full-app theme plugins while testing it so global styles do not conflict.
 
-For a packaged manual install, download [Rebirth 1.0.0](../../packages/rebirth/1.0.0-manual.zip) and extract its `rebirth/` folder into the configured plugins directory.
+For a packaged manual install, download [Rebirth 1.0.1](../../packages/rebirth/1.0.1-manual.zip) and extract its `rebirth/` folder into the configured plugins directory.
 
 ## Screenshots
 
@@ -42,9 +42,9 @@ The mobile dock always has four items: three destinations you choose in **Settin
 
 ![Stash statistics with Rebirth cards and charts](screenshots/statistics.png)
 
-### Rebirth settings
+### Accent colors
 
-![Rebirth settings for accent color, card layout, navigation, and playback](screenshots/theme-settings.png)
+The Interface settings now offer Cobalt, Orchid, Jade, and Terracotta. [Compare the palettes in dark and light mode](mockups/accent-palettes.html).
 
 ### Buttons
 
@@ -58,6 +58,6 @@ The Rebirth interface was checked in a live Stash 0.32.0 instance at desktop and
 
 The library in the screenshots contains fictional, non-explicit demo clips.
 
-The plugin has no external dependencies or build step. Its JavaScript and manifest can be syntax-checked directly with Node; its styles load from `css/rebirth-1.0.0.css`.
+The plugin has no external dependencies or build step. Its JavaScript and manifest can be syntax-checked directly with Node; its styles load from `css/rebirth-1.0.1.css`.
 
 Rebirth is distributed under [AGPL-3.0](./LICENSE).

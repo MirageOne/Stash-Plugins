@@ -31,7 +31,7 @@ import tempfile
 import threading
 import time
 from pathlib import Path
-from typing import Any, Optional
+from typing import Any, Optional, Tuple
 from urllib.parse import urlsplit
 
 # Configure logging
@@ -282,6 +282,40 @@ def redact_proxy(value: Optional[str]) -> str:
         return f"{parsed.scheme}://***:***@{host}"
     except Exception:
         return "[configured proxy]"
+
+
+def redact_ytdlp_error(message: str, source_url: Optional[str] = None, proxy: Optional[str] = None) -> str:
+    """Keep yt-dlp failures useful without exposing signed URLs or proxy credentials."""
+    safe_message = str(message).strip()
+    if source_url:
+        safe_message = safe_message.replace(source_url, urlsplit(source_url).hostname or "remote host")
+    if proxy:
+        safe_message = safe_message.replace(proxy, redact_proxy(proxy))
+
+    def redact_url(match: re.Match) -> str:
+        value = match.group(0)
+        trailing = ""
+        while value and value[-1] in ".,;:!?)]}":
+            trailing = value[-1] + trailing
+            value = value[:-1]
+        try:
+            parsed = urlsplit(value)
+            if not parsed.scheme or not parsed.netloc:
+                return match.group(0)
+            host = parsed.hostname or "remote host"
+            if parsed.port:
+                host += f":{parsed.port}"
+            redacted = f"{parsed.scheme}://{host}{parsed.path}"
+            if parsed.query:
+                redacted += "?[redacted]"
+            if parsed.fragment:
+                redacted += "#[redacted]"
+            return redacted + trailing
+        except ValueError:
+            return "[redacted URL]" + trailing
+
+    safe_message = re.sub(r"https?://[^\s\"'<>]+", redact_url, safe_message, flags=re.IGNORECASE)
+    return safe_message[:500] or "Download failed"
 
 
 # Cached yt-dlp command (resolved once, reused for all calls)
@@ -887,7 +921,7 @@ def download_video(
     progress_id: Optional[str] = None,
     ytdlp_path: Optional[str] = None,
     ffmpeg_path: Optional[str] = None,
-) -> Optional[str]:
+) -> Tuple[Optional[str], Optional[str]]:
     """
     Download video using yt-dlp with real-time progress reporting.
 
@@ -902,7 +936,7 @@ def download_video(
         ytdlp_path: Optional custom path to yt-dlp binary
 
     Returns:
-        Path to downloaded file, or None if failed
+        A downloaded file path and no error, or None and a useful error message
     """
     # Ensure output directory exists
     os.makedirs(output_dir, exist_ok=True)
@@ -1011,6 +1045,7 @@ def download_video(
         timeout_timer.start()
 
         stdout_lines = []  # To capture the final file path
+        last_error_line: Optional[str] = None
         last_progress_update = 0
         progress_update_interval = 0.5  # Update progress file every 0.5 seconds
 
@@ -1088,7 +1123,8 @@ def download_video(
                                 })
                                 last_progress_update = current_time
                         elif "ERROR" in line or "error" in line.lower():
-                            log.error(f"yt-dlp: {line}")
+                            last_error_line = redact_ytdlp_error(line, url, proxy)
+                            log.error("yt-dlp: %s", last_error_line)
 
         log.info(f"Finished reading output: {lines_read} lines, {progress_updates} progress updates")
 
@@ -1112,7 +1148,7 @@ def download_video(
                         "file_path": file_path,
                         "last_updated": time.time(),
                     })
-                return file_path
+                return file_path, None
             else:
                 # Try to find the file in output directory
                 log.warning("Could not determine output path, searching directory...")
@@ -1130,10 +1166,13 @@ def download_video(
                             "file_path": str(newest),
                             "last_updated": time.time(),
                         })
-                    return str(newest)
+                    return str(newest), None
 
         # Failed - update progress with error
-        error_msg = "Download failed"
+        if process.returncode == 0:
+            error_msg = "yt-dlp completed but no downloaded file was found."
+        else:
+            error_msg = last_error_line or f"yt-dlp exited with status {process.returncode} without an error message."
         if progress_id:
             save_result(f"progress-{progress_id}", {
                 "status": "error",
@@ -1141,15 +1180,15 @@ def download_video(
                 "last_updated": time.time(),
             })
 
-        log.error("yt-dlp download failed (proxy configured: %s)", bool(proxy))
-        return None
+        log.error("yt-dlp download failed (proxy configured: %s): %s", bool(proxy), error_msg)
+        return None, error_msg
 
     except Exception as e:
-        error_msg = f"Download error: {type(e).__name__}: {e}"
+        error_msg = redact_ytdlp_error(f"Download error: {type(e).__name__}: {e}", url, proxy)
         log.error("%s", error_msg, exc_info=True)
         if progress_id:
-            save_result(f"progress-{progress_id}", {"status": "error", "error": str(e), "last_updated": time.time()})
-        return None
+            save_result(f"progress-{progress_id}", {"status": "error", "error": error_msg, "last_updated": time.time()})
+        return None, error_msg
     finally:
         if timeout_timer:
             timeout_timer.cancel()
@@ -1270,7 +1309,7 @@ def task_download(args: dict) -> dict:
     # Download using yt-dlp (with proxy if provided)
     # Use ytdlp_url which may be the original page URL if direct download failed
     ffmpeg_path = (args.get("_server_configuration", {}).get("general") or {}).get("ffmpegPath")
-    file_path = download_video(
+    file_path, download_error = download_video(
         ytdlp_url,
         output_dir,
         template,
@@ -1290,7 +1329,7 @@ def task_download(args: dict) -> dict:
             log.debug(f"Download result saved with result_id: {result_id}")
         return result
     else:
-        result = {"result_error": "Download failed", "success": False}
+        result = {"result_error": download_error or "Download failed", "success": False}
         if result_id:
             save_result(result_id, result)
         return result

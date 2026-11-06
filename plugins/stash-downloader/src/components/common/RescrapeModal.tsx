@@ -137,7 +137,7 @@ export const RescrapeModal: React.FC<RescrapeModalProps> = ({
     return (
       <div
         className="mb-3 p-2 rounded"
-        style={{ backgroundColor: isDifferent ? 'rgba(255, 193, 7, 0.1)' : 'transparent' }}
+        style={{ backgroundColor: isDifferent ? 'var(--downloader-warning-bg, rgba(255, 193, 7, 0.1))' : 'transparent' }}
       >
         <div className="d-flex justify-content-between align-items-center mb-1">
           <label className="form-label mb-0" style={{ color: 'var(--text-muted, rgba(255, 255, 255, 0.66))', fontSize: '0.85rem' }}>
@@ -395,7 +395,7 @@ export const RescrapeModal: React.FC<RescrapeModalProps> = ({
 
                   if (!hasDifferences) {
                     return (
-                      <div className="alert alert-info mt-3" style={{ backgroundColor: 'rgba(13, 202, 240, 0.15)', borderColor: 'rgba(13, 202, 240, 0.3)' }}>
+                      <div className="alert alert-info mt-3">
                         <strong>No differences found.</strong> The scraped metadata is identical to the original.
                         <br />
                         <small className="text-muted">Enable "Show all fields" to see all metadata.</small>

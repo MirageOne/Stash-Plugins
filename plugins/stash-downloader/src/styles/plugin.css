@@ -7,7 +7,7 @@
    CSS Custom Properties (Stash Theme Colors)
    ========================================================================== */
 
-:root {
+.stash-downloader-plugin {
   --stash-card-bg: var(--glass-bg, rgba(39, 39, 39, 0.92));
   --stash-header-bg: var(--mica-elevated, var(--theme-elevated, #292929));
   --stash-input-bg: var(--mica-base, var(--theme-base, #202020));
@@ -16,12 +16,8 @@
   --stash-text: var(--text, rgba(255, 255, 255, 0.94));
   --stash-hover-bg: var(--glass-bg-strong, rgba(48, 48, 48, 0.96));
   --stash-focus-ring: var(--accent-tint, rgba(0, 120, 212, 0.25));
-}
-
-.stash-downloader-plugin {
-  --accent-contrast: #fff;
   min-height: 100vh;
-  color: var(--text, rgba(255, 255, 255, 0.94));
+  color: var(--stash-text);
   font-family: var(--theme-font-stack, "Segoe UI Variable", "Segoe UI", system-ui, sans-serif);
 }
 
@@ -51,6 +47,56 @@
   background-color: var(--accent, #0078d4);
   border-color: var(--accent, #0078d4);
   color: var(--accent-contrast, #fff);
+}
+
+.stash-downloader-plugin .btn-secondary {
+  background-color: var(--downloader-secondary-bg, transparent);
+  border-color: var(--downloader-secondary-border, var(--stash-border));
+  color: var(--downloader-secondary-text, var(--stash-text));
+}
+
+.stash-downloader-plugin .btn-success {
+  background-color: var(--downloader-success-button-bg, #198754);
+  border-color: var(--downloader-success-button-border, #198754);
+  color: var(--downloader-success-button-text, #fff);
+}
+
+.stash-downloader-plugin .btn-info {
+  background-color: var(--downloader-info-button-bg, #0dcaf0);
+  border-color: var(--downloader-info-button-border, #0dcaf0);
+  color: var(--downloader-info-button-text, #000);
+}
+
+.stash-downloader-plugin .btn-warning {
+  background-color: var(--downloader-warning-button-bg, #ffc107);
+  border-color: var(--downloader-warning-button-border, #ffc107);
+  color: var(--downloader-warning-button-text, #000);
+}
+
+.stash-downloader-plugin .btn-danger {
+  background-color: var(--downloader-danger-button-bg, #dc3545);
+  border-color: var(--downloader-danger-button-border, #dc3545);
+  color: var(--downloader-danger-button-text, #fff);
+}
+
+.stash-downloader-plugin .badge.bg-success {
+  background-color: var(--downloader-success-badge-bg, #198754) !important;
+  color: var(--downloader-success-badge-text, #fff) !important;
+}
+
+.stash-downloader-plugin .badge.bg-info {
+  background-color: var(--downloader-info-badge-bg, #0dcaf0) !important;
+  color: var(--downloader-info-badge-text, #000) !important;
+}
+
+.stash-downloader-plugin .badge.bg-warning {
+  background-color: var(--downloader-warning-badge-bg, #ffc107) !important;
+  color: var(--downloader-warning-badge-text, #000) !important;
+}
+
+.stash-downloader-plugin .badge.bg-danger {
+  background-color: var(--downloader-danger-badge-bg, #dc3545) !important;
+  color: var(--downloader-danger-badge-text, #fff) !important;
 }
 
 .stash-downloader-plugin .btn-primary:hover {
@@ -95,23 +141,74 @@
   box-shadow: 0 0 0 0.2rem var(--accent-tint, rgba(0, 120, 212, 0.25));
 }
 
+.stash-downloader-plugin .text-light,
+.stash-downloader-plugin .text-white {
+  color: var(--stash-text) !important;
+}
+
+.stash-downloader-plugin .text-muted {
+  color: var(--stash-muted) !important;
+}
+
+.stash-downloader-plugin .text-info {
+  color: var(--downloader-text-info, var(--accent-bright)) !important;
+}
+
+.stash-downloader-plugin .text-success {
+  color: var(--downloader-text-success, var(--stash-text)) !important;
+}
+
+.stash-downloader-plugin .text-warning {
+  color: var(--downloader-text-warning, var(--stash-text)) !important;
+}
+
+.stash-downloader-plugin .text-danger {
+  color: var(--downloader-text-danger, var(--stash-text)) !important;
+}
+
+.stash-downloader-plugin .bg-dark,
+.stash-downloader-plugin .bg-black {
+  background-color: var(--stash-card-bg) !important;
+  color: var(--stash-text) !important;
+}
+
+.stash-downloader-plugin .btn-outline-light,
+.stash-downloader-plugin .btn-outline-secondary {
+  color: var(--stash-text);
+  border-color: var(--stash-border);
+}
+
+.stash-downloader-plugin .btn-outline-light:hover,
+.stash-downloader-plugin .btn-outline-secondary:hover {
+  background-color: var(--stash-hover-bg);
+  color: var(--stash-text);
+}
+
+.stash-downloader-plugin :is(input, select, textarea) {
+  accent-color: var(--accent, #0078d4);
+}
+
+.stash-downloader-plugin .btn-close-white {
+  filter: var(--downloader-close-filter, invert(1) grayscale(100%) brightness(200%));
+}
+
 /* ==========================================================================
    Form Controls - Enhanced styling for dark theme
    ========================================================================== */
 
 /* Text inputs, textareas, selects */
-.form-control.text-light,
-.form-control-dark,
-.stash-downloader .form-control {
+.stash-downloader-plugin .form-control.text-light,
+.stash-downloader-plugin .form-control-dark,
+.stash-downloader-plugin .form-control {
   background-color: var(--stash-input-bg);
   border-color: var(--stash-border);
   color: var(--stash-text);
   transition: border-color 0.15s ease-in-out, box-shadow 0.15s ease-in-out;
 }
 
-.form-control.text-light:focus,
-.form-control-dark:focus,
-.stash-downloader .form-control:focus {
+.stash-downloader-plugin .form-control.text-light:focus,
+.stash-downloader-plugin .form-control-dark:focus,
+.stash-downloader-plugin .form-control:focus {
   background-color: var(--stash-input-bg);
   border-color: var(--accent, #0078d4);
   color: var(--stash-text);
@@ -119,23 +216,23 @@
   outline: none;
 }
 
-.form-control.text-light::placeholder,
-.form-control-dark::placeholder,
-.stash-downloader .form-control::placeholder {
+.stash-downloader-plugin .form-control.text-light::placeholder,
+.stash-downloader-plugin .form-control-dark::placeholder,
+.stash-downloader-plugin .form-control::placeholder {
   color: var(--stash-muted);
   opacity: 0.7;
 }
 
 /* Select dropdowns */
-.form-select.text-light,
-.stash-downloader .form-select {
+.stash-downloader-plugin .form-select.text-light,
+.stash-downloader-plugin .form-select {
   background-color: var(--stash-input-bg);
   border-color: var(--stash-border);
   color: var(--stash-text);
 }
 
-.form-select.text-light:focus,
-.stash-downloader .form-select:focus {
+.stash-downloader-plugin .form-select.text-light:focus,
+.stash-downloader-plugin .form-select:focus {
   border-color: var(--accent, #0078d4);
   box-shadow: 0 0 0 0.2rem var(--stash-focus-ring);
 }
@@ -144,58 +241,59 @@
    Buttons - Improved hover states and transitions
    ========================================================================== */
 
-.stash-downloader .btn {
+.stash-downloader-plugin .btn {
   transition: color 0.15s ease-in-out, background-color 0.15s ease-in-out,
               border-color 0.15s ease-in-out, box-shadow 0.15s ease-in-out;
+  border-radius: var(--downloader-button-radius, inherit);
 }
 
 /* Outline button improvements */
-.btn-outline-light:hover,
-.btn-outline-secondary:hover {
-  background-color: rgba(255, 255, 255, 0.1);
+.stash-downloader-plugin .btn-outline-light:hover,
+.stash-downloader-plugin .btn-outline-secondary:hover {
+  background-color: var(--stash-hover-bg);
 }
 
-.btn-outline-info:hover {
-  background-color: rgba(13, 202, 240, 0.15);
+.stash-downloader-plugin .btn-outline-info:hover {
+  background-color: var(--downloader-info-bg, var(--accent-tint, rgba(0, 120, 212, 0.15)));
 }
 
-.btn-outline-success:hover {
-  background-color: rgba(25, 135, 84, 0.15);
+.stash-downloader-plugin .btn-outline-success:hover {
+  background-color: var(--downloader-success-bg, rgba(25, 135, 84, 0.15));
 }
 
-.btn-outline-danger:hover {
-  background-color: rgba(220, 53, 69, 0.15);
+.stash-downloader-plugin .btn-outline-danger:hover {
+  background-color: var(--downloader-danger-bg, rgba(220, 53, 69, 0.15));
 }
 
-.btn-outline-warning:hover {
-  background-color: rgba(255, 193, 7, 0.15);
+.stash-downloader-plugin .btn-outline-warning:hover {
+  background-color: var(--downloader-warning-bg, rgba(255, 193, 7, 0.15));
 }
 
 /* Small button refinements */
-.btn-sm {
+.stash-downloader-plugin .btn-sm {
   font-size: 0.8125rem;
   padding: 0.25rem 0.5rem;
-  border-radius: var(--radius-sm, 4px);
+  border-radius: var(--downloader-button-radius, var(--radius-sm, 4px));
 }
 
 /* ==========================================================================
    Cards - Dark theme card styling
    ========================================================================== */
 
-.stash-downloader .card,
-.card.bg-dark {
+.stash-downloader-plugin .card,
+.stash-downloader-plugin .card.bg-dark {
   background-color: var(--stash-card-bg);
   border-color: var(--stash-border);
 }
 
-.stash-downloader .card-header,
-.card.bg-dark .card-header {
+.stash-downloader-plugin .card-header,
+.stash-downloader-plugin .card.bg-dark .card-header {
   background-color: var(--stash-header-bg);
   border-color: var(--stash-border);
 }
 
-.stash-downloader .card-footer,
-.card.bg-dark .card-footer {
+.stash-downloader-plugin .card-footer,
+.stash-downloader-plugin .card.bg-dark .card-footer {
   background-color: var(--stash-header-bg);
   border-color: var(--stash-border);
 }
@@ -204,22 +302,22 @@
    Modals - Dark theme modal styling
    ========================================================================== */
 
-.modal-content.bg-dark {
+.stash-downloader-plugin .modal-content.bg-dark {
   background-color: var(--stash-card-bg) !important;
   border-color: var(--stash-border);
 }
 
-.modal-content.bg-dark .modal-header {
+.stash-downloader-plugin .modal-content.bg-dark .modal-header {
   background-color: var(--stash-header-bg);
   border-color: var(--stash-border);
 }
 
-.modal-content.bg-dark .modal-footer {
+.stash-downloader-plugin .modal-content.bg-dark .modal-footer {
   background-color: var(--stash-header-bg);
   border-color: var(--stash-border);
 }
 
-.modal-content.bg-dark .modal-body {
+.stash-downloader-plugin .modal-content.bg-dark .modal-body {
   background-color: var(--stash-card-bg);
 }
 
@@ -227,8 +325,8 @@
    Dropdown Menus - Dark theme dropdowns
    ========================================================================== */
 
-.dropdown-menu.show,
-.dropup .dropdown-menu.show {
+.stash-downloader-plugin .dropdown-menu.show,
+.stash-downloader-plugin .dropup .dropdown-menu.show {
   background-color: var(--glass-bg-strong, rgba(48, 48, 48, 0.96));
   border-color: var(--stash-border);
   -webkit-backdrop-filter: var(--glass-blur-md, blur(8px) saturate(120%));
@@ -237,26 +335,26 @@
   border-radius: var(--radius, 8px);
 }
 
-.dropdown-item {
+.stash-downloader-plugin .dropdown-item {
   color: var(--stash-text);
   transition: background-color 0.15s ease;
 }
 
-.dropdown-item:hover,
-.dropdown-item:focus {
+.stash-downloader-plugin .dropdown-item:hover,
+.stash-downloader-plugin .dropdown-item:focus {
   background-color: var(--stash-hover-bg);
   color: var(--stash-text);
 }
 
-.dropdown-item.text-muted {
+.stash-downloader-plugin .dropdown-item.text-muted {
   color: var(--stash-muted) !important;
 }
 
-.dropdown-header {
+.stash-downloader-plugin .dropdown-header {
   color: var(--stash-muted);
 }
 
-.dropdown-divider {
+.stash-downloader-plugin .dropdown-divider {
   border-color: var(--stash-border);
 }
 
@@ -264,45 +362,45 @@
    Alerts - Improved alert styling
    ========================================================================== */
 
-.alert {
+.stash-downloader-plugin .alert {
   border-radius: var(--radius, 8px);
 }
 
-.alert-info {
-  background-color: var(--accent-tint, rgba(0, 120, 212, 0.15));
-  border-color: var(--accent, #0078d4);
-  color: var(--accent-light, #c7e0f4);
+.stash-downloader-plugin .alert-info {
+  background-color: var(--downloader-info-bg, var(--accent-tint, rgba(0, 120, 212, 0.15)));
+  border-color: var(--downloader-info-border, var(--accent, #0078d4));
+  color: var(--downloader-info-text, var(--accent-light, #c7e0f4));
 }
 
-.alert-success {
-  background-color: rgba(25, 135, 84, 0.15);
-  border-color: rgba(25, 135, 84, 0.3);
-  color: #75b798;
+.stash-downloader-plugin .alert-success {
+  background-color: var(--downloader-success-bg, rgba(25, 135, 84, 0.15));
+  border-color: var(--downloader-success-border, rgba(25, 135, 84, 0.3));
+  color: var(--downloader-success-text, #75b798);
 }
 
-.alert-warning {
-  background-color: rgba(255, 193, 7, 0.15);
-  border-color: rgba(255, 193, 7, 0.3);
-  color: #ffda6a;
+.stash-downloader-plugin .alert-warning {
+  background-color: var(--downloader-warning-bg, rgba(255, 193, 7, 0.15));
+  border-color: var(--downloader-warning-border, rgba(255, 193, 7, 0.3));
+  color: var(--downloader-warning-text, #ffda6a);
 }
 
-.alert-danger {
-  background-color: rgba(220, 53, 69, 0.15);
-  border-color: rgba(220, 53, 69, 0.3);
-  color: #ea868f;
+.stash-downloader-plugin .alert-danger {
+  background-color: var(--downloader-danger-bg, rgba(220, 53, 69, 0.15));
+  border-color: var(--downloader-danger-border, rgba(220, 53, 69, 0.3));
+  color: var(--downloader-danger-text, #ea868f);
 }
 
 /* ==========================================================================
    Badges - Consistent badge styling
    ========================================================================== */
 
-.badge {
+.stash-downloader-plugin .badge {
   font-weight: 500;
   padding: 0.35em 0.65em;
   border-radius: var(--radius-sm, 4px);
 }
 
-.badge.bg-secondary {
+.stash-downloader-plugin .badge.bg-secondary {
   background-color: var(--glass-bg-strong, rgba(48, 48, 48, 0.96)) !important;
   color: var(--text, rgba(255, 255, 255, 0.94));
 }
@@ -311,13 +409,13 @@
    Progress Bars
    ========================================================================== */
 
-.progress {
+.stash-downloader-plugin .progress {
   background-color: var(--stash-input-bg);
   border-radius: var(--radius-sm, 4px);
   height: 0.5rem;
 }
 
-.progress-bar {
+.stash-downloader-plugin .progress-bar {
   border-radius: var(--radius-sm, 4px);
   transition: width 0.3s ease;
 }
@@ -330,12 +428,12 @@
    Tables
    ========================================================================== */
 
-.table-dark {
+.stash-downloader-plugin .table-dark {
   background-color: var(--stash-card-bg);
 }
 
-.table-dark th,
-.table-dark td {
+.stash-downloader-plugin .table-dark th,
+.stash-downloader-plugin .table-dark td {
   border-color: var(--stash-border);
 }
 
@@ -343,26 +441,26 @@
    Accordion - Dark theme accordion
    ========================================================================== */
 
-.accordion-item.bg-dark {
+.stash-downloader-plugin .accordion-item.bg-dark {
   background-color: var(--stash-card-bg);
   border-color: var(--stash-border);
 }
 
-.accordion-button.bg-dark {
+.stash-downloader-plugin .accordion-button.bg-dark {
   background-color: var(--stash-header-bg);
   color: var(--stash-text);
 }
 
-.accordion-button.bg-dark:not(.collapsed) {
+.stash-downloader-plugin .accordion-button.bg-dark:not(.collapsed) {
   background-color: var(--stash-header-bg);
   color: var(--stash-text);
 }
 
-.accordion-button.bg-dark::after {
-  filter: invert(1);
+.stash-downloader-plugin .accordion-button.bg-dark::after {
+  filter: var(--downloader-close-filter, invert(1));
 }
 
-.accordion-body {
+.stash-downloader-plugin .accordion-body {
   background-color: var(--stash-card-bg);
 }
 
@@ -394,21 +492,21 @@
    ========================================================================== */
 
 /* Gap utilities for Bootstrap 4 (BS5 has these built-in) */
-.gap-1 { gap: 0.25rem !important; }
-.gap-2 { gap: 0.5rem !important; }
-.gap-3 { gap: 1rem !important; }
-.gap-4 { gap: 1.5rem !important; }
-.gap-5 { gap: 3rem !important; }
+.stash-downloader-plugin .gap-1 { gap: 0.25rem !important; }
+.stash-downloader-plugin .gap-2 { gap: 0.5rem !important; }
+.stash-downloader-plugin .gap-3 { gap: 1rem !important; }
+.stash-downloader-plugin .gap-4 { gap: 1.5rem !important; }
+.stash-downloader-plugin .gap-5 { gap: 3rem !important; }
 
 /* Text truncation */
-.text-truncate-2 {
+.stash-downloader-plugin .text-truncate-2 {
   display: -webkit-box;
   -webkit-line-clamp: 2;
   -webkit-box-orient: vertical;
   overflow: hidden;
 }
 
-.text-truncate-3 {
+.stash-downloader-plugin .text-truncate-3 {
   display: -webkit-box;
   -webkit-line-clamp: 3;
   -webkit-box-orient: vertical;
@@ -419,18 +517,18 @@
    Queue Item Specific Styles
    ========================================================================== */
 
-.queue-item {
+.stash-downloader-plugin .queue-item {
   background-color: var(--stash-card-bg);
   border: 1px solid var(--stash-border);
   border-radius: var(--radius, 8px);
   transition: border-color 0.15s ease, box-shadow 0.15s ease;
 }
 
-.queue-item:hover {
+.stash-downloader-plugin .queue-item:hover {
   border-color: var(--stash-muted);
 }
 
-.queue-item-header {
+.stash-downloader-plugin .queue-item-header {
   background-color: var(--stash-header-bg);
   border-bottom: 1px solid var(--stash-border);
   padding: 0.5rem 0.75rem;
@@ -441,19 +539,19 @@
    Thumbnail Styling
    ========================================================================== */
 
-.thumbnail-container {
+.stash-downloader-plugin .thumbnail-container {
   background-color: var(--stash-input-bg);
   border: 1px solid var(--stash-border);
   border-radius: var(--radius-sm, 4px);
   overflow: hidden;
 }
 
-.thumbnail-container img {
+.stash-downloader-plugin .thumbnail-container img {
   object-fit: cover;
   transition: transform 0.2s ease;
 }
 
-.thumbnail-container:hover img {
+.stash-downloader-plugin .thumbnail-container:hover img {
   transform: scale(1.05);
 }
 
@@ -461,7 +559,7 @@
    Spinner Enhancements
    ========================================================================== */
 
-.spinner-border-sm {
+.stash-downloader-plugin .spinner-border-sm {
   width: 1rem;
   height: 1rem;
   border-width: 0.15em;
@@ -471,11 +569,11 @@
    Link Styling
    ========================================================================== */
 
-a.text-info:hover {
+.stash-downloader-plugin a.text-info:hover {
   color: var(--accent-light, #c7e0f4) !important;
 }
 
-a.text-light:hover {
+.stash-downloader-plugin a.text-light:hover {
   color: var(--text, rgba(255, 255, 255, 0.94)) !important;
 }
 
@@ -483,14 +581,14 @@ a.text-light:hover {
    Focus States - Accessibility
    ========================================================================== */
 
-.btn:focus,
-.form-control:focus,
-.form-select:focus {
+.stash-downloader-plugin .btn:focus,
+.stash-downloader-plugin .form-control:focus,
+.stash-downloader-plugin .form-select:focus {
   outline: none;
   box-shadow: 0 0 0 0.2rem var(--stash-focus-ring);
 }
 
-*:focus-visible {
+.stash-downloader-plugin *:focus-visible {
   outline: 2px solid var(--accent, #0078d4);
   outline-offset: 2px;
 }

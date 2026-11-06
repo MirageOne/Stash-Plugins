@@ -785,7 +785,12 @@ export const QueuePage: React.FC = () => {
                       <span style={{ color: 'var(--text-muted, rgba(255, 255, 255, 0.66))' }}>yt-dlp:</span>
                       {ytDlpVersion ? (
                         <div className="d-flex align-items-center gap-2">
-                          <span className="badge bg-success">Installed</span>
+                          <span
+                            className="badge bg-success"
+                            title="The version check passed. Site support and server access are tested when you process a URL."
+                          >
+                            Available
+                          </span>
                           <code className="text-light" style={{ fontSize: '0.85em' }}>{ytDlpVersion}</code>
                           {ytDlpResolutionMethod && (
                             <small style={{ color: 'var(--text-muted, rgba(255, 255, 255, 0.66))' }}>({ytDlpResolutionMethod})</small>

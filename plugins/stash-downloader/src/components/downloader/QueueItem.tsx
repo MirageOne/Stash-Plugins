@@ -26,6 +26,24 @@ interface QueueItemProps {
 // Thresholds for stale detection (in seconds)
 const STALE_WARNING_THRESHOLD = 30; // Show warning after 30s
 const STALE_CRITICAL_THRESHOLD = 60; // Show critical warning after 60s
+const PORTAL_THEME_PROPERTIES = [
+  '--glass-bg-strong', '--glass-border', '--shadow-lg', '--radius', '--glass-blur-md',
+  '--text', '--text-muted', '--accent', '--accent-tint', '--accent-bright',
+  '--downloader-info-bg', '--downloader-success-bg', '--downloader-warning-bg', '--downloader-danger-bg',
+  '--downloader-text-warning',
+];
+
+function getPortalThemeStyle(): React.CSSProperties {
+  const themeRoot = document.querySelector<HTMLElement>('.stash-downloader-plugin');
+  if (!themeRoot) return {};
+  const computed = getComputedStyle(themeRoot);
+  const properties: Record<string, string> = {};
+  PORTAL_THEME_PROPERTIES.forEach((name) => {
+    const value = computed.getPropertyValue(name).trim();
+    if (value) properties[name] = value;
+  });
+  return properties as React.CSSProperties;
+}
 
 // Helper to format elapsed time
 function formatElapsedTime(seconds: number): string {
@@ -431,9 +449,9 @@ export const QueueItem: React.FC<QueueItemProps> = ({ item, onRemove, onEdit, on
                   href={`/${item.metadata?.contentType === ContentType.Image ? 'images' : item.metadata?.contentType === ContentType.Gallery ? 'galleries' : 'scenes'}/${item.stashId}`}
                   className="badge text-decoration-none"
                   style={{
-                    backgroundColor: 'rgba(25, 135, 84, 0.2)',
-                    color: '#75b798',
-                    border: '1px solid #198754',
+                    backgroundColor: 'var(--downloader-success-bg, rgba(25, 135, 84, 0.2))',
+                    color: 'var(--downloader-success-text, #75b798)',
+                    border: '1px solid var(--downloader-success-border, #198754)',
                     cursor: 'pointer',
                   }}
                   title="Open in Stash"
@@ -452,18 +470,18 @@ export const QueueItem: React.FC<QueueItemProps> = ({ item, onRemove, onEdit, on
                         backgroundColor: item.metadata.contentType === ContentType.Gallery
                           ? 'var(--accent-tint, rgba(0, 120, 212, 0.14))'
                           : item.metadata.contentType === ContentType.Image
-                            ? 'rgba(255, 255, 255, 0.06)'
+                            ? 'var(--stash-input-bg)'
                             : 'var(--accent-tint, rgba(0, 120, 212, 0.14))',
                         color: item.metadata.contentType === ContentType.Gallery
                           ? 'var(--accent-bright, #2899f5)'
                           : item.metadata.contentType === ContentType.Image
-                            ? 'var(--text-muted, rgba(255, 255, 255, 0.66))'
+                            ? 'var(--stash-muted)'
                             : 'var(--accent-bright, #2899f5)',
                         border: `1px solid ${
                           item.metadata.contentType === ContentType.Gallery
                             ? 'var(--accent, #0078d4)'
                             : item.metadata.contentType === ContentType.Image
-                              ? 'var(--text-muted, rgba(255, 255, 255, 0.66))'
+                              ? 'var(--stash-border)'
                               : 'var(--accent, #0078d4)'
                         }`,
                       }}
@@ -480,9 +498,9 @@ export const QueueItem: React.FC<QueueItemProps> = ({ item, onRemove, onEdit, on
                     <span
                       className="badge"
                       style={{
-                        backgroundColor: 'rgba(25, 135, 84, 0.2)',
-                        color: '#75b798',
-                        border: '1px solid #198754',
+                        backgroundColor: 'var(--downloader-success-bg, rgba(25, 135, 84, 0.2))',
+                        color: 'var(--downloader-success-text, #75b798)',
+                        border: '1px solid var(--downloader-success-border, #198754)',
                         cursor: item.metadata.availableQualities?.length ? 'help' : 'default',
                       }}
                       title={
@@ -564,12 +582,14 @@ export const QueueItem: React.FC<QueueItemProps> = ({ item, onRemove, onEdit, on
                     ref={dropdownRef}
                     className="dropdown-menu show"
                     style={{
+                      ...getPortalThemeStyle(),
                       position: 'fixed',
                       top: dropdownPosition.top,
                       left: dropdownPosition.left,
                       transform: 'translateY(-100%)',
                       zIndex: 99999,
                       backgroundColor: 'var(--glass-bg-strong, rgba(48, 48, 48, 0.96))',
+                      color: 'var(--text, inherit)',
                       border: '1px solid var(--glass-border, rgba(255, 255, 255, 0.09))',
                       minWidth: '200px',
                       boxShadow: 'var(--shadow-lg, 0 8px 28px rgba(0, 0, 0, 0.34))',
@@ -598,8 +618,8 @@ export const QueueItem: React.FC<QueueItemProps> = ({ item, onRemove, onEdit, on
                         onMouseLeave={(e) => e.currentTarget.style.backgroundColor = 'transparent'}
                       >
                         {scraper.name}
-                        {!scraper.canHandle && <small className="ms-1 text-warning">(may fail)</small>}
-                        {!scraper.supportsContentType && <small className="ms-1 text-warning">(wrong type)</small>}
+                        {!scraper.canHandle && <small className="ms-1 text-warning" style={{ color: 'var(--downloader-text-warning, inherit)' }}>(may fail)</small>}
+                        {!scraper.supportsContentType && <small className="ms-1 text-warning" style={{ color: 'var(--downloader-text-warning, inherit)' }}>(wrong type)</small>}
                       </button>
                     ))}
                   </div>,

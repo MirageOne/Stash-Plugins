@@ -33,6 +33,21 @@ class DownloaderBackendTests(unittest.TestCase):
         path = download.get_result_path("download-123_safe")
         self.assertEqual(os.path.dirname(path), download.RESULT_DIR)
 
+    def test_ytdlp_error_keeps_cause_but_redacts_url_tokens_and_proxy_credentials(self):
+        message = "ERROR: https://media.example/watch?id=private failed via http://alice:secret@proxy.example:8080"
+        safe_message = download.redact_ytdlp_error(
+            message,
+            "https://media.example/watch?id=private",
+            "http://alice:secret@proxy.example:8080",
+        )
+
+        self.assertIn("ERROR:", safe_message)
+        self.assertIn("media.example", safe_message)
+        self.assertIn("failed", safe_message)
+        self.assertIn("proxy.example:8080", safe_message)
+        self.assertNotIn("private", safe_message)
+        self.assertNotIn("secret", safe_message)
+
     def test_default_destination_uses_first_video_enabled_library(self):
         with tempfile.TemporaryDirectory() as root:
             excluded = os.path.join(root, "images")
@@ -84,6 +99,26 @@ class DownloaderBackendTests(unittest.TestCase):
         self.assertFalse(result["success"])
         self.assertIn("image URL", result["result_error"])
         check_ytdlp.assert_not_called()
+
+    def test_video_download_returns_yt_dlp_failure_details(self):
+        with tempfile.TemporaryDirectory() as video_library:
+            config = {
+                "general": {"stashes": [{"path": video_library, "excludeVideo": False}]},
+                "plugins": {"stash-downloader": {}},
+            }
+            with patch.object(download, "check_ytdlp", return_value=True), patch.object(
+                download,
+                "download_video",
+                return_value=(None, "ERROR: [example] This video is unavailable"),
+            ):
+                result = download.task_download({
+                    "url": "https://media.example/watch/123",
+                    "_server_configuration": config,
+                    "_server_settings": {},
+                })
+
+        self.assertFalse(result["success"])
+        self.assertEqual(result["result_error"], "ERROR: [example] This video is unavailable")
 
     def test_custom_destination_must_stay_inside_a_video_library(self):
         with tempfile.TemporaryDirectory() as root, tempfile.TemporaryDirectory() as outside:

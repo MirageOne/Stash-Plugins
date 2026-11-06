@@ -247,7 +247,7 @@ export const EditMetadataModal: React.FC<EditMetadataModalProps> = ({
                         ) : elapsedSeconds > 0 && (
                           <p className="text-center small mb-0" style={{ color: 'var(--text-muted, rgba(255, 255, 255, 0.66))' }}>
                             ⏱ {formatElapsedTime(elapsedSeconds)} elapsed
-                            {elapsedSeconds >= 5 && <span className="ms-2" style={{ color: '#28a745' }}>• Working...</span>}
+                            {elapsedSeconds >= 5 && <span className="ms-2 text-success">• Working...</span>}
                           </p>
                         )}
                       </div>

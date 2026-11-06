@@ -1,0 +1,189 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Rebirth pagination bar concept</title>
+  <style>
+    :root {
+      color-scheme: dark;
+      --bg: #0b0d10;
+      --surface: #13161a;
+      --raised: #1b1f24;
+      --raised-hover: #23282e;
+      --line: #2b3138;
+      --line-strong: #3a424b;
+      --text: #f1f3f4;
+      --muted: #b0b7bd;
+      --quiet: #858e97;
+      --accent: #a076e8;
+      --accent-rgb: 160, 118, 232;
+      --accent-ink: #20152e;
+    }
+    * { box-sizing: border-box; }
+    body { margin: 0; background: var(--bg); color: var(--text); font: 14px/1.5 Geist, Inter, ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif; }
+    button { color: inherit; font: inherit; }
+    .shell { width: min(1360px, calc(100% - 48px)); margin: 0 auto; padding: 24px 0 36px; }
+    .topline { display: flex; align-items: center; gap: 10px; margin-bottom: 30px; color: var(--muted); font-size: 12px; }
+    .mark { width: 27px; height: 27px; display: grid; place-items: center; border-radius: 5px; background: var(--accent); color: var(--accent-ink); font-weight: 850; }
+    .topline strong { color: var(--text); font-size: 13px; }
+    .topline .crumb { margin-left: auto; color: var(--quiet); }
+    .intro { max-width: 720px; margin-bottom: 24px; }
+    .eyebrow { margin: 0 0 7px; color: var(--accent); font-size: 10px; font-weight: 760; letter-spacing: .13em; text-transform: uppercase; }
+    h1 { margin: 0; font-size: clamp(26px, 3vw, 34px); line-height: 1.15; letter-spacing: -.035em; }
+    .intro p:last-child { max-width: 660px; margin: 10px 0 0; color: var(--muted); font-size: 13px; }
+    .previews { display: grid; grid-template-columns: minmax(0, 1fr) 390px; align-items: start; gap: 20px; }
+    .preview { min-width: 0; overflow: hidden; border: 1px solid var(--line); border-radius: 8px; background: var(--surface); box-shadow: 0 14px 38px rgba(0,0,0,.2); }
+    .preview-head { display: flex; align-items: center; justify-content: space-between; gap: 12px; padding: 15px 18px; border-bottom: 1px solid var(--line); background: #111418; }
+    .preview-head strong { display: block; font-size: 13px; }
+    .preview-head small { display: block; margin-top: 3px; color: var(--quiet); font-size: 10px; }
+    .mode { padding: 4px 7px; border: 1px solid var(--line-strong); border-radius: 4px; color: var(--muted); font-size: 9px; font-weight: 700; letter-spacing: .08em; text-transform: uppercase; white-space: nowrap; }
+    .desktop-screen { padding: 18px; }
+    .list-title { display: flex; align-items: end; justify-content: space-between; gap: 12px; margin-bottom: 14px; }
+    .list-title h2 { margin: 0; font-size: 19px; letter-spacing: -.02em; }
+    .list-title span { color: var(--quiet); font-size: 11px; }
+    .toolbar { height: 42px; display: flex; align-items: center; gap: 8px; margin-bottom: 13px; padding: 5px 8px; border: 1px solid var(--line); border-radius: 6px; background: #101317; }
+    .filter { min-width: 0; width: 230px; height: 29px; display: flex; align-items: center; gap: 8px; padding: 0 9px; border: 1px solid var(--line-strong); border-radius: 4px; color: var(--quiet); font-size: 11px; }
+    .filter svg { width: 13px; height: 13px; flex: 0 0 auto; }
+    .tool-spacer { flex: 1; }
+    .tool-pill { height: 28px; display: inline-flex; align-items: center; gap: 6px; padding: 0 9px; border: 1px solid var(--line-strong); border-radius: 4px; color: var(--muted); font-size: 10px; font-weight: 650; }
+    .tool-pill.active { border-color: rgba(var(--accent-rgb), .5); background: rgba(var(--accent-rgb), .12); color: var(--accent); }
+    .scene-grid { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 10px; }
+    .scene-card { min-width: 0; overflow: hidden; border: 1px solid var(--line); border-radius: 6px; background: #171a1f; }
+    .scene-art { height: 118px; background-image: url("../screenshots/scene-library.png"); background-size: 1440px 1000px; background-repeat: no-repeat; }
+    .scene-art.a { background-position: -275px -233px; }
+    .scene-art.b { background-position: -503px -233px; }
+    .scene-art.c { background-position: -730px -233px; }
+    .scene-info { padding: 9px 10px 10px; }
+    .scene-info strong { display: block; overflow: hidden; font-size: 12px; text-overflow: ellipsis; white-space: nowrap; }
+    .scene-info span { display: block; margin-top: 3px; color: var(--quiet); font-size: 10px; }
+    .page-bar { min-width: 0; display: flex; align-items: center; justify-content: space-between; gap: 14px; margin-top: 13px; padding: 10px 11px; border: 1px solid var(--line); border-radius: 6px; background: #101317; }
+    .range { min-width: 0; display: flex; align-items: baseline; flex-wrap: wrap; gap: 5px; }
+    .range strong { color: var(--text); font-size: 12px; font-weight: 700; white-space: nowrap; }
+    .range span { color: var(--quiet); font-size: 11px; white-space: nowrap; }
+    .page-nav { flex: 0 0 auto; display: flex; align-items: center; gap: 4px; }
+    .page-control { width: 30px; height: 30px; display: grid; place-items: center; padding: 0; border: 1px solid var(--line-strong); border-radius: 4px; background: var(--raised); color: var(--muted); font-size: 14px; font-weight: 680; line-height: 1; cursor: pointer; }
+    .page-control:hover { border-color: rgba(var(--accent-rgb), .65); background: rgba(var(--accent-rgb), .1); color: var(--text); }
+    .page-control:disabled { opacity: .38; cursor: default; }
+    .page-current { min-width: 76px; height: 30px; display: flex; align-items: center; justify-content: center; gap: 7px; padding: 0 8px; border: 1px solid rgba(var(--accent-rgb), .6); border-radius: 4px; background: rgba(var(--accent-rgb), .13); color: var(--text); cursor: pointer; }
+    .page-current strong { color: var(--accent); font-size: 12px; font-weight: 780; }
+    .page-current span { color: var(--quiet); font-size: 10px; }
+    .page-current svg { width: 10px; height: 10px; color: var(--accent); }
+    .phone { width: 100%; padding: 9px; background: #090b0e; }
+    .phone-screen { overflow: hidden; border: 1px solid var(--line); border-radius: 10px; background: var(--bg); }
+    .phone-top { height: 40px; display: flex; align-items: center; justify-content: space-between; padding: 0 12px; border-bottom: 1px solid var(--line); background: var(--surface); }
+    .phone-top strong { font-size: 11px; }
+    .phone-top span { color: var(--quiet); font-size: 10px; }
+    .phone-content { padding: 13px 12px 14px; }
+    .phone-content h2 { margin: 0; font-size: 17px; }
+    .phone-content .sub { margin: 2px 0 11px; color: var(--quiet); font-size: 10px; }
+    .phone-filter { height: 32px; display: flex; align-items: center; gap: 7px; margin-bottom: 10px; padding: 0 9px; border: 1px solid var(--line-strong); border-radius: 4px; background: var(--surface-raised, #1b1f24); color: var(--quiet); font-size: 10px; }
+    .performer-list { display: grid; gap: 7px; }
+    .performer { min-width: 0; display: flex; align-items: center; gap: 9px; padding: 8px; border: 1px solid var(--line); border-radius: 5px; background: var(--surface); }
+    .avatar { width: 34px; height: 34px; flex: 0 0 34px; display: grid; place-items: center; border-radius: 50%; background: linear-gradient(135deg, #3a424b, #22272e); color: #d7dbe0; font-size: 10px; font-weight: 750; }
+    .performer:nth-child(2) .avatar { background: linear-gradient(135deg, #485775, #263146); }
+    .performer:nth-child(3) .avatar { background: linear-gradient(135deg, #685344, #31271f); }
+    .performer strong { display: block; overflow: hidden; font-size: 11px; text-overflow: ellipsis; white-space: nowrap; }
+    .performer span { display: block; margin-top: 2px; color: var(--quiet); font-size: 9px; }
+    .page-bar.mobile { align-items: stretch; flex-direction: column; gap: 8px; margin-top: 11px; padding: 9px; }
+    .page-bar.mobile .range { justify-content: center; }
+    .page-bar.mobile .page-nav { justify-content: center; }
+    .note { margin: 14px 2px 0; color: var(--quiet); font-size: 10px; }
+    .note strong { color: var(--muted); font-weight: 650; }
+    @media (max-width: 900px) {
+      .shell { width: min(100% - 28px, 680px); padding-top: 16px; }
+      .previews { grid-template-columns: 1fr; }
+      .phone { width: min(100%, 430px); justify-self: center; }
+    }
+    @media (max-width: 560px) {
+      .shell { width: calc(100% - 20px); }
+      .topline { margin-bottom: 22px; }
+      .topline .crumb { display: none; }
+      .preview-head { padding: 13px 14px; }
+      .desktop-screen { padding: 12px; }
+      .scene-grid { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+      .scene-card:last-child { display: none; }
+      .scene-art { height: 96px; }
+      .toolbar { height: auto; min-height: 40px; }
+      .filter { width: 100%; }
+      .tool-pill { display: none; }
+      .page-bar:not(.mobile) { align-items: stretch; flex-direction: column; gap: 9px; }
+      .page-bar:not(.mobile) .range { justify-content: center; }
+      .page-bar:not(.mobile) .page-nav { justify-content: center; }
+    }
+  </style>
+</head>
+<body>
+  <main class="shell">
+    <div class="topline"><span class="mark">R</span><strong>Rebirth</strong><span>Pagination concept</span><span class="crumb">Scenes / Performers</span></div>
+    <header class="intro">
+      <p class="eyebrow">Library navigation · alternate styling</p>
+      <h1>Make the current page easy to find.</h1>
+      <p>A compact result summary sits beside separate navigation buttons. The active page gets a quiet accent, while the same control adapts to narrow screens without crowding the list.</p>
+    </header>
+
+    <div class="previews">
+      <section class="preview" aria-labelledby="scene-preview-title">
+        <header class="preview-head">
+          <div><strong id="scene-preview-title">Scene library</strong><small>Desktop view · pagination below the results</small></div>
+          <span class="mode">Scenes</span>
+        </header>
+        <div class="desktop-screen">
+          <div class="list-title"><h2>Scenes</h2><span>Recently added</span></div>
+          <div class="toolbar" aria-hidden="true">
+            <div class="filter"><svg viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.6"><circle cx="7" cy="7" r="4.5"/><path d="m10.5 10.5 3 3"/></svg>Search scenes</div>
+            <span class="tool-spacer"></span><span class="tool-pill active">Grid</span><span class="tool-pill">Sort: Date</span><span class="tool-pill">40</span>
+          </div>
+          <div class="scene-grid">
+            <article class="scene-card"><div class="scene-art a"></div><div class="scene-info"><strong>Signal Lost</strong><span>Northlight Studio · 2026</span></div></article>
+            <article class="scene-card"><div class="scene-art b"></div><div class="scene-info"><strong>Night Train</strong><span>Northlight Studio · 2025</span></div></article>
+            <article class="scene-card"><div class="scene-art c"></div><div class="scene-info"><strong>Neon Skyline</strong><span>Northlight Studio · 2024</span></div></article>
+          </div>
+          <nav class="page-bar" aria-label="Scene pages">
+            <div class="range"><strong>81–120</strong><span>of 286 scenes</span></div>
+            <div class="page-nav" role="group" aria-label="Scene page controls">
+              <button class="page-control" aria-label="First page">«</button>
+              <button class="page-control" aria-label="Previous page">‹</button>
+              <button class="page-current" aria-label="Page 3 of 8; choose page"><strong>03</strong><span>/ 08</span><svg viewBox="0 0 12 12" fill="none" stroke="currentColor" stroke-width="1.5"><path d="m3 4.5 3 3 3-3"/></svg></button>
+              <button class="page-control" aria-label="Next page">›</button>
+              <button class="page-control" aria-label="Last page">»</button>
+            </div>
+          </nav>
+          <p class="note"><strong>One pattern:</strong> count stays readable, arrows remain distinct, and the page picker is the only accented control.</p>
+        </div>
+      </section>
+
+      <section class="preview" aria-labelledby="performer-preview-title">
+        <header class="preview-head">
+          <div><strong id="performer-preview-title">Performer list</strong><small>Phone view · same control, stacked</small></div>
+          <span class="mode">Mobile</span>
+        </header>
+        <div class="phone">
+          <div class="phone-screen">
+            <div class="phone-top"><strong>Performers</strong><span>Filter · Sort</span></div>
+            <div class="phone-content">
+              <h2>Performers</h2><p class="sub">Browse your library</p>
+              <div class="phone-filter">⌕ &nbsp; Search performers</div>
+              <div class="performer-list">
+                <div class="performer"><div class="avatar">AL</div><div><strong>Alex Lane</strong><span>18 scenes · 4 galleries</span></div></div>
+                <div class="performer"><div class="avatar">MP</div><div><strong>Morgan Park</strong><span>12 scenes · 2 galleries</span></div></div>
+                <div class="performer"><div class="avatar">RC</div><div><strong>Riley Cross</strong><span>9 scenes · 1 gallery</span></div></div>
+              </div>
+              <nav class="page-bar mobile" aria-label="Performer pages">
+                <div class="range"><strong>41–60</strong><span>of 186 performers</span></div>
+                <div class="page-nav" role="group" aria-label="Performer page controls">
+                  <button class="page-control" aria-label="First page">«</button>
+                  <button class="page-control" aria-label="Previous page">‹</button>
+                  <button class="page-current" aria-label="Page 3 of 10; choose page"><strong>03</strong><span>/ 10</span><svg viewBox="0 0 12 12" fill="none" stroke="currentColor" stroke-width="1.5"><path d="m3 4.5 3 3 3-3"/></svg></button>
+                  <button class="page-control" aria-label="Next page">›</button>
+                  <button class="page-control" aria-label="Last page">»</button>
+                </div>
+              </nav>
+            </div>
+          </div>
+        </div>
+      </section>
+    </div>
+  </main>
+</body>
+</html>

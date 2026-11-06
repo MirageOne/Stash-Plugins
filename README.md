@@ -27,7 +27,7 @@ Download a plugin's manual archive, extract its included plugin folder into Stas
 
 - [Library Doctor manual archive](packages/library-doctor/1.6.4-manual.zip)
 - [Scene Gallery Generator manual archive](packages/scene-gallery-generator/1.0.5-manual.zip)
-- [Stash Downloader manual archive](packages/stash-downloader/0.6.3-manual.zip)
+- [Stash Downloader manual archive](packages/stash-downloader/0.6.4-manual.zip)
 - [Current Theme manual archive](packages/current-theme/0.1.47-manual.zip)
 - [Fluent 2 Theme manual archive](packages/fluent2-theme/0.1.2-manual.zip)
 - [Performer Site Sync manual archive](packages/performer-site-sync/2.0.2-manual.zip)

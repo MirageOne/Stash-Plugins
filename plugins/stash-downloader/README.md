@@ -1,6 +1,6 @@
 # Stash Downloader
 
-Stash Downloader adds a URL queue for downloading videos and images, extracting metadata, and importing completed downloads into Stash. Its React interface uses Stash's shared `PluginApi` and samples the active host theme's rendered controls, colors, typography, and borders so it can follow stock or third-party themes without relying on theme-specific variable names. Its navigation shortcut sits beside the right-side utility buttons.
+Stash Downloader adds a URL queue for downloading videos and images, extracting metadata, and importing completed downloads into Stash. Its React interface uses Stash's shared `PluginApi` and samples the active host theme's rendered controls, colors, typography, spacing, radii, and elevation so it can follow stock or third-party themes without relying on theme-specific variable names. Its navigation shortcut sits beside the right-side utility buttons.
 
 ## Features
 
@@ -35,7 +35,7 @@ Add the MirageOne Stash Plugins source in **Settings → Plugins → Add source*
 https://raw.githubusercontent.com/MirageOne/Stasher/main/index.yml
 ```
 
-Reload sources and install **Stash Downloader**. For a manual installation, extract the [manual archive](../../packages/stash-downloader/0.6.3-manual.zip) into Stash's configured plugin directory, install the Python dependencies, then enable the plugin.
+Reload sources and install **Stash Downloader**. For a manual installation, extract the [manual archive](../../packages/stash-downloader/0.6.4-manual.zip) into Stash's configured plugin directory, install the Python dependencies, then enable the plugin.
 
 ## Configure
 

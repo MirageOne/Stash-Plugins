@@ -188,7 +188,7 @@ export const MetadataEditorForm: React.FC<MetadataEditorFormProps> = ({
                     height: '100px',
                     objectFit: 'cover',
                     cursor: 'pointer',
-                    borderRadius: '4px',
+                    borderRadius: 'var(--radius-sm, 4px)',
                     border: '1px solid var(--glass-border, rgba(255, 255, 255, 0.09))',
                     flexShrink: 0,
                   }}
@@ -205,7 +205,7 @@ export const MetadataEditorForm: React.FC<MetadataEditorFormProps> = ({
                     width: '160px',
                     height: '100px',
                     backgroundColor: 'var(--mica-elevated, #292929)',
-                    borderRadius: '4px',
+                    borderRadius: 'var(--radius-sm, 4px)',
                     border: '1px solid var(--glass-border, rgba(255, 255, 255, 0.09))',
                     flexShrink: 0,
                   }}

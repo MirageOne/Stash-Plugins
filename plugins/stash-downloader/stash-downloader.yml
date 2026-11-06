@@ -1,6 +1,6 @@
 name: Stash Downloader
 description: Download images and videos from URLs with automatic metadata extraction and organization
-version: 0.6.3
+version: 0.6.4
 url: https://github.com/MirageOne/Stasher/tree/main/plugins/stash-downloader
 settings:
   serverDownloadPath:

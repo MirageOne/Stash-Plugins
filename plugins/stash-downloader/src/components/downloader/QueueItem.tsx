@@ -28,6 +28,7 @@ const STALE_WARNING_THRESHOLD = 30; // Show warning after 30s
 const STALE_CRITICAL_THRESHOLD = 60; // Show critical warning after 60s
 const PORTAL_THEME_PROPERTIES = [
   '--glass-bg-strong', '--glass-border', '--shadow-lg', '--radius', '--glass-blur-md',
+  '--downloader-menu-radius', '--downloader-menu-shadow',
   '--text', '--text-muted', '--accent', '--accent-tint', '--accent-bright',
   '--downloader-info-bg', '--downloader-success-bg', '--downloader-warning-bg', '--downloader-danger-bg',
   '--downloader-text-warning',
@@ -274,7 +275,7 @@ export const QueueItem: React.FC<QueueItemProps> = ({ item, onRemove, onEdit, on
                 height: '48px',
                 flexShrink: 0,
                 backgroundColor: 'var(--mica-elevated, #292929)',
-                borderRadius: '4px',
+                borderRadius: 'var(--radius-sm, 4px)',
                 border: '1px solid var(--glass-border, rgba(255, 255, 255, 0.09))',
               }}
             >
@@ -295,7 +296,7 @@ export const QueueItem: React.FC<QueueItemProps> = ({ item, onRemove, onEdit, on
                 height: '80px',
                 flexShrink: 0,
                 backgroundColor: 'var(--mica-elevated, #292929)',
-                borderRadius: '4px',
+                borderRadius: 'var(--radius-sm, 4px)',
                 border: '1px solid var(--glass-border, rgba(255, 255, 255, 0.09))',
               }}
             >
@@ -312,7 +313,7 @@ export const QueueItem: React.FC<QueueItemProps> = ({ item, onRemove, onEdit, on
                 gridTemplateColumns: 'repeat(2, 1fr)',
                 gridTemplateRows: 'repeat(2, 1fr)',
                 gap: '2px',
-                borderRadius: '4px',
+                borderRadius: 'var(--radius-sm, 4px)',
                 overflow: 'hidden',
                 border: '1px solid var(--glass-border, rgba(255, 255, 255, 0.09))',
                 backgroundColor: 'var(--mica-elevated, #292929)',
@@ -354,7 +355,7 @@ export const QueueItem: React.FC<QueueItemProps> = ({ item, onRemove, onEdit, on
                 maxWidth: '120px',
                 objectFit: 'cover',
                 cursor: 'pointer',
-                borderRadius: '4px',
+                borderRadius: 'var(--radius-sm, 4px)',
                 border: '1px solid var(--glass-border, rgba(255, 255, 255, 0.09))',
                 flexShrink: 0,
                 transition: 'transform 0.2s',
@@ -396,7 +397,7 @@ export const QueueItem: React.FC<QueueItemProps> = ({ item, onRemove, onEdit, on
                 height: '80px',
                 flexShrink: 0,
                 backgroundColor: 'var(--mica-elevated, #292929)',
-                borderRadius: '4px',
+                borderRadius: 'var(--radius-sm, 4px)',
                 border: '1px solid var(--glass-border, rgba(255, 255, 255, 0.09))',
               }}
             >
@@ -592,8 +593,8 @@ export const QueueItem: React.FC<QueueItemProps> = ({ item, onRemove, onEdit, on
                       color: 'var(--text, inherit)',
                       border: '1px solid var(--glass-border, rgba(255, 255, 255, 0.09))',
                       minWidth: '200px',
-                      boxShadow: 'var(--shadow-lg, 0 8px 28px rgba(0, 0, 0, 0.34))',
-                      borderRadius: 'var(--radius, 8px)',
+                      boxShadow: 'var(--downloader-menu-shadow, var(--shadow-lg, 0 8px 28px rgba(0, 0, 0, 0.34)))',
+                      borderRadius: 'var(--downloader-menu-radius, var(--radius, 8px))',
                       backdropFilter: 'var(--glass-blur-md, blur(8px) saturate(120%))',
                       WebkitBackdropFilter: 'var(--glass-blur-md, blur(8px) saturate(120%))',
                     }}
@@ -607,15 +608,12 @@ export const QueueItem: React.FC<QueueItemProps> = ({ item, onRemove, onEdit, on
                         className={`dropdown-item ${!scraper.canHandle ? 'text-muted' : ''}`}
                         style={{
                           color: scraper.canHandle ? 'var(--text, rgba(255, 255, 255, 0.94))' : 'var(--text-muted, rgba(255, 255, 255, 0.66))',
-                          backgroundColor: 'transparent',
                           padding: '0.5rem 1rem',
                         }}
                         onClick={() => {
                           setRescrapeDropdownOpen(false);
                           onRescrapeClick(item.id, scraper.name);
                         }}
-                        onMouseEnter={(e) => e.currentTarget.style.backgroundColor = 'var(--glass-border, rgba(255, 255, 255, 0.09))'}
-                        onMouseLeave={(e) => e.currentTarget.style.backgroundColor = 'transparent'}
                       >
                         {scraper.name}
                         {!scraper.canHandle && <small className="ms-1 text-warning" style={{ color: 'var(--downloader-text-warning, inherit)' }}>(may fail)</small>}

@@ -21,7 +21,10 @@ function colorChannels(color: string): RGB | null {
 function alphaColor(color: string, alpha: number): string {
   const channels = colorChannels(color);
   if (!channels) return color;
-  return `rgba(${Math.round(channels[0])}, ${Math.round(channels[1])}, ${Math.round(channels[2])}, ${alpha})`;
+  const values = color.match(/[\d.]+/g) || [];
+  const sourceAlpha = /^rgba\(/i.test(color) && values.length > 3 ? Number(values[3]) : 1;
+  const combinedAlpha = Math.max(0, Math.min(1, alpha * sourceAlpha));
+  return `rgba(${Math.round(channels[0])}, ${Math.round(channels[1])}, ${Math.round(channels[2])}, ${combinedAlpha})`;
 }
 
 function needsLightIcon(color: string): boolean {
@@ -45,6 +48,7 @@ export function syncHostTheme(root: HTMLElement): void {
     <div class="card">
       <div class="card-header">Header</div>
       <button class="btn btn-primary" type="button">Primary</button>
+      <button class="btn btn-primary btn-sm" type="button">Compact primary</button>
       <button class="btn btn-secondary" type="button">Secondary</button>
       <button class="btn btn-success" type="button">Success</button>
       <button class="btn btn-info" type="button">Info</button>
@@ -55,7 +59,9 @@ export function syncHostTheme(root: HTMLElement): void {
       <span class="badge bg-info">Info badge</span>
       <span class="badge bg-warning">Warning badge</span>
       <span class="badge bg-danger">Danger badge</span>
+      <span class="badge">Badge</span>
       <input class="form-control" />
+      <select class="form-select"><option>Option</option></select>
       <span class="text-muted">Muted</span>
       <span class="text-info">Info text</span>
       <span class="text-success">Success text</span>
@@ -66,7 +72,8 @@ export function syncHostTheme(root: HTMLElement): void {
       <div class="alert alert-success">Success</div>
       <div class="alert alert-warning">Warning</div>
       <div class="alert alert-danger">Danger</div>
-      <div class="dropdown-menu show">Menu</div>
+      <div class="dropdown-menu show"><button class="dropdown-item">Menu item</button></div>
+      <div class="modal-backdrop fade show"></div>
     </div>`;
   probe.style.cssText = 'position:fixed;left:-10000px;top:0;visibility:hidden;pointer-events:none;width:320px;z-index:-1;';
   const appRoot = document.getElementById('root') || document.body;
@@ -87,6 +94,7 @@ export function syncHostTheme(root: HTMLElement): void {
       card: getComputedStyle(card),
       header: getComputedStyle(header),
       primary: getComputedStyle(primary),
+      compactButton: getComputedStyle(probe.querySelector<HTMLElement>('.btn-primary.btn-sm')!),
       secondary: getComputedStyle(probe.querySelector<HTMLElement>('.btn-secondary')!),
       successButton: getComputedStyle(probe.querySelector<HTMLElement>('.btn-success')!),
       infoButton: getComputedStyle(probe.querySelector<HTMLElement>('.btn-info')!),
@@ -96,7 +104,9 @@ export function syncHostTheme(root: HTMLElement): void {
       infoBadge: getComputedStyle(probe.querySelector<HTMLElement>('.badge.bg-info')!),
       warningBadge: getComputedStyle(probe.querySelector<HTMLElement>('.badge.bg-warning')!),
       dangerBadge: getComputedStyle(probe.querySelector<HTMLElement>('.badge.bg-danger')!),
+      badge: getComputedStyle(probe.querySelector<HTMLElement>('.badge:not([class*="bg-"])')!),
       input: getComputedStyle(input),
+      select: getComputedStyle(probe.querySelector<HTMLElement>('.form-select')!),
       muted: getComputedStyle(muted),
       infoText: getComputedStyle(probe.querySelector<HTMLElement>('.text-info')!),
       successText: getComputedStyle(probe.querySelector<HTMLElement>('.text-success')!),
@@ -108,6 +118,7 @@ export function syncHostTheme(root: HTMLElement): void {
       success: getComputedStyle(probe.querySelector<HTMLElement>('.alert-success')!),
       warning: getComputedStyle(probe.querySelector<HTMLElement>('.alert-warning')!),
       danger: getComputedStyle(probe.querySelector<HTMLElement>('.alert-danger')!),
+      backdrop: getComputedStyle(probe.querySelector<HTMLElement>('.modal-backdrop')!),
     };
 
     const themeToken = (name: string, fallback: string): string =>
@@ -150,8 +161,49 @@ export function syncHostTheme(root: HTMLElement): void {
       '--radius': themeToken('--radius', styles.card.borderRadius || '8px'),
       '--radius-sm': themeToken('--radius-sm', styles.input.borderRadius || '4px'),
       '--downloader-button-radius': styles.primary.borderRadius || styles.input.borderRadius || '4px',
+      '--downloader-card-shadow': styles.card.boxShadow || 'none',
+      '--downloader-card-backdrop-filter': styles.card.getPropertyValue('backdrop-filter') || 'none',
+      '--downloader-button-font-family': styles.primary.fontFamily || 'inherit',
+      '--downloader-button-font-size': styles.primary.fontSize || 'inherit',
+      '--downloader-button-font-weight': styles.primary.fontWeight || 'inherit',
+      '--downloader-button-line-height': styles.primary.lineHeight || 'inherit',
+      '--downloader-button-letter-spacing': styles.primary.letterSpacing || 'inherit',
+      '--downloader-button-text-transform': styles.primary.textTransform || 'none',
+      '--downloader-button-padding': styles.primary.padding || '0.375rem 0.75rem',
+      '--downloader-button-border-width': styles.primary.borderWidth || '1px',
+      '--downloader-button-shadow': styles.primary.boxShadow || 'none',
+      '--downloader-compact-button-font-size': styles.compactButton.fontSize || '0.8125rem',
+      '--downloader-compact-button-padding': styles.compactButton.padding || '0.25rem 0.5rem',
+      '--downloader-compact-button-radius': styles.compactButton.borderRadius || styles.primary.borderRadius || '4px',
+      '--downloader-input-font-family': styles.input.fontFamily || 'inherit',
+      '--downloader-input-font-size': styles.input.fontSize || 'inherit',
+      '--downloader-input-font-weight': styles.input.fontWeight || 'inherit',
+      '--downloader-input-line-height': styles.input.lineHeight || 'inherit',
+      '--downloader-input-padding': styles.input.padding || '0.375rem 0.75rem',
+      '--downloader-input-border-width': styles.input.borderWidth || '1px',
+      '--downloader-input-shadow': styles.input.boxShadow || 'none',
+      '--downloader-select-font-family': styles.select.fontFamily || 'inherit',
+      '--downloader-select-font-size': styles.select.fontSize || 'inherit',
+      '--downloader-select-font-weight': styles.select.fontWeight || 'inherit',
+      '--downloader-select-line-height': styles.select.lineHeight || 'inherit',
+      '--downloader-select-padding': styles.select.padding || '0.375rem 2.25rem 0.375rem 0.75rem',
+      '--downloader-badge-font-family': styles.badge.fontFamily || 'inherit',
+      '--downloader-badge-font-size': styles.badge.fontSize || 'inherit',
+      '--downloader-badge-font-weight': styles.badge.fontWeight || '500',
+      '--downloader-badge-padding': styles.badge.padding || '0.35em 0.65em',
+      '--downloader-badge-radius': styles.badge.borderRadius || '4px',
+      '--downloader-alert-radius': styles.info.borderRadius || styles.card.borderRadius || '8px',
+      '--downloader-menu-radius': styles.menu.borderRadius || styles.card.borderRadius || '8px',
+      '--downloader-menu-shadow': styles.menu.boxShadow || shadow,
+      '--downloader-modal-backdrop-color': alphaColor(
+        styles.backdrop.backgroundColor,
+        Number.parseFloat(styles.backdrop.opacity) || 0.7,
+      ),
       '--theme-font-stack': styles.card.fontFamily || styles.app.fontFamily || styles.body.fontFamily,
-      '--glass-blur-md': themeToken('--glass-blur-md', 'none'),
+      '--glass-blur-md': themeToken(
+        '--glass-blur-md',
+        styles.menu.getPropertyValue('backdrop-filter') || styles.card.getPropertyValue('backdrop-filter') || 'none',
+      ),
       '--downloader-close-filter': needsLightIcon(visible(styles.card.color, styles.body.color)) ? 'invert(1) grayscale(100%) brightness(200%)' : 'none',
       '--downloader-info-bg': visible(styles.info.backgroundColor, alphaColor(accent, 0.14)),
       '--downloader-info-border': visible(styles.info.borderColor, alphaColor(accent, 0.3)),

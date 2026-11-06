@@ -216,7 +216,7 @@ export const RescrapeModal: React.FC<RescrapeModalProps> = ({
     <div
       className="modal fade show d-block"
       tabIndex={-1}
-      style={{ backgroundColor: 'rgba(0, 0, 0, 0.7)' }}
+      style={{ backgroundColor: 'var(--downloader-modal-backdrop-color, rgba(0, 0, 0, 0.7))' }}
       onClick={(e) => e.target === e.currentTarget && onClose()}
     >
       <div className="modal-dialog modal-lg modal-dialog-centered modal-dialog-scrollable">

@@ -12,7 +12,7 @@ When signed in, Rebirth syncs appearance preferences to server-side plugin setti
 
 Copy this directory into Stash's configured `plugins/` directory, reload plugins in **Settings → Plugins**, then enable **Rebirth**. After updating, reload the Stash UI in the browser so the new JavaScript and CSS load. Disable other full-app theme plugins while testing it so global styles do not conflict.
 
-For a packaged manual install, download [Rebirth 1.1.0](../../packages/rebirth/1.1.0-manual.zip) and extract its `rebirth/` folder into the configured plugins directory.
+For a packaged manual install, download [Rebirth 1.1.1](../../packages/rebirth/1.1.1-manual.zip) and extract its `rebirth/` folder into the configured plugins directory.
 
 ## Screenshots
 
@@ -30,7 +30,7 @@ The new-arrivals carousel leads the page and automatically advances every seven 
 
 The mobile dock always has four items: three destinations you choose in **Settings → Interface → Theme Settings** and a final **More** button that opens the remaining pages. Stash settings show one category at a time, with a wrapped tab bar on desktop and a section picker on phones. Rebirth themes the native section rows, tables, logs, task states, and feedback colors throughout Settings. The native Plugins filter remains available, and the installed plugin list scrolls inside its panel.
 
-![Rebirth mobile More menu showing the remaining destinations](screenshots/mobile-drawer.png)
+The mobile **More** flyout presents the remaining destinations as a restrained, icon-centered grid while leaving the current page and quick-navigation dock visible. [View the flyout mockup](mockups/navigation-flyout-mobile-neutral-icons-preview.png).
 
 ### Scene library
 
@@ -58,6 +58,6 @@ The Rebirth interface was checked in a live Stash 0.32.0 instance at desktop and
 
 The library in the screenshots contains fictional, non-explicit demo clips.
 
-The plugin has no external dependencies or build step. Its JavaScript and manifest can be syntax-checked directly with Node; its styles load from `css/rebirth-1.1.0.css`.
+The plugin has no external dependencies or build step. Its JavaScript and manifest can be syntax-checked directly with Node; its styles load from `css/rebirth-1.1.1.css`.
 
 Rebirth is distributed under [AGPL-3.0](./LICENSE).

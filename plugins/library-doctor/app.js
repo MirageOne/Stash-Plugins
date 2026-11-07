@@ -23,6 +23,7 @@
     var TAG_CATALOG_QUERY = "query LibraryDoctorTagCatalog($page: Int!, $perPage: Int!) { findTags(filter: { page: $page, per_page: $perPage }) { count tags { id name aliases } } }";
     var TAG_CREATE_MUTATION = "mutation LibraryDoctorCreateTag($input: TagCreateInput!) { tagCreate(input: $input) { id name aliases } }";
     var DELETE_FILES_MUTATION = "mutation LibraryDoctorDeleteDuplicateFile($ids: [ID!]!) { deleteFiles(ids: $ids) }";
+    var SET_PRIMARY_FILE_MUTATION = "mutation LibraryDoctorSetPrimaryFile($input: SceneUpdateInput!) { sceneUpdate(input: $input) { id } }";
     var QUERY = "query LibraryDoctorScenes($page: Int!, $perPage: Int!) { " +
         "findScenes(filter: { page: $page, per_page: $perPage, sort: \"title\", direction: ASC }) { " +
         "count scenes { id title date organized files { id path size duration ... on VideoFile { format width height video_codec audio_codec frame_rate bit_rate } } " +
@@ -476,16 +477,41 @@
             : { entry: null, reason: "No clear recommendation: the available file details are tied or incomplete. Compare the files manually." };
     }
 
-    function deleteDuplicateFile(file, button) {
+    function deleteDuplicateFile(scene, file, button) {
         if (!file || !file.id || button.disabled) { return; }
         var path = String(file.path || "").trim() || ("file ID " + file.id);
-        var confirmed = window.confirm("Delete this file from Stash?\n\n" + path + "\n\nStash will remove the file and its library record. This cannot be undone.");
+        var confirmed = window.confirm("Delete this file from Stash?\n\n" + path + "\n\nStash will remove the file and its library record. If required, another attached file will be promoted to primary first. This review has no undo.");
         if (!confirmed) { return; }
         button.disabled = true;
         button.textContent = "Deleting…";
         clearError();
-        graphQLRequest(DELETE_FILES_MUTATION, { ids: [String(file.id)] }).then(function (data) {
-            if (data.deleteFiles !== true) { throw new Error("Stash did not confirm deleting the file."); }
+        var changedPrimary = false;
+        var newPrimaryFilePath = "";
+        function requestDelete() {
+            return graphQLRequest(DELETE_FILES_MUTATION, { ids: [String(file.id)] }).then(function (data) {
+                if (data.deleteFiles !== true) { throw new Error("Stash did not confirm deleting the file."); }
+            });
+        }
+        requestDelete().catch(function (error) {
+            var message = error && error.message ? error.message : String(error);
+            if (!/cannot delete primary file/i.test(message)) { throw error; }
+            var alternate = scene.files.find(function (candidate) {
+                return candidate && candidate.id && String(candidate.id) !== String(file.id);
+            });
+            if (!alternate) {
+                throw new Error("Stash prevents deleting a scene's only primary file unless the entire scene is deleted. Library Doctor kept the scene metadata intact; delete the scene and file together in Stash if that is intended.");
+            }
+            return graphQLRequest(SET_PRIMARY_FILE_MUTATION, {
+                input: { id: String(scene.id), primary_file_id: String(alternate.id) }
+            }).then(function (data) {
+                if (!data.sceneUpdate || String(data.sceneUpdate.id) !== String(scene.id)) {
+                    throw new Error("Stash did not confirm changing the scene's primary file.");
+                }
+                changedPrimary = true;
+                newPrimaryFilePath = String(alternate.path || "");
+                return requestDelete();
+            });
+        }).then(function () {
             var removedFromScan = false;
             results.forEach(function (scene) {
                 var previousLength = scene.files.length;
@@ -500,11 +526,19 @@
             encodingFilesForResults = null;
             encodingFiles = [];
             render();
-            showStatus(removedFromScan
+            var statusMessage = removedFromScan
                 ? "Deleted " + path + " from Stash."
-                : "Deleted " + path + ". Run Health Check again to refresh the review results.");
+                : "Deleted " + path + ". Run Health Check again to refresh the review results.";
+            if (changedPrimary) {
+                statusMessage += " Set " + (fileBasename(newPrimaryFilePath) || "another attached file") + " as the scene's primary file.";
+            }
+            showStatus(statusMessage);
         }).catch(function (error) {
-            showError("Could not delete " + path + ": " + (error && error.message ? error.message : String(error)));
+            var errorMessage = "Could not delete " + path + ": " + (error && error.message ? error.message : String(error));
+            if (changedPrimary) {
+                errorMessage += " Stash did set " + (fileBasename(newPrimaryFilePath) || "another attached file") + " as the scene's primary file.";
+            }
+            showError(errorMessage);
         }).then(function () {
             if (button.isConnected) {
                 button.disabled = false;
@@ -624,7 +658,7 @@
                         deleteButton.type = "button";
                         deleteButton.textContent = "Delete file";
                         deleteButton.setAttribute("aria-label", "Delete file " + (file.path || file.id));
-                        deleteButton.addEventListener("click", function () { deleteDuplicateFile(file, deleteButton); });
+                        deleteButton.addEventListener("click", function () { deleteDuplicateFile(scene, file, deleteButton); });
                         fileActions.appendChild(deleteButton);
                     } else {
                         var deleteUnavailable = document.createElement("span");

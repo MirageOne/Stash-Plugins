@@ -12,7 +12,7 @@ When signed in, Rebirth syncs appearance preferences to server-side plugin setti
 
 Copy this directory into Stash's configured `plugins/` directory, reload plugins in **Settings → Plugins**, then enable **Rebirth**. After updating, reload the Stash UI in the browser so the new JavaScript and CSS load. Disable other full-app theme plugins while testing it so global styles do not conflict.
 
-For a packaged manual install, download [Rebirth 1.1.5](../../packages/rebirth/1.1.5-manual.zip) and extract its `rebirth/` folder into the configured plugins directory.
+For a packaged manual install, download [Rebirth 1.1.6](../../packages/rebirth/1.1.6-manual.zip) and extract its `rebirth/` folder into the configured plugins directory.
 
 ## Screenshots
 
@@ -58,6 +58,6 @@ The Rebirth interface was checked in a live Stash 0.32.0 instance at desktop and
 
 The library in the screenshots contains fictional, non-explicit demo clips.
 
-The plugin has no external dependencies or build step. Its JavaScript and manifest can be syntax-checked directly with Node; its styles load from `css/rebirth-1.1.5.css`.
+The plugin has no external dependencies or build step. Its JavaScript and manifest can be syntax-checked directly with Node; its styles load from `css/rebirth-1.1.6.css`.
 
 Rebirth is distributed under [AGPL-3.0](./LICENSE).

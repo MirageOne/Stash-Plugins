@@ -18,13 +18,13 @@
     description: Theme-adaptive server-side image and video downloads with yt-dlp, proxy settings, library-aware imports, and metadata extraction.
 - id: rebirth
   name: Rebirth
-  version: 1.1.4
-  date: "2026-11-07 03:44:58"
-  path: packages/rebirth/1.1.4.zip
-  sha256: 218335b68aaba9656069e83fcb3d439c8a1c995d8e648a1034d7f0b4845fff07
+  version: 1.1.5
+  date: "2026-11-07 03:53:10"
+  path: packages/rebirth/1.1.5.zip
+  sha256: d26c3568e9334a6481613e4d01aaf652e5e49ec94bd1151fec1b6d1fcd5371d0
   requires: []
   metadata:
-    description: Rebirth is a video-first Stash theme with account-synced appearance preferences, responsive navigation and mobile scene grids, an accent-responsive Stash box mark, custom switches, Geist typography, an automatically cycling carousel, themed Settings and Help, a Rebirth-colored native filter sidebar aligned beside navigation, responsive pagination, a compact task queue, icon-centered mobile navigation, distinct tag chips, neutral Tagger results, evenly spaced performer actions that wrap to fit, theme-styled dropdowns and selects, light and dark modes, eight accent colors, selected-accent primary buttons, outlined secondary actions, and semantic destructive actions.
+    description: Rebirth is a video-first Stash theme with account-synced appearance preferences, responsive navigation and mobile scene grids, an accent-responsive Stash box mark, custom switches, Geist typography, an automatically cycling carousel, themed Settings and Help, a Rebirth-colored native filter sidebar aligned beside navigation and collapsed by default on the performer list, responsive pagination, a compact task queue, icon-centered mobile navigation, distinct tag chips, neutral Tagger results, evenly spaced performer actions that wrap to fit, theme-styled dropdowns and selects, light and dark modes, eight accent colors, selected-accent primary buttons, outlined secondary actions, and semantic destructive actions.
 - id: stash-metadata-sync
   name: Stash Metadata Sync
   version: 1.0.5

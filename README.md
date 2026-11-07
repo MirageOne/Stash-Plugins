@@ -27,7 +27,7 @@ Download a plugin's manual archive, extract its included plugin folder into Stas
 
 - [Library Doctor manual archive](packages/library-doctor/1.6.5-manual.zip)
 - [Stash Downloader manual archive](packages/stash-downloader/0.6.6-manual.zip)
-- [Rebirth manual archive](packages/rebirth/1.1.4-manual.zip)
+- [Rebirth manual archive](packages/rebirth/1.1.5-manual.zip)
 - [Stash Metadata Sync manual archive](packages/stash-metadata-sync/1.0.5-manual.zip)
 
 Each plugin's README links to its current manual archive.

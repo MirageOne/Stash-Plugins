@@ -8,8 +8,8 @@ from pathlib import Path
 from unittest.mock import patch
 
 
-SCRIPT = Path(__file__).parents[1] / "performer_site_sync.py"
-SPEC = importlib.util.spec_from_file_location("performer_site_sync", SCRIPT)
+SCRIPT = Path(__file__).parents[1] / "stash_metadata_sync.py"
+SPEC = importlib.util.spec_from_file_location("stash_metadata_sync", SCRIPT)
 plugin = importlib.util.module_from_spec(SPEC)
 SPEC.loader.exec_module(plugin)
 
@@ -28,7 +28,7 @@ class Response:
         return self.payload
 
 
-class PerformerSiteSyncTests(unittest.TestCase):
+class StashMetadataSyncTests(unittest.TestCase):
     def test_progress_uses_stash_protocol_instead_of_plain_stderr_error(self):
         stream = io.StringIO()
         with redirect_stderr(stream):
@@ -57,7 +57,7 @@ class PerformerSiteSyncTests(unittest.TestCase):
         self.assertEqual(request.get_header("Cookie"), "session=test-session")
         query = json.loads(request.data)["query"]
         self.assertIn("api_key", query)
-        self.assertIn('plugins(include: ["performer-site-sync"])', query)
+        self.assertIn('plugins(include: ["stash-metadata-sync"])', query)
 
     def test_maps_stashbox_metadata_to_stash_032_fields_without_clearing_data(self):
         local = {

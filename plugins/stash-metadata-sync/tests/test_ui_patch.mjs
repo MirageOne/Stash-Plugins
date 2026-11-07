@@ -6,7 +6,7 @@ import { fileURLToPath } from "node:url";
 import { dirname, resolve } from "node:path";
 
 const here = dirname(fileURLToPath(import.meta.url));
-const source = readFileSync(resolve(here, "../performer_site_sync.js"), "utf8");
+const source = readFileSync(resolve(here, "../stash_metadata_sync.js"), "utf8");
 
 function loadPatch() {
   let afterPatch;

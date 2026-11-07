@@ -1,8 +1,8 @@
 (() => {
-  const pluginId = "performer-site-sync";
+  const pluginId = "stash-metadata-sync";
   const api = window.PluginApi;
   if (!api?.React || !api?.patch?.after) {
-    console.error("[Performer Site Sync] Stash 0.32 PluginApi is unavailable.");
+    console.error("[Stash Metadata Sync] Stash 0.32 PluginApi is unavailable.");
     return;
   }
 
@@ -29,7 +29,7 @@
             credentials: "same-origin",
             headers: { "Content-Type": "application/json", Accept: "application/json" },
             body: JSON.stringify({
-              query: `query PerformerSiteSyncJob($input: FindJobInput!) {
+              query: `query StashMetadataSyncJob($input: FindJobInput!) {
                 findJob(input: $input) { status error }
               }`,
               variables: { input: { id: String(jobId) } },
@@ -56,7 +56,7 @@
             setJobId(null);
           }
         } catch (error) {
-          console.error("[Performer Site Sync] Could not read task status", error);
+          console.error("[Stash Metadata Sync] Could not read task status", error);
           if (!cancelled && attempts < 5) pollTimer = window.setTimeout(checkJob, 1500);
           else if (!cancelled) {
             setState("idle");
@@ -82,7 +82,7 @@
           credentials: "same-origin",
           headers: { "Content-Type": "application/json", Accept: "application/json" },
           body: JSON.stringify({
-            query: `mutation SyncPerformerSite($plugin_id: ID!, $args_map: Map) {
+            query: `mutation SyncPerformerMetadata($plugin_id: ID!, $args_map: Map) {
               runPluginTask(plugin_id: $plugin_id, description: "Sync performer metadata", args_map: $args_map)
             }`,
             variables: {
@@ -100,7 +100,7 @@
         setJobId(newJobId);
         setState("queued");
       } catch (error) {
-        console.error("[Performer Site Sync] Could not queue performer sync", error);
+        console.error("[Stash Metadata Sync] Could not queue performer sync", error);
         setState("failed");
         window.setTimeout(() => setState("idle"), 5000);
       }
@@ -110,7 +110,7 @@
       state === "completed" ? "Sync complete" : state === "failed" ? "Sync failed" : "Sync metadata";
     return React.createElement(
       "div",
-      { className: "performer-site-sync-action", style: { marginTop: "0.5rem" } },
+      { className: "stash-metadata-sync-action", style: { marginTop: "0.5rem" } },
       React.createElement(
         "button",
         {

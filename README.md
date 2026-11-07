@@ -7,7 +7,9 @@ This repository hosts independent Stash plugins. Each plugin keeps its manifest,
 - [Library Doctor](plugins/library-doctor/README.md) — Health Check, FFmpeg encoding audit and re-encoding, metadata assistance, scraping, tagging, and duplicate or alternate-version review.
 - [Stash Downloader](plugins/stash-downloader/README.md) — a Stash-integrated image and video URL queue with metadata extraction and server-side downloads.
 - [Rebirth](plugins/rebirth/README.md) — a video-first redesign with per-account appearance preferences, an accent-responsive Stash mark, Geist typography, themed native Settings sections and Help modals, responsive scene and performer pagination, a Plugins filter above fixed action buttons, switches with matched on/off thumb insets, a compact task queue, a mobile scene-column selector, an automatically cycling new-arrivals carousel, Continue Watching, customizable navigation, eight distinct accent colors, and accent-filled primary actions in light and dark modes. [Screenshots](plugins/rebirth/README.md#screenshots)
-- [Performer Site Sync](plugins/performer-site-sync/README.md) — synchronize performer metadata and favorite performers or studios with StashDB, ThePornDB, and FansDB using Stash 0.32's raw plugin and GraphQL APIs.
+- [Stash Metadata Sync](plugins/stash-metadata-sync/README.md) — sync performer and tag metadata, merge scene tags, and import ThePornDB scene markers and movie groups using Stash 0.32's raw plugin and GraphQL APIs.
+
+Stash Metadata Sync uses a new plugin ID. Users upgrading from Performer Site Sync should reinstall it; the former plugin's settings are not carried over.
 
 ## Install from Stash
 
@@ -26,7 +28,7 @@ Download a plugin's manual archive, extract its included plugin folder into Stas
 - [Library Doctor manual archive](packages/library-doctor/1.6.5-manual.zip)
 - [Stash Downloader manual archive](packages/stash-downloader/0.6.6-manual.zip)
 - [Rebirth manual archive](packages/rebirth/1.1.2-manual.zip)
-- [Performer Site Sync manual archive](packages/performer-site-sync/2.0.2-manual.zip)
+- [Stash Metadata Sync manual archive](packages/stash-metadata-sync/1.0.0-manual.zip)
 
 Each plugin's README links to its current manual archive.
 

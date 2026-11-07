@@ -24,9 +24,15 @@ Copy or symlink this directory into Stash's configured `plugins/` directory, rel
 
 ## Screenshots
 
-These screenshots were captured from Rebirth 1.1.7 running on Stash 0.32.0. The test library contains one fictional performer and no scenes, so the performer's scene list is intentionally empty. The collapsed native filter is hidden when the detail page opens and remains available from its filter button.
+These screenshots were captured from Rebirth 1.1.7 running on Stash 0.32.0. The test library contains one fictional performer and no scenes, so the home page shows its empty new-arrivals state and the performer's scene list is intentionally empty. The collapsed native filter is hidden when the detail page opens and remains available from its filter button.
 
-### Performer detail on desktop
+### Home in light mode
+
+![Rebirth 1.1.7 home page in light mode on Stash 0.32.0](screenshots/home-light.png)
+
+![Rebirth 1.1.7 home page in light mode at a 390-pixel mobile width](screenshots/home-light-mobile.png)
+
+### Performer detail in dark mode
 
 ![Rebirth 1.1.7 performer detail page on Stash 0.32.0 with the filter closed](screenshots/performer-detail-desktop.png)
 

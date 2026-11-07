@@ -25,12 +25,3 @@
   requires: []
   metadata:
     description: Rebirth is a video-first Stash theme with account-synced appearance preferences, responsive navigation and mobile scene grids, an accent-responsive Stash box mark, custom switches, Geist typography, an automatically cycling carousel, themed Settings and Help, and a native filter sidebar styled to match the theme, collapsed on performer lists, and fully hidden while collapsed on performer detail pages. It also includes responsive pagination, a compact task queue, icon-centered mobile navigation, distinct tag chips, neutral Tagger results, evenly spaced performer actions, theme-styled dropdowns and selects, light and dark modes, eight accent colors, selected-accent primary buttons, outlined secondary actions, and semantic destructive actions.
-- id: stash-metadata-sync
-  name: Stash Metadata Sync
-  version: 1.0.5
-  date: "2026-11-07 03:06:02"
-  path: packages/stash-metadata-sync/1.0.5.zip
-  sha256: 49f85096ddedd495c530dfb6185fe6867097d3b4fb8ff7ecb72396cbf61d5927
-  requires: []
-  metadata:
-    description: Synchronize performer metadata and highest-resolution images across configured StashBoxes, plus favorites, tags, scene markers, and ThePornDB movie groups.

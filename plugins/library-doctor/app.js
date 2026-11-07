@@ -22,6 +22,7 @@
     var SCRAPE_SCENES_QUERY = "query LibraryDoctorScrapeScenes($source: ScraperSourceInput!, $input: ScrapeMultiScenesInput!) { scrapeMultiScenes(source: $source, input: $input) { title date tags { stored_id name } } }";
     var TAG_CATALOG_QUERY = "query LibraryDoctorTagCatalog($page: Int!, $perPage: Int!) { findTags(filter: { page: $page, per_page: $perPage }) { count tags { id name aliases } } }";
     var TAG_CREATE_MUTATION = "mutation LibraryDoctorCreateTag($input: TagCreateInput!) { tagCreate(input: $input) { id name aliases } }";
+    var DELETE_FILES_MUTATION = "mutation LibraryDoctorDeleteDuplicateFile($ids: [ID!]!) { deleteFiles(ids: $ids) }";
     var QUERY = "query LibraryDoctorScenes($page: Int!, $perPage: Int!) { " +
         "findScenes(filter: { page: $page, per_page: $perPage, sort: \"title\", direction: ASC }) { " +
         "count scenes { id title date organized files { id path size duration ... on VideoFile { format width height video_codec audio_codec frame_rate bit_rate } } " +
@@ -412,6 +413,106 @@
             : minutes + ":" + ("0" + remainder).slice(-2);
     }
 
+    function fileResolutionPixels(file) {
+        var width = Number(file && file.width);
+        var height = Number(file && file.height);
+        return isFinite(width) && width > 0 && isFinite(height) && height > 0 ? width * height : null;
+    }
+
+    function formatFileResolution(file) {
+        var width = Number(file && file.width);
+        var height = Number(file && file.height);
+        return isFinite(width) && width > 0 && isFinite(height) && height > 0
+            ? Math.round(width) + " × " + Math.round(height)
+            : "Resolution unavailable";
+    }
+
+    function formatFileBitrate(value) {
+        var bitrate = Number(value);
+        return isFinite(bitrate) && bitrate > 0 ? (bitrate / 1000000).toFixed(1) + " Mb/s" : "Bitrate unavailable";
+    }
+
+    function formatFileFrameRate(value) {
+        var frameRate = Number(value);
+        return isFinite(frameRate) && frameRate > 0 ? frameRate.toFixed(2).replace(/\.?0+$/, "") + " fps" : "Frame rate unavailable";
+    }
+
+    function duplicateFileEntries(scenes) {
+        var entries = [];
+        scenes.forEach(function (scene) {
+            (scene.files || []).forEach(function (file) {
+                if (file) { entries.push({ scene: scene, file: file }); }
+            });
+        });
+        return entries;
+    }
+
+    function recommendKeepFile(scenes) {
+        var candidates = duplicateFileEntries(scenes);
+        if (candidates.length < 2) {
+            return { entry: null, reason: "A recommendation needs at least two file records to compare." };
+        }
+        var criteria = [
+            { name: "resolution", value: function (file) { return fileResolutionPixels(file); }, display: function (file) { return formatFileResolution(file); } },
+            { name: "video bitrate", value: function (file) { var value = Number(file.bit_rate); return isFinite(value) && value > 0 ? value : null; }, display: function (file) { return formatFileBitrate(file.bit_rate); } },
+            { name: "frame rate", value: function (file) { var value = Number(file.frame_rate); return isFinite(value) && value > 0 ? value : null; }, display: function (file) { return formatFileFrameRate(file.frame_rate); } },
+            { name: "file size", value: function (file) { var value = Number(file.size); return isFinite(value) && value > 0 ? value : null; }, display: function (file) { return formatBytes(file.size); } }
+        ];
+        var remaining = candidates.slice();
+        var reasons = [];
+        criteria.some(function (criterion) {
+            if (remaining.length < 2) { return true; }
+            var values = remaining.map(function (entry) { return criterion.value(entry.file); });
+            if (values.some(function (value) { return value === null; })) { return false; }
+            var highest = Math.max.apply(Math, values);
+            var lowest = Math.min.apply(Math, values);
+            if (highest === lowest) { return false; }
+            remaining = remaining.filter(function (entry) { return criterion.value(entry.file) === highest; });
+            reasons.push("highest " + criterion.name + " (" + criterion.display(remaining[0].file) + ")");
+            return remaining.length === 1;
+        });
+        return remaining.length === 1
+            ? { entry: remaining[0], reason: "Recommended by " + reasons.join(", then ") + "." }
+            : { entry: null, reason: "No clear recommendation: the available file details are tied or incomplete. Compare the files manually." };
+    }
+
+    function deleteDuplicateFile(file, button) {
+        if (!file || !file.id || button.disabled) { return; }
+        var path = String(file.path || "").trim() || ("file ID " + file.id);
+        var confirmed = window.confirm("Delete this file from Stash?\n\n" + path + "\n\nStash will remove the file and its library record. This cannot be undone.");
+        if (!confirmed) { return; }
+        button.disabled = true;
+        button.textContent = "Deleting…";
+        clearError();
+        graphQLRequest(DELETE_FILES_MUTATION, { ids: [String(file.id)] }).then(function (data) {
+            if (data.deleteFiles !== true) { throw new Error("Stash did not confirm deleting the file."); }
+            var removedFromScan = false;
+            results.forEach(function (scene) {
+                var previousLength = scene.files.length;
+                scene.files = scene.files.filter(function (candidate) { return String(candidate.id) !== String(file.id); });
+                if (scene.files.length === previousLength) { return; }
+                removedFromScan = true;
+                scene._doctorIssues = scene._doctorIssues.filter(function (issue) { return issue.label !== "No file reference"; });
+                if (!scene.files.some(function (candidate) { return candidate && String(candidate.path || "").trim(); })) {
+                    addIssue(scene, "No file reference", "files");
+                }
+            });
+            encodingFilesForResults = null;
+            encodingFiles = [];
+            render();
+            showStatus(removedFromScan
+                ? "Deleted " + path + " from Stash."
+                : "Deleted " + path + ". Run Health Check again to refresh the review results.");
+        }).catch(function (error) {
+            showError("Could not delete " + path + ": " + (error && error.message ? error.message : String(error)));
+        }).then(function () {
+            if (button.isConnected) {
+                button.disabled = false;
+                button.textContent = "Delete file";
+            }
+        });
+    }
+
     function renderDuplicateGroups() {
         var groups = buildDuplicateGroups(results);
         els.duplicateReview.hidden = false;
@@ -445,21 +546,30 @@
             var explanation = document.createElement("p");
             explanation.className = "ld-duplicate-explanation";
             explanation.textContent = group.explanation;
+            var recommendation = recommendKeepFile(group.scenes);
+            var recommendationBox = document.createElement("div");
+            recommendationBox.className = "ld-duplicate-recommendation" + (recommendation.entry ? " has-recommendation" : "");
+            var recommendationTitle = document.createElement("strong");
+            recommendationTitle.textContent = recommendation.entry ? "Suggested file to keep" : "No clear keep recommendation";
+            var recommendationReason = document.createElement("span");
+            recommendationReason.textContent = recommendation.reason + (recommendation.entry
+                ? " This technical heuristic does not assess visual quality or codec efficiency; compare before deleting."
+                : "");
+            recommendationBox.append(recommendationTitle, recommendationReason);
             var list = document.createElement("ul");
             list.className = "ld-duplicate-scenes";
             group.scenes.forEach(function (scene) {
                 var item = document.createElement("li");
+                var sceneHeading = document.createElement("div");
+                sceneHeading.className = "ld-duplicate-scene-heading";
                 var details = document.createElement("div");
+                details.className = "ld-duplicate-scene-details";
                 var sceneTitle = document.createElement("strong");
                 sceneTitle.textContent = scene.title || "Untitled scene";
                 var metadata = document.createElement("span");
                 metadata.className = "ld-duplicate-meta";
                 metadata.textContent = [scene.studio, scene.date, scene.performers.join(", ")].filter(Boolean).join(" · ") || "No additional scene details";
-                var file = scene.files[0] || {};
-                var fileInfo = document.createElement("span");
-                fileInfo.className = "ld-duplicate-file";
-                fileInfo.textContent = (fileBasename(file.path) || "File details unavailable") + " · " + formatDuration(file.duration) + " · " + formatBytes(file.size);
-                details.append(sceneTitle, metadata, fileInfo);
+                details.append(sceneTitle, metadata);
                 var open = document.createElement("a");
                 open.className = "ld-open-scene";
                 open.href = "/scenes/" + encodeURIComponent(scene.id);
@@ -467,7 +577,65 @@
                 open.rel = "noopener noreferrer";
                 open.textContent = "Open scene";
                 open.setAttribute("aria-label", "Open " + (scene.title || "scene") + " in Stash");
-                item.append(details, open);
+                sceneHeading.append(details, open);
+                item.appendChild(sceneHeading);
+                var fileList = document.createElement("ul");
+                fileList.className = "ld-duplicate-files";
+                if (!scene.files.length) {
+                    var noFiles = document.createElement("li");
+                    noFiles.className = "ld-duplicate-no-files";
+                    noFiles.textContent = "No file records are attached to this scene.";
+                    fileList.appendChild(noFiles);
+                }
+                scene.files.forEach(function (file) {
+                    var recommended = recommendation.entry && recommendation.entry.file === file;
+                    var fileItem = document.createElement("li");
+                    fileItem.className = "ld-duplicate-file-card" + (recommended ? " is-recommended" : "");
+                    var fileDetails = document.createElement("div");
+                    fileDetails.className = "ld-duplicate-file-details";
+                    var fileName = document.createElement("strong");
+                    fileName.textContent = fileBasename(file.path) || "File path unavailable";
+                    var fullPath = document.createElement("span");
+                    fullPath.className = "ld-duplicate-file-path";
+                    fullPath.textContent = String(file.path || "Full path unavailable");
+                    var videoCodec = String(file.video_codec || "Video codec unavailable");
+                    var fileInfo = document.createElement("span");
+                    fileInfo.className = "ld-duplicate-file-info";
+                    fileInfo.textContent = [
+                        formatFileResolution(file),
+                        videoCodec,
+                        formatFileBitrate(file.bit_rate),
+                        formatFileFrameRate(file.frame_rate),
+                        formatDuration(file.duration),
+                        formatBytes(file.size)
+                    ].join(" · ");
+                    fileDetails.append(fileName, fullPath, fileInfo);
+                    var fileActions = document.createElement("div");
+                    fileActions.className = "ld-duplicate-file-actions";
+                    if (recommended) {
+                        var keepBadge = document.createElement("span");
+                        keepBadge.className = "ld-duplicate-keep-badge";
+                        keepBadge.textContent = "Recommended keep";
+                        fileActions.appendChild(keepBadge);
+                    }
+                    if (file.id) {
+                        var deleteButton = document.createElement("button");
+                        deleteButton.className = "ld-delete-file-button";
+                        deleteButton.type = "button";
+                        deleteButton.textContent = "Delete file";
+                        deleteButton.setAttribute("aria-label", "Delete file " + (file.path || file.id));
+                        deleteButton.addEventListener("click", function () { deleteDuplicateFile(file, deleteButton); });
+                        fileActions.appendChild(deleteButton);
+                    } else {
+                        var deleteUnavailable = document.createElement("span");
+                        deleteUnavailable.className = "ld-duplicate-delete-unavailable";
+                        deleteUnavailable.textContent = "File ID unavailable";
+                        fileActions.appendChild(deleteUnavailable);
+                    }
+                    fileItem.append(fileDetails, fileActions);
+                    fileList.appendChild(fileItem);
+                });
+                item.appendChild(fileList);
                 list.appendChild(item);
             });
             var actions = document.createElement("div");
@@ -484,7 +652,7 @@
                 renderDuplicateGroups();
             });
             actions.appendChild(review);
-            card.append(heading, explanation, list, actions);
+            card.append(heading, explanation, recommendationBox, list, actions);
             return card;
         }));
         els.duplicateEmpty.hidden = visibleGroups.length > 0;

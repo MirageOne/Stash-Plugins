@@ -267,10 +267,29 @@ h1, h2, p { margin-top: 0; }
 .ld-duplicate-card-heading h3 { margin: 0; font-size: 0.9rem; overflow-wrap: anywhere; }
 .ld-duplicate-badge { display: inline-flex; align-items: center; min-height: 22px; padding: 0 7px; border: 1px solid color-mix(in srgb, var(--ld-orange), transparent 68%); border-radius: 999px; background: color-mix(in srgb, var(--ld-orange), transparent 91%); color: var(--ld-orange); font-size: 0.65rem; font-weight: 650; }
 .ld-duplicate-explanation { margin: 6px 0 11px; color: var(--ld-subtle); font-size: 0.74rem; line-height: 1.45; }
-.ld-duplicate-scenes { display: grid; gap: 7px; margin: 0; padding: 0; list-style: none; }
-.ld-duplicate-scenes li { display: grid; grid-template-columns: minmax(0,1fr) auto; align-items: center; gap: 10px; padding: 9px 10px; border: 1px solid rgba(255,255,255,0.055); border-radius: 8px; background: rgba(255,255,255,0.018); }
-.ld-duplicate-scenes li > div { display: grid; min-width: 0; gap: 3px; }
+.ld-duplicate-recommendation { display: grid; gap: 4px; margin: 0 0 11px; padding: 10px 12px; border: 1px solid color-mix(in srgb, var(--ld-accent), transparent 72%); border-radius: 8px; background: var(--ld-accent-soft); }
+.ld-duplicate-recommendation strong { color: var(--ld-text); font-size: 0.74rem; }
+.ld-duplicate-recommendation span { color: var(--ld-muted); font-size: 0.68rem; line-height: 1.45; }
+.ld-duplicate-scenes { display: grid; gap: 10px; margin: 0; padding: 0; list-style: none; }
+.ld-duplicate-scenes > li { display: grid; gap: 9px; min-width: 0; padding: 10px; border: 1px solid rgba(255,255,255,0.055); border-radius: 8px; background: rgba(255,255,255,0.018); }
+.ld-duplicate-scene-heading { display: flex; align-items: center; justify-content: space-between; gap: 10px; min-width: 0; }
+.ld-duplicate-scene-details { display: grid; min-width: 0; gap: 3px; }
 .ld-duplicate-scenes strong { color: var(--ld-text); font-size: 0.78rem; overflow-wrap: anywhere; }
+.ld-duplicate-files { display: grid; gap: 7px; margin: 0; padding: 0; list-style: none; }
+.ld-duplicate-file-card { display: flex; align-items: flex-start; justify-content: space-between; gap: 12px; min-width: 0; padding: 9px 10px; border: 1px solid var(--ld-border); border-radius: 7px; background: color-mix(in srgb, var(--ld-surface-strong), transparent 22%); }
+.ld-duplicate-file-card.is-recommended { border-color: color-mix(in srgb, var(--ld-green), transparent 58%); background: color-mix(in srgb, var(--ld-green), transparent 94%); }
+.ld-duplicate-file-details { display: grid; flex: 1 1 auto; min-width: 0; gap: 3px; }
+.ld-duplicate-file-details strong { color: var(--ld-text); font-size: 0.74rem; overflow-wrap: anywhere; }
+.ld-duplicate-file-path { color: var(--ld-subtle); font-size: 0.66rem; line-height: 1.4; overflow-wrap: anywhere; word-break: break-word; }
+.ld-duplicate-file-info { color: var(--ld-muted); font-size: 0.67rem; line-height: 1.45; overflow-wrap: anywhere; }
+.ld-duplicate-file-actions { display: flex; align-items: flex-end; flex: 0 0 auto; flex-direction: column; gap: 7px; }
+.ld-duplicate-keep-badge { display: inline-flex; align-items: center; min-height: 21px; padding: 0 7px; border: 1px solid color-mix(in srgb, var(--ld-green), transparent 66%); border-radius: 999px; background: color-mix(in srgb, var(--ld-green), transparent 90%); color: var(--ld-green); font-size: 0.63rem; font-weight: 700; white-space: nowrap; }
+.ld-delete-file-button { min-height: 30px; padding: 0 9px; border: 1px solid color-mix(in srgb, var(--ld-red), transparent 55%); border-radius: 6px; background: color-mix(in srgb, var(--ld-red), transparent 88%); color: var(--ld-red); font-size: 0.69rem; font-weight: 700; white-space: nowrap; cursor: pointer; }
+.ld-delete-file-button:hover:not(:disabled) { border-color: var(--ld-red); background: color-mix(in srgb, var(--ld-red), transparent 78%); }
+.ld-delete-file-button:disabled { opacity: 0.58; cursor: wait; }
+.ld-delete-file-button:focus-visible { outline: 2px solid var(--ld-accent); outline-offset: 2px; }
+.ld-duplicate-delete-unavailable { color: var(--ld-subtle); font-size: 0.65rem; }
+.ld-duplicate-no-files { color: var(--ld-subtle); font-size: 0.69rem; }
 .ld-encoding-workspace { display: grid; gap: 14px; }
 .ld-encoding-workspace .ld-module-heading { margin-bottom: 1px; }
 .ld-encoding-summary { display: grid; gap: 5px; padding: 13px 15px; border: 1px solid color-mix(in srgb, var(--ld-accent), transparent 78%); border-radius: 10px; background: var(--ld-accent-soft); }
@@ -297,8 +316,7 @@ h1, h2, p { margin-top: 0; }
 .ld-encoding-file-card strong { color: var(--ld-text); font-size: 0.78rem; overflow-wrap: anywhere; }
 .ld-encoding-file-path { color: var(--ld-subtle); font-size: 0.67rem; overflow-wrap: anywhere; }
 .ld-encoding-file-details { color: var(--ld-muted); font-size: 0.69rem; }
-.ld-duplicate-meta, .ld-duplicate-file { color: var(--ld-subtle); font-size: 0.68rem; line-height: 1.4; overflow-wrap: anywhere; }
-.ld-duplicate-file { color: var(--ld-muted); }
+.ld-duplicate-meta { color: var(--ld-subtle); font-size: 0.68rem; line-height: 1.4; overflow-wrap: anywhere; }
 .ld-duplicate-scenes .ld-open-scene { flex: 0 0 auto; }
 .ld-duplicate-actions { display: flex; justify-content: flex-end; margin-top: 9px; }
 .ld-duplicate-empty { padding: 13px 10px; color: var(--ld-subtle); font-size: 0.78rem; }
@@ -439,7 +457,10 @@ h1, h2, p { margin-top: 0; }
     .ld-duplicate-review { padding: 14px; }
     .ld-duplicate-header { align-items: stretch; flex-direction: column; gap: 10px; }
     .ld-duplicate-header .ld-button { align-self: flex-start; }
-    .ld-duplicate-scenes li { align-items: flex-start; grid-template-columns: minmax(0,1fr); }
+    .ld-duplicate-scene-heading { align-items: flex-start; flex-direction: column; gap: 4px; }
+    .ld-duplicate-scenes > li { padding: 8px; }
+    .ld-duplicate-file-card { flex-direction: column; }
+    .ld-duplicate-file-actions { align-items: flex-start; flex-direction: row; flex-wrap: wrap; }
     .ld-duplicate-scenes .ld-open-scene { padding: 3px 0 0; }
     .ld-encoding-card { padding: 13px; }
     .ld-encoding-fields, .ld-encoding-custom { grid-template-columns: minmax(0,1fr); }

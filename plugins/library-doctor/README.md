@@ -10,12 +10,23 @@ The default writes a new file under Stash's configured metadata directory at `Li
 
 Re-encoding requires Stash's configured Python 3.8 or newer and working FFmpeg/FFprobe binaries available through Stash's configured paths, the server PATH, or the config directory. The selected video codec must be supported by that FFmpeg build (`libx264` for H.264 or `libx265` for H.265). Task progress is reported through Stash's Python API and reads FFmpeg's microsecond or timestamp progress fields.
 
+## Requirements and compatibility
+
+Library Doctor uses Stash's plugin UI assets and local GraphQL API. Use a current Stash release with plugin UI and raw task support; the re-encode task specifically requires Python 3.8 or newer. FFmpeg and FFprobe are needed only for encoding. They must be available to the Stash server process or configured in **Settings → Configuration → General**. The plugin has no additional Python package dependencies.
+
 Run a scan to see counts, filter findings, search by scene title, studio, performer, or issue, and export flagged scenes to CSV. The **Metadata Assistant** proposes missing titles and dates from scene filenames and lists scenes without tags. For missing tags, select one or more existing Stash tags in the guided fix dialog. Title and date suggestions remain editable and are never applied automatically. Each finding links to its scene in Stash. Before applying a selected title, date, or tags, Library Doctor shows a before-and-after preview and checks that text fields have not changed since the scan. **Undo last fix** restores the previous values if they have not changed since; the latest 20 fixes can be undone during the current dashboard session.
 
 **Scrape & Auto-Tag** uses Stash’s configured scene-identify sources, in their configured order, including Stash-box providers. Installed scene scrapers that are not in that order are also listed individually. If Stash has no configured order, the workspace lists all installed scene scrapers and lets you run all or choose one. It sends batches of scenes with a missing title, date, or tags through Stash’s fingerprint lookup. A single result may fill only a blank title or date and add its tags; existing tags are merged and preserved. Multiple results are held for manual selection, and scenes without a match remain unchanged. The optional missing-tag creation control is on by default; Stash tag records created this way remain if you undo the scene update. Recent scene updates share the same 20-entry session undo history.
 
 **Duplicate & Version Review** groups scenes with matching normalized titles, compares their studio, date, performers, duration, and file size, and labels possible copies or alternate encodes for review. Matching titles alone do not prove two scenes are duplicates. Marking a group reviewed is saved in the current browser; Library Doctor does not delete, merge, or reorganize scenes.
 
-Install from the repository source in the root README or download [the 1.6.5 manual archive](../../packages/library-doctor/1.6.5-manual.zip) and extract the `library-doctor/` directory into Stash's configured plugins directory. Enable the plugin in **Settings → Plugins**. Reload the plugin page after updating so its versioned assets load.
+Add the **MirageOne Stash Plugins** source in **Settings → Plugins → Add source** using the index URL from the [repository README](../../README.md), then install **Library Doctor** from **Available Plugins**. For a manual installation, download [the 1.6.5 manual archive](../../packages/library-doctor/1.6.5-manual.zip) and extract its `library-doctor/` directory into Stash's configured plugins directory. Enable the plugin in **Settings → Plugins**. After updating, reload the plugin page and refresh the browser so its versioned assets load.
 
 The Stash-side shortcut samples the active interface's computed styles before opening the standalone dashboard, then refreshes its theme snapshot when Stash changes themes or stylesheets. This carries user-selected colors, surfaces, typography, control styling, and light or dark mode into Library Doctor, including themes that do not publish Library Doctor-specific tokens.
+
+## Troubleshooting
+
+- If the navigation shortcut is missing, check that Library Doctor is enabled, reload the plugin list, then refresh Stash in the browser.
+- If **Scrape & Auto-Tag** has no sources, configure scene-identify sources under **Settings → Metadata Providers** and reload the dashboard.
+- If an encode cannot find FFmpeg or FFprobe, set their paths in **Settings → Configuration → General** and confirm the Stash server account can read the scene and write to its metadata directory.
+- If a re-encode fails, check the task details and Stash log. Replacement is opt-in; when enabled, the plugin keeps a backup under the metadata directory before installing the verified output.

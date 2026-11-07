@@ -8,55 +8,41 @@ Geist Variable Sans 5.3.0 from Fontsource is bundled under the SIL Open Font Lic
 
 When signed in, Rebirth syncs appearance preferences to server-side plugin settings keyed by the authenticated Stash user ID. Existing account and browser preferences migrate on first use; later sessions use the account copy across browsers, including incognito. The browser keeps a local cache and remains the fallback when the session identity or server-side plugin settings are unavailable. No preferences are written to Stash's user record. The login page is served outside Stash's plugin UI, so a theme plugin alone cannot restyle it. FrontPage component patching uses Stash's documented experimental UI plugin API and should be checked against each Stash release.
 
-## Development install
+## Requirements and compatibility
 
-Copy this directory into Stash's configured `plugins/` directory, reload plugins in **Settings → Plugins**, then enable **Rebirth**. After updating, reload the Stash UI in the browser so the new JavaScript and CSS load. Disable other full-app theme plugins while testing it so global styles do not conflict.
+Rebirth is built for Stash 0.32 and its plugin UI APIs. Its filter, Settings, and Help styling also follows parts of Stash's native page structure, so review it after Stash upgrades. Rebirth has no external runtime dependencies, sends no appearance data to third-party services, and includes its font files locally.
 
-For a packaged manual install, download [Rebirth 1.1.7](../../packages/rebirth/1.1.7-manual.zip) and extract its `rebirth/` folder into the configured plugins directory.
+## Install
+
+Add the **MirageOne Stash Plugins** source in **Settings → Plugins → Add source** using the index URL in the [repository README](../../README.md), then install **Rebirth** from **Available Plugins**. To install manually, download [Rebirth 1.1.7](../../packages/rebirth/1.1.7-manual.zip) and extract its `rebirth/` folder into Stash's configured plugins directory. Enable it in **Settings → Plugins** and refresh Stash in the browser after updating so the versioned JavaScript and CSS load.
+
+The one- or two-column mobile scene grid and the four-item navigation dock are configured in **Settings → Interface → Theme Settings**. Disable other full-app theme plugins while checking Rebirth so their global styles do not override its presentation.
+
+## Local development
+
+Copy or symlink this directory into Stash's configured `plugins/` directory, reload plugins in **Settings → Plugins**, then refresh Stash in the browser after changing versioned assets. Rebirth has no build step.
 
 ## Screenshots
 
-These screenshots show Rebirth's interface on a live Stash 0.32.0 instance. The library contains only fictional, non-explicit demo clips created for this capture.
+These screenshots were captured from Rebirth 1.1.7 running on Stash 0.32.0. The test library contains one fictional performer and no scenes, so the performer's scene list is intentionally empty. The collapsed native filter is hidden when the detail page opens and remains available from its filter button.
 
-### Home
+### Performer detail on desktop
 
-The new-arrivals carousel leads the page and automatically advances every seven seconds while the page is visible. Its arrows, dots, keyboard controls, and touch swipes remain available. Continue Watching sits directly below it, followed by Stash's existing recommendation shelves.
+![Rebirth 1.1.7 performer detail page on Stash 0.32.0 with the filter closed](screenshots/performer-detail-desktop.png)
 
-![Rebirth home page with a new-arrivals carousel and Continue Watching row](screenshots/home-dark.png)
+The native filter opens on demand and remains selectable:
 
-![Rebirth home page in light mode](screenshots/home-light.png)
+![Rebirth performer detail page with the native filter open](screenshots/performer-detail-desktop-filters.png)
 
-![Rebirth home page on a mobile viewport](screenshots/mobile-home.png)
+### Performer detail on mobile
 
-The mobile dock always has four items: three destinations you choose in **Settings → Interface → Theme Settings** and a final **More** button that opens the remaining pages. Stash settings show one category at a time, with a wrapped tab bar on desktop and a section picker on phones. Rebirth themes the native section rows, tables, logs, task states, and feedback colors throughout Settings. The native Plugins filter remains available, and the installed plugin list scrolls inside its panel.
+![Rebirth 1.1.7 performer detail page at a 390-pixel mobile width with the filter closed](screenshots/performer-detail-mobile.png)
 
-The mobile **More** flyout presents the remaining destinations as a restrained, icon-centered grid while leaving the current page and quick-navigation dock visible. [View the flyout mockup](mockups/navigation-flyout-mobile-neutral-icons-preview.png).
-
-### Scene library
-
-![Stash scene library using Rebirth navigation and styling](screenshots/scene-library.png)
-
-![Stash scene library in light mode with Rebirth filters and accent controls](screenshots/scene-library-light.png)
-
-The new scene and performer pagination treatment is previewed in the [responsive pagination mockup](mockups/pagination-bar.html).
-
-### Statistics
-
-![Stash statistics with Rebirth cards and charts](screenshots/statistics.png)
-
-### Accent colors
-
-The Interface settings retain all seven accent choices and add Red, for eight distinct options. [Compare the palette directions and all eight colors in dark and light mode](mockups/accent-palettes.html).
-
-### Buttons
-
-Primary actions use the selected accent with contrasting text. Secondary actions keep an accent outline, and destructive actions keep their red treatment. [Compare the button treatments across the palette](mockups/accent-palettes.html).
+The mobile **More** flyout presents the remaining destinations as an icon-centered grid. [View the flyout mockup](mockups/navigation-flyout-mobile-neutral-icons-preview.png). The responsive scene and performer pagination is previewed in the [pagination mockup](mockups/pagination-bar.html), and the eight accent colors are compared in the [palette mockup](mockups/accent-palettes.html).
 
 ## Visual audit
 
-The Rebirth interface was checked in a live Stash 0.32.0 instance at desktop and mobile widths. The audit covered the home carousel and Continue Watching shelf, scene filters and zoom, statistics cards and charts, theme settings embedded under **Settings → Interface**, native settings and logs, navigation, and the light/dark appearance. All twelve native Settings sections were selected at desktop width, and the mobile section picker was used to change sections. Scene Tagger result rows use neutral surfaces; include/exclude controls stay square at phone widths, performer action groups wrap inside the result card, and tag suggestion buttons stay separate. Search, automatic and manual carousel navigation, accent changes, card layout, the three-destination mobile dock and its More menu, flyout labels with the desktop rail collapsed, reduced effects, and sidebar collapse were exercised in the browser. Library mutations, playback, detail pages, and server settings stay on Stash's native routes and APIs.
-
-The library in the screenshots contains fictional, non-explicit demo clips.
+The Rebirth interface was checked in a clean Stash 0.32.0 instance at desktop and mobile widths, including the performer detail page with its filter closed and opened. Earlier browser checks covered the home carousel, Continue Watching, native Settings and Help, navigation, accent changes, light and dark appearance, and mobile layouts. Stash continues to handle library mutations, playback, and server settings through its native routes and APIs.
 
 The plugin has no external dependencies or build step. Its JavaScript and manifest can be syntax-checked directly with Node; its styles load from `css/rebirth-1.1.7.css`.
 

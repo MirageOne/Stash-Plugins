@@ -17,10 +17,12 @@ Stash Downloader adds a URL queue for downloading videos and images, extracting 
 
 ## Requirements
 
-- A current Stash installation with plugin task support.
+- A current Stash installation with plugin UI and raw plugin task support (Stash 0.32 or newer recommended).
 - The Python version configured for Stash and supported by the installed yt-dlp release (current yt-dlp releases may require a newer Python version).
 - yt-dlp and Requests with SOCKS support installed in that Python environment.
 - FFmpeg is optional for simple downloads; yt-dlp needs it to merge separate audio/video streams. The plugin passes Stash's configured FFmpeg path when available.
+
+The bundled interface is already built; Node.js and npm are not needed on the Stash server to install or use the plugin.
 
 Install Python dependencies on the Stash host or in the Stash container:
 
@@ -35,10 +37,10 @@ Use the Python interpreter configured for Stash if it differs from `python`. The
 Add the MirageOne Stash Plugins source in **Settings → Plugins → Add source** using:
 
 ```text
-https://raw.githubusercontent.com/MirageOne/Stasher/main/index.yml
+https://raw.githubusercontent.com/MirageOne/Stash-Plugins/main/index.yml
 ```
 
-Reload sources and install **Stash Downloader**. For a manual installation, extract the [manual archive](../../packages/stash-downloader/0.6.6-manual.zip) into Stash's configured plugin directory, install the Python dependencies, then enable the plugin.
+Reload sources and install **Stash Downloader** from **Available Plugins**. For a manual installation, extract the [0.6.6 manual archive](../../packages/stash-downloader/0.6.6-manual.zip) into Stash's configured plugin directory, install the Python dependencies, then enable the plugin in **Settings → Plugins**.
 
 ## Configure
 
@@ -55,3 +57,13 @@ When a source URL already belongs to a Stash scene, the downloader offers **Open
 - The URL importer can access network addresses reachable from the Stash server. For shared or untrusted Stash accounts, restrict server egress to the media sites users are allowed to download from.
 - Import profiles and the browser queue are stored in the current browser's local storage. Stash server settings such as download paths and proxy credentials remain in Stash plugin settings.
 - Browser-extension support from the upstream monorepo is not included in this Stash plugin package.
+
+## Troubleshooting
+
+- If **Check yt-dlp** finds a module but downloads cannot start, verify that Stash uses the same Python environment where yt-dlp and `requests[socks]` are installed. Set **yt-dlp Path** to an executable Stash can run when auto-detection finds the wrong installation.
+- If a download cannot be imported, leave **Download Path** blank or choose a directory inside a Stash library enabled for that media type. Confirm the Stash process can write to the directory.
+- If metadata extraction or a download stalls, check the item log, proxy settings, and server network access. FFmpeg is needed when yt-dlp must combine separate audio and video streams.
+
+## License
+
+Stash Downloader is released under the [MIT License](LICENSE).

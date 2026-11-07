@@ -19,7 +19,7 @@ StashBox's GraphQL scene schema provides scene tags but no marker fields. Marker
 
 ## Install and configure
 
-Install from the MirageOne Stash Plugins source in the repository root README, or extract the [1.0.5 manual archive](../../packages/stash-metadata-sync/1.0.5-manual.zip) into Stash's configured plugin directory. Enable **Stash Metadata Sync** in **Settings → Plugins** and reload plugins.
+Add the **MirageOne Stash Plugins** source in **Settings → Plugins → Add source** using the index URL in the [repository README](../../README.md), then install **Stash Metadata Sync** from **Available Plugins**. For a manual installation, extract the [1.0.5 manual archive](../../packages/stash-metadata-sync/1.0.5-manual.zip) into Stash's configured plugin directory. Enable the plugin in **Settings → Plugins** and reload plugins.
 
 Add the sources you use under **Settings → Metadata Providers → Stash-boxes**. The plugin recognizes StashDB, ThePornDB, and FansDB by configured name or endpoint, and uses the API keys from Stash's own configuration. It does not search local files for keys or print credentials.
 
@@ -43,7 +43,9 @@ The reset task forgets which source tags were previously synchronized to scenes,
 
 ## Compatibility and checks
 
-The backend uses Stash's `raw` plugin task input (`server_connection`, `args`), `SessionCookie`, `configuration.plugins(include: ...)`, and Stash 0.32 GraphQL inputs including `TagUpdateInput`, `BulkSceneUpdateInput` with `tag_ids` in `ADD` mode, `SceneMarkerCreateInput`, `GroupCreateInput`, `GroupUpdateInput`, and `SceneUpdateInput`. It has no Python package dependencies. API calls are rate-limited, retry temporary HTTP failures, and report per-source errors without exposing API keys. Scene tasks advance progress even when scenes have no markers or groups, or all markers and groups already exist.
+Stash Metadata Sync targets Stash 0.32's raw plugin task and GraphQL API. It requires Stash's plugin task support, Python 3.8 or newer, and network access from the Stash server to each enabled StashBox and ThePornDB API. It uses Python's standard library and has no third-party package dependencies. Configure API keys in Stash's **Metadata Providers → Stash-boxes** settings; the plugin does not accept keys in task arguments.
+
+The backend uses Stash's `raw` plugin task input (`server_connection`, `args`), `SessionCookie`, `configuration.plugins(include: ...)`, and Stash 0.32 GraphQL inputs including `TagUpdateInput`, `BulkSceneUpdateInput` with `tag_ids` in `ADD` mode, `SceneMarkerCreateInput`, `GroupCreateInput`, `GroupUpdateInput`, and `SceneUpdateInput`. API calls are rate-limited, retry temporary HTTP failures, and report per-source errors without exposing API keys. Scene tasks advance progress even when scenes have no markers or groups, or all markers and groups already exist.
 
 Offline tests:
 
@@ -53,6 +55,13 @@ node --test tests/test_ui_patch.mjs
 ```
 
 The implementation was checked against the linked [Tag Manager](https://github.com/carrotwaxr/stash-plugins/tree/main/plugins/tagManager) scene-tag workflow and [TPDBMarkers](https://github.com/stashapp/CommunityScripts/tree/main/plugins/TPDBMarkers) marker endpoint behavior. The implementation uses Stash's current GraphQL mutations and a merge-only marker policy.
+
+## Troubleshooting
+
+- If **Validate Configuration** finds no source, configure the StashBox and API key in Stash's metadata provider settings, then enable the matching source in this plugin.
+- If marker or group sync skips scenes, confirm that those scenes carry a ThePornDB stash ID and that ThePornDB is enabled with a working API key. StashDB and FansDB do not provide the marker data used by these tasks.
+- Dry-run tasks only preview changes. Review their task output, disable the matching dry-run setting, and start the task again to apply changes.
+- If requests fail or are throttled, check Stash server network access and the configured StashBox request limit. Use **Test Connections** and **Generate Sync Report** to narrow down the issue.
 
 ## License
 

@@ -5,7 +5,7 @@ This repository hosts independent Stash plugins. Each plugin keeps its manifest,
 ## Available plugins
 
 - [Library Doctor](plugins/library-doctor/README.md) — Health Check, FFmpeg encoding audit and re-encoding, metadata assistance, scraping, tagging, and duplicate or alternate-version review.
-- [Stash Downloader](plugins/stash-downloader/README.md) — a Stash-integrated image and video URL queue with metadata extraction and server-side downloads.
+- [Stash Downloader](plugins/stash-downloader/README.md) — a theme-adaptive media queue with import profiles, source duplicate checks, recoverable server downloads, metadata review, search, and status filters.
 - [Rebirth](plugins/rebirth/README.md) — a video-first redesign with per-account appearance preferences, an accent-responsive Stash mark, Geist typography, themed native Settings sections and Help modals, responsive scene and performer pagination, a Plugins filter above fixed action buttons, switches with matched on/off thumb insets, a compact task queue, a mobile scene-column selector, an automatically cycling new-arrivals carousel, Continue Watching, customizable navigation, eight distinct accent colors, and accent-filled primary actions in light and dark modes. [Screenshots](plugins/rebirth/README.md#screenshots)
 ## Install from Stash
 
@@ -22,7 +22,7 @@ Reload plugins, then install any listed plugin from **Available Plugins**. New p
 Download a plugin's manual archive, extract its included plugin folder into Stash's configured plugins directory, then enable it in **Settings → Plugins**.
 
 - [Library Doctor manual archive](packages/library-doctor/1.6.9-manual.zip)
-- [Stash Downloader manual archive](packages/stash-downloader/0.6.6-manual.zip)
+- [Stash Downloader manual archive](packages/stash-downloader/0.7.0-manual.zip)
 - [Rebirth manual archive](packages/rebirth/1.1.7-manual.zip)
 
 Each plugin's README links to its current manual archive.

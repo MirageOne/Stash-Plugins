@@ -1,6 +1,6 @@
 # Stash Downloader
 
-Stash Downloader adds a URL queue for downloading videos and images, extracting metadata, and importing completed downloads into Stash. Its React interface uses Stash's shared `PluginApi` and samples the active host theme's rendered controls, colors, typography, spacing, radii, and elevation so it can follow stock or third-party themes without relying on theme-specific variable names. The interface now follows Library Doctor's compact header, editorial page intro, summary cards, and rounded surface styling while retaining the active theme's colors and accent. Its navigation shortcut sits beside the right-side utility buttons.
+Stash Downloader adds a URL queue for downloading videos and images, extracting metadata, and importing completed downloads into Stash. Its React interface uses Stash's shared `PluginApi` and samples the active host theme's rendered controls, colors, typography, spacing, radii, and elevation so it can follow stock or third-party themes without relying on theme-specific variable names. The rebuilt dashboard follows Library Doctor's header, editorial hierarchy, rounded surfaces, theme tokens, and accent states. Queue management and activity logs now have separate workspaces, with responsive queue search and status filters. Its navigation shortcut sits beside the right-side utility buttons.
 
 ## Features
 
@@ -11,6 +11,8 @@ Stash Downloader adds a URL queue for downloading videos and images, extracting 
 - Configure the server's yt-dlp executable and optional HTTP/SOCKS proxy in Stash plugin settings.
 - Use Stash's configured FFmpeg path for yt-dlp format merging when it is available.
 - Persist queue state in the browser and review task logs.
+- Search queued items by title, source URL, metadata, or error; filter by pending, active, completed, or items needing attention.
+- Separate the download queue from its activity log in two focused workspaces.
 - Save reusable import profiles with domain matching, metadata creation rules, filename templates, auto-import behavior, and post-import actions.
 - Check Stash and the queue for duplicate source URLs before adding work, with controls to open, skip, or add an existing scene anyway.
 - Recover active server downloads after a page reload by reconnecting to the Stash job or resuming from the saved library file.
@@ -40,7 +42,7 @@ Add the MirageOne Stash Plugins source in **Settings → Plugins → Add source*
 https://raw.githubusercontent.com/MirageOne/Stash-Plugins/main/index.yml
 ```
 
-Reload sources and install **Stash Downloader** from **Available Plugins**. For a manual installation, extract the [0.6.6 manual archive](../../packages/stash-downloader/0.6.6-manual.zip) into Stash's configured plugin directory, install the Python dependencies, then enable the plugin in **Settings → Plugins**.
+Reload sources and install **Stash Downloader** from **Available Plugins**. For a manual installation, extract the [0.7.0 manual archive](../../packages/stash-downloader/0.7.0-manual.zip) into Stash's configured plugin directory, install the Python dependencies, then enable the plugin in **Settings → Plugins**.
 
 ## Configure
 

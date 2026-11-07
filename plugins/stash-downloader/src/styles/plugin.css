@@ -932,3 +932,119 @@
 }
 
 /* Small button refinements */
+
+.stash-downloader-plugin [hidden] { display: none !important; }
+.stash-downloader-plugin .ld-page-root { min-height: 100vh; }
+.stash-downloader-plugin .ld-app-stack { display: grid; gap: 16px; }
+.stash-downloader-plugin .ld-workspace-tabs { display: flex; align-items: center; gap: 5px; overflow-x: auto; padding: 5px; border: 1px solid var(--ld-border); border-radius: 11px; background: rgba(255,255,255,0.025); scrollbar-width: thin; }
+.stash-downloader-plugin .ld-workspace-tab { min-height: 38px; display: inline-flex; align-items: center; justify-content: center; gap: 8px; flex: 0 0 auto; padding: 0 12px; border: 1px solid transparent; border-radius: 7px; background: transparent; color: var(--ld-muted); font-size: 0.78rem; font-weight: 650; white-space: nowrap; cursor: pointer; }
+.stash-downloader-plugin .ld-workspace-tab svg { width: 16px; height: 16px; fill: none; stroke: currentColor; stroke-width: 1.8; stroke-linecap: round; stroke-linejoin: round; }
+.stash-downloader-plugin .ld-workspace-tab:hover { background: rgba(255,255,255,0.04); color: var(--ld-text); }
+.stash-downloader-plugin .ld-workspace-tab[aria-selected="true"] { border-color: color-mix(in srgb, var(--ld-accent), transparent 72%); background: var(--ld-accent-soft); color: var(--ld-accent-bright); }
+.stash-downloader-plugin .ld-workspace-tab span { min-width: 19px; height: 19px; display: inline-grid; place-items: center; padding: 0 5px; border-radius: 999px; background: rgba(255,255,255,0.07); color: inherit; font-size: 0.65rem; font-variant-numeric: tabular-nums; }
+.stash-downloader-plugin .ld-source-card,
+.stash-downloader-plugin .ld-runtime-card,
+.stash-downloader-plugin .ld-queue-workspace { border: 1px solid var(--ld-border); border-radius: var(--ld-radius); background: linear-gradient(145deg, rgba(255,255,255,0.035), rgba(255,255,255,0.008)), var(--ld-surface); box-shadow: inset 0 1px 0 rgba(255,255,255,0.035), 0 12px 38px rgba(0,0,0,0.12); }
+.stash-downloader-plugin .ld-source-card { padding: 19px; }
+.stash-downloader-plugin .ld-section-heading { display: flex; align-items: flex-end; justify-content: space-between; gap: 18px; margin: 0 0 15px; }
+.stash-downloader-plugin .ld-section-heading .ld-eyebrow { margin-bottom: 5px; }
+.stash-downloader-plugin .ld-section-heading h2,
+.stash-downloader-plugin .ld-queue-heading h2,
+.stash-downloader-plugin .ld-module-heading h2 { margin: 0 0 5px; color: var(--ld-text); font-size: 1.25rem; letter-spacing: -0.025em; }
+.stash-downloader-plugin .ld-section-heading p:not(.ld-eyebrow),
+.stash-downloader-plugin .ld-module-heading p:not(.ld-eyebrow) { margin: 0; color: var(--ld-muted); font-size: 0.82rem; line-height: 1.5; }
+.stash-downloader-plugin .ld-source-footer { display: flex; align-items: center; justify-content: space-between; gap: 16px; padding-top: 15px; border-top: 1px solid var(--ld-border); }
+.stash-downloader-plugin .ld-source-profile { display: flex; align-items: center; flex-wrap: wrap; gap: 9px; min-width: 0; }
+.stash-downloader-plugin .ld-source-profile label { margin: 0; color: var(--ld-muted); font-size: 0.8rem; font-weight: 650; }
+.stash-downloader-plugin .ld-source-profile .form-select { width: auto; min-width: 170px; min-height: 36px; }
+.stash-downloader-plugin .ld-profile-note { flex: 1 1 100%; color: var(--ld-subtle); font-size: 0.72rem; }
+.stash-downloader-plugin .ld-batch-area > .d-flex { flex-wrap: wrap; gap: 8px !important; }
+.stash-downloader-plugin .ld-batch-area .btn { min-height: 36px; }
+.stash-downloader-plugin .ld-runtime-card { overflow: hidden; }
+.stash-downloader-plugin .ld-runtime-summary { display: flex; align-items: center; gap: 12px; min-width: 0; padding: 12px 15px; }
+.stash-downloader-plugin .ld-runtime-indicator { width: 9px; height: 9px; flex: 0 0 auto; border-radius: 50%; background: var(--ld-orange); }
+.stash-downloader-plugin .ld-runtime-indicator.is-ready { background: var(--ld-green); box-shadow: 0 0 10px color-mix(in srgb, var(--ld-green), transparent 45%); }
+.stash-downloader-plugin .ld-runtime-summary > div { display: grid; flex: 1 1 auto; min-width: 0; gap: 2px; }
+.stash-downloader-plugin .ld-runtime-summary strong { color: var(--ld-text); font-size: 0.78rem; }
+.stash-downloader-plugin .ld-runtime-summary span:not(.ld-runtime-indicator) { color: var(--ld-muted); font-size: 0.7rem; line-height: 1.4; }
+.stash-downloader-plugin .ld-runtime-details { display: grid; gap: 10px; padding: 13px 15px 15px; border-top: 1px solid var(--ld-border); }
+.stash-downloader-plugin .ld-runtime-details > div:not(.ld-runtime-actions) { display: flex; align-items: flex-start; justify-content: space-between; gap: 12px; }
+.stash-downloader-plugin .ld-runtime-details > div > span:first-child { color: var(--ld-muted); font-size: 0.75rem; }
+.stash-downloader-plugin .ld-runtime-details code { max-width: 72%; color: var(--ld-text); font-size: 0.72rem; overflow-wrap: anywhere; text-align: right; }
+.stash-downloader-plugin .ld-runtime-value { color: var(--ld-subtle); font-size: 0.72rem; }
+.stash-downloader-plugin .ld-runtime-actions { display: flex; align-items: center; gap: 10px; }
+.stash-downloader-plugin .ld-runtime-actions > span { color: var(--ld-subtle); font-size: 0.7rem; }
+.stash-downloader-plugin .ld-summary { margin: 0; }
+.stash-downloader-plugin .ld-queue-workspace { overflow: hidden; padding: 18px; }
+.stash-downloader-plugin .ld-queue-heading { display: flex; align-items: flex-end; justify-content: space-between; gap: 16px; margin-bottom: 15px; }
+.stash-downloader-plugin .ld-queue-heading .ld-eyebrow { margin-bottom: 5px; }
+.stash-downloader-plugin .ld-queue-heading h2 { display: flex; align-items: center; gap: 9px; }
+.stash-downloader-plugin .ld-queue-heading h2 span { color: var(--ld-subtle); font-size: 0.72rem; font-weight: 500; letter-spacing: 0; }
+.stash-downloader-plugin .ld-queue-actions { display: flex; align-items: center; justify-content: flex-end; gap: 8px; }
+.stash-downloader-plugin .ld-button-primary { border-color: var(--ld-accent); background: var(--ld-accent); color: var(--accent-contrast, #fff); }
+.stash-downloader-plugin .ld-button-primary:hover:not(:disabled) { filter: brightness(1.08); }
+.stash-downloader-plugin .ld-button-danger { border-color: color-mix(in srgb, var(--ld-red), transparent 50%); background: color-mix(in srgb, var(--ld-red), transparent 86%); color: var(--ld-red); }
+.stash-downloader-plugin .ld-button-danger-quiet { border-color: transparent; background: transparent; color: var(--ld-muted); }
+.stash-downloader-plugin .ld-button-danger-quiet:hover:not(:disabled),
+.stash-downloader-plugin .ld-button-danger:hover:not(:disabled) { border-color: var(--ld-red); background: color-mix(in srgb, var(--ld-red), transparent 78%); color: var(--ld-red); }
+.stash-downloader-plugin .ld-queue-controls { display: flex; align-items: center; justify-content: space-between; gap: 12px; padding: 12px 0; border-top: 1px solid var(--ld-border); border-bottom: 1px solid var(--ld-border); }
+.stash-downloader-plugin .ld-queue-filters { display: flex; align-items: center; gap: 5px; overflow-x: auto; min-width: 0; scrollbar-width: thin; }
+.stash-downloader-plugin .ld-queue-filter { min-height: 32px; display: inline-flex; align-items: center; gap: 7px; flex: 0 0 auto; padding: 0 9px; border: 1px solid transparent; border-radius: 7px; background: transparent; color: var(--ld-muted); font-size: 0.73rem; white-space: nowrap; cursor: pointer; }
+.stash-downloader-plugin .ld-queue-filter span { min-width: 18px; padding: 1px 5px; border-radius: 999px; background: rgba(255,255,255,0.07); font-size: 0.66rem; font-variant-numeric: tabular-nums; text-align: center; }
+.stash-downloader-plugin .ld-queue-filter:hover { background: rgba(255,255,255,0.04); color: var(--ld-text); }
+.stash-downloader-plugin .ld-queue-filter[aria-pressed="true"] { border-color: color-mix(in srgb, var(--ld-accent), transparent 74%); background: var(--ld-accent-soft); color: var(--ld-accent-bright); }
+.stash-downloader-plugin .ld-queue-search { min-height: 38px; display: flex; align-items: center; gap: 8px; flex: 0 1 270px; min-width: 190px; padding: 0 10px; border: 1px solid var(--ld-border-strong); border-radius: 8px; background: var(--ld-surface-strong); color: var(--ld-subtle); }
+.stash-downloader-plugin .ld-queue-search svg { width: 16px; height: 16px; flex: 0 0 auto; fill: none; stroke: currentColor; stroke-width: 1.8; stroke-linecap: round; }
+.stash-downloader-plugin .ld-queue-search input { width: 100%; min-width: 0; border: 0; outline: 0; background: transparent; color: var(--ld-text); font: inherit; font-size: 0.75rem; }
+.stash-downloader-plugin .ld-queue-search input::placeholder { color: var(--ld-subtle); }
+.stash-downloader-plugin .ld-queue-search:focus-within { border-color: var(--ld-accent); box-shadow: 0 0 0 3px var(--ld-accent-soft); }
+.stash-downloader-plugin .ld-queue-preferences { display: flex; align-items: center; flex-wrap: wrap; gap: 8px; padding: 12px 0; }
+.stash-downloader-plugin .ld-preference-toggle { min-height: 30px; padding: 0 9px; border: 1px solid var(--ld-border); border-radius: 7px; background: transparent; color: var(--ld-muted); font-size: 0.7rem; cursor: pointer; }
+.stash-downloader-plugin .ld-preference-toggle[aria-pressed="true"] { border-color: color-mix(in srgb, var(--ld-accent), transparent 68%); background: var(--ld-accent-soft); color: var(--ld-accent-bright); }
+.stash-downloader-plugin .ld-log-level { display: inline-flex; align-items: center; gap: 7px; margin-left: auto; color: var(--ld-muted); font-size: 0.7rem; }
+.stash-downloader-plugin .ld-log-level .form-select { width: auto; min-width: 105px; min-height: 30px; padding-top: 3px; padding-bottom: 3px; font-size: 0.7rem; }
+.stash-downloader-plugin .ld-empty-results { display: grid; justify-items: center; gap: 8px; padding: 36px 16px; color: var(--ld-muted); text-align: center; }
+.stash-downloader-plugin .ld-empty-results strong { color: var(--ld-text); font-size: 0.88rem; }
+.stash-downloader-plugin .ld-empty-results span { color: var(--ld-subtle); font-size: 0.75rem; }
+.stash-downloader-plugin .ld-empty-results .ld-button { margin-top: 4px; }
+.stash-downloader-plugin .ld-module-heading { margin: 3px 0 16px; }
+.stash-downloader-plugin .ld-module-heading .ld-eyebrow { margin-bottom: 5px; }
+.stash-downloader-plugin .ld-activity-workspace .ld-log-card { margin-top: 0 !important; }
+.stash-downloader-plugin .ld-queue-list { padding-top: 2px; }
+.stash-downloader-plugin .ld-button:disabled,
+.stash-downloader-plugin .ld-preference-toggle:disabled,
+.stash-downloader-plugin .ld-queue-filter:disabled { opacity: 0.45; cursor: not-allowed; }
+
+@media (max-width: 900px) {
+  .stash-downloader-plugin .ld-source-footer { align-items: flex-start; flex-direction: column; }
+  .stash-downloader-plugin .ld-queue-heading { align-items: flex-start; flex-direction: column; }
+  .stash-downloader-plugin .ld-queue-actions { justify-content: flex-start; }
+  .stash-downloader-plugin .ld-queue-controls { align-items: stretch; flex-direction: column; }
+  .stash-downloader-plugin .ld-queue-search { flex: 1 1 auto; width: 100%; }
+}
+
+@media (max-width: 620px) {
+  .stash-downloader-plugin .ld-source-card,
+  .stash-downloader-plugin .ld-queue-workspace { padding: 13px; }
+  .stash-downloader-plugin .ld-source-profile { width: 100%; }
+  .stash-downloader-plugin .ld-source-profile .form-select { width: 100%; }
+  .stash-downloader-plugin .ld-source-profile .ld-button { flex: 1 1 auto; }
+  .stash-downloader-plugin .ld-batch-area,
+  .stash-downloader-plugin .ld-batch-area > .d-flex { width: 100%; }
+  .stash-downloader-plugin .ld-batch-area .btn { flex: 1 1 135px; }
+  .stash-downloader-plugin .ld-runtime-summary { align-items: flex-start; flex-wrap: wrap; }
+  .stash-downloader-plugin .ld-runtime-summary > div { flex-basis: calc(100% - 24px); }
+  .stash-downloader-plugin .ld-runtime-summary > .ld-button { width: 100%; }
+  .stash-downloader-plugin .ld-runtime-details > div:not(.ld-runtime-actions) { align-items: flex-start; flex-direction: column; gap: 4px; }
+  .stash-downloader-plugin .ld-runtime-details code { max-width: 100%; text-align: left; }
+  .stash-downloader-plugin .ld-runtime-actions { align-items: flex-start; flex-direction: column; }
+  .stash-downloader-plugin .ld-queue-heading { gap: 10px; }
+  .stash-downloader-plugin .ld-queue-actions { width: 100%; }
+  .stash-downloader-plugin .ld-queue-actions .ld-button { flex: 1 1 130px; }
+  .stash-downloader-plugin .ld-queue-filters { width: 100%; }
+  .stash-downloader-plugin .ld-queue-preferences { align-items: stretch; }
+  .stash-downloader-plugin .ld-preference-toggle { flex: 1 1 130px; }
+  .stash-downloader-plugin .ld-log-level { flex: 1 1 100%; justify-content: space-between; margin-left: 0; }
+  .stash-downloader-plugin .ld-log-level .form-select { flex: 1 1 auto; }
+  .stash-downloader-plugin .ld-module-heading h2 { font-size: 1.18rem; }
+}

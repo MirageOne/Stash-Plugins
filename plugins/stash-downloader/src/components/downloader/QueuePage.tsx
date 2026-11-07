@@ -22,10 +22,13 @@ import { getStashService, getStashImportService } from '@/services/stash';
 import { DownloadStatus } from '@/types';
 import type { IDownloadItem, IScrapedMetadata, IEditedMetadata, IImportProfile } from '@/types';
 import { createLogger, createImportCallbacks, processConcurrently, getImportProfileForUrl } from '@/utils';
+import { countQueueStatuses, filterQueueItems, QUEUE_STATUS_FILTERS, type QueueStatusFilter } from '@/utils/queueFilters';
 import { useSettings } from '@/hooks';
 import { DEFAULT_IMPORT_PROFILE, PLUGIN_ID, PLUGIN_NAME } from '@/constants';
 import type { IPluginSettings } from '@/types';
 import logoSvg from '@/assets/logo.svg';
+
+type DownloaderWorkspace = 'queue' | 'activity';
 
 const debugLog = createLogger('QueuePage');
 
@@ -50,6 +53,9 @@ export const QueuePage: React.FC = () => {
   const [videoLibraryPath, setVideoLibraryPath] = useState('');
   const [imageLibraryPath, setImageLibraryPath] = useState('');
   const [showImportProfiles, setShowImportProfiles] = useState(false);
+  const [activeWorkspace, setActiveWorkspace] = useState<DownloaderWorkspace>('queue');
+  const [queueStatusFilter, setQueueStatusFilter] = useState<QueueStatusFilter>('all');
+  const [queueSearch, setQueueSearch] = useState('');
   const [duplicateCandidate, setDuplicateCandidate] = useState<{
     scene: IDuplicateSceneCandidate;
     submittedUrl: string;
@@ -90,6 +96,17 @@ export const QueuePage: React.FC = () => {
   const profileForCurrentUrl = getImportProfileForUrl(urlFieldValue, importProfiles, activeImportProfile.id);
   const pendingItems = queue.items.filter(item => item.status === DownloadStatus.Pending);
   const autoImportPending = pendingItems.length > 0 && pendingItems.every(item => (item.importProfile || activeImportProfile).autoImport);
+  const queueReviewCount = queue.items.filter(item => item.status === DownloadStatus.Failed || item.status === DownloadStatus.Cancelled).length;
+  const activeDownloadCount = queue.stats.downloading + queue.stats.processing;
+  const queueFilterCounts = countQueueStatuses(queue.items);
+  const visibleQueueItems = filterQueueItems(queue.items, queueStatusFilter, queueSearch);
+  const handleWorkspaceKeyDown = (event: React.KeyboardEvent<HTMLButtonElement>) => {
+    if (event.key !== 'ArrowLeft' && event.key !== 'ArrowRight') return;
+    event.preventDefault();
+    const nextWorkspace = activeWorkspace === 'queue' ? 'activity' : 'queue';
+    setActiveWorkspace(nextWorkspace);
+    document.getElementById(nextWorkspace === 'queue' ? 'downloader-queue-tab' : 'downloader-activity-tab')?.focus();
+  };
 
   // Fetch and sync settings from Stash on mount (once, no polling)
   useEffect(() => {
@@ -733,9 +750,9 @@ export const QueuePage: React.FC = () => {
   };
 
   return (
-    <div className="d-flex flex-column min-vh-100">
-      <div className="container-lg py-4">
-        <div className="d-flex flex-column gap-3">
+    <div className="ld-page-root">
+      <main className="container-lg py-4 ld-shell">
+        <div className="ld-app-stack">
           <header className="ld-header">
             <div className="ld-brand-row">
               <a className="ld-back" href="/scenes" aria-label="Back to Stash scenes">
@@ -747,18 +764,15 @@ export const QueuePage: React.FC = () => {
               <span className="ld-brand-name">{PLUGIN_NAME}</span>
             </div>
             <div className="ld-header-actions">
-            <button
-              type="button"
-              className="ld-button ld-button-secondary"
-              onClick={() => setShowAboutModal(true)}
-              title={`About ${PLUGIN_NAME}`}
-            >
-              <svg height="18" width="18" viewBox="0 0 16 16" fill="none" stroke="currentColor" strokeWidth="1.7" aria-hidden="true">
-                <path d="M8 0a8 8 0 100 16A8 8 0 008 0zm0 14.5a6.5 6.5 0 110-13 6.5 6.5 0 010 13z" />
-                <path d="M8 6a1 1 0 110-2 1 1 0 010 2zm1.5 5.5a.5.5 0 01-.5.5H7a.5.5 0 010-1h.5V8H7a.5.5 0 010-1h1.5a.5.5 0 01.5.5v3.5h.5a.5.5 0 010 1z" />
-              </svg>
-              About
-            </button>
+              <button
+                type="button"
+                className="ld-button ld-button-secondary"
+                onClick={() => setShowAboutModal(true)}
+                aria-label={"About " + PLUGIN_NAME}
+              >
+                <svg viewBox="0 0 24 24" aria-hidden="true"><circle cx="12" cy="12" r="9" /><path d="M12 11v5m0-8h.01" /></svg>
+                About
+              </button>
             </div>
           </header>
 
@@ -766,298 +780,331 @@ export const QueuePage: React.FC = () => {
             <div>
               <p className="ld-eyebrow">DOWNLOAD &amp; IMPORT</p>
               <h1 id="downloaderTitle">Bring media into your library.</h1>
-              <p className="ld-subtitle">Queue a source URL, review its metadata, and save the finished media to Stash.</p>
+              <p className="ld-subtitle">Add a source, review the details, and import finished media into Stash.</p>
             </div>
             <div className="ld-workflow-note">
-              <span className="ld-workflow-dot" aria-hidden="true" />
-              <span>Choose a profile · Review · Import</span>
+              <span className={"ld-workflow-dot " + (ytDlpVersion ? 'is-ready' : 'is-limited')} aria-hidden="true" />
+              <span>{ytDlpVersion ? "yt-dlp " + ytDlpVersion + " available" : 'Server extraction ready to check'}</span>
             </div>
           </section>
 
-          {/* Proxy and Server Status */}
-          {isStashEnvironment && (
-            <div className="card text-light mb-3 ld-server-card" style={{ backgroundColor: 'var(--glass-bg, rgba(39, 39, 39, 0.90))', borderColor: 'var(--glass-border, rgba(255, 255, 255, 0.09))' }}>
-              <div
-                className="card-header d-flex justify-content-between align-items-center ld-server-card-header"
-                style={{ backgroundColor: 'var(--mica-elevated, #292929)', borderColor: 'var(--glass-border, rgba(255, 255, 255, 0.09))', cursor: 'pointer' }}
-                onClick={() => setServerConfigExpanded(!serverConfigExpanded)}
-              >
-                <h6 className="mb-0">Server Configuration</h6>
-                <button
-                  type="button"
-                  className="btn btn-sm btn-link text-light p-0"
-                  style={{ textDecoration: 'none' }}
-                >
-                  {serverConfigExpanded ? '▲' : '▼'}
-                </button>
+          <div className="ld-workspace-tabs" role="tablist" aria-label="Downloader workspaces">
+            <button
+              id="downloader-queue-tab"
+              className="ld-workspace-tab"
+              type="button"
+              role="tab"
+              aria-selected={activeWorkspace === 'queue'}
+              aria-controls="downloader-queue-panel"
+              tabIndex={activeWorkspace === 'queue' ? 0 : -1}
+              onClick={() => setActiveWorkspace('queue')}
+              onKeyDown={handleWorkspaceKeyDown}
+            >
+              <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M4 5h16M4 12h16M4 19h16" /><circle cx="7" cy="5" r="1" /><circle cx="7" cy="12" r="1" /><circle cx="7" cy="19" r="1" /></svg>
+              Queue <span>{queue.stats.total}</span>
+            </button>
+            <button
+              id="downloader-activity-tab"
+              className="ld-workspace-tab"
+              type="button"
+              role="tab"
+              aria-selected={activeWorkspace === 'activity'}
+              aria-controls="downloader-activity-panel"
+              tabIndex={activeWorkspace === 'activity' ? 0 : -1}
+              onClick={() => setActiveWorkspace('activity')}
+              onKeyDown={handleWorkspaceKeyDown}
+            >
+              <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M4 12h3l2-6 4 12 2-6h5" /></svg>
+              Activity <span>{log.logs.length}</span>
+            </button>
+          </div>
+
+          <section
+            id="downloader-queue-panel"
+            className="ld-workspace-panel"
+            role="tabpanel"
+            aria-labelledby="downloader-queue-tab"
+            hidden={activeWorkspace !== 'queue'}
+          >
+            <section className="ld-source-card ld-surface-card" aria-labelledby="ld-source-heading">
+              <div className="ld-section-heading">
+                <div>
+                  <p className="ld-eyebrow">ADD TO QUEUE</p>
+                  <h2 id="ld-source-heading">New download</h2>
+                  <p>Paste a supported media URL. Stash Downloader will inspect it before downloading.</p>
+                </div>
               </div>
-              {serverConfigExpanded && (
-                <div className="card-body">
-                  <div className="d-flex flex-column gap-2">
-                    <div className="d-flex justify-content-between align-items-center">
-                      <span style={{ color: 'var(--text-muted, rgba(255, 255, 255, 0.66))' }}>yt-dlp:</span>
-                      {ytDlpVersion ? (
-                        <div className="d-flex align-items-center gap-2">
-                          <span
-                            className="badge bg-success"
-                            title="The version check passed. Site support and server access are tested when you process a URL."
-                          >
-                            Available
-                          </span>
-                          <code className="text-light" style={{ fontSize: '0.85em' }}>{ytDlpVersion}</code>
-                          {ytDlpResolutionMethod && (
-                            <small style={{ color: 'var(--text-muted, rgba(255, 255, 255, 0.66))' }}>({ytDlpResolutionMethod})</small>
-                          )}
-                        </div>
-                      ) : (
-                        <div className="d-flex align-items-center gap-2">
-                          <span className="badge bg-danger">Not Found</span>
-                          <small style={{ color: 'var(--text-muted, rgba(255, 255, 255, 0.66))' }}>Install the plugin requirements in Stash's Python environment, or set the executable path in plugin settings.</small>
-                        </div>
-                      )}
+
+              <URLInputForm
+                onSubmit={handleAddUrl}
+                initialValue={urlFieldValue}
+                onValueChange={setUrlFieldValue}
+              />
+
+              <div className="ld-source-footer">
+                <div className="ld-source-profile">
+                  <label htmlFor="importProfileSelect">Import profile</label>
+                  <select
+                    id="importProfileSelect"
+                    className="form-select"
+                    value={activeImportProfile.id}
+                    onChange={event => updateSettings({ activeImportProfileId: event.target.value })}
+                  >
+                    {importProfiles.map(profile => <option key={profile.id} value={profile.id}>{profile.name}</option>)}
+                  </select>
+                  <button type="button" className="ld-button ld-button-secondary" onClick={() => setShowImportProfiles(true)}>Manage profiles</button>
+                  <span className="ld-profile-note">
+                    {urlFieldValue.trim() && profileForCurrentUrl.id !== activeImportProfile.id
+                      ? "This URL matches " + profileForCurrentUrl.name + "."
+                      : 'New queue items keep a copy of their profile settings.'}
+                  </span>
+                </div>
+                <div className="ld-batch-area">
+                  <BatchImport
+                    onImport={handleBatchImport}
+                    onSingleUrl={setUrlFieldValue}
+                  />
+                </div>
+              </div>
+            </section>
+
+            {isStashEnvironment && (
+              <section className="ld-runtime-card" aria-label="Stash server readiness">
+                <div className="ld-runtime-summary">
+                  <span className={"ld-runtime-indicator " + (ytDlpVersion ? 'is-ready' : 'is-limited')} aria-hidden="true" />
+                  <div>
+                    <strong>{ytDlpVersion ? "yt-dlp " + ytDlpVersion : 'yt-dlp was not detected'}</strong>
+                    <span>{ytDlpVersion
+                      ? "Using " + (ytDlpResolutionMethod || 'the configured server runtime') + " for broad site support."
+                      : 'Built-in scrapers remain available; install yt-dlp for broader site support.'}</span>
+                  </div>
+                  <button
+                    type="button"
+                    className="ld-button ld-button-secondary"
+                    aria-expanded={serverConfigExpanded}
+                    aria-controls="ld-runtime-details"
+                    onClick={() => setServerConfigExpanded(!serverConfigExpanded)}
+                  >
+                    {serverConfigExpanded ? 'Hide server details' : 'Server details'}
+                  </button>
+                </div>
+                {serverConfigExpanded && (
+                  <div id="ld-runtime-details" className="ld-runtime-details">
+                    <div><span>Video library</span><code>{videoDownloadPath}</code></div>
+                    <div><span>Image library</span><code>{imageDownloadPath}</code></div>
+                    <div>
+                      <span>HTTP/SOCKS proxy</span>
+                      {httpProxy
+                        ? <code>{httpProxy.replace(/:\/\/[^@]+@/, '://***@')}</code>
+                        : <span className="ld-runtime-value">Not configured</span>}
                     </div>
-                    <div className="d-flex justify-content-between align-items-center">
-                      <span style={{ color: 'var(--text-muted, rgba(255, 255, 255, 0.66))' }}>Video download path:</span>
-                      <code className="text-light">{videoDownloadPath}</code>
-                    </div>
-                    <div className="d-flex justify-content-between align-items-center">
-                      <span style={{ color: 'var(--text-muted, rgba(255, 255, 255, 0.66))' }}>Image download path:</span>
-                      <code className="text-light">{imageDownloadPath}</code>
-                    </div>
-                    <div className="d-flex justify-content-between align-items-center">
-                      <span style={{ color: 'var(--text-muted, rgba(255, 255, 255, 0.66))' }}>HTTP/SOCKS Proxy:</span>
-                      {httpProxy ? (
-                        <div className="d-flex align-items-center gap-2">
-                          <span className="badge bg-success">Enabled</span>
-                          <code className="text-light" style={{ fontSize: '0.85em' }}>
-                            {httpProxy.replace(/:\/\/[^@]+@/, '://***@')}
-                          </code>
-                        </div>
-                      ) : (
-                        <span className="badge bg-secondary">Not Configured</span>
-                      )}
-                    </div>
+                    {!ytDlpVersion && (
+                      <div className="ld-runtime-actions">
+                        <button type="button" className="ld-button ld-button-secondary" onClick={() => setShowYtDlpWarning(true)}>
+                          yt-dlp setup guide
+                        </button>
+                        <span>Install requirements in the Python environment used by Stash.</span>
+                      </div>
+                    )}
                     {httpProxy && (
-                      <>
-                        <div className="d-flex gap-2 mt-2">
-                          <button
-                            className="btn btn-sm btn-primary"
-                            onClick={async (e) => {
-                              e.stopPropagation();
-                              const { testHttpProxy } = await import('@/utils/systemCheck');
-                              const result = await testHttpProxy(httpProxy);
-                              if (result.success) {
-                                toast.showToast('success', 'Proxy Test', result.message);
-                                log.addLog('success', 'proxy', result.message, result.details);
-                              } else {
-                                toast.showToast('error', 'Proxy Test Failed', result.message);
-                                log.addLog('error', 'proxy', result.message, result.details);
-                              }
-                            }}
-                          >
-                            Test Proxy
-                          </button>
-                        </div>
-                        <small style={{ color: 'var(--text-muted, rgba(255, 255, 255, 0.66))' }}>
-                          Proxy will be used for server-side downloads and metadata extraction. TLS certificate verification remains enabled.
-                        </small>
-                      </>
+                      <div className="ld-runtime-actions">
+                        <button
+                          type="button"
+                          className="ld-button ld-button-secondary"
+                          onClick={async () => {
+                            const { testHttpProxy } = await import('@/utils/systemCheck');
+                            const result = await testHttpProxy(httpProxy);
+                            if (result.success) {
+                              toast.showToast('success', 'Proxy Test', result.message);
+                              log.addLog('success', 'proxy', result.message, result.details);
+                            } else {
+                              toast.showToast('error', 'Proxy Test Failed', result.message);
+                              log.addLog('error', 'proxy', result.message, result.details);
+                            }
+                          }}
+                        >
+                          Test proxy
+                        </button>
+                        <span>Proxy credentials stay on the server; TLS verification remains enabled.</span>
+                      </div>
                     )}
                   </div>
+                )}
+              </section>
+            )}
+
+            <section className="ld-summary" aria-label="Download queue summary">
+              <article className="ld-stat-card"><span className="ld-stat-label">In queue</span><strong>{queue.stats.total}</strong><span className="ld-stat-caption">all downloads</span></article>
+              <article className="ld-stat-card"><span className="ld-stat-label">Active</span><strong>{activeDownloadCount}</strong><span className="ld-stat-caption">running on Stash</span></article>
+              <article className="ld-stat-card"><span className="ld-stat-label">Completed</span><strong>{queue.stats.complete}</strong><span className="ld-stat-caption">saved to your library</span></article>
+              <article className="ld-stat-card"><span className="ld-stat-label">Needs attention</span><strong>{queueReviewCount}</strong><span className="ld-stat-caption">failed or cancelled</span></article>
+            </section>
+
+            <section className="ld-queue-workspace" aria-labelledby="ld-queue-heading">
+              <div className="ld-queue-heading">
+                <div>
+                  <p className="ld-eyebrow">DOWNLOAD WORKSPACE</p>
+                  <h2 id="ld-queue-heading">Queue <span>{visibleQueueItems.length} of {queue.stats.total}</span></h2>
+                </div>
+                <div className="ld-queue-actions">
+                  {queue.items.length > 0 && (
+                    <>
+                      <button
+                        type="button"
+                        className="ld-button ld-button-primary"
+                        onClick={() => {
+                          if (autoImportPending) {
+                            handleBatchAutoImport();
+                          } else {
+                            const firstPending = queue.items.find(item => item.status === DownloadStatus.Pending);
+                            if (firstPending) setEditingItem(firstPending);
+                          }
+                        }}
+                        disabled={queue.stats.pending === 0 || isBatchImporting}
+                        title={autoImportPending ? 'Download and import all pending items' : 'Review and import pending items individually'}
+                      >
+                        {isBatchImporting
+                          ? "Importing " + batchImportProgress.current + " of " + batchImportProgress.total + "…"
+                          : autoImportPending
+                            ? "Import all · " + queue.stats.pending
+                            : "Review pending · " + queue.stats.pending}
+                      </button>
+                      {isBatchImporting && (
+                        <button type="button" className="ld-button ld-button-danger" onClick={handleCancelBatchImport}>Cancel imports</button>
+                      )}
+                      <button type="button" className="ld-button ld-button-secondary" onClick={queue.clearCompleted} disabled={queue.stats.complete === 0}>Clear completed</button>
+                      <button type="button" className="ld-button ld-button-danger-quiet" onClick={handleClearAll} disabled={isBatchImporting}>Clear queue</button>
+                    </>
+                  )}
+                </div>
+              </div>
+
+              <div className="ld-queue-controls">
+                <div className="ld-queue-filters" role="group" aria-label="Filter queue by status">
+                  {QUEUE_STATUS_FILTERS.map(filter => (
+                    <button
+                      key={filter.id}
+                      type="button"
+                      className="ld-queue-filter"
+                      aria-pressed={queueStatusFilter === filter.id}
+                      onClick={() => setQueueStatusFilter(filter.id)}
+                    >
+                      {filter.label}<span>{queueFilterCounts[filter.id]}</span>
+                    </button>
+                  ))}
+                </div>
+                <label className="ld-queue-search">
+                  <svg viewBox="0 0 24 24" aria-hidden="true"><circle cx="10.8" cy="10.8" r="6.4" /><path d="m16 16 4.5 4.5" /></svg>
+                  <input
+                    type="search"
+                    value={queueSearch}
+                    onChange={event => setQueueSearch(event.target.value)}
+                    placeholder="Search titles and URLs"
+                    aria-label="Search downloads by title or URL"
+                  />
+                </label>
+              </div>
+
+              <div className="ld-queue-preferences">
+                <button
+                  type="button"
+                  className="ld-preference-toggle"
+                  aria-pressed={settings.showThumbnailPreviews}
+                  onClick={() => updateSettings({ showThumbnailPreviews: !settings.showThumbnailPreviews })}
+                >
+                  {settings.showThumbnailPreviews ? 'Previews on' : 'Previews off'}
+                </button>
+                <button
+                  type="button"
+                  className="ld-preference-toggle"
+                  aria-pressed={activeImportProfile.autoImport}
+                  title={"Auto-import is " + (activeImportProfile.autoImport ? 'on' : 'off') + " for the " + activeImportProfile.name + " profile"}
+                  onClick={() => updateActiveProfile({ autoImport: !activeImportProfile.autoImport })}
+                >
+                  {activeImportProfile.autoImport ? 'Auto-import on' : 'Auto-import off'}
+                </button>
+                <label className="ld-log-level">
+                  Log detail
+                  <select
+                    className="form-select"
+                    value={settings.logLevel}
+                    onChange={event => updateSettings({ logLevel: event.target.value as IPluginSettings['logLevel'] })}
+                  >
+                    <option value="off">Off</option>
+                    <option value="error">Errors</option>
+                    <option value="warning">Warnings</option>
+                    <option value="info">Info</option>
+                    <option value="debug">Debug</option>
+                  </select>
+                </label>
+              </div>
+
+              {queue.items.length === 0 ? (
+                <div className="ld-empty-state">
+                  <div className="ld-empty-art" aria-hidden="true">
+                    <svg viewBox="0 0 96 96" fill="none"><path d="M22 16h35l18 18v43a5 5 0 0 1-5 5H27a5 5 0 0 1-5-5V21a5 5 0 0 1 5-5Z" /><path d="M57 17v18h17M34 51h28M34 62h19" /><circle cx="65" cy="66" r="16" /><path d="m76 78 9 9m-20-22v8m-4-4h8" /></svg>
+                  </div>
+                  <p className="ld-eyebrow">READY WHEN YOU ARE</p>
+                  <h2>No downloads in your queue yet.</h2>
+                  <p>Add a URL above to inspect its media, select an import profile, then review it before adding it to Stash.</p>
+                </div>
+              ) : visibleQueueItems.length === 0 ? (
+                <div className="ld-empty-results">
+                  <strong>No queue items match this view.</strong>
+                  <span>Try another status filter or search term.</span>
+                  <button
+                    type="button"
+                    className="ld-button ld-button-secondary"
+                    onClick={() => { setQueueSearch(''); setQueueStatusFilter('all'); }}
+                  >
+                    Clear filters
+                  </button>
+                </div>
+              ) : (
+                <div className="d-flex flex-column gap-2 ld-queue-list">
+                  {visibleQueueItems.map(item => (
+                    <QueueItem
+                      key={item.id}
+                      item={item}
+                      onRemove={queue.removeFromQueue}
+                      onEdit={id => {
+                        const itemToEdit = queue.items.find(candidate => candidate.id === id);
+                        if (itemToEdit) setEditingItem(itemToEdit);
+                      }}
+                      onViewLogs={id => {
+                        const itemToView = queue.items.find(candidate => candidate.id === id);
+                        if (itemToView) setViewingLogsForItem(itemToView);
+                      }}
+                      onRescrapeClick={handleRescrapeClick}
+                      onRetry={handleRetry}
+                      onCancel={handleCancel}
+                      availableScrapers={scraperRegistry.getAvailableScrapersForUrl(item.url, item.metadata?.contentType)}
+                      showThumbnail={settings.showThumbnailPreviews}
+                    />
+                  ))}
                 </div>
               )}
-            </div>
-          )}
-
-          <URLInputForm
-            onSubmit={handleAddUrl}
-            initialValue={urlFieldValue}
-            onValueChange={setUrlFieldValue}
-          />
-
-          <div className="card text-light ld-profile-panel" style={{ backgroundColor: 'var(--glass-bg, rgba(39, 39, 39, 0.90))' }}>
-            <div className="card-body d-flex flex-wrap align-items-center gap-2 py-2">
-              <label htmlFor="importProfileSelect" className="form-label mb-0">Import profile</label>
-              <select
-                id="importProfileSelect"
-                className="form-select form-select-sm"
-                value={activeImportProfile.id}
-                onChange={event => updateSettings({ activeImportProfileId: event.target.value })}
-                style={{ width: 'auto', minWidth: '150px', backgroundColor: 'var(--stash-input-bg)', borderColor: 'var(--stash-border)', color: 'var(--stash-text)' }}
-              >
-                {importProfiles.map(profile => <option key={profile.id} value={profile.id}>{profile.name}</option>)}
-              </select>
-              <button type="button" className="btn btn-sm btn-outline-secondary" onClick={() => setShowImportProfiles(true)}>Manage profiles</button>
-              {urlFieldValue.trim() && profileForCurrentUrl.id !== activeImportProfile.id && (
-                <small className="text-muted">This URL will use “{profileForCurrentUrl.name}” by domain.</small>
-              )}
-              {!urlFieldValue.trim() && <small className="text-muted">Queued items keep a snapshot of their profile.</small>}
-            </div>
-          </div>
-
-          {/* Batch Import */}
-          <div className="mb-3 ld-batch-area">
-            <BatchImport
-              onImport={handleBatchImport}
-              onSingleUrl={(url) => {
-                setUrlFieldValue(url);
-              }}
-            />
-          </div>
-
-          {/* Queue Statistics */}
-          <section className="ld-summary" aria-label="Download queue summary">
-            <article className="ld-stat-card"><span className="ld-stat-label">In queue</span><strong>{queue.stats.total}</strong><span className="ld-stat-caption">all queue items</span></article>
-            <article className="ld-stat-card"><span className="ld-stat-label">Downloading</span><strong>{queue.stats.downloading + queue.stats.processing}</strong><span className="ld-stat-caption">active Stash work</span></article>
-            <article className="ld-stat-card"><span className="ld-stat-label">Completed</span><strong>{queue.stats.complete}</strong><span className="ld-stat-caption">saved to Stash</span></article>
-            <article className="ld-stat-card"><span className="ld-stat-label">Needs review</span><strong>{queue.stats.failed}</strong><span className="ld-stat-caption">failed or interrupted</span></article>
+            </section>
           </section>
 
-          {/* Bulk Actions */}
-          {queue.items.length > 0 && (
-            <div className="d-flex gap-2 mb-3 ld-queue-actions">
-              <button
-                className="btn btn-primary"
-                onClick={() => {
-                  if (autoImportPending) {
-                    // Auto-import: process all pending items without edit modal
-                    handleBatchAutoImport();
-                  } else {
-                    // Manual: open edit modal for first pending item
-                    const firstPending = queue.items.find(item => item.status === DownloadStatus.Pending);
-                    if (firstPending) setEditingItem(firstPending);
-                  }
-                }}
-                disabled={queue.stats.pending === 0 || isBatchImporting}
-                title={autoImportPending
-                  ? 'Download and import all pending items without editing'
-                  : 'Review and import each item individually'
-                }
-              >
-                {isBatchImporting
-                  ? `⏳ Importing ${batchImportProgress.current}/${batchImportProgress.total}...`
-                  : autoImportPending
-                    ? `⚡ Import All (${queue.stats.pending} items)`
-                    : `📝 Edit & Import (${queue.stats.pending} items)`
-                }
-              </button>
-              {isBatchImporting && (
-                <button
-                  className="btn btn-danger btn-sm"
-                  onClick={handleCancelBatchImport}
-                  title="Cancel all active downloads"
-                >
-                  ⏹️ Cancel All
-                </button>
-              )}
-              <button
-                className="btn btn-outline-secondary btn-sm"
-                onClick={queue.clearCompleted}
-                disabled={queue.stats.complete === 0}
-              >
-                Clear Completed
-              </button>
-              <button
-                className="btn btn-outline-danger btn-sm"
-                onClick={handleClearAll}
-                disabled={isBatchImporting}
-                title="Cancel active jobs and clear all items from queue"
-              >
-                Clear All
-              </button>
-            </div>
-          )}
-
-          {/* Queue Toolbar - Preview toggle, Auto-import toggle, and Log level */}
-          <div className="d-flex justify-content-between align-items-center mb-2 px-2 ld-queue-toolbar">
-            <div className="d-flex align-items-center gap-2">
-              <button
-                type="button"
-                className={`btn btn-sm ${settings.showThumbnailPreviews ? 'btn-success' : 'btn-outline-secondary'}`}
-                onClick={() => updateSettings({ showThumbnailPreviews: !settings.showThumbnailPreviews })}
-                style={{ minWidth: '140px' }}
-              >
-                {settings.showThumbnailPreviews ? '🖼️ Thumbnails On' : '🖼️ Thumbnails Off'}
-              </button>
-              <button
-                type="button"
-                className={`btn btn-sm ${activeImportProfile.autoImport ? 'btn-primary' : 'btn-outline-secondary'}`}
-                onClick={() => updateActiveProfile({ autoImport: !activeImportProfile.autoImport })}
-                title={activeImportProfile.autoImport
-                  ? `Auto-import is on for the ${activeImportProfile.name} profile`
-                  : `Auto-import is off for the ${activeImportProfile.name} profile`
-                }
-                style={{ minWidth: '140px' }}
-              >
-                {activeImportProfile.autoImport ? '⚡ Auto-Import On' : '⚡ Auto-Import Off'}
-              </button>
-            </div>
-            <div className="d-flex align-items-center gap-2">
-              <label className="form-label mb-0 text-light" htmlFor="logLevelSelect" style={{ fontSize: '0.85em' }}>
-                Log Level:
-              </label>
-              <select
-                id="logLevelSelect"
-                className="form-select form-select-sm"
-                style={{ backgroundColor: 'var(--mica-elevated, #292929)', borderColor: 'var(--glass-border, rgba(255, 255, 255, 0.09))', color: 'var(--text, rgba(255, 255, 255, 0.94))', width: 'auto' }}
-                value={settings.logLevel}
-                onChange={(e) => updateSettings({ logLevel: e.target.value as IPluginSettings['logLevel'] })}
-              >
-                <option value="off">Off</option>
-                <option value="error">Error</option>
-                <option value="warning">Warning</option>
-                <option value="info">Info</option>
-                <option value="debug">Debug</option>
-              </select>
-            </div>
-          </div>
-
-          {/* Queue Items */}
-          {queue.items.length === 0 ? (
-            <div className="ld-empty-state">
-              <div className="ld-empty-art" aria-hidden="true">
-                <svg viewBox="0 0 96 96" fill="none"><path d="M22 16h35l18 18v43a5 5 0 0 1-5 5H27a5 5 0 0 1-5-5V21a5 5 0 0 1 5-5Z" /><path d="M57 17v18h17M34 51h28M34 62h19" /><circle cx="65" cy="66" r="16" /><path d="m76 78 9 9m-20-22v8m-4-4h8" /></svg>
+          <section
+            id="downloader-activity-panel"
+            className="ld-workspace-panel ld-activity-workspace"
+            role="tabpanel"
+            aria-labelledby="downloader-activity-tab"
+            hidden={activeWorkspace !== 'activity'}
+          >
+            <div className="ld-module-heading">
+              <div>
+                <p className="ld-eyebrow">RECENT EVENTS</p>
+                <h2>Activity</h2>
+                <p>Review metadata scraping, downloads, imports, recovery checks, and server task results.</p>
               </div>
-              <p className="ld-eyebrow">READY WHEN YOU ARE</p>
-              <h2>No downloads in your queue yet.</h2>
-              <p>Add a media URL above to scrape its details, choose an import profile, and prepare it for Stash.</p>
             </div>
-          ) : (
-            <div className="d-flex flex-column gap-2 ld-queue-list">
-              {queue.items.map((item) => (
-                <QueueItem
-                  key={item.id}
-                  item={item}
-                  onRemove={queue.removeFromQueue}
-                  onEdit={(id) => {
-                    // Find item and open edit modal
-                    const itemToEdit = queue.items.find((i) => i.id === id);
-                    if (itemToEdit) {
-                      setEditingItem(itemToEdit);
-                    }
-                  }}
-                  onViewLogs={(id) => {
-                    // Find item and open logs modal
-                    const itemToView = queue.items.find((i) => i.id === id);
-                    if (itemToView) {
-                      setViewingLogsForItem(itemToView);
-                    }
-                  }}
-                  onRescrapeClick={handleRescrapeClick}
-                  onRetry={handleRetry}
-                  onCancel={handleCancel}
-                  availableScrapers={scraperRegistry.getAvailableScrapersForUrl(item.url, item.metadata?.contentType)}
-                  showThumbnail={settings.showThumbnailPreviews}
-                />
-              ))}
-            </div>
-          )}
-
-          {/* Activity Log */}
-          <LogViewer />
+            <LogViewer maxHeight="min(64vh, 720px)" />
+          </section>
         </div>
-      </div>
-
+      </main>
       {/* Edit Metadata Modal */}
       <EditMetadataModal
         item={editingItem}

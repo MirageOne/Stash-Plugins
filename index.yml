@@ -1,12 +1,12 @@
 - id: library-doctor
   name: Library Doctor
-  version: 1.6.8
-  date: "2026-11-07 23:06:48"
-  path: packages/library-doctor/1.6.8.zip
-  sha256: 305b39e6183aee75ef562c2cda3d4e02783b9c4f11d0d5b1cec9df6f9790f00c
+  version: 1.6.9
+  date: "2026-11-07 23:24:21"
+  path: packages/library-doctor/1.6.9.zip
+  sha256: abe588e254ddf220bc3d5ee94049a306f8f91e014419117b6efcc711dff0afc4
   requires: []
   metadata:
-    description: Theme-adaptive library health checks, FFmpeg encoding audit and re-encoding, metadata assistance, scraping, tagging, and duplicate/version review with full file details, resolution-based keep recommendations, primary-file selection, and non-primary file deletion.
+    description: Theme-adaptive library health checks, FFmpeg encoding audit and re-encoding, metadata assistance, scraping, tagging, and duplicate/version review with full file details, resolution-based keep recommendations, explicit keep selection, and confirmed scene plus file removal.
 - id: stash-downloader
   name: Stash Downloader
   version: 0.6.6

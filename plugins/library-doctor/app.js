@@ -24,6 +24,7 @@
     var TAG_CREATE_MUTATION = "mutation LibraryDoctorCreateTag($input: TagCreateInput!) { tagCreate(input: $input) { id name aliases } }";
     var DELETE_FILES_MUTATION = "mutation LibraryDoctorDeleteDuplicateFile($ids: [ID!]!) { deleteFiles(ids: $ids) }";
     var SET_PRIMARY_FILE_MUTATION = "mutation LibraryDoctorSetPrimaryFile($input: SceneUpdateInput!) { sceneUpdate(input: $input) { id files { id } } }";
+    var DELETE_SCENE_MUTATION = "mutation LibraryDoctorDeleteDuplicateScene($input: SceneDestroyInput!) { sceneDestroy(input: $input) }";
     var QUERY = "query LibraryDoctorScenes($page: Int!, $perPage: Int!) { " +
         "findScenes(filter: { page: $page, per_page: $perPage, sort: \"title\", direction: ASC }) { " +
         "count scenes { id title date organized files { id path size duration ... on VideoFile { format width height video_codec audio_codec frame_rate bit_rate } } " +
@@ -52,6 +53,8 @@
     var undoStack = [];
     var reviewedDuplicateKeys = loadReviewedDuplicateKeys();
     var showReviewedDuplicates = false;
+    var duplicateKeepers = Object.create(null);
+    var duplicateBusyGroups = Object.create(null);
     var scrapers = [];
     var configuredScraperCount = 0;
     var scrapersLoaded = false;
@@ -483,6 +486,34 @@
             : { entry: null, reason: "No clear recommendation: the available file details are tied or incomplete. Compare the files manually." };
     }
 
+    function getDuplicateKeeper(group) {
+        if (!group || !group.key) { return null; }
+        var keeper = duplicateKeepers[group.key];
+        if (!keeper) { return null; }
+        var stillAvailable = group.scenes.some(function (scene) {
+            return String(scene.id) === String(keeper.sceneId) && (scene.files || []).some(function (file) {
+                return String(file.id) === String(keeper.fileId);
+            });
+        });
+        if (!stillAvailable) {
+            delete duplicateKeepers[group.key];
+            return null;
+        }
+        return keeper;
+    }
+
+    function isDuplicateKeeper(group, scene, file) {
+        var keeper = getDuplicateKeeper(group);
+        return !!(keeper && scene && file && String(keeper.sceneId) === String(scene.id) && String(keeper.fileId) === String(file.id));
+    }
+
+    function selectDuplicateKeeper(group, scene, file) {
+        if (!group || !scene || !file || !file.id || duplicateBusyGroups[group.key]) { return; }
+        duplicateKeepers[group.key] = { sceneId: String(scene.id), fileId: String(file.id) };
+        renderDuplicateGroups();
+        showStatus("Selected “" + (fileBasename(file.path) || "file") + "” to keep for “" + group.title + "”.");
+    }
+
     function setPrimarySceneFile(scene, file, button) {
         if (!scene || !scene.id || !file || !file.id || button.disabled || isPrimarySceneFile(scene, file)) { return; }
         button.disabled = true;
@@ -521,8 +552,35 @@
         });
     }
 
-    function deleteDuplicateFile(scene, file, button) {
-        if (!file || !file.id || button.disabled) { return; }
+    function removeDuplicateFileFromResults(file) {
+        results.forEach(function (scene) {
+            var previousLength = scene.files.length;
+            scene.files = scene.files.filter(function (candidate) { return String(candidate.id) !== String(file.id); });
+            if (scene.files.length === previousLength) { return; }
+            scene._doctorIssues = scene._doctorIssues.filter(function (issue) { return issue.label !== "No file reference"; });
+            if (!scene.files.some(function (candidate) { return candidate && String(candidate.path || "").trim(); })) {
+                addIssue(scene, "No file reference", "files");
+            }
+        });
+    }
+
+    function refreshAfterDuplicateRemoval(statusMessage) {
+        encodingFilesForResults = null;
+        encodingFiles = [];
+        render();
+        showStatus(statusMessage);
+    }
+
+    function deleteDuplicateFile(group, scene, file, button) {
+        if (!group || !file || !file.id || button.disabled || duplicateBusyGroups[group.key]) { return; }
+        if (!getDuplicateKeeper(group)) {
+            showError("Choose a file to keep in this duplicate group before deleting another file.");
+            return;
+        }
+        if (isDuplicateKeeper(group, scene, file)) {
+            showError("This file is selected to keep. Choose another file before deleting it.");
+            return;
+        }
         if (isPrimarySceneFile(scene, file)) {
             showError("Stash does not allow deleting a scene's primary file. Set another attached file as primary first.");
             return;
@@ -532,28 +590,17 @@
         if (!confirmed) { return; }
         button.disabled = true;
         button.textContent = "Deleting…";
+        duplicateBusyGroups[group.key] = { sceneId: String(scene.id), fileId: String(file.id) };
+        renderDuplicateGroups();
         clearError();
         graphQLRequest(DELETE_FILES_MUTATION, { ids: [String(file.id)] }).then(function (data) {
             if (data.deleteFiles !== true) { throw new Error("Stash did not confirm deleting the file."); }
-            var removedFromScan = false;
-            results.forEach(function (scene) {
-                var previousLength = scene.files.length;
-                scene.files = scene.files.filter(function (candidate) { return String(candidate.id) !== String(file.id); });
-                if (scene.files.length === previousLength) { return; }
-                removedFromScan = true;
-                scene._doctorIssues = scene._doctorIssues.filter(function (issue) { return issue.label !== "No file reference"; });
-                if (!scene.files.some(function (candidate) { return candidate && String(candidate.path || "").trim(); })) {
-                    addIssue(scene, "No file reference", "files");
-                }
-            });
-            encodingFilesForResults = null;
-            encodingFiles = [];
-            render();
-            var statusMessage = removedFromScan
-                ? "Deleted " + path + " from Stash."
-                : "Deleted " + path + ". Run Health Check again to refresh the review results.";
-            showStatus(statusMessage);
+            removeDuplicateFileFromResults(file);
+            delete duplicateBusyGroups[group.key];
+            refreshAfterDuplicateRemoval("Deleted " + path + " from Stash.");
         }).catch(function (error) {
+            delete duplicateBusyGroups[group.key];
+            renderDuplicateGroups();
             var message = error && error.message ? error.message : String(error);
             var errorMessage = /cannot delete primary file/i.test(message)
                 ? "Could not delete " + path + ": Stash considers this the primary file. Refresh the health check, set another attached file as primary, then try again."
@@ -563,6 +610,60 @@
             if (button.isConnected) {
                 button.disabled = false;
                 button.textContent = "Delete file";
+            }
+        });
+    }
+
+    function deleteDuplicateSceneAndFile(group, scene, file, button) {
+        if (!group || !scene || !scene.id || !file || !file.id || button.disabled || duplicateBusyGroups[group.key]) { return; }
+        if (!getDuplicateKeeper(group)) {
+            showError("Choose a file to keep in this duplicate group before deleting another scene and file.");
+            return;
+        }
+        if (isDuplicateKeeper(group, scene, file)) {
+            showError("This file is selected to keep. Choose another file before deleting its scene.");
+            return;
+        }
+        if ((scene.files || []).length !== 1 || !isPrimarySceneFile(scene, file)) {
+            showError("This action is only available for a scene with one primary file. For scenes with multiple files, set a different file as primary first.");
+            return;
+        }
+        var path = String(file.path || "").trim() || ("file ID " + file.id);
+        var title = String(scene.title || "Untitled scene");
+        var confirmed = window.confirm("Delete this duplicate scene and its file from Stash?\n\nScene: " + title + "\nFile: " + path + "\n\nThis permanently deletes the entire scene record, its metadata, and its attached file from disk. This review has no undo.");
+        if (!confirmed) { return; }
+        button.disabled = true;
+        button.textContent = "Deleting…";
+        duplicateBusyGroups[group.key] = { sceneId: String(scene.id), fileId: String(file.id) };
+        renderDuplicateGroups();
+        clearError();
+        graphQLRequest(DELETE_SCENE_MUTATION, { input: { id: String(scene.id), delete_file: true } }).then(function (data) {
+            if (data.sceneDestroy !== true) { throw new Error("Stash did not confirm deleting the scene and file."); }
+            var keeper = getDuplicateKeeper(group);
+            delete duplicateBusyGroups[group.key];
+            results = results.filter(function (candidate) { return String(candidate.id) !== String(scene.id); });
+            delete duplicateKeepers[group.key];
+            if (keeper) {
+                buildDuplicateGroups(results).some(function (nextGroup) {
+                    var keeperStillPresent = nextGroup.scenes.some(function (candidate) {
+                        return String(candidate.id) === String(keeper.sceneId) && (candidate.files || []).some(function (candidateFile) {
+                            return String(candidateFile.id) === String(keeper.fileId);
+                        });
+                    });
+                    if (!keeperStillPresent) { return false; }
+                    duplicateKeepers[nextGroup.key] = keeper;
+                    return true;
+                });
+            }
+            refreshAfterDuplicateRemoval("Deleted scene “" + title + "” and its file " + path + " from Stash.");
+        }).catch(function (error) {
+            delete duplicateBusyGroups[group.key];
+            renderDuplicateGroups();
+            showError("Could not delete scene “" + title + "” and its file: " + (error && error.message ? error.message : String(error)));
+        }).then(function () {
+            if (button.isConnected) {
+                button.disabled = false;
+                button.textContent = "Delete scene + file";
             }
         });
     }
@@ -644,8 +745,12 @@
                 scene.files.forEach(function (file) {
                     var recommended = recommendation.entry && recommendation.entry.file === file;
                     var primary = isPrimarySceneFile(scene, file);
+                    var keeper = isDuplicateKeeper(group, scene, file);
+                    var hasKeeper = !!getDuplicateKeeper(group);
+                    var busy = duplicateBusyGroups[group.key] || null;
+                    var busyForFile = !!(busy && String(busy.sceneId) === String(scene.id) && String(busy.fileId) === String(file.id));
                     var fileItem = document.createElement("li");
-                    fileItem.className = "ld-duplicate-file-card" + (recommended ? " is-recommended" : "") + (primary ? " is-primary" : "");
+                    fileItem.className = "ld-duplicate-file-card" + (recommended ? " is-recommended" : "") + (primary ? " is-primary" : "") + (keeper ? " is-selected-keeper" : "");
                     var fileDetails = document.createElement("div");
                     fileDetails.className = "ld-duplicate-file-details";
                     var fileName = document.createElement("strong");
@@ -667,6 +772,17 @@
                     fileDetails.append(fileName, fullPath, fileInfo);
                     var fileActions = document.createElement("div");
                     fileActions.className = "ld-duplicate-file-actions";
+                    if (file.id) {
+                        var keepButton = document.createElement("button");
+                        keepButton.className = "ld-keep-file-button";
+                        keepButton.type = "button";
+                        keepButton.textContent = keeper ? "Selected to keep" : "Keep this file";
+                        keepButton.disabled = !!busy;
+                        keepButton.setAttribute("aria-pressed", keeper ? "true" : "false");
+                        keepButton.setAttribute("aria-label", (keeper ? "Selected to keep: " : "Keep this file: ") + (file.path || file.id) + " for " + group.title);
+                        keepButton.addEventListener("click", function () { selectDuplicateKeeper(group, scene, file); });
+                        fileActions.appendChild(keepButton);
+                    }
                     if (recommended) {
                         var keepBadge = document.createElement("span");
                         keepBadge.className = "ld-duplicate-keep-badge";
@@ -676,34 +792,47 @@
                     if (primary) {
                         var primaryBadge = document.createElement("span");
                         primaryBadge.className = "ld-primary-file-badge";
-                        primaryBadge.textContent = "Primary file";
+                        primaryBadge.textContent = "Stash primary · per scene";
                         fileActions.appendChild(primaryBadge);
-                        var primaryHelp = document.createElement("span");
-                        primaryHelp.className = "ld-duplicate-primary-help";
-                        primaryHelp.textContent = scene.files.length > 1
-                            ? "Set another file as primary to enable deletion."
-                            : "Stash protects the scene's only primary file.";
-                        fileActions.appendChild(primaryHelp);
+                        if (scene.files.length > 1) {
+                            var primaryHelp = document.createElement("span");
+                            primaryHelp.className = "ld-duplicate-primary-help";
+                            primaryHelp.textContent = "Set another attached file as primary to enable file-only deletion.";
+                            fileActions.appendChild(primaryHelp);
+                        }
                     } else if (file.id) {
                         var setPrimaryButton = document.createElement("button");
                         setPrimaryButton.className = "ld-set-primary-button";
                         setPrimaryButton.type = "button";
                         setPrimaryButton.textContent = "Set primary";
+                        setPrimaryButton.disabled = !!duplicateBusyGroups[group.key];
                         setPrimaryButton.setAttribute("aria-label", "Set " + (file.path || file.id) + " as the primary file for " + (scene.title || "this scene"));
                         setPrimaryButton.addEventListener("click", function () { setPrimarySceneFile(scene, file, setPrimaryButton); });
                         fileActions.appendChild(setPrimaryButton);
                     }
                     if (file.id) {
                         var deleteButton = document.createElement("button");
-                        deleteButton.className = "ld-delete-file-button";
+                        var deleteWholeScene = primary && scene.files.length === 1;
+                        deleteButton.className = deleteWholeScene ? "ld-delete-file-button ld-delete-scene-file-button" : "ld-delete-file-button";
                         deleteButton.type = "button";
-                        deleteButton.textContent = "Delete file";
-                        deleteButton.disabled = primary;
-                        deleteButton.title = primary ? "Set another file as primary before deleting this file." : "Delete this file from Stash.";
-                        deleteButton.setAttribute("aria-label", primary
-                            ? "Delete file " + (file.path || file.id) + " (disabled while this is primary)"
-                            : "Delete file " + (file.path || file.id));
-                        deleteButton.addEventListener("click", function () { deleteDuplicateFile(scene, file, deleteButton); });
+                        deleteButton.textContent = busyForFile ? "Deleting…" : (deleteWholeScene ? "Delete scene + file" : "Delete file");
+                        deleteButton.disabled = !!busy || keeper || !hasKeeper || (primary && !deleteWholeScene);
+                        deleteButton.title = keeper
+                            ? "This is the file selected to keep."
+                            : (!hasKeeper
+                                ? "Choose a file to keep before deleting a candidate."
+                                : (deleteWholeScene
+                                    ? "Permanently delete this entire scene record and its attached file."
+                                    : (primary ? "Set another attached file as primary before deleting this file." : "Delete this non-primary file from Stash.")));
+                        deleteButton.setAttribute("aria-label", deleteWholeScene
+                            ? "Delete scene " + (scene.title || "untitled") + " and its file " + (file.path || file.id) + (keeper ? " (disabled because selected to keep)" : "")
+                            : (primary
+                                ? "Delete file " + (file.path || file.id) + " (disabled while this is primary)"
+                                : "Delete file " + (file.path || file.id) + (keeper ? " (disabled because selected to keep)" : "")));
+                        deleteButton.addEventListener("click", function () {
+                            if (deleteWholeScene) { deleteDuplicateSceneAndFile(group, scene, file, deleteButton); }
+                            else { deleteDuplicateFile(group, scene, file, deleteButton); }
+                        });
                         fileActions.appendChild(deleteButton);
                     } else {
                         var deleteUnavailable = document.createElement("span");

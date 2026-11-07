@@ -278,12 +278,17 @@ h1, h2, p { margin-top: 0; }
 .ld-duplicate-files { display: grid; gap: 7px; margin: 0; padding: 0; list-style: none; }
 .ld-duplicate-file-card { display: flex; align-items: flex-start; justify-content: space-between; gap: 12px; min-width: 0; padding: 9px 10px; border: 1px solid var(--ld-border); border-radius: 7px; background: color-mix(in srgb, var(--ld-surface-strong), transparent 22%); }
 .ld-duplicate-file-card.is-recommended { border-color: color-mix(in srgb, var(--ld-green), transparent 58%); background: color-mix(in srgb, var(--ld-green), transparent 94%); }
+.ld-duplicate-file-card.is-selected-keeper { border-color: color-mix(in srgb, var(--ld-green), transparent 35%); box-shadow: inset 3px 0 0 var(--ld-green); }
 .ld-duplicate-file-details { display: grid; flex: 1 1 auto; min-width: 0; gap: 3px; }
 .ld-duplicate-file-details strong { color: var(--ld-text); font-size: 0.74rem; overflow-wrap: anywhere; }
 .ld-duplicate-file-path { color: var(--ld-subtle); font-size: 0.66rem; line-height: 1.4; overflow-wrap: anywhere; word-break: break-word; }
 .ld-duplicate-file-info { color: var(--ld-muted); font-size: 0.67rem; line-height: 1.45; overflow-wrap: anywhere; }
 .ld-duplicate-file-actions { display: flex; align-items: flex-end; flex: 0 0 auto; flex-direction: column; gap: 7px; }
 .ld-duplicate-keep-badge { display: inline-flex; align-items: center; min-height: 21px; padding: 0 7px; border: 1px solid color-mix(in srgb, var(--ld-green), transparent 66%); border-radius: 999px; background: color-mix(in srgb, var(--ld-green), transparent 90%); color: var(--ld-green); font-size: 0.63rem; font-weight: 700; white-space: nowrap; }
+.ld-keep-file-button { min-height: 30px; padding: 0 9px; border: 1px solid color-mix(in srgb, var(--ld-accent), transparent 55%); border-radius: 6px; background: var(--ld-accent-soft); color: var(--ld-accent); font-size: 0.69rem; font-weight: 700; white-space: nowrap; cursor: pointer; }
+.ld-keep-file-button:hover { border-color: var(--ld-accent); background: color-mix(in srgb, var(--ld-accent-soft), var(--ld-accent) 12%); }
+.ld-keep-file-button[aria-pressed="true"] { border-color: color-mix(in srgb, var(--ld-green), transparent 45%); background: color-mix(in srgb, var(--ld-green), transparent 88%); color: var(--ld-green); cursor: default; }
+.ld-keep-file-button:focus-visible { outline: 2px solid var(--ld-accent); outline-offset: 2px; }
 .ld-primary-file-badge { display: inline-flex; align-items: center; min-height: 21px; padding: 0 7px; border: 1px solid color-mix(in srgb, var(--ld-accent), transparent 62%); border-radius: 999px; background: var(--ld-accent-soft); color: var(--ld-accent); font-size: 0.63rem; font-weight: 700; white-space: nowrap; }
 .ld-duplicate-primary-help { max-width: 190px; color: var(--ld-subtle); font-size: 0.62rem; line-height: 1.4; text-align: right; }
 .ld-set-primary-button { min-height: 30px; padding: 0 9px; border: 1px solid color-mix(in srgb, var(--ld-accent), transparent 55%); border-radius: 6px; background: var(--ld-accent-soft); color: var(--ld-accent); font-size: 0.69rem; font-weight: 700; white-space: nowrap; cursor: pointer; }
@@ -294,6 +299,7 @@ h1, h2, p { margin-top: 0; }
 .ld-delete-file-button:hover:not(:disabled) { border-color: var(--ld-red); background: color-mix(in srgb, var(--ld-red), transparent 78%); }
 .ld-delete-file-button:disabled { opacity: 0.42; cursor: not-allowed; }
 .ld-delete-file-button:focus-visible { outline: 2px solid var(--ld-accent); outline-offset: 2px; }
+.ld-delete-scene-file-button { font-weight: 750; }
 .ld-duplicate-delete-unavailable { color: var(--ld-subtle); font-size: 0.65rem; }
 .ld-duplicate-no-files { color: var(--ld-subtle); font-size: 0.69rem; }
 .ld-encoding-workspace { display: grid; gap: 14px; }

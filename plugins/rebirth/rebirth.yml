@@ -1,12 +1,12 @@
 name: Rebirth
-description: Rebirth is a video-first Stash theme with appearance preferences synced to the signed-in Stash account, a selectable one- or two-column mobile scene grid, an accent-responsive Stash box mark, squared accent-aware switches with matching on/off thumb insets, Geist typography, an automatically cycling new-arrivals carousel, Continue Watching, themed native Settings sections and Help modals with inline mobile switches, Rebirth-colored surfaces, and selected-accent navigation, an informational color system tied to the selected accent, a Plugins package-manager toolbar that keeps its filter above fixed action positions, a compact Settings task queue, customizable four-item mobile navigation with an icon-centered More flyout, Rebirth-styled scene and performer pagination with a responsive range summary and page controls, distinct accent-filled tag chips, neutral Tagger result rows, square mobile Tagger include/exclude controls, wrapped performer and tag actions, styled dropdowns and selects, light and dark modes, eight distinct accent colors including blue-green Teal and Red, selected-accent primary buttons, outlined secondary actions, and semantic destructive actions.
-version: 1.1.2
+description: Rebirth is a video-first Stash theme with account-synced appearance preferences, responsive navigation and mobile scene grids, an accent-responsive Stash box mark, custom switches, Geist typography, an automatically cycling carousel, themed Settings and Help, Rebirth-colored filters and controls, responsive pagination, a compact task queue, icon-centered mobile navigation, distinct tag chips, neutral Tagger results, spaced and wrapping performer actions, theme-styled dropdowns and selects, light and dark modes, eight accent colors, selected-accent primary buttons, outlined secondary actions, and semantic destructive actions.
+version: 1.1.3
 url: https://github.com/MirageOne/Stash-Plugins/tree/main/plugins/rebirth
 ui:
   javascript:
-    - rebirth-1.1.2.js
+    - rebirth-1.1.3.js
   css:
-    - css/rebirth-1.1.2.css
+    - css/rebirth-1.1.3.css
   assets:
     /fonts: fonts
     /icons: icons

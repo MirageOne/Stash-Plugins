@@ -270,21 +270,25 @@
               phase === "saved" ? React.createElement(
                 "div",
                 { className: "stash-metadata-image-saved", style: {
-                    display: "flex", flexDirection: "column", alignItems: "center", gap: "1rem",
-                    maxWidth: "560px", margin: "0 auto", textAlign: "center",
+                    display: "flex", flexWrap: "wrap", alignItems: "center", gap: "1rem",
+                    maxWidth: "640px", margin: "0 auto", padding: "1rem",
+                    border: "1px solid var(--bs-border-color, #666)", borderRadius: "0.5rem",
                   } },
                 selectedCandidate ? React.createElement("img", {
                   src: selectedCandidate.url,
                   alt: `Saved performer image from ${selectedCandidate.source_name}`,
                   onError: (event) => { event.currentTarget.style.display = "none"; },
                   style: {
-                    display: "block", width: "100%", maxWidth: "360px", height: "min(42vh, 380px)",
-                    objectFit: "contain", borderRadius: "0.5rem",
+                    display: "block", width: "112px", height: "148px", flex: "0 0 112px",
+                    objectFit: "contain", borderRadius: "0.5rem", background: "var(--bs-tertiary-bg, #202329)",
                   },
                 }) : null,
-                React.createElement("div", { className: "alert alert-success", role: "status",
-                  style: { width: "100%", margin: 0 } }, message),
-                React.createElement("p", { style: { margin: 0 } }, "Reload this page to see the updated performer image."),
+                React.createElement("div", { className: "stash-metadata-image-saved-details",
+                  style: { flex: "1 1 220px", minWidth: 0 } },
+                  React.createElement("div", { className: "alert alert-success", role: "status",
+                    style: { marginBottom: "0.75rem" } }, message),
+                  React.createElement("p", { style: { margin: 0 } }, "Reload this page to see the updated performer image."),
+                ),
               ) : React.createElement(
                 React.Fragment,
                 null,

@@ -1,6 +1,6 @@
 name: Stash Metadata Sync
 description: Synchronize performer metadata and highest-resolution images, favorites, tags, scene markers, and ThePornDB movie groups.
-version: 1.0.3
+version: 1.0.4
 url: https://github.com/MirageOne/Stash-Plugins/tree/main/plugins/stash-metadata-sync
 interface: raw
 exec:

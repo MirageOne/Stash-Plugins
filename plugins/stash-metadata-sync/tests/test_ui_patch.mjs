@@ -137,7 +137,12 @@ test("saved image view replaces the chooser and stale current-image preview", as
   const savedView = elements.find((element) => element.props.className === "stash-metadata-image-saved");
   assert.ok(savedView);
   assert.ok(elements.some((element) => element.type === "h5" && textContent(element) === "Image saved"));
-  assert.ok(elements.some((element) => element.type === "img" && element.props.src === candidate.url));
+  const savedImage = elements.find((element) => element.type === "img" && element.props.src === candidate.url);
+  assert.ok(savedImage);
+  assert.equal(savedView.props.style.display, "flex");
+  assert.equal(savedView.props.style.flexWrap, "wrap");
+  assert.equal(savedImage.props.style.width, "112px");
+  assert.equal(savedImage.props.style.height, "148px");
   assert.ok(!elements.some((element) => element.props.className === "stash-metadata-current-image"));
   assert.ok(!elements.some((element) => textContent(element).includes("Choose one of the configured StashBox images")));
   assert.ok(elements.some((element) => element.type === "button" && textContent(element) === "Done"));

@@ -1,6 +1,6 @@
 name: Stash Metadata Sync
-description: Synchronize performer metadata and favorites, tag metadata and scene tags, and ThePornDB scene markers and movie groups.
-version: 1.0.1
+description: Synchronize performer metadata and highest-resolution images, favorites, tags, scene markers, and ThePornDB movie groups.
+version: 1.0.2
 url: https://github.com/MirageOne/Stash-Plugins/tree/main/plugins/stash-metadata-sync
 interface: raw
 exec:
@@ -42,7 +42,19 @@ settings:
     type: BOOLEAN
   performerImageUpdate:
     displayName: Update Performer Images
-    description: Import a source image when enabled, respecting the overwrite setting.
+    description: Import the highest-resolution image across configured sources when enabled, respecting the overwrite setting and quality threshold.
+    type: BOOLEAN
+  imageMinimumMegapixels:
+    displayName: Minimum Performer Image Size (Megapixels)
+    description: Skip source images smaller than this pixel count; the default 0.5 MP avoids importing small thumbnails.
+    type: NUMBER
+  imageMinimumLongEdge:
+    displayName: Minimum Performer Image Long Edge (Pixels)
+    description: Skip source images whose longest edge is shorter than this value.
+    type: NUMBER
+  replaceUnmeasurableImages:
+    displayName: Replace Images With Unknown Resolution
+    description: Allow an image upgrade when Stash cannot read the current image dimensions. Off by default to avoid replacing a sharper image blindly.
     type: BOOLEAN
   autoCreatePerformers:
     displayName: Create Missing Performers
@@ -90,6 +102,14 @@ tasks:
     description: Fill or refresh performer metadata from matching configured StashBox records.
     defaultArgs:
       mode: update_all_performers
+  - name: Preview Performer Image Upgrades
+    description: Compare performer images from all configured StashBoxes with current local image dimensions without changing any images.
+    defaultArgs:
+      mode: preview_performer_images
+  - name: Sync Highest-Quality Performer Images
+    description: Import the best available image across configured StashBoxes when it meets the quality threshold and improves on the current image.
+    defaultArgs:
+      mode: sync_performer_images
   - name: Sync All Tag Metadata
     description: Update matched local tags from configured StashBox tags; descriptions are preserved unless overwrite is enabled and aliases are merged.
     defaultArgs:

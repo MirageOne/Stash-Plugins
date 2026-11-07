@@ -3,6 +3,7 @@
 
 from __future__ import annotations
 
+import base64
 import hashlib
 import json
 import math
@@ -24,10 +25,12 @@ TAG_PAGE_SIZE = 1000
 MAX_TAG_PAGES = 500
 SCENE_BATCH_SIZE = 100
 DRY_RUN_SCENE_LIMIT = 200
+MAX_IMAGE_INSPECTION_BYTES = 8 * 1024 * 1024
+MAX_GROUP_IMAGE_BYTES = 10 * 1024 * 1024
 PROGRESS_PREFIX = "\x01p\x02"
 INFO_PREFIX = "\x01i\x02"
 TPDB_API_BASE = "https://api.theporndb.net/scenes/"
-USER_AGENT = "MirageOne-Stash-Metadata-Sync/1.0.1"
+USER_AGENT = "MirageOne-Stash-Metadata-Sync/1.0.2"
 LOCAL_PERFORMER_FIELDS = """
   id name disambiguation alias_list gender urls birthdate death_date ethnicity country
   eye_color hair_color height_cm measurements fake_tits career_start career_end
@@ -64,6 +67,26 @@ class PluginError(RuntimeError):
     pass
 
 
+def is_tpdb_image_url(value: str) -> bool:
+    try:
+        parsed = urllib.parse.urlsplit(str(value or "").strip())
+        host = (parsed.hostname or "").lower().rstrip(".")
+    except ValueError:
+        return False
+    return (parsed.scheme.lower() == "https" and not parsed.username and not parsed.password
+            and (host == "theporndb.net" or host.endswith(".theporndb.net")))
+
+
+class TPDBImageRedirectHandler(urllib.request.HTTPRedirectHandler):
+    """Keep cover-image redirects inside the trusted ThePornDB image domain."""
+
+    def redirect_request(self, request, file_pointer, code, message, headers, new_url):
+        if not is_tpdb_image_url(new_url):
+            raise urllib.error.HTTPError(request.full_url, code, "image redirect left the ThePornDB domain", headers,
+                                         file_pointer)
+        return super().redirect_request(request, file_pointer, code, message, headers, new_url)
+
+
 def report_progress(completed: int, total: int) -> None:
     """Send progress using Stash's raw-plugin stderr protocol, not a plain error log."""
     if total <= 0:
@@ -77,6 +100,104 @@ def log_info(message: str) -> None:
     safe_message = re.sub(r"\s+", " ", re.sub(r"[\x00-\x1f\x7f]", " ", str(message))).strip()
     if safe_message:
         print(f"{INFO_PREFIX}{safe_message[:1000]}", file=sys.stderr, flush=True)
+
+
+def image_dimensions_from_bytes(data: bytes) -> tuple[int, int] | None:
+    """Read dimensions from common image headers without adding a package dependency."""
+    if data.startswith(b"\x89PNG\r\n\x1a\n") and len(data) >= 24:
+        return int.from_bytes(data[16:20], "big"), int.from_bytes(data[20:24], "big")
+    if data[:3] == b"GIF" and len(data) >= 10:
+        return int.from_bytes(data[6:8], "little"), int.from_bytes(data[8:10], "little")
+    if data.startswith(b"RIFF") and data[8:12] == b"WEBP":
+        chunk = data[12:16]
+        if chunk == b"VP8X" and len(data) >= 30:
+            width = 1 + int.from_bytes(data[24:27], "little")
+            height = 1 + int.from_bytes(data[27:30], "little")
+            return width, height
+        if chunk == b"VP8 " and len(data) >= 30 and data[23:26] == b"\x9d\x01\x2a":
+            width = int.from_bytes(data[26:28], "little") & 0x3FFF
+            height = int.from_bytes(data[28:30], "little") & 0x3FFF
+            return width, height
+        if chunk == b"VP8L" and len(data) >= 25 and data[20] == 0x2F:
+            bits = int.from_bytes(data[21:25], "little")
+            return 1 + (bits & 0x3FFF), 1 + ((bits >> 14) & 0x3FFF)
+    if data.startswith(b"\xff\xd8"):
+        sof_markers = {0xC0, 0xC1, 0xC2, 0xC3, 0xC5, 0xC6, 0xC7,
+                       0xC9, 0xCA, 0xCB, 0xCD, 0xCE, 0xCF}
+        offset = 2
+        while offset + 4 <= len(data):
+            if data[offset] != 0xFF:
+                offset += 1
+                continue
+            while offset < len(data) and data[offset] == 0xFF:
+                offset += 1
+            if offset >= len(data):
+                break
+            marker = data[offset]
+            offset += 1
+            if marker in {0xD8, 0xD9, 0x01, *range(0xD0, 0xD8)}:
+                continue
+            if offset + 2 > len(data):
+                break
+            segment_length = int.from_bytes(data[offset:offset + 2], "big")
+            if segment_length < 2 or offset + segment_length > len(data):
+                break
+            if marker in sof_markers and segment_length >= 7:
+                height = int.from_bytes(data[offset + 3:offset + 5], "big")
+                width = int.from_bytes(data[offset + 5:offset + 7], "big")
+                return width, height
+            if marker == 0xDA:
+                break
+            offset += segment_length
+    return None
+
+
+def group_image_mime_type(data: bytes) -> str | None:
+    """Identify formats supported by Stash before embedding a downloaded cover."""
+    if data.startswith(b"\x89PNG\r\n\x1a\n"):
+        return "image/png"
+    if data.startswith(b"\xff\xd8\xff"):
+        return "image/jpeg"
+    if data.startswith((b"GIF87a", b"GIF89a")):
+        return "image/gif"
+    if data.startswith(b"RIFF") and data[8:12] == b"WEBP":
+        return "image/webp"
+    return None
+
+
+def is_group_image_error(error: Exception) -> bool:
+    return "image" in str(error).casefold()
+
+
+def image_dimensions(image: dict[str, Any]) -> tuple[int, int] | None:
+    try:
+        width = int(image.get("width") or 0)
+        height = int(image.get("height") or 0)
+    except (TypeError, ValueError):
+        return None
+    return (width, height) if width > 0 and height > 0 else None
+
+
+def image_quality_key(width: int, height: int) -> tuple[int, int, int]:
+    return width * height, min(width, height), max(width, height)
+
+
+def image_candidate_id(endpoint: str, url: str, width: int, height: int) -> str:
+    material = json.dumps([normalize_endpoint(endpoint), url, width, height], separators=(",", ":"))
+    return hashlib.sha256(material.encode()).hexdigest()[:24]
+
+
+def image_meets_quality_minimum(width: int, height: int, settings: dict[str, Any]) -> bool:
+    try:
+        minimum_megapixels = float(settings.get("imageMinimumMegapixels", 0.5))
+        minimum_long_edge = int(settings.get("imageMinimumLongEdge", 800))
+    except (TypeError, ValueError):
+        minimum_megapixels, minimum_long_edge = 0.5, 800
+    if not math.isfinite(minimum_megapixels):
+        minimum_megapixels = 0.5
+    minimum_megapixels = max(0.0, minimum_megapixels)
+    minimum_long_edge = max(0, minimum_long_edge)
+    return width * height >= minimum_megapixels * 1_000_000 and max(width, height) >= minimum_long_edge
 
 
 def normalize_endpoint(value: Any) -> str:
@@ -601,10 +722,73 @@ class LocalStash:
         scheme = str(server_connection.get("Scheme") or "http")
         host = str(server_connection.get("Host") or "localhost")
         port = server_connection.get("Port") or 9999
-        self.endpoint = f"{scheme}://{host}:{port}/graphql"
+        self.base_url = f"{scheme}://{host}:{port}"
+        self.endpoint = f"{self.base_url}/graphql"
         session_cookie = server_connection.get("SessionCookie") or {}
         self.cookie_name = session_cookie.get("Name") or "session"
         self.cookie = session_cookie.get("Value", "")
+
+    def performer_image_dimensions(self, performer_id: str) -> tuple[int, int] | None:
+        url = f"{self.base_url}/performer/{urllib.parse.quote(str(performer_id), safe='')}"
+        headers = {"Accept": "image/avif,image/webp,image/*,*/*;q=0.8"}
+        if self.cookie:
+            headers["Cookie"] = f"{self.cookie_name}={self.cookie}"
+        request = urllib.request.Request(url, headers=headers)
+        try:
+            with urllib.request.urlopen(request, timeout=20) as response:
+                return image_dimensions_from_bytes(response.read(MAX_IMAGE_INSPECTION_BYTES))
+        except (urllib.error.URLError, TimeoutError, OSError):
+            return None
+
+    def _download_tpdb_group_image(self, url: str) -> str:
+        if not is_tpdb_image_url(url):
+            raise PluginError("image URL is not an HTTPS ThePornDB host")
+        try:
+            request = urllib.request.Request(url, headers={
+                "Accept": "image/avif,image/webp,image/apng,image/*,*/*;q=0.8",
+                "Referer": "https://theporndb.net/",
+                "User-Agent": USER_AGENT,
+            })
+            opener = urllib.request.build_opener(TPDBImageRedirectHandler())
+            with opener.open(request, timeout=30) as response:
+                content_type = str(response.headers.get("Content-Type", "")).split(";", 1)[0].strip().lower()
+                payload = response.read(MAX_GROUP_IMAGE_BYTES + 1)
+        except urllib.error.HTTPError as exc:
+            status = exc.code
+            exc.close()
+            raise PluginError(f"image host returned HTTP {status}") from exc
+        except (urllib.error.URLError, TimeoutError, OSError) as exc:
+            raise PluginError(f"image download failed: {getattr(exc, 'reason', exc)}") from exc
+        except (ValueError, UnicodeError) as exc:
+            raise PluginError("image URL is invalid") from exc
+
+        if len(payload) > MAX_GROUP_IMAGE_BYTES:
+            raise PluginError(f"image exceeds the {MAX_GROUP_IMAGE_BYTES // (1024 * 1024)} MiB limit")
+        mime_type = group_image_mime_type(payload)
+        if not mime_type:
+            description = content_type or "unknown content"
+            raise PluginError(f"server returned {description} instead of a supported image")
+        if content_type and not content_type.startswith("image/") and content_type != "application/octet-stream":
+            raise PluginError(f"server returned {content_type} instead of an image")
+        return f"data:{mime_type};base64,{base64.b64encode(payload).decode('ascii')}"
+
+    def _prepare_group_images(self, values: dict[str, Any]) -> dict[str, Any]:
+        prepared = dict(values)
+        group_name = str(prepared.get("name") or prepared.get("id") or "unknown group")
+        for field, label in (("front_image", "front"), ("back_image", "back")):
+            url = prepared.get(field)
+            if not isinstance(url, str) or not url.lower().startswith(("http://", "https://")):
+                continue
+            try:
+                prepared[field] = self._download_tpdb_group_image(url)
+            except PluginError as exc:
+                prepared.pop(field, None)
+                try:
+                    host = urllib.parse.urlsplit(url).hostname or "image host"
+                except ValueError:
+                    host = "image host"
+                log_info(f"Skipped {label} image for group {group_name} from {host}: {exc}.")
+        return prepared
 
     def query(self, document: str, variables: dict[str, Any] | None = None) -> dict[str, Any]:
         body = json.dumps({"query": document, "variables": variables or {}}).encode()
@@ -713,16 +897,38 @@ class LocalStash:
         return data["sceneMarkerCreate"]
 
     def create_group(self, values: dict[str, Any]) -> dict[str, Any]:
-        data = self.query(f"""mutation StashBoxMetadataSyncCreateGroup($input: GroupCreateInput!) {{
+        query = f"""mutation StashBoxMetadataSyncCreateGroup($input: GroupCreateInput!) {{
           groupCreate(input: $input) {{ {LOCAL_GROUP_FIELDS} }}
-        }}""", {"input": values})
-        return data["groupCreate"]
+        }}"""
+        prepared = self._prepare_group_images(values)
+        try:
+            return self.query(query, {"input": prepared})["groupCreate"]
+        except PluginError as exc:
+            if (not is_group_image_error(exc)
+                    or not any(prepared.get(field) for field in ("front_image", "back_image"))):
+                raise
+            without_images = {key: value for key, value in prepared.items()
+                              if key not in {"front_image", "back_image"}}
+            log_info(f"Stash rejected the cover image for group {values.get('name') or 'unknown group'}; "
+                     "retrying group creation without it.")
+            return self.query(query, {"input": without_images})["groupCreate"]
 
     def update_group(self, values: dict[str, Any]) -> dict[str, Any]:
-        data = self.query(f"""mutation StashBoxMetadataSyncUpdateGroup($input: GroupUpdateInput!) {{
+        query = f"""mutation StashBoxMetadataSyncUpdateGroup($input: GroupUpdateInput!) {{
           groupUpdate(input: $input) {{ {LOCAL_GROUP_FIELDS} }}
-        }}""", {"input": values})
-        return data["groupUpdate"]
+        }}"""
+        prepared = self._prepare_group_images(values)
+        try:
+            return self.query(query, {"input": prepared})["groupUpdate"]
+        except PluginError as exc:
+            if (not is_group_image_error(exc)
+                    or not any(prepared.get(field) for field in ("front_image", "back_image"))):
+                raise
+            without_images = {key: value for key, value in prepared.items()
+                              if key not in {"front_image", "back_image"}}
+            log_info(f"Stash rejected the cover image for group {values.get('name') or values.get('id')}; "
+                     "retrying metadata update without it.")
+            return self.query(query, {"input": without_images})["groupUpdate"]
 
     def link_scene_groups(self, scene_id: str, groups: list[dict[str, Any]]) -> None:
         self.query("""mutation StashBoxMetadataSyncLinkSceneGroups($input: SceneUpdateInput!) {
@@ -768,6 +974,9 @@ DEFAULT_SETTINGS: dict[str, Any] = {
     "enableNameSearch": True,
     "overwriteExisting": False,
     "performerImageUpdate": True,
+    "imageMinimumMegapixels": 0.5,
+    "imageMinimumLongEdge": 800,
+    "replaceUnmeasurableImages": False,
     "autoCreatePerformers": False,
     "autoCreateStudios": False,
     "overwriteTagMetadata": False,
@@ -918,6 +1127,169 @@ class SyncService:
         changed = self.sync_performer(performer)
         return {"performer_id": str(performer_id), "performer_name": performer.get("name"), "updated": changed}
 
+    def performer_image_candidates(self, performer: dict[str, Any]) -> list[dict[str, Any]]:
+        existing_ids = {normalize_endpoint(item.get("endpoint")): str(item.get("stash_id"))
+                        for item in performer.get("stash_ids", []) or []
+                        if item.get("endpoint") and item.get("stash_id")}
+        candidates: list[dict[str, Any]] = []
+        for source_rank, box in enumerate(self.boxes):
+            external_id = existing_ids.get(normalize_endpoint(box["endpoint"]))
+            try:
+                external = self.external_performer(box, external_id) if external_id else None
+                if not external and not external_id and setting_bool(self.settings, "enableNameSearch", True):
+                    external = self.search_performer(box, str(performer.get("name", "")))
+            except Exception as exc:
+                self.source_errors.append(
+                    f"{performer.get('name', performer.get('id'))} / {box['source']}: {self.redact(str(exc), box)}")
+                continue
+            if not external or external.get("deleted"):
+                continue
+            for image in external.get("images", []) or []:
+                if not isinstance(image, dict):
+                    continue
+                url = normalize_url(image.get("url"))
+                dimensions = image_dimensions(image)
+                if not url or not dimensions:
+                    continue
+                width, height = dimensions
+                candidates.append({
+                    "endpoint": normalize_endpoint(box["endpoint"]),
+                    "url": url,
+                    "width": width,
+                    "height": height,
+                    "pixels": width * height,
+                    "source": box["source"],
+                    "source_name": box.get("name") or box["source"],
+                    "source_rank": source_rank,
+                })
+        return sorted(candidates, key=lambda item: (-item["pixels"], -min(item["width"], item["height"]),
+                                                     item["source_rank"], item["url"]))
+
+    def get_performer_image_choices(self, performer_id: str) -> dict[str, Any]:
+        if not self.boxes:
+            raise PluginError("No enabled StashBox source with an API key is configured")
+        performer = self.stash.performer(str(performer_id))
+        if not performer:
+            raise PluginError(f"Performer {performer_id} was not found")
+        candidates = self.performer_image_candidates(performer)
+        inspect_image = getattr(self.stash, "performer_image_dimensions", None)
+        current_dimensions = (inspect_image(str(performer.get("id")))
+                              if performer.get("image_path") and callable(inspect_image) else None)
+        choices = []
+        for index, candidate in enumerate(candidates):
+            width, height = candidate["width"], candidate["height"]
+            choices.append({
+                "id": image_candidate_id(candidate["endpoint"], candidate["url"], width, height),
+                "url": candidate["url"],
+                "source": candidate["source"],
+                "source_name": candidate["source_name"],
+                "width": width,
+                "height": height,
+                "megapixels": round(candidate["pixels"] / 1_000_000, 2),
+                "is_best": index == 0,
+                "meets_quality_minimum": image_meets_quality_minimum(width, height, self.settings),
+                "better_than_current": (image_quality_key(width, height) > image_quality_key(*current_dimensions)
+                                         if current_dimensions else None),
+            })
+        return {
+            "performer_id": str(performer.get("id", "")),
+            "performer_name": str(performer.get("name") or performer.get("id") or "Unknown performer"),
+            "current_image_present": bool(performer.get("image_path")),
+            "current_image_url": (f"/performer/{urllib.parse.quote(str(performer.get('id', '')), safe='')}"
+                                   if performer.get("image_path") else None),
+            "current_image": ({"width": current_dimensions[0], "height": current_dimensions[1]}
+                              if current_dimensions else None),
+            "candidates": choices,
+            "source_errors": self.source_errors[:20],
+        }
+
+    def apply_performer_image_candidate(self, performer_id: str, candidate_id: str) -> dict[str, Any]:
+        choices = self.get_performer_image_choices(str(performer_id))
+        candidate = next((item for item in choices["candidates"] if item["id"] == str(candidate_id)), None)
+        if candidate is None:
+            raise PluginError("That image candidate is no longer available; reopen the picker and try again")
+        self.stash.update_performer({"id": choices["performer_id"], "image": candidate["url"]})
+        log_info(f"Selected performer image for {choices['performer_name']}: {candidate['width']}x{candidate['height']} "
+                 f"from {candidate['source_name']}.")
+        return {"status": "updated", "performer_id": choices["performer_id"],
+                "performer_name": choices["performer_name"], "source": candidate["source"],
+                "source_name": candidate["source_name"], "width": candidate["width"], "height": candidate["height"]}
+
+    def sync_performer_image(self, performer: dict[str, Any], *, dry_run: bool = False) -> dict[str, Any]:
+        name = str(performer.get("name") or performer.get("id") or "Unknown performer")
+        candidates = self.performer_image_candidates(performer)
+        if not candidates:
+            return {"status": "no_candidate", "performer_id": str(performer.get("id", "")), "name": name}
+
+        candidate = candidates[0]
+        width, height = candidate["width"], candidate["height"]
+        if not image_meets_quality_minimum(width, height, self.settings):
+            log_info(f"Skipped performer image for {name}: best source image is {width}x{height}, "
+                     "below the configured minimum resolution.")
+            return {"status": "below_minimum", "performer_id": str(performer.get("id", "")), "name": name,
+                    "source": candidate["source"], "width": width, "height": height}
+
+        current_dimensions = None
+        if performer.get("image_path"):
+            inspect_image = getattr(self.stash, "performer_image_dimensions", None)
+            current_dimensions = inspect_image(str(performer.get("id"))) if callable(inspect_image) else None
+            if current_dimensions:
+                if image_quality_key(width, height) <= image_quality_key(*current_dimensions):
+                    return {"status": "unchanged", "performer_id": str(performer.get("id", "")), "name": name,
+                            "source": candidate["source"], "width": width, "height": height,
+                            "current_width": current_dimensions[0], "current_height": current_dimensions[1]}
+            elif not setting_bool(self.settings, "replaceUnmeasurableImages", False):
+                log_info(f"Skipped performer image for {name}: current image resolution could not be measured.")
+                return {"status": "unmeasurable", "performer_id": str(performer.get("id", "")), "name": name,
+                        "source": candidate["source"], "width": width, "height": height}
+
+        if dry_run:
+            log_info(f"Preview: best image for {name} is {width}x{height} from {candidate['source_name']}; "
+                     "it meets the quality threshold and is an upgrade.")
+            return {"status": "preview", "performer_id": str(performer.get("id", "")), "name": name,
+                    "source": candidate["source"], "width": width, "height": height,
+                    "current_width": current_dimensions[0] if current_dimensions else None,
+                    "current_height": current_dimensions[1] if current_dimensions else None}
+
+        performer_id = str(performer.get("id", ""))
+        self.stash.update_performer({"id": performer_id, "image": candidate["url"]})
+        log_info(f"Updated performer image for {name} to {width}x{height} from {candidate['source_name']}.")
+        return {"status": "updated", "performer_id": performer_id, "name": name,
+                "source": candidate["source"], "width": width, "height": height,
+                "current_width": current_dimensions[0] if current_dimensions else None,
+                "current_height": current_dimensions[1] if current_dimensions else None}
+
+    def sync_all_performer_images(self, *, dry_run: bool = False) -> dict[str, Any]:
+        if not self.boxes:
+            raise PluginError("No enabled StashBox source with an API key is configured")
+        performers = self.stash.performers()
+        counts = {"updated": 0, "preview": 0, "unchanged": 0, "below_minimum": 0,
+                  "unmeasurable": 0, "no_candidate": 0, "failed": 0}
+        samples: list[dict[str, Any]] = []
+        error_samples: list[str] = []
+        for index, performer in enumerate(performers, 1):
+            try:
+                result = self.sync_performer_image(performer, dry_run=dry_run)
+                status = result["status"]
+                counts[status] += 1
+                if status in {"updated", "preview", "below_minimum", "unmeasurable"} and len(samples) < 100:
+                    samples.append(result)
+            except Exception as exc:
+                counts["failed"] += 1
+                if len(error_samples) < 20:
+                    error_samples.append(f"{performer.get('name') or performer.get('id')}: {exc}")
+            report_progress(index, len(performers))
+        report_progress(1, 1)
+        return {"dry_run": dry_run, "processed": len(performers), **counts,
+                "source_failures": len(self.source_errors), "samples": samples,
+                "error_samples": (error_samples + self.source_errors[:20])[:20]}
+
+    def sync_single_performer_image(self, performer_id: str) -> dict[str, Any]:
+        performer = self.stash.performer(str(performer_id))
+        if not performer:
+            raise PluginError(f"Performer {performer_id} was not found")
+        return self.sync_performer_image(performer)
+
     def sync_performer(self, performer: dict[str, Any]) -> bool:
         existing_ids = {normalize_endpoint(item.get("endpoint")): str(item.get("stash_id"))
                         for item in performer.get("stash_ids", []) or [] if item.get("endpoint") and item.get("stash_id")}
@@ -939,6 +1311,21 @@ class SyncService:
                 raise PluginError("No configured source returned performer data; see plugin logs for source errors")
             return False
         update = build_performer_update(performer, found, self.settings)
+        if len(update) <= 1:
+            return False
+        if "image" in update and performer.get("image_path"):
+            candidate = best_performer_image(found)
+            inspect_image = getattr(self.stash, "performer_image_dimensions", None)
+            current_dimensions = inspect_image(str(performer.get("id"))) if callable(inspect_image) else None
+            if current_dimensions and candidate:
+                if image_quality_key(candidate["width"], candidate["height"]) <= image_quality_key(*current_dimensions):
+                    update.pop("image", None)
+                    log_info(f"Kept the current performer image for {performer.get('name') or performer.get('id')}: "
+                             "it is already as sharp as the best configured source image.")
+            elif not setting_bool(self.settings, "replaceUnmeasurableImages", False):
+                update.pop("image", None)
+                log_info(f"Kept the current performer image for {performer.get('name') or performer.get('id')}: "
+                         "its resolution could not be measured.")
         if len(update) <= 1:
             return False
         self.stash.update_performer(update)
@@ -1904,6 +2291,26 @@ def body_modifications(values: Any) -> str | None:
     return ", ".join(clean_strings(entries)) or None
 
 
+def best_performer_image(sources: list[tuple[dict[str, Any], dict[str, Any]]]) -> dict[str, Any] | None:
+    candidates = []
+    for source_rank, (box, record) in enumerate(sources):
+        for image in record.get("images", []) or []:
+            if not isinstance(image, dict):
+                continue
+            url = normalize_url(image.get("url"))
+            dimensions = image_dimensions(image)
+            if not url or not dimensions:
+                continue
+            width, height = dimensions
+            candidates.append({"url": url, "width": width, "height": height,
+                               "pixels": width * height, "source_rank": source_rank,
+                               "source": box.get("source", "")})
+    if not candidates:
+        return None
+    return min(candidates, key=lambda item: (-item["pixels"], -min(item["width"], item["height"]),
+                                              item["source_rank"], item["url"]))
+
+
 def map_external_performer(record: dict[str, Any]) -> dict[str, Any]:
     mapped: dict[str, Any] = {}
     if isinstance(record.get("name"), str) and record["name"].strip():
@@ -1955,10 +2362,9 @@ def map_external_performer(record: dict[str, Any]) -> dict[str, Any]:
     urls = external_urls(record)
     if urls:
         mapped["urls"] = urls
-    images = [item for item in record.get("images", []) or [] if isinstance(item, dict) and item.get("url")]
-    if images:
-        image = max(images, key=lambda item: int(item.get("width") or 0) * int(item.get("height") or 0))
-        mapped["image"] = str(image["url"])
+    image = best_performer_image([({}, record)])
+    if image:
+        mapped["image"] = image["url"]
     return mapped
 
 
@@ -1969,6 +2375,11 @@ def build_performer_update(local: dict[str, Any], sources: list[tuple[dict[str, 
     # The list is already ordered from highest to lowest priority.
     for _box, external in reversed(sources):
         merged.update(map_external_performer(external))
+    image = best_performer_image(sources)
+    if image and image_meets_quality_minimum(image["width"], image["height"], settings):
+        merged["image"] = image["url"]
+    else:
+        merged.pop("image", None)
     values: dict[str, Any] = {"id": str(local.get("id", ""))} if not creating else {}
     scalar_fields = ("disambiguation", "gender", "birthdate", "death_date", "ethnicity", "country", "eye_color",
                      "hair_color", "height_cm", "measurements", "fake_tits", "career_start", "career_end", "tattoos", "piercings")
@@ -2039,6 +2450,26 @@ def execute(input_data: dict[str, Any]) -> dict[str, Any]:
         if performer_id is None:
             raise PluginError("The update_single_performer task requires performer_id")
         result = service.sync_single_performer(str(performer_id))
+    elif mode == "list_performer_image_candidates":
+        performer_id = args.get("performer_id") or args.get("performerId") or args.get("id")
+        if performer_id is None:
+            raise PluginError("The image picker requires performer_id")
+        result = service.get_performer_image_choices(str(performer_id))
+    elif mode == "apply_performer_image_candidate":
+        performer_id = args.get("performer_id") or args.get("performerId") or args.get("id")
+        candidate_id = args.get("candidate_id") or args.get("candidateId")
+        if performer_id is None or candidate_id is None:
+            raise PluginError("Applying an image requires performer_id and candidate_id")
+        result = service.apply_performer_image_candidate(str(performer_id), str(candidate_id))
+    elif mode == "preview_performer_images":
+        result = service.sync_all_performer_images(dry_run=True)
+    elif mode == "sync_performer_images":
+        result = service.sync_all_performer_images()
+    elif mode == "sync_single_performer_image":
+        performer_id = args.get("performer_id") or args.get("performerId") or args.get("id")
+        if performer_id is None:
+            raise PluginError("The sync_single_performer_image task requires performer_id")
+        result = service.sync_single_performer_image(str(performer_id))
     elif mode == "sync_all_tags":
         result = service.sync_all_tags()
     elif mode == "sync_scene_tags":

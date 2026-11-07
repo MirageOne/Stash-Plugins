@@ -617,6 +617,133 @@ class MetadataSyncTests(unittest.TestCase):
         self.assertEqual(requests[3]["variables"]["input"]["groups"],
                          [{"group_id": "group-1", "scene_index": None}])
 
+    def test_unavailable_tpdb_cover_does_not_block_group_creation(self):
+        requests = []
+        statuses = iter([470, 472, 200])
+
+        class HTMLImageResponse:
+            headers = {"Content-Type": "text/html; charset=utf-8"}
+
+            def __enter__(self):
+                return self
+
+            def __exit__(self, *_args):
+                return False
+
+            def read(self, _size=-1):
+                return b"<html>image challenge</html>"
+
+        class FailedImageOpener:
+            def open(self, request, timeout):
+                status = next(statuses)
+                if status == 200:
+                    return HTMLImageResponse()
+                raise plugin.urllib.error.HTTPError(request.full_url, status, "blocked", {}, None)
+
+        def fake_urlopen(request, timeout):
+            requests.append(json.loads(request.data))
+            return Response({"data": {"groupCreate": {"id": "group-1", "name": "Movie One", "urls": []}}})
+
+        stash = plugin.LocalStash({"Scheme": "http", "Host": "localhost", "Port": 9999})
+        with patch.object(plugin.urllib.request, "build_opener", return_value=FailedImageOpener()), \
+                patch.object(plugin.urllib.request, "urlopen", fake_urlopen), \
+                redirect_stderr(io.StringIO()) as stream:
+            for status in (470, 472, 200):
+                created = stash.create_group({
+                    "name": "Movie One", "front_image": "https://images.theporndb.net/front.jpg",
+                    "urls": ["https://theporndb.net/movies/1"],
+                })
+                self.assertEqual(created["id"], "group-1")
+
+        self.assertEqual(len(requests), 3)
+        for request in requests:
+            self.assertNotIn("front_image", request["variables"]["input"])
+        self.assertIn("Skipped front image for group Movie One from images.theporndb.net: image host returned HTTP 470.",
+                      stream.getvalue())
+        self.assertIn("image host returned HTTP 472", stream.getvalue())
+        self.assertIn("server returned text/html instead of a supported image", stream.getvalue())
+
+    def test_tpdb_cover_is_embedded_and_stash_image_rejection_retries_without_cover(self):
+        requests = []
+        jpeg = b"\xff\xd8\xff\xe0test-cover"
+
+        class ImageResponse:
+            headers = {"Content-Type": "image/jpeg"}
+
+            def __enter__(self):
+                return self
+
+            def __exit__(self, *_args):
+                return False
+
+            def read(self, _size=-1):
+                return jpeg
+
+        class ImageOpener:
+            def open(self, request, timeout):
+                self.request = request
+                return ImageResponse()
+
+        image_opener = ImageOpener()
+        responses = [
+            {"errors": [{"message": 'groupCreate processing front image: unsupported image content type "text/html; charset=utf-8"'}]},
+            {"data": {"groupCreate": {"id": "group-1", "name": "Movie One", "urls": []}}},
+        ]
+
+        def fake_urlopen(request, timeout):
+            requests.append(json.loads(request.data))
+            return Response(responses.pop(0))
+
+        stash = plugin.LocalStash({"Scheme": "http", "Host": "localhost", "Port": 9999})
+        with patch.object(plugin.urllib.request, "build_opener", return_value=image_opener), \
+                patch.object(plugin.urllib.request, "urlopen", fake_urlopen), \
+                redirect_stderr(io.StringIO()) as stream:
+            created = stash.create_group({
+                "name": "Movie One", "front_image": "https://images.theporndb.net/front.jpg",
+            })
+
+        self.assertEqual(created["id"], "group-1")
+        self.assertIn("image/*", image_opener.request.get_header("Accept"))
+        self.assertTrue(image_opener.request.get_header("User-agent"))
+        first_input = requests[0]["variables"]["input"]
+        self.assertEqual(first_input["front_image"],
+                         "data:image/jpeg;base64," + plugin.base64.b64encode(jpeg).decode("ascii"))
+        self.assertNotIn("front_image", requests[1]["variables"]["input"])
+        self.assertIn("retrying group creation without it", stream.getvalue())
+
+    def test_group_create_does_not_retry_unrelated_graphql_errors(self):
+        requests = []
+        responses = [{"errors": [{"message": "database unavailable"}]}]
+        jpeg = b"\xff\xd8\xff\xe0test-cover"
+
+        class ImageResponse:
+            headers = {"Content-Type": "image/jpeg"}
+
+            def __enter__(self):
+                return self
+
+            def __exit__(self, *_args):
+                return False
+
+            def read(self, _size=-1):
+                return jpeg
+
+        class ImageOpener:
+            def open(self, request, timeout):
+                return ImageResponse()
+
+        def fake_urlopen(request, timeout):
+            requests.append(json.loads(request.data))
+            return Response(responses.pop(0))
+
+        stash = plugin.LocalStash({"Scheme": "http", "Host": "localhost", "Port": 9999})
+        with patch.object(plugin.urllib.request, "build_opener", return_value=ImageOpener()), \
+                patch.object(plugin.urllib.request, "urlopen", fake_urlopen), \
+                self.assertRaises(plugin.PluginError):
+            stash.create_group({"name": "Movie One", "front_image": "https://images.theporndb.net/front.jpg"})
+
+        self.assertEqual(len(requests), 1)
+
     def test_marker_normalization_rejects_invalid_and_duplicate_markers(self):
         markers = [
             {"title": "Kissing", "start_time": 2},

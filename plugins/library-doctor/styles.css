@@ -284,9 +284,15 @@ h1, h2, p { margin-top: 0; }
 .ld-duplicate-file-info { color: var(--ld-muted); font-size: 0.67rem; line-height: 1.45; overflow-wrap: anywhere; }
 .ld-duplicate-file-actions { display: flex; align-items: flex-end; flex: 0 0 auto; flex-direction: column; gap: 7px; }
 .ld-duplicate-keep-badge { display: inline-flex; align-items: center; min-height: 21px; padding: 0 7px; border: 1px solid color-mix(in srgb, var(--ld-green), transparent 66%); border-radius: 999px; background: color-mix(in srgb, var(--ld-green), transparent 90%); color: var(--ld-green); font-size: 0.63rem; font-weight: 700; white-space: nowrap; }
+.ld-primary-file-badge { display: inline-flex; align-items: center; min-height: 21px; padding: 0 7px; border: 1px solid color-mix(in srgb, var(--ld-accent), transparent 62%); border-radius: 999px; background: var(--ld-accent-soft); color: var(--ld-accent); font-size: 0.63rem; font-weight: 700; white-space: nowrap; }
+.ld-duplicate-primary-help { max-width: 190px; color: var(--ld-subtle); font-size: 0.62rem; line-height: 1.4; text-align: right; }
+.ld-set-primary-button { min-height: 30px; padding: 0 9px; border: 1px solid color-mix(in srgb, var(--ld-accent), transparent 55%); border-radius: 6px; background: var(--ld-accent-soft); color: var(--ld-accent); font-size: 0.69rem; font-weight: 700; white-space: nowrap; cursor: pointer; }
+.ld-set-primary-button:hover:not(:disabled) { border-color: var(--ld-accent); background: color-mix(in srgb, var(--ld-accent-soft), var(--ld-accent) 12%); }
+.ld-set-primary-button:disabled { opacity: 0.58; cursor: wait; }
+.ld-set-primary-button:focus-visible { outline: 2px solid var(--ld-accent); outline-offset: 2px; }
 .ld-delete-file-button { min-height: 30px; padding: 0 9px; border: 1px solid color-mix(in srgb, var(--ld-red), transparent 55%); border-radius: 6px; background: color-mix(in srgb, var(--ld-red), transparent 88%); color: var(--ld-red); font-size: 0.69rem; font-weight: 700; white-space: nowrap; cursor: pointer; }
 .ld-delete-file-button:hover:not(:disabled) { border-color: var(--ld-red); background: color-mix(in srgb, var(--ld-red), transparent 78%); }
-.ld-delete-file-button:disabled { opacity: 0.58; cursor: wait; }
+.ld-delete-file-button:disabled { opacity: 0.42; cursor: not-allowed; }
 .ld-delete-file-button:focus-visible { outline: 2px solid var(--ld-accent); outline-offset: 2px; }
 .ld-duplicate-delete-unavailable { color: var(--ld-subtle); font-size: 0.65rem; }
 .ld-duplicate-no-files { color: var(--ld-subtle); font-size: 0.69rem; }
@@ -461,6 +467,7 @@ h1, h2, p { margin-top: 0; }
     .ld-duplicate-scenes > li { padding: 8px; }
     .ld-duplicate-file-card { flex-direction: column; }
     .ld-duplicate-file-actions { align-items: flex-start; flex-direction: row; flex-wrap: wrap; }
+    .ld-duplicate-primary-help { flex: 1 1 100%; max-width: none; text-align: left; }
     .ld-duplicate-scenes .ld-open-scene { padding: 3px 0 0; }
     .ld-encoding-card { padding: 13px; }
     .ld-encoding-fields, .ld-encoding-custom { grid-template-columns: minmax(0,1fr); }

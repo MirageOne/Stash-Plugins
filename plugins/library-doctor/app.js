@@ -23,7 +23,7 @@
     var TAG_CATALOG_QUERY = "query LibraryDoctorTagCatalog($page: Int!, $perPage: Int!) { findTags(filter: { page: $page, per_page: $perPage }) { count tags { id name aliases } } }";
     var TAG_CREATE_MUTATION = "mutation LibraryDoctorCreateTag($input: TagCreateInput!) { tagCreate(input: $input) { id name aliases } }";
     var DELETE_FILES_MUTATION = "mutation LibraryDoctorDeleteDuplicateFile($ids: [ID!]!) { deleteFiles(ids: $ids) }";
-    var SET_PRIMARY_FILE_MUTATION = "mutation LibraryDoctorSetPrimaryFile($input: SceneUpdateInput!) { sceneUpdate(input: $input) { id } }";
+    var SET_PRIMARY_FILE_MUTATION = "mutation LibraryDoctorSetPrimaryFile($input: SceneUpdateInput!) { sceneUpdate(input: $input) { id files { id } } }";
     var QUERY = "query LibraryDoctorScenes($page: Int!, $perPage: Int!) { " +
         "findScenes(filter: { page: $page, per_page: $perPage, sort: \"title\", direction: ASC }) { " +
         "count scenes { id title date organized files { id path size duration ... on VideoFile { format width height video_codec audio_codec frame_rate bit_rate } } " +
@@ -448,6 +448,12 @@
         return entries;
     }
 
+    // Stash 0.32 returns a scene's primary file first in its files relation.
+    function isPrimarySceneFile(scene, file) {
+        var primary = scene && scene.files && scene.files.length ? scene.files[0] : null;
+        return !!(primary && file && primary.id && file.id && String(primary.id) === String(file.id));
+    }
+
     function recommendKeepFile(scenes) {
         var candidates = duplicateFileEntries(scenes);
         if (candidates.length < 2) {
@@ -477,41 +483,58 @@
             : { entry: null, reason: "No clear recommendation: the available file details are tied or incomplete. Compare the files manually." };
     }
 
+    function setPrimarySceneFile(scene, file, button) {
+        if (!scene || !scene.id || !file || !file.id || button.disabled || isPrimarySceneFile(scene, file)) { return; }
+        button.disabled = true;
+        button.textContent = "Setting…";
+        clearError();
+        graphQLRequest(SET_PRIMARY_FILE_MUTATION, {
+            input: { id: String(scene.id), primary_file_id: String(file.id) }
+        }).then(function (data) {
+            var updatedScene = data.sceneUpdate;
+            if (!updatedScene || String(updatedScene.id) !== String(scene.id)) {
+                throw new Error("Stash did not confirm changing the primary file.");
+            }
+            var filesById = Object.create(null);
+            scene.files.forEach(function (candidate) { filesById[String(candidate.id)] = candidate; });
+            var ordered = Array.isArray(updatedScene.files) ? updatedScene.files.map(function (candidate) {
+                return filesById[String(candidate.id)];
+            }).filter(Boolean) : [];
+            if (ordered.length === scene.files.length) {
+                scene.files = ordered;
+            } else {
+                scene.files = [file].concat(scene.files.filter(function (candidate) {
+                    return String(candidate.id) !== String(file.id);
+                }));
+            }
+            encodingFilesForResults = null;
+            encodingFiles = [];
+            render();
+            showStatus("Set " + (fileBasename(file.path) || "selected file") + " as the primary file for “" + (scene.title || "untitled scene") + "”.");
+        }).catch(function (error) {
+            showError("Could not set " + (fileBasename(file.path) || "the selected file") + " as primary: " + (error && error.message ? error.message : String(error)));
+        }).then(function () {
+            if (button.isConnected) {
+                button.disabled = false;
+                button.textContent = "Set primary";
+            }
+        });
+    }
+
     function deleteDuplicateFile(scene, file, button) {
         if (!file || !file.id || button.disabled) { return; }
+        if (isPrimarySceneFile(scene, file)) {
+            showError("Stash does not allow deleting a scene's primary file. Set another attached file as primary first.");
+            return;
+        }
         var path = String(file.path || "").trim() || ("file ID " + file.id);
-        var confirmed = window.confirm("Delete this file from Stash?\n\n" + path + "\n\nStash will remove the file and its library record. If required, another attached file will be promoted to primary first. This review has no undo.");
+        var confirmed = window.confirm("Delete this file from Stash?\n\n" + path + "\n\nStash will remove the file and its library record. This review has no undo.");
         if (!confirmed) { return; }
         button.disabled = true;
         button.textContent = "Deleting…";
         clearError();
-        var changedPrimary = false;
-        var newPrimaryFilePath = "";
-        function requestDelete() {
-            return graphQLRequest(DELETE_FILES_MUTATION, { ids: [String(file.id)] }).then(function (data) {
-                if (data.deleteFiles !== true) { throw new Error("Stash did not confirm deleting the file."); }
-            });
-        }
-        requestDelete().catch(function (error) {
-            var message = error && error.message ? error.message : String(error);
-            if (!/cannot delete primary file/i.test(message)) { throw error; }
-            var alternate = scene.files.find(function (candidate) {
-                return candidate && candidate.id && String(candidate.id) !== String(file.id);
-            });
-            if (!alternate) {
-                throw new Error("Stash prevents deleting a scene's only primary file unless the entire scene is deleted. Library Doctor kept the scene metadata intact; delete the scene and file together in Stash if that is intended.");
-            }
-            return graphQLRequest(SET_PRIMARY_FILE_MUTATION, {
-                input: { id: String(scene.id), primary_file_id: String(alternate.id) }
-            }).then(function (data) {
-                if (!data.sceneUpdate || String(data.sceneUpdate.id) !== String(scene.id)) {
-                    throw new Error("Stash did not confirm changing the scene's primary file.");
-                }
-                changedPrimary = true;
-                newPrimaryFilePath = String(alternate.path || "");
-                return requestDelete();
-            });
-        }).then(function () {
+        graphQLRequest(DELETE_FILES_MUTATION, { ids: [String(file.id)] }).then(function (data) {
+            if (data.deleteFiles !== true) { throw new Error("Stash did not confirm deleting the file."); }
             var removedFromScan = false;
             results.forEach(function (scene) {
                 var previousLength = scene.files.length;
@@ -529,15 +552,12 @@
             var statusMessage = removedFromScan
                 ? "Deleted " + path + " from Stash."
                 : "Deleted " + path + ". Run Health Check again to refresh the review results.";
-            if (changedPrimary) {
-                statusMessage += " Set " + (fileBasename(newPrimaryFilePath) || "another attached file") + " as the scene's primary file.";
-            }
             showStatus(statusMessage);
         }).catch(function (error) {
-            var errorMessage = "Could not delete " + path + ": " + (error && error.message ? error.message : String(error));
-            if (changedPrimary) {
-                errorMessage += " Stash did set " + (fileBasename(newPrimaryFilePath) || "another attached file") + " as the scene's primary file.";
-            }
+            var message = error && error.message ? error.message : String(error);
+            var errorMessage = /cannot delete primary file/i.test(message)
+                ? "Could not delete " + path + ": Stash considers this the primary file. Refresh the health check, set another attached file as primary, then try again."
+                : "Could not delete " + path + ": " + message;
             showError(errorMessage);
         }).then(function () {
             if (button.isConnected) {
@@ -623,8 +643,9 @@
                 }
                 scene.files.forEach(function (file) {
                     var recommended = recommendation.entry && recommendation.entry.file === file;
+                    var primary = isPrimarySceneFile(scene, file);
                     var fileItem = document.createElement("li");
-                    fileItem.className = "ld-duplicate-file-card" + (recommended ? " is-recommended" : "");
+                    fileItem.className = "ld-duplicate-file-card" + (recommended ? " is-recommended" : "") + (primary ? " is-primary" : "");
                     var fileDetails = document.createElement("div");
                     fileDetails.className = "ld-duplicate-file-details";
                     var fileName = document.createElement("strong");
@@ -652,12 +673,36 @@
                         keepBadge.textContent = "Recommended keep";
                         fileActions.appendChild(keepBadge);
                     }
+                    if (primary) {
+                        var primaryBadge = document.createElement("span");
+                        primaryBadge.className = "ld-primary-file-badge";
+                        primaryBadge.textContent = "Primary file";
+                        fileActions.appendChild(primaryBadge);
+                        var primaryHelp = document.createElement("span");
+                        primaryHelp.className = "ld-duplicate-primary-help";
+                        primaryHelp.textContent = scene.files.length > 1
+                            ? "Set another file as primary to enable deletion."
+                            : "Stash protects the scene's only primary file.";
+                        fileActions.appendChild(primaryHelp);
+                    } else if (file.id) {
+                        var setPrimaryButton = document.createElement("button");
+                        setPrimaryButton.className = "ld-set-primary-button";
+                        setPrimaryButton.type = "button";
+                        setPrimaryButton.textContent = "Set primary";
+                        setPrimaryButton.setAttribute("aria-label", "Set " + (file.path || file.id) + " as the primary file for " + (scene.title || "this scene"));
+                        setPrimaryButton.addEventListener("click", function () { setPrimarySceneFile(scene, file, setPrimaryButton); });
+                        fileActions.appendChild(setPrimaryButton);
+                    }
                     if (file.id) {
                         var deleteButton = document.createElement("button");
                         deleteButton.className = "ld-delete-file-button";
                         deleteButton.type = "button";
                         deleteButton.textContent = "Delete file";
-                        deleteButton.setAttribute("aria-label", "Delete file " + (file.path || file.id));
+                        deleteButton.disabled = primary;
+                        deleteButton.title = primary ? "Set another file as primary before deleting this file." : "Delete this file from Stash.";
+                        deleteButton.setAttribute("aria-label", primary
+                            ? "Delete file " + (file.path || file.id) + " (disabled while this is primary)"
+                            : "Delete file " + (file.path || file.id));
                         deleteButton.addEventListener("click", function () { deleteDuplicateFile(scene, file, deleteButton); });
                         fileActions.appendChild(deleteButton);
                     } else {

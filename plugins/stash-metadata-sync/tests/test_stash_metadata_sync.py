@@ -37,6 +37,40 @@ class StashMetadataSyncTests(unittest.TestCase):
         self.assertEqual(stream.getvalue(), f"{plugin.PROGRESS_PREFIX}{27 / 243}\n")
         self.assertNotIn("Processed", stream.getvalue())
 
+    def test_info_log_uses_stash_info_protocol_and_sanitizes_control_characters(self):
+        stream = io.StringIO()
+        with redirect_stderr(stream):
+            plugin.log_info("Updated tag:\nA\x01e\x02")
+
+        self.assertEqual(stream.getvalue(), f"{plugin.INFO_PREFIX}Updated tag: A e\n")
+
+    def test_performer_metadata_update_is_written_to_stash_info_log(self):
+        endpoint = "https://stashdb.org/graphql"
+        performer = {"id": "local-1", "name": "A Performer", "country": "", "stash_ids": [
+            {"endpoint": endpoint, "stash_id": "source-1"},
+        ]}
+
+        class FakeStash:
+            def __init__(self):
+                self.updates = []
+
+            def update_performer(self, values):
+                self.updates.append(dict(values))
+
+        stash = FakeStash()
+        config = {"general": {"stashBoxes": [{"name": "StashDB", "endpoint": endpoint, "api_key": "key"}]},
+                  "plugins": {plugin.PLUGIN_ID: {}}}
+        with tempfile.TemporaryDirectory() as directory:
+            service = plugin.SyncService(stash, config, plugin.ResponseCache(Path(directory) / "cache.sqlite3"))
+            service.external_performer = lambda _box, _source_id: {"id": "source-1", "country": "Canada"}
+            stream = io.StringIO()
+            with redirect_stderr(stream):
+                changed = service.sync_performer(performer)
+
+        self.assertTrue(changed)
+        self.assertEqual(stash.updates[0]["country"], "Canada")
+        self.assertIn(f"{plugin.INFO_PREFIX}Updated performer metadata for A Performer (1 fields).", stream.getvalue())
+
     def test_stash_032_local_auth_and_configuration_query(self):
         seen = {}
 
@@ -184,11 +218,14 @@ class StashMetadataSyncTests(unittest.TestCase):
         with tempfile.TemporaryDirectory() as directory:
             service = plugin.SyncService(stash, config, plugin.ResponseCache(Path(directory) / "cache.sqlite3"))
             service.favorite_items = lambda _box, _kind: [{"id": "ext-1", "name": "Local Performer"}]
-            result = service.sync_favorites("performers")
+            stream = io.StringIO()
+            with redirect_stderr(stream):
+                result = service.sync_favorites("performers")
 
         self.assertEqual(result["marked"], 1)
         self.assertEqual(stash.updated[0]["favorite"], True)
         self.assertEqual(stash.updated[0]["stash_ids"], [{"endpoint": box["endpoint"], "stash_id": "ext-1"}])
+        self.assertIn(f"{plugin.INFO_PREFIX}Marked performer as favorite: Local Performer from StashDB.", stream.getvalue())
 
 
 if __name__ == "__main__":

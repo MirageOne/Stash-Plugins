@@ -12,12 +12,13 @@ Stash Metadata Sync is a new plugin ID and folder. Reinstall it as a fresh plugi
 - **Scene tags:** Add missing local tags from each linked StashBox scene using Stash's additive `bulkSceneUpdate` mutation. Tags you remove after a live sync are recorded in local sync history and won't be added back on the next run. The default dry run previews at most 200 scenes across enabled sources.
 - **Scene markers:** Merge markers from ThePornDB for local scenes carrying a ThePornDB stash ID. Existing local markers are preserved, duplicate markers are skipped, and a scene deleted during a run is skipped safely. The primary local tag is created when the marker label does not already match a local tag name or alias. The default dry run previews at most 200 scenes.
 - **Groups and movies:** Import ThePornDB movie records as Stash 0.32 groups, merge missing group dates, synopsis, images and URLs, and link each group to its matching scene while preserving other scene-group links. The importer accepts both TPDB `movies` and `groups` response keys, matches existing groups by TPDB URL or a unique exact name, and uses URLs as the persistent source link because Stash groups do not have `stash_ids`. A matching local studio is linked when one unique name or alias match exists; missing studios are not created. The default dry run previews at most 200 scenes.
+- **Stash log:** Successful performer, tag, scene-tag, marker, group, and favorite updates are written as INFO entries while the task runs. Dry-run previews for scene tags, markers, and groups are also logged as previews.
 
 StashBox's GraphQL scene schema provides scene tags but no marker fields. Marker import therefore uses ThePornDB's REST scene endpoint and the Bearer API key already configured for ThePornDB. StashDB or FansDB alone cannot provide scene markers through this plugin.
 
 ## Install and configure
 
-Install from the MirageOne Stash Plugins source in the repository root README, or extract the [1.0.0 manual archive](../../packages/stash-metadata-sync/1.0.0-manual.zip) into Stash's configured plugin directory. Enable **Stash Metadata Sync** in **Settings → Plugins** and reload plugins.
+Install from the MirageOne Stash Plugins source in the repository root README, or extract the [1.0.1 manual archive](../../packages/stash-metadata-sync/1.0.1-manual.zip) into Stash's configured plugin directory. Enable **Stash Metadata Sync** in **Settings → Plugins** and reload plugins.
 
 Add the sources you use under **Settings → Metadata Providers → Stash-boxes**. The plugin recognizes StashDB, ThePornDB, and FansDB by configured name or endpoint, and uses the API keys from Stash's own configuration. It does not search local files for keys or print credentials.
 

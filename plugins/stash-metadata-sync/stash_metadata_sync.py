@@ -25,8 +25,9 @@ MAX_TAG_PAGES = 500
 SCENE_BATCH_SIZE = 100
 DRY_RUN_SCENE_LIMIT = 200
 PROGRESS_PREFIX = "\x01p\x02"
+INFO_PREFIX = "\x01i\x02"
 TPDB_API_BASE = "https://api.theporndb.net/scenes/"
-USER_AGENT = "MirageOne-Stash-Metadata-Sync/1.0.0"
+USER_AGENT = "MirageOne-Stash-Metadata-Sync/1.0.1"
 LOCAL_PERFORMER_FIELDS = """
   id name disambiguation alias_list gender urls birthdate death_date ethnicity country
   eye_color hair_color height_cm measurements fake_tits career_start career_end
@@ -69,6 +70,13 @@ def report_progress(completed: int, total: int) -> None:
         return
     fraction = min(1.0, max(0.0, completed / total))
     print(f"{PROGRESS_PREFIX}{fraction}", file=sys.stderr, flush=True)
+
+
+def log_info(message: str) -> None:
+    """Write an INFO record using Stash's raw-plugin stderr log protocol."""
+    safe_message = re.sub(r"\s+", " ", re.sub(r"[\x00-\x1f\x7f]", " ", str(message))).strip()
+    if safe_message:
+        print(f"{INFO_PREFIX}{safe_message[:1000]}", file=sys.stderr, flush=True)
 
 
 def normalize_endpoint(value: Any) -> str:
@@ -934,6 +942,7 @@ class SyncService:
         if len(update) <= 1:
             return False
         self.stash.update_performer(update)
+        log_info(f"Updated performer metadata for {performer.get('name') or performer.get('id')} ({len(update) - 1} fields).")
         return True
 
     def external_tags(self, box: dict[str, Any]) -> list[dict[str, Any]]:
@@ -1046,6 +1055,7 @@ class SyncService:
             try:
                 self.stash.update_tag(update)
                 updated += 1
+                log_info(f"Updated tag metadata for {local.get('name') or local.get('id')}.")
             except Exception as exc:
                 failed += 1
                 if len(error_samples) < 20:
@@ -1170,6 +1180,10 @@ class SyncService:
                         box_stats["tags_added"] += len(add_ids)
                         would_update += 1
                         tags_added += len(add_ids)
+                        added_names = [str(tag.get("name") or tag.get("id")) for tag in local_tags
+                                       if str(tag.get("id")) in add_ids]
+                        log_info(f"Dry run: would add tags to scene {scene.get('title') or local_scene_id}: "
+                                 f"{', '.join(added_names)}.")
                     else:
                         try:
                             self.stash.add_scene_tags(local_scene_id, sorted(add_ids))
@@ -1178,6 +1192,10 @@ class SyncService:
                             box_stats["tags_added"] += len(add_ids)
                             updated += 1
                             tags_added += len(add_ids)
+                            added_names = [str(tag.get("name") or tag.get("id")) for tag in local_tags
+                                           if str(tag.get("id")) in add_ids]
+                            log_info(f"Added tags to scene {scene.get('title') or local_scene_id}: "
+                                     f"{', '.join(added_names)}.")
                         except Exception as exc:
                             if is_missing_scene_error(exc):
                                 skipped += 1
@@ -1291,6 +1309,10 @@ class SyncService:
                         would_update += 1
                         box_stats["markers_added"] += len(proposed)
                         markers_added += len(proposed)
+                        scene_name = scene.get("title") or scene.get("id")
+                        for marker, _primary_tag_id, _extra, _created_tag in proposed:
+                            log_info(f"Dry run: would add scene marker {marker['title']} at "
+                                     f"{marker['seconds']:g}s to scene {scene_name}.")
                     else:
                         scene_added = 0
                         scene_missing = False
@@ -1310,6 +1332,8 @@ class SyncService:
                                                       "seconds": marker["seconds"],
                                                       "primary_tag": {"id": primary_tag_id, "name": marker["primary_tag"]}})
                                 scene_added += 1
+                                log_info(f"Added scene marker {marker['title']} at {marker['seconds']:g}s "
+                                         f"to scene {scene.get('title') or scene.get('id')}.")
                             except Exception as exc:
                                 if is_missing_scene_error(exc):
                                     scene_missing = True
@@ -1419,6 +1443,8 @@ class SyncService:
                                 box_stats["would_create"] += 1
                                 would_link += 1
                                 box_stats["would_link"] += 1
+                                log_info(f"Dry run: would create group {values.get('name')} and link it "
+                                         f"to scene {scene.get('title') or scene.get('id')}.")
                                 continue
                             try:
                                 group = self.stash.create_group(values)
@@ -1428,6 +1454,7 @@ class SyncService:
                                 group_index = build_local_group_index(local_groups)
                                 groups_created += 1
                                 box_stats["groups_created"] += 1
+                                log_info(f"Created group {group.get('name') or values.get('name')}.")
                             except Exception as create_error:
                                 # If another Stash client created it concurrently, reuse the unique match.
                                 try:
@@ -1454,11 +1481,13 @@ class SyncService:
                             if dry_run:
                                 would_update += 1
                                 box_stats["would_update"] += 1
+                                log_info(f"Dry run: would update group metadata for {group.get('name') or group.get('id')}.")
                             else:
                                 try:
                                     self.stash.update_group(update)
                                     groups_updated += 1
                                     box_stats["groups_updated"] += 1
+                                    log_info(f"Updated group metadata for {group.get('name') or group.get('id')}.")
                                 except Exception as exc:
                                     failed += 1
                                     box_stats["failed"] += 1
@@ -1470,6 +1499,8 @@ class SyncService:
                             if dry_run:
                                 would_link += 1
                                 box_stats["would_link"] += 1
+                                log_info(f"Dry run: would link group {group.get('name') or group_id} "
+                                         f"to scene {scene.get('title') or scene.get('id')}.")
                             else:
                                 additions[group_id] = {"group_id": group_id, "scene_index": None}
 
@@ -1485,6 +1516,11 @@ class SyncService:
                             link_count = len(additions)
                             scene_links_added += link_count
                             box_stats["scene_links_added"] += link_count
+                            group_names = {str(group.get("id")): group.get("name") or group.get("id")
+                                           for group in local_groups}
+                            for group_id in additions:
+                                log_info(f"Linked group {group_names.get(group_id, group_id)} to scene "
+                                         f"{scene.get('title') or scene.get('id')}.")
                         except Exception as exc:
                             if is_missing_scene_error(exc):
                                 skipped += 1
@@ -1539,6 +1575,7 @@ class SyncService:
                 raise PluginError(f"Cannot determine a unique local tag for marker label {name!r}") from create_error
             raise create_error
         local_tags.append(created)
+        log_info(f"Created tag {created.get('name') or name}.")
         return created, True
 
     def reset_scene_tag_sync_history(self) -> dict[str, Any]:
@@ -1603,6 +1640,9 @@ class SyncService:
                             created += 1
                             indexed_by_name[str(record.get("name", "")).casefold()] = record
                             indexed_by_id[(normalize_endpoint(box["endpoint"]), str(favorite.get("id", "")))] = record
+                            noun = "performer" if is_performer else "studio"
+                            log_info(f"Created and favorited {noun} {record.get('name') or record.get('id')} "
+                                     f"from {box.get('name') or box['source']}.")
                         else:
                             skipped += 1
                         continue
@@ -1629,6 +1669,9 @@ class SyncService:
                     record["favorite"] = True
                     record["stash_ids"] = record_ids
                     marked += 1
+                    noun = "performer" if is_performer else "studio"
+                    log_info(f"Marked {noun} as favorite: {record.get('name') or record.get('id')} "
+                             f"from {box.get('name') or box['source']}.")
                 source_results.append({"source": box["source"], "found": len(favorites), "marked": marked, "created": created, "skipped": skipped})
             except Exception as exc:
                 source_results.append({"source": box["source"], "ok": False, "error": self.redact(str(exc), box)})

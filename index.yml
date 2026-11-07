@@ -27,10 +27,10 @@
     description: Rebirth is a video-first Stash theme with appearance preferences synced per signed-in user, a selectable one- or two-column mobile scene grid, an accent-responsive Stash box mark, squared custom switches with matching on/off thumb insets, Geist typography, an automatically cycling new-arrivals carousel, Continue Watching, themed native Settings sections and Help modals with Rebirth surfaces and selected-accent navigation, informational utilities tied to the selected accent, responsive scene and performer pagination with a result range beside page controls on desktop and stacked controls on phones, a Plugins package-manager toolbar that keeps its filter above fixed action positions, a compact Settings task queue, customizable mobile navigation with an icon-centered More flyout, distinct accent-filled tag chips, neutral Tagger result rows, square mobile include/exclude controls, wrapped performer controls, compact tag actions, dropdowns, selects, and video-player menus, theme settings integrated into Interface settings, light and dark modes, eight distinct accent colors including blue-green Teal and Red, selected-accent primary buttons, outlined secondary actions, and semantic destructive actions.
 - id: stash-metadata-sync
   name: Stash Metadata Sync
-  version: 1.0.0
-  date: "2026-11-07 01:29:57"
-  path: packages/stash-metadata-sync/1.0.0.zip
-  sha256: b3b8dc4ac0ea78fd0e8d1cd6e947eab0df514cec6c5e62fa7c742031b8cd0549
+  version: 1.0.1
+  date: "2026-11-07 01:44:13"
+  path: packages/stash-metadata-sync/1.0.1.zip
+  sha256: 99f8fb542ca60f50b9e120387235a76571cd8be7ec205acae69df92cb6416b1e
   requires: []
   metadata:
     description: Synchronize performer metadata and favorites, tag metadata and scene tags, and import ThePornDB scene markers and movie groups from configured StashBox sources.

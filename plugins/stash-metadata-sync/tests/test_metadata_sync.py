@@ -333,9 +333,11 @@ class MetadataSyncTests(unittest.TestCase):
             service.external_scenes_by_ids = lambda _box, _ids: {
                 "remote-scene": {"id": "remote-scene", "tags": [{"id": "remote-tag", "name": "Blowjob"}]}
             }
-            with patch.object(plugin, "report_progress"):
-                first = service.sync_scene_tags()
-            self.assertEqual(first["updated"], 1)
+            stream = io.StringIO()
+            with redirect_stderr(stream):
+                with patch.object(plugin, "report_progress"):
+                    first = service.sync_scene_tags()
+                self.assertEqual(first["updated"], 1)
             self.assertEqual(scene["tags"], [{"id": "tag-1"}])
 
             scene["tags"].clear()  # Simulate the user removing the synchronized tag.
@@ -345,6 +347,7 @@ class MetadataSyncTests(unittest.TestCase):
         self.assertEqual(second["updated"], 0)
         self.assertEqual(second["no_changes"], 1)
         self.assertEqual(stash.added_scene_tags, [("local-scene", ["tag-1"])])
+        self.assertIn(f"{plugin.INFO_PREFIX}Added tags to scene local-scene: Blowjob.", stream.getvalue())
 
     def test_scene_tag_sync_skips_scene_deleted_before_mutation(self):
         endpoint = "https://stashdb.org/graphql"
@@ -412,7 +415,9 @@ class MetadataSyncTests(unittest.TestCase):
             service.tpdb_transport = lambda _box: type("Remote", (), {"scene": lambda _self, _id: {
                 "markers": [{"title": "Blowjob", "start_time": 12.5, "end_time": 15}]
             }})()
-            first = service.sync_scene_markers()
+            stream = io.StringIO()
+            with redirect_stderr(stream):
+                first = service.sync_scene_markers()
             second = service.sync_scene_markers()
 
         self.assertEqual(first["markers_added"], 1)
@@ -420,6 +425,8 @@ class MetadataSyncTests(unittest.TestCase):
         self.assertEqual(len(stash.created_markers), 1)
         self.assertEqual(stash.created_tags, [{"name": "Blowjob"}])
         self.assertEqual(stash.created_markers[0]["end_seconds"], 15.0)
+        self.assertIn(f"{plugin.INFO_PREFIX}Created tag Blowjob.", stream.getvalue())
+        self.assertIn(f"{plugin.INFO_PREFIX}Added scene marker Blowjob at 12.5s to scene Scene.", stream.getvalue())
 
     def test_marker_sync_skips_scene_deleted_before_marker_create(self):
         endpoint = "https://theporndb.net/graphql"
@@ -484,7 +491,9 @@ class MetadataSyncTests(unittest.TestCase):
             service.tpdb_transport = lambda _box: type("Remote", (), {"scene": lambda _self, _id: {
                 "movies": [remote_record]
             }})()
-            first = service.sync_scene_groups()
+            stream = io.StringIO()
+            with redirect_stderr(stream):
+                first = service.sync_scene_groups()
             second = service.sync_scene_groups()
 
         self.assertEqual(first["groups_created"], 1)
@@ -499,6 +508,8 @@ class MetadataSyncTests(unittest.TestCase):
             {"group_id": "existing-group", "scene_index": 3},
             {"group_id": "group-2", "scene_index": None},
         ])
+        self.assertIn(f"{plugin.INFO_PREFIX}Created group Movie One.", stream.getvalue())
+        self.assertIn(f"{plugin.INFO_PREFIX}Linked group Movie One to scene scene-1.", stream.getvalue())
 
     def test_group_metadata_sync_fills_blanks_and_ignores_missing_movies_key(self):
         endpoint = "https://theporndb.net/graphql"

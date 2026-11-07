@@ -12,6 +12,7 @@ function loadPatch(fetchImpl = async () => { throw new Error("Unexpected network
   let afterPatch;
   let hookIndex = 0;
   const hookState = [];
+  const body = { tagName: "BODY" };
   const React = {
     Fragment: Symbol.for("react.fragment"),
     isValidElement: (value) => value?.validReactElement === true,
@@ -29,17 +30,26 @@ function loadPatch(fetchImpl = async () => { throw new Error("Unexpected network
     },
     beginRender: () => { hookIndex = 0; },
   };
+  const ReactDOM = {
+    createPortal: (children, container) => ({
+      validReactElement: true,
+      type: "portal",
+      props: { children, container },
+    }),
+  };
   const sandbox = {
     fetch: fetchImpl,
+    document: { body },
     window: {
       PluginApi: {
         React,
+        ReactDOM,
         patch: { after: (_component, callback) => { afterPatch = callback; } },
       },
     },
   };
   vm.runInNewContext(source, sandbox);
-  return { afterPatch, React, render: (component, props) => { React.beginRender(); return component(props); } };
+  return { afterPatch, React, ReactDOM, body, render: (component, props) => { React.beginRender(); return component(props); } };
 }
 
 function allElements(root) {
@@ -112,7 +122,7 @@ test("saved image view replaces the chooser and stale current-image preview", as
     width: 800, height: 1280, megapixels: 1.02, is_best: true,
     meets_quality_minimum: true, better_than_current: true,
   };
-  const { afterPatch, React, render } = loadPatch(async (_url, options) => {
+  const { afterPatch, React, body, render } = loadPatch(async (_url, options) => {
     const args = JSON.parse(options.body).variables.args;
     const output = args.mode === "list_performer_image_candidates" ? {
       performer_name: "Aaliyah Love", current_image_present: true, current_image_url: "/performer/27",
@@ -134,7 +144,14 @@ test("saved image view replaces the chooser and stale current-image preview", as
 
   chooser = render(chooserComponent, { performerId: "27" });
   const elements = allElements(chooser);
+  const portal = elements.find((element) => element.type === "portal");
   const savedView = elements.find((element) => element.props.className === "stash-metadata-image-saved");
+  const dialog = elements.find((element) => element.props.className === "modal show d-block stash-metadata-image-picker");
+  assert.ok(portal);
+  assert.equal(portal.props.container, body);
+  assert.ok(dialog);
+  assert.equal(dialog.props.style.position, "fixed");
+  assert.equal(dialog.props.style.zIndex, 2147483000);
   assert.ok(savedView);
   assert.ok(elements.some((element) => element.type === "h5" && textContent(element) === "Image saved"));
   const savedImage = elements.find((element) => element.type === "img" && element.props.src === candidate.url);

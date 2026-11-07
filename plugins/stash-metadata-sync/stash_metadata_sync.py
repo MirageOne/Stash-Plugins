@@ -30,7 +30,7 @@ MAX_GROUP_IMAGE_BYTES = 10 * 1024 * 1024
 PROGRESS_PREFIX = "\x01p\x02"
 INFO_PREFIX = "\x01i\x02"
 TPDB_API_BASE = "https://api.theporndb.net/scenes/"
-USER_AGENT = "MirageOne-Stash-Metadata-Sync/1.0.4"
+USER_AGENT = "MirageOne-Stash-Metadata-Sync/1.0.5"
 LOCAL_PERFORMER_FIELDS = """
   id name disambiguation alias_list gender urls birthdate death_date ethnicity country
   eye_color hair_color height_cm measurements fake_tits career_start career_end

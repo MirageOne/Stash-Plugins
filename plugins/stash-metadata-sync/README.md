@@ -19,7 +19,7 @@ StashBox's GraphQL scene schema provides scene tags but no marker fields. Marker
 
 ## Install and configure
 
-Install from the MirageOne Stash Plugins source in the repository root README, or extract the [1.0.4 manual archive](../../packages/stash-metadata-sync/1.0.4-manual.zip) into Stash's configured plugin directory. Enable **Stash Metadata Sync** in **Settings → Plugins** and reload plugins.
+Install from the MirageOne Stash Plugins source in the repository root README, or extract the [1.0.5 manual archive](../../packages/stash-metadata-sync/1.0.5-manual.zip) into Stash's configured plugin directory. Enable **Stash Metadata Sync** in **Settings → Plugins** and reload plugins.
 
 Add the sources you use under **Settings → Metadata Providers → Stash-boxes**. The plugin recognizes StashDB, ThePornDB, and FansDB by configured name or endpoint, and uses the API keys from Stash's own configuration. It does not search local files for keys or print credentials.
 

@@ -7,6 +7,7 @@
   }
 
   const React = api.React;
+  const ReactDOM = api.ReactDOM;
 
   function SyncPerformerButton({ performerId }) {
     const [state, setState] = React.useState("idle");
@@ -229,6 +230,130 @@
       );
     });
 
+    const imageDialog = open ? React.createElement(
+      "div",
+      {
+        className: "modal show d-block stash-metadata-image-picker",
+        role: "dialog",
+        "aria-modal": "true",
+        "aria-label": "Choose performer image",
+        style: {
+          position: "fixed", inset: 0, zIndex: 2147483000, display: "flex",
+          alignItems: "center", justifyContent: "center", padding: "1rem",
+          overflowY: "auto", background: "rgba(0,0,0,.65)",
+        },
+      },
+      React.createElement(
+        "div",
+        { className: "modal-dialog modal-xl modal-dialog-scrollable", role: "document",
+          style: { width: "100%", maxWidth: "1100px", margin: "auto" } },
+        React.createElement(
+          "div",
+          { className: "modal-content", style: { maxHeight: "calc(100vh - 2rem)" } },
+          React.createElement(
+            "div",
+            { className: "modal-header" },
+            React.createElement("h5", { className: "modal-title" },
+              phase === "saved" ? "Image saved" : `Choose image for ${data?.performer_name || "performer"}`),
+            React.createElement("button", {
+              type: "button", className: "btn btn-secondary", onClick: () => setOpen(false),
+              "aria-label": "Close image picker",
+            }, "Close"),
+          ),
+          React.createElement(
+            "div",
+            { className: "modal-body", style: { overflowY: "auto" } },
+            phase === "saved" ? React.createElement(
+              "div",
+              { className: "stash-metadata-image-saved", style: {
+                  display: "flex", flexWrap: "wrap", alignItems: "center", gap: "1rem",
+                  maxWidth: "640px", margin: "0 auto", padding: "1rem",
+                  border: "1px solid var(--bs-border-color, #666)", borderRadius: "0.5rem",
+                } },
+              selectedCandidate ? React.createElement("img", {
+                src: selectedCandidate.url,
+                alt: `Saved performer image from ${selectedCandidate.source_name}`,
+                onError: (event) => { event.currentTarget.style.display = "none"; },
+                style: {
+                  display: "block", width: "112px", height: "148px", flex: "0 0 112px",
+                  objectFit: "contain", borderRadius: "0.5rem", background: "var(--bs-tertiary-bg, #202329)",
+                },
+              }) : null,
+              React.createElement("div", { className: "stash-metadata-image-saved-details",
+                style: { flex: "1 1 220px", minWidth: 0 } },
+                React.createElement("div", { className: "alert alert-success", role: "status",
+                  style: { marginBottom: "0.75rem" } }, message),
+                React.createElement("p", { style: { margin: 0 } }, "Reload this page to see the updated performer image."),
+              ),
+            ) : React.createElement(
+              React.Fragment,
+              null,
+              data?.source_errors?.length ? React.createElement(
+                "div", { className: "alert alert-warning", role: "status" },
+                `Some image sources could not be checked: ${data.source_errors.join("; ")}`,
+              ) : null,
+              data?.current_image_present ? React.createElement(
+                "div",
+                { className: "stash-metadata-current-image", style: {
+                    display: "flex", alignItems: "center", gap: "1rem", padding: "0.75rem",
+                    marginBottom: "1rem", border: "1px solid var(--bs-border-color, #666)", borderRadius: "0.5rem",
+                  } },
+                React.createElement("img", {
+                  src: data.current_image_url,
+                  alt: `Current image for ${data.performer_name || "performer"}`,
+                  onError: (event) => { event.currentTarget.style.display = "none"; },
+                  style: { width: "96px", height: "96px", objectFit: "contain", flex: "0 0 auto" },
+                }),
+                React.createElement("div", null,
+                  React.createElement("strong", { style: { display: "block" } }, "Current image"),
+                  React.createElement("span", null, data.current_image
+                    ? `${data.current_image.width}×${data.current_image.height}`
+                    : "Resolution could not be measured"),
+                ),
+              ) : React.createElement("div", { className: "alert alert-secondary" }, "This performer has no current image."),
+              React.createElement("p", { style: { marginBottom: "0.75rem" } },
+                "Choose one of the configured StashBox images below. The largest option is selected by default."),
+              selectedCandidate?.better_than_current === false ? React.createElement(
+                "div", { className: "alert alert-warning", role: "status" },
+                "The selected image has fewer pixels than the current image. Choosing it will reduce the saved resolution.",
+              ) : null,
+              selectedCandidate && !selectedCandidate.meets_quality_minimum ? React.createElement(
+                "div", { className: "alert alert-warning", role: "status" },
+                "This image is below the automatic sync minimum. You can still choose it here manually.",
+              ) : null,
+              phase === "loading" ? React.createElement("p", null, "Loading images from configured StashBoxes…") : null,
+              phase === "failed" || (phase === "ready" && message)
+                ? React.createElement("div", { className: "alert alert-danger", role: "alert" }, message) : null,
+              phase === "ready" && !candidates.length
+                ? React.createElement("div", { className: "alert alert-secondary" }, "No images with known dimensions were found in the configured StashBoxes.")
+                : null,
+              phase === "ready" && candidates.length
+                ? React.createElement("div", { className: "stash-metadata-image-grid", style: {
+                    display: "grid", gridTemplateColumns: "repeat(auto-fill, minmax(min(100%, 220px), 1fr))",
+                    gap: "0.75rem",
+                  } }, ...cards)
+                : null,
+            ),
+          ),
+          React.createElement(
+            "div",
+            { className: "modal-footer" },
+            phase === "saved" ? React.createElement("button", {
+              type: "button", className: "btn btn-primary", onClick: () => setOpen(false),
+            }, "Done") : React.createElement("button", {
+              type: "button", className: "btn btn-primary", onClick: applySelection,
+              disabled: !selected || phase !== "ready",
+            }, phase === "applying" ? "Saving…" : "Use selected image"),
+          ),
+        ),
+      ),
+    ) : null;
+    const imageDialogPortal = imageDialog
+      ? ReactDOM?.createPortal && document.body
+        ? ReactDOM.createPortal(imageDialog, document.body)
+        : imageDialog
+      : null;
+
     return React.createElement(
       React.Fragment,
       null,
@@ -238,120 +363,7 @@
         onClick: showPicker,
         title: "Preview configured StashBox performer images and choose which image to use",
       }, "Choose image"),
-      open ? React.createElement(
-        "div",
-        {
-          className: "modal show d-block stash-metadata-image-picker",
-          role: "dialog",
-          "aria-modal": "true",
-          "aria-label": "Choose performer image",
-          style: { position: "fixed", inset: 0, zIndex: 2000, overflowY: "auto", background: "rgba(0,0,0,.65)" },
-        },
-        React.createElement(
-          "div",
-          { className: "modal-dialog modal-xl modal-dialog-scrollable", role: "document",
-            style: { width: "calc(100% - 1rem)", maxWidth: "1100px", margin: "1rem auto" } },
-          React.createElement(
-            "div",
-            { className: "modal-content", style: { maxHeight: "calc(100vh - 2rem)" } },
-            React.createElement(
-              "div",
-              { className: "modal-header" },
-              React.createElement("h5", { className: "modal-title" },
-                phase === "saved" ? "Image saved" : `Choose image for ${data?.performer_name || "performer"}`),
-              React.createElement("button", {
-                type: "button", className: "btn btn-secondary", onClick: () => setOpen(false),
-                "aria-label": "Close image picker",
-              }, "Close"),
-            ),
-            React.createElement(
-              "div",
-              { className: "modal-body", style: { overflowY: "auto" } },
-              phase === "saved" ? React.createElement(
-                "div",
-                { className: "stash-metadata-image-saved", style: {
-                    display: "flex", flexWrap: "wrap", alignItems: "center", gap: "1rem",
-                    maxWidth: "640px", margin: "0 auto", padding: "1rem",
-                    border: "1px solid var(--bs-border-color, #666)", borderRadius: "0.5rem",
-                  } },
-                selectedCandidate ? React.createElement("img", {
-                  src: selectedCandidate.url,
-                  alt: `Saved performer image from ${selectedCandidate.source_name}`,
-                  onError: (event) => { event.currentTarget.style.display = "none"; },
-                  style: {
-                    display: "block", width: "112px", height: "148px", flex: "0 0 112px",
-                    objectFit: "contain", borderRadius: "0.5rem", background: "var(--bs-tertiary-bg, #202329)",
-                  },
-                }) : null,
-                React.createElement("div", { className: "stash-metadata-image-saved-details",
-                  style: { flex: "1 1 220px", minWidth: 0 } },
-                  React.createElement("div", { className: "alert alert-success", role: "status",
-                    style: { marginBottom: "0.75rem" } }, message),
-                  React.createElement("p", { style: { margin: 0 } }, "Reload this page to see the updated performer image."),
-                ),
-              ) : React.createElement(
-                React.Fragment,
-                null,
-                data?.source_errors?.length ? React.createElement(
-                  "div", { className: "alert alert-warning", role: "status" },
-                  `Some image sources could not be checked: ${data.source_errors.join("; ")}`,
-                ) : null,
-                data?.current_image_present ? React.createElement(
-                  "div",
-                  { className: "stash-metadata-current-image", style: {
-                      display: "flex", alignItems: "center", gap: "1rem", padding: "0.75rem",
-                      marginBottom: "1rem", border: "1px solid var(--bs-border-color, #666)", borderRadius: "0.5rem",
-                    } },
-                  React.createElement("img", {
-                    src: data.current_image_url,
-                    alt: `Current image for ${data.performer_name || "performer"}`,
-                    onError: (event) => { event.currentTarget.style.display = "none"; },
-                    style: { width: "96px", height: "96px", objectFit: "contain", flex: "0 0 auto" },
-                  }),
-                  React.createElement("div", null,
-                    React.createElement("strong", { style: { display: "block" } }, "Current image"),
-                    React.createElement("span", null, data.current_image
-                      ? `${data.current_image.width}×${data.current_image.height}`
-                      : "Resolution could not be measured"),
-                  ),
-                ) : React.createElement("div", { className: "alert alert-secondary" }, "This performer has no current image."),
-                React.createElement("p", { style: { marginBottom: "0.75rem" } },
-                  "Choose one of the configured StashBox images below. The largest option is selected by default."),
-                selectedCandidate?.better_than_current === false ? React.createElement(
-                  "div", { className: "alert alert-warning", role: "status" },
-                  "The selected image has fewer pixels than the current image. Choosing it will reduce the saved resolution.",
-                ) : null,
-                selectedCandidate && !selectedCandidate.meets_quality_minimum ? React.createElement(
-                  "div", { className: "alert alert-warning", role: "status" },
-                  "This image is below the automatic sync minimum. You can still choose it here manually.",
-                ) : null,
-                phase === "loading" ? React.createElement("p", null, "Loading images from configured StashBoxes…") : null,
-                phase === "failed" || (phase === "ready" && message)
-                  ? React.createElement("div", { className: "alert alert-danger", role: "alert" }, message) : null,
-                phase === "ready" && !candidates.length
-                  ? React.createElement("div", { className: "alert alert-secondary" }, "No images with known dimensions were found in the configured StashBoxes.")
-                  : null,
-                phase === "ready" && candidates.length
-                  ? React.createElement("div", { className: "stash-metadata-image-grid", style: {
-                      display: "grid", gridTemplateColumns: "repeat(auto-fill, minmax(min(100%, 220px), 1fr))",
-                      gap: "0.75rem",
-                    } }, ...cards)
-                  : null,
-              ),
-            ),
-            React.createElement(
-              "div",
-              { className: "modal-footer" },
-              phase === "saved" ? React.createElement("button", {
-                type: "button", className: "btn btn-primary", onClick: () => setOpen(false),
-              }, "Done") : React.createElement("button", {
-                type: "button", className: "btn btn-primary", onClick: applySelection,
-                disabled: !selected || phase !== "ready",
-              }, phase === "applying" ? "Saving…" : "Use selected image"),
-            ),
-          ),
-        ),
-      ) : null,
+      imageDialogPortal,
     );
   }
 

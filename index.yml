@@ -25,3 +25,12 @@
   requires: []
   metadata:
     description: Rebirth is a video-first Stash theme with account-synced appearance preferences, responsive navigation and mobile scene grids, an accent-responsive Stash box mark, custom switches, Geist typography, an automatically cycling carousel, themed Settings and Help, and a native filter sidebar styled to match the theme, collapsed on performer lists, and fully hidden while collapsed on performer detail pages. It also includes responsive pagination, a compact task queue, icon-centered mobile navigation, distinct tag chips, neutral Tagger results, evenly spaced performer actions, theme-styled dropdowns and selects, light and dark modes, eight accent colors, selected-accent primary buttons, outlined secondary actions, and semantic destructive actions.
+- id: tpdb-markers
+  name: TPDB Markers
+  version: 1.0.0
+  date: "2026-11-08 13:26:01"
+  path: packages/tpdb-markers/1.0.0.zip
+  sha256: bedb7dc866c9649a34f945dd37c56551acd08f6c62e77350f0783b6c46b0a39c
+  requires: []
+  metadata:
+    description: ThePornDB scene-marker sync with safe batch processing, per-scene log progress, optional Stash Group creation and linking from movie/group records, marker merge/replace controls, and Python dependency guidance.

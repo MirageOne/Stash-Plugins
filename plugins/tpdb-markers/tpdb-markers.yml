@@ -1,0 +1,49 @@
+name: TPDB Markers
+description: Imports ThePornDB scene markers and can create and link its movie or group records as Stash Groups.
+version: 1.0.0
+url: https://github.com/MirageOne/Stash-Plugins/tree/main/plugins/tpdb-markers
+exec:
+  - python
+  - "{pluginDir}/tpdb_markers.py"
+interface: raw
+
+hooks:
+  - name: Sync markers after scene updates
+    description: Queues a TPDB lookup when a scene with a TPDB stash ID is updated.
+    triggeredBy:
+      - Scene.Update.Post
+
+settings:
+  disableSceneMarkerHook:
+    displayName: Disable automatic scene update sync
+    type: BOOLEAN
+  createGroupsFromScene:
+    displayName: Create and link Stash Groups
+    description: Import movie or group records returned by TPDB and attach them to the scene without removing existing group links.
+    type: BOOLEAN
+  importGroupImages:
+    displayName: Import group artwork
+    description: Ask Stash to fetch TPDB group artwork. If a remote image is blocked, group metadata is retried without the images.
+    type: BOOLEAN
+  runOnScenesWithMarkers:
+    displayName: Run on scenes that already have markers
+    type: BOOLEAN
+  addTPDBMarkerTag:
+    displayName: Add the [TPDBMarker] tag to imported markers
+    type: BOOLEAN
+  addTPDBMarkerTitle:
+    displayName: Prefix imported marker titles with [TPDBMarker]
+    type: BOOLEAN
+  overwriteMarkers:
+    displayName: Replace existing scene markers
+    description: When TPDB returns markers, delete the scene's current markers before importing them. This takes precedence over Merge markers.
+    type: BOOLEAN
+  mergeMarkers:
+    displayName: Merge markers into scenes that already have markers
+    type: BOOLEAN
+
+tasks:
+  - name: Sync
+    description: Fetch TPDB markers for all eligible scenes, or one scene when queued by the scene update hook.
+    defaultArgs:
+      mode: sync

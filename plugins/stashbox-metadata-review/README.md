@@ -37,7 +37,7 @@ The dashboard keeps the latest 30 applied changes in the current browser's local
 
 ## Install
 
-Add the **MirageOne Stash Plugins** source in **Settings → Plugins → Add source** using the index URL in the [repository README](../../README.md), then install **StashBox Metadata Review** from **Available Plugins**. For a manual installation, download [the 1.2.2 manual archive](../../packages/stashbox-metadata-review/1.2.2-manual.zip), extract its `stashbox-metadata-review/` directory into Stash's configured plugin directory, enable it, and refresh Stash in the browser.
+Add the **MirageOne Stash Plugins** source in **Settings → Plugins → Add source** using the index URL in the [repository README](../../README.md), then install **StashBox Metadata Review** from **Available Plugins**. For a manual installation, download [the 1.2.3 manual archive](../../packages/stashbox-metadata-review/1.2.3-manual.zip), extract its `stashbox-metadata-review/` directory into Stash's configured plugin directory, enable it, and refresh Stash in the browser.
 
 ## Validation
 

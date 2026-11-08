@@ -1,6 +1,6 @@
 name: Discovery Queue
 description: Build a personalized scene queue with filters for tags, performers, studios, runtime, rating, and play history. Transparent like, finish, skip, and less-like-this feedback tunes account-specific recommendations.
-version: 1.0.0
+version: 1.0.1
 url: https://github.com/MirageOne/Stash-Plugins/tree/main/plugins/discovery-queue
 interface: raw
 ui:

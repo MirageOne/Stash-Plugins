@@ -793,7 +793,7 @@ export const QueuePage: React.FC = () => {
         <div className="ld-app-stack">
           <header className="ld-header">
             <div className="ld-brand-row">
-              <a className="ld-back" href="/scenes" aria-label="Back to Stash scenes">
+              <a className="ld-back" href="/scenes" target="_top" aria-label="Back to Stash scenes">
                 <svg viewBox="0 0 24 24" aria-hidden="true"><path d="m14.5 5-7 7 7 7" /></svg>
                 <span>Stash</span>
               </a>

@@ -10,7 +10,7 @@ The profile and queue filters are stored in `configuration.ui` for the signed-in
 
 ## Install
 
-Add the **MirageOne Stash Plugins** source in **Settings → Plugins → Add source** using the index URL in the [repository README](../../README.md), then install **Discovery Queue** from **Available Plugins**. For a manual installation, download the [1.0.0 manual archive](../../packages/discovery-queue/1.0.0-manual.zip) and extract its `discovery-queue/` directory into Stash's configured plugins directory. Enable it in **Settings → Plugins**, reload the plugin list, and refresh the browser.
+Add the **MirageOne Stash Plugins** source in **Settings → Plugins → Add source** using the index URL in the [repository README](../../README.md), then install **Discovery Queue** from **Available Plugins**. For a manual installation, download the [1.0.1 manual archive](../../packages/discovery-queue/1.0.1-manual.zip) and extract its `discovery-queue/` directory into Stash's configured plugins directory. Enable it in **Settings → Plugins**, reload the plugin list, and refresh the browser.
 
 The plugin targets Stash 0.32 or newer and requires no Python packages or external services. Its navigation shortcut appears in the Rebirth plugin flyout when Rebirth is active.
 

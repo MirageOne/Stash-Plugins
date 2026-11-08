@@ -1,36 +1,36 @@
 - id: library-doctor
   name: Library Doctor
-  version: 1.6.11
-  date: "2026-11-08 19:40:57"
-  path: packages/library-doctor/1.6.11.zip
-  sha256: 5b20101ba24b8d41dc3c4ebcdc64c02fca08de18f25f7a046bb9ee2cff097490
+  version: 1.6.12
+  date: "2026-11-08 17:59:22"
+  path: packages/library-doctor/1.6.12.zip
+  sha256: 0c9bb6bc86d4086ebe509a8e1b83e10224b68d3ec6ad386e67e4551be02d0d21
   requires: []
   metadata:
     description: Theme-adaptive library health checks, FFmpeg encoding audit and re-encoding, metadata assistance, scraping, tagging, and duplicate/version review with full file details, resolution-based keep recommendations, explicit keep selection, and confirmed scene plus file removal.
 - id: stashbox-metadata-review
   name: StashBox Metadata Review
-  version: 1.2.2
-  date: "2026-11-08 19:40:57"
-  path: packages/stashbox-metadata-review/1.2.2.zip
-  sha256: 08f3d8a3247b756ca1a6421bf3d9cefd3cd88e14dda288246afe12fd8fc81807
+  version: 1.2.3
+  date: "2026-11-08 17:59:22"
+  path: packages/stashbox-metadata-review/1.2.3.zip
+  sha256: d24ca1cee317a2304fd92c10c3730ad3550a8d1b11dcc21f27f0e51cc2d45401
   requires: []
   metadata:
     description: Theme-adaptive StashBox field review plus a source-aware scene tagger that searches any or all configured StashBoxes, ranks fingerprint matches, reviews metadata, and links each source ID with its originating endpoint for downstream plugins.
 - id: stash-downloader
   name: Stash Downloader
-  version: 0.8.3
-  date: "2026-11-08 19:03:13"
-  path: packages/stash-downloader/0.8.3.zip
-  sha256: 4e65e19bfc0cae51bd5548a852a49541163f7ad1ffff18fd77005f8bbde63ddb
+  version: 0.8.4
+  date: "2026-11-08 17:59:22"
+  path: packages/stash-downloader/0.8.4.zip
+  sha256: 9fe21d1765791356b870939b530c06568126fbe5476d282963a429f192aa4f45
   requires: []
   metadata:
     description: Theme-adaptive media downloads with page-managed yt-dlp install and updates in an isolated Python environment, proxy settings, Stash import profiles, duplicate-source checks, recoverable queue state, searchable status filters, metadata review, and a separate activity workspace.
 - id: discovery-queue
   name: Discovery Queue
-  version: 1.0.0
-  date: "2026-11-08 22:42:36"
-  path: packages/discovery-queue/1.0.0.zip
-  sha256: 0de78f04bbd99225066e2019f2e2ee2ff076cd9a865f320fe1e886e51aecca4d
+  version: 1.0.1
+  date: "2026-11-08 17:59:22"
+  path: packages/discovery-queue/1.0.1.zip
+  sha256: efa728c5708b42489c1aa54dcd92fe52abf2aeddcf3105081b9e30f30c1d739d
   requires: []
   metadata:
     description: Theme-adaptive personalized scene queue with title, tag, performer, studio, runtime, rating, and play-history filters. An explainable account-specific preference model learns from explicit like, finished, skip, and less-like-this choices and can be reset at any time.

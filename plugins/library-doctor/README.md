@@ -24,6 +24,20 @@ Add the **MirageOne Stash Plugins** source in **Settings → Plugins → Add sou
 
 The Stash-side shortcut samples the active interface's computed styles before opening the standalone dashboard, then refreshes its theme snapshot when Stash changes themes or stylesheets. This carries user-selected colors, surfaces, typography, control styling, and light or dark mode into Library Doctor, including themes that do not publish Library Doctor-specific tokens.
 
+## Screenshots
+
+These screenshots were captured from Library Doctor 1.6.9 in a local Stash-compatible preview using fictional scene and file data. They show the responsive dashboard and its main review workspaces.
+
+![Library Doctor Health Check in a dark desktop theme](screenshots/health-dark-desktop.png)
+
+![Library Doctor Health Check in a light desktop theme](screenshots/health-light-desktop.png)
+
+![Library Doctor Health Check on a mobile screen](screenshots/health-mobile.png)
+
+![Library Doctor Encoding Auditor](screenshots/encoding-desktop.png)
+
+![Library Doctor Duplicate and Version Review](screenshots/duplicates-desktop.png)
+
 ## Troubleshooting
 
 - If the navigation shortcut is missing, check that Library Doctor is enabled, reload the plugin list, then refresh Stash in the browser.

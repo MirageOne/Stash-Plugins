@@ -2,6 +2,18 @@
 
 Stash Downloader adds a URL queue for downloading videos and images, extracting metadata, and importing completed downloads into Stash. Its React interface uses Stash's shared `PluginApi` and samples the active host theme's rendered controls, colors, typography, spacing, radii, and elevation so it can follow stock or third-party themes without relying on theme-specific variable names. The rebuilt dashboard follows Library Doctor's header, editorial hierarchy, rounded surfaces, theme tokens, and accent states. Queue management and activity logs now have separate workspaces, with responsive queue search and status filters. Its navigation shortcut sits beside the right-side utility buttons.
 
+## Screenshots
+
+Captured from the built plugin in a local Stash-compatible preview with representative queue and activity data. Thumbnail artwork is illustrative.
+
+![Stash Downloader queue in a dark desktop theme](screenshots/dashboard-dark-desktop.png)
+
+![Stash Downloader queue in a light desktop theme](screenshots/dashboard-light-desktop.png)
+
+![Stash Downloader queue on a mobile screen](screenshots/dashboard-mobile.png)
+
+![Stash Downloader activity workspace](screenshots/activity-desktop.png)
+
 ## Features
 
 - Queue individual URLs or batch-import a list.

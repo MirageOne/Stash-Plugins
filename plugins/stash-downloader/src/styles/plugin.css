@@ -1009,6 +1009,7 @@
 .stash-downloader-plugin [hidden] { display: none !important; }
 .stash-downloader-plugin .ld-page-root { min-height: 100vh; }
 .stash-downloader-plugin .ld-app-stack { display: grid; gap: 16px; }
+.stash-downloader-plugin .ld-workspace-panel { display: grid; align-content: start; gap: 16px; min-width: 0; }
 .stash-downloader-plugin .ld-workspace-tabs { display: flex; align-items: center; gap: 5px; overflow-x: auto; padding: 5px; border: 1px solid var(--ld-border); border-radius: 11px; background: rgba(255,255,255,0.025); scrollbar-width: thin; }
 .stash-downloader-plugin .ld-workspace-tab { min-height: 38px; display: inline-flex; align-items: center; justify-content: center; gap: 8px; flex: 0 0 auto; padding: 0 12px; border: 1px solid transparent; border-radius: 7px; background: transparent; color: var(--ld-muted); font-size: 0.78rem; font-weight: 650; white-space: nowrap; cursor: pointer; }
 .stash-downloader-plugin .ld-workspace-tab svg { width: 16px; height: 16px; fill: none; stroke: currentColor; stroke-width: 1.8; stroke-linecap: round; stroke-linejoin: round; }

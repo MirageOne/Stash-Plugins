@@ -5,7 +5,7 @@ This repository hosts independent Stash plugins. Each plugin keeps its manifest,
 ## Available plugins
 
 - [Library Doctor](plugins/library-doctor/README.md) — Health Check, FFmpeg encoding audit and re-encoding, metadata assistance, scraping, tagging, and duplicate or alternate-version review.
-- [Stash Downloader](plugins/stash-downloader/README.md) — a theme-adaptive media queue with import profiles, source duplicate checks, recoverable server downloads, managed yt-dlp install/update, metadata review, search, and status filters.
+- [Stash Downloader](plugins/stash-downloader/README.md) — a theme-adaptive media queue with import profiles, source duplicate checks, recoverable server downloads, managed yt-dlp install/update, metadata review, search, and status filters. [Screenshots](plugins/stash-downloader/README.md#screenshots)
 - [Rebirth](plugins/rebirth/README.md) — a video-first redesign with per-account appearance preferences, an accent-responsive Stash mark, Geist typography, themed native Settings sections and Help modals, responsive scene and performer pagination, a Plugins filter above fixed action buttons, switches with matched on/off thumb insets, a compact task queue, a mobile scene-column selector, an automatically cycling new-arrivals carousel, Continue Watching, customizable navigation, eight distinct accent colors, and accent-filled primary actions in light and dark modes. [Screenshots](plugins/rebirth/README.md#screenshots)
 ## Install from Stash
 

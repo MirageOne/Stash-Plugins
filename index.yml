@@ -1,27 +1,27 @@
 - id: library-doctor
   name: Library Doctor
-  version: 1.6.9
-  date: "2026-11-07 23:46:59"
-  path: packages/library-doctor/1.6.9.zip
-  sha256: abe588e254ddf220bc3d5ee94049a306f8f91e014419117b6efcc711dff0afc4
+  version: 1.6.10
+  date: "2026-11-08 19:03:13"
+  path: packages/library-doctor/1.6.10.zip
+  sha256: 87e0c42d0633157dd6fd3d51134fb94073e41a5f0471545d27e58b4bab134285
   requires: []
   metadata:
     description: Theme-adaptive library health checks, FFmpeg encoding audit and re-encoding, metadata assistance, scraping, tagging, and duplicate/version review with full file details, resolution-based keep recommendations, explicit keep selection, and confirmed scene plus file removal.
 - id: stashbox-metadata-review
   name: StashBox Metadata Review
-  version: 1.2.0
-  date: "2026-11-08 15:23:16"
-  path: packages/stashbox-metadata-review/1.2.0.zip
-  sha256: dcb5b8bc38ea1e9cdf24312800f7150343ad3c4cf7e025ac439d6195a71262f6
+  version: 1.2.1
+  date: "2026-11-08 19:03:13"
+  path: packages/stashbox-metadata-review/1.2.1.zip
+  sha256: 45a3b8826632bfc1cdcdc32d1b1288341b35553955731e539d6a60cfe62891f2
   requires: []
   metadata:
     description: Theme-adaptive StashBox field review plus a source-aware scene tagger that searches any or all configured StashBoxes, ranks fingerprint matches, reviews metadata, and links each source ID with its originating endpoint for downstream plugins.
 - id: stash-downloader
   name: Stash Downloader
-  version: 0.8.2
-  date: "2026-11-08 01:13:15"
-  path: packages/stash-downloader/0.8.2.zip
-  sha256: a5c56c56bfa1382f35845ad5db2235fe0d883678f1684aa6e8395dc74e7df94a
+  version: 0.8.3
+  date: "2026-11-08 19:03:13"
+  path: packages/stash-downloader/0.8.3.zip
+  sha256: 4e65e19bfc0cae51bd5548a852a49541163f7ad1ffff18fd77005f8bbde63ddb
   requires: []
   metadata:
     description: Theme-adaptive media downloads with page-managed yt-dlp install and updates in an isolated Python environment, proxy settings, Stash import profiles, duplicate-source checks, recoverable queue state, searchable status filters, metadata review, and a separate activity workspace.

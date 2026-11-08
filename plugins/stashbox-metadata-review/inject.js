@@ -7,7 +7,7 @@
     var ENTRY_ID = "stashbox-metadata-review-nav-entry";
     var DASHBOARD_URL = "/plugin/stashbox-metadata-review/assets/index.html";
     var HOST_THEME_KEY = "stashbox-metadata-review.host-theme.v1";
-    var ICON = "<svg viewBox='0 0 24 24' aria-hidden='true' focusable='false' fill='none' stroke='currentColor' stroke-width='1.8' stroke-linecap='round' stroke-linejoin='round'><path d='M7 3.8h7l4 4V20a1.5 1.5 0 0 1-1.5 1.5h-9A1.5 1.5 0 0 1 6 20V5.3a1.5 1.5 0 0 1 1-1.5Z'/><path d='M14 4v4h4M9 13h6M9 16h3'/><path d='m14.5 17 1.2 1.2 2.5-2.6'/></svg>";
+    var ICON = "<svg viewBox='0 0 24 24' aria-hidden='true' focusable='false' fill='none' stroke='currentColor' stroke-width='1.8' stroke-linecap='round' stroke-linejoin='round'><ellipse cx='9' cy='5' rx='5.5' ry='2.3'/><path d='M3.5 5v8.5c0 1.3 2.5 2.3 5.5 2.3 1.1 0 2.1-.1 2.9-.4M14.5 5v4.1'/><path d='M3.5 9c0 1.3 2.5 2.3 5.5 2.3 1 0 1.9-.1 2.7-.3'/><circle cx='17' cy='15.8' r='3.2'/><path d='m19.4 18.2 2 2'/></svg>";
 
     function colorChannels(color) {
         var value = String(color || "").trim();

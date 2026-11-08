@@ -7,7 +7,7 @@
     var ENTRY_ID = "library-doctor-nav-entry";
     var DASHBOARD_URL = "/plugin/library-doctor/assets/index.html";
     var HOST_THEME_KEY = "library-doctor.host-theme.v1";
-    var ICON = "<svg viewBox='0 0 24 24' aria-hidden='true' focusable='false' fill='none' stroke='currentColor' stroke-width='1.8' stroke-linecap='round' stroke-linejoin='round'><path d='M7 3.8h7l4 4V20a1.5 1.5 0 0 1-1.5 1.5h-9A1.5 1.5 0 0 1 6 20V5.3a1.5 1.5 0 0 1 1-1.5Z'/><path d='M14 4v4h4M9 13h6M9 16h3'/><path d='m14.5 17 1.2 1.2 2.5-2.6'/></svg>";
+    var ICON = "<svg viewBox='0 0 24 24' aria-hidden='true' focusable='false' fill='none' stroke='currentColor' stroke-width='1.8' stroke-linecap='round' stroke-linejoin='round'><path d='M6 3.5v5a4 4 0 0 0 8 0v-5M4 3.5h4M12 3.5h4'/><path d='M14 8.5v2a4 4 0 0 0 4 4h1'/><circle cx='19' cy='17' r='2.5'/></svg>";
 
     function colorChannels(color) {
         var value = String(color || "").trim();
@@ -170,7 +170,7 @@
         link.href = DASHBOARD_URL;
         link.target = "_blank";
         link.rel = "noopener noreferrer";
-        link.title = "Audit library metadata and generated files";
+        link.title = "Open Library Doctor health checks";
         link.setAttribute("aria-label", "Library Doctor");
         link.style.order = "89";
         link.innerHTML = ICON;

@@ -26,7 +26,7 @@ Copy or symlink this directory into Stash's configured `plugins/` directory, rel
 
 ## Screenshots
 
-These screenshots were captured from Rebirth 1.2.6 running on Stash 0.32.0. The isolated fixture uses a fictional performer and studio with generated artwork for three demo scenes. The plugin launcher screenshots show Rebirth's live flyout populated with representative plugin shortcuts.
+These screenshots were captured from Rebirth 1.2.6 running on Stash 0.32.0. The isolated fixture uses a fictional performer and studio with generated artwork for three demo scenes. The plugin launcher screenshots show Rebirth's live flyout populated with the installed StashBox Metadata Review, Stash Downloader, and Library Doctor plugins.
 
 ### Home
 

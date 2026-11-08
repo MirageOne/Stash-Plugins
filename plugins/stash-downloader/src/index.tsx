@@ -87,7 +87,7 @@ function addNavButtonViaMutationObserver() {
     navButton.style.order = '89';
     navButton.innerHTML = `
       <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round" viewBox="0 0 24 24" aria-hidden="true" focusable="false">
-        <path d="M12 3v12m0 0 4-4m-4 4-4-4"/><path d="M5 16v4h14v-4"/>
+        <rect x="3.5" y="4" width="17" height="16" rx="2"/><path d="M7.5 4v16m9-16v16M3.5 9h4m9 0h4m-17 6h4m9 0h4"/><path d="M12 7.5v6m-2.5-2.5L12 13.5l2.5-2.5"/>
       </svg>
     `;
 

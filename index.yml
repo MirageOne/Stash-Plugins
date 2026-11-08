@@ -7,6 +7,15 @@
   requires: []
   metadata:
     description: Theme-adaptive library health checks, FFmpeg encoding audit and re-encoding, metadata assistance, scraping, tagging, and duplicate/version review with full file details, resolution-based keep recommendations, explicit keep selection, and confirmed scene plus file removal.
+- id: stashbox-metadata-review
+  name: StashBox Metadata Review
+  version: 1.1.0
+  date: "2026-11-08 14:46:51"
+  path: packages/stashbox-metadata-review/1.1.0.zip
+  sha256: 8969ac1eabdf3f6ec2ddd005538ca53486f9622471c498da74a3c7b1c51bd9ea
+  requires: []
+  metadata:
+    description: Theme-adaptive StashBox field review plus a batch scene tagger with filters for unorganized, recently added, missing metadata, and missing pHash scenes; Tagger-style pHash/duration ranking, OSHash match indicators, and reviewed relationship updates.
 - id: stash-downloader
   name: Stash Downloader
   version: 0.8.2

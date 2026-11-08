@@ -19,10 +19,11 @@ export const DEFAULT_IMPORT_PROFILE = {
 };
 
 export const ROUTES = {
-  MAIN: '/plugin/stash-downloader',
-  QUEUE: '/plugin/stash-downloader/queue',
-  METADATA: '/plugin/stash-downloader/metadata',
-  SETTINGS: '/plugin/stash-downloader/settings',
+  // Stash mounts /plugin/:pluginId for asset APIs; use /plugins/ for refreshable UI routes.
+  MAIN: '/plugins/stash-downloader',
+  QUEUE: '/plugins/stash-downloader/queue',
+  METADATA: '/plugins/stash-downloader/metadata',
+  SETTINGS: '/plugins/stash-downloader/settings',
 } as const;
 
 export const DEFAULT_SETTINGS = {

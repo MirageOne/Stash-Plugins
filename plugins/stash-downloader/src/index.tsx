@@ -162,7 +162,7 @@ function initializePlugin() {
     addNavButtonViaMutationObserver();
 
     // Handle direct URL navigation (bookmark/link to plugin route)
-    // When user navigates directly to /plugin/stash-downloader, the route
+    // When user navigates directly to /plugins/stash-downloader, the route
     // isn't registered yet when React Router first evaluates. Re-trigger navigation
     // now that the route is registered.
     if (window.location.pathname === ROUTES.MAIN) {

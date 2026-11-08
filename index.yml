@@ -25,6 +25,15 @@
   requires: []
   metadata:
     description: Theme-adaptive media downloads with page-managed yt-dlp install and updates in an isolated Python environment, proxy settings, Stash import profiles, duplicate-source checks, recoverable queue state, searchable status filters, metadata review, and a separate activity workspace.
+- id: discovery-queue
+  name: Discovery Queue
+  version: 1.0.0
+  date: "2026-11-08 22:42:36"
+  path: packages/discovery-queue/1.0.0.zip
+  sha256: 0de78f04bbd99225066e2019f2e2ee2ff076cd9a865f320fe1e886e51aecca4d
+  requires: []
+  metadata:
+    description: Theme-adaptive personalized scene queue with title, tag, performer, studio, runtime, rating, and play-history filters. An explainable account-specific preference model learns from explicit like, finished, skip, and less-like-this choices and can be reset at any time.
 - id: rebirth
   name: Rebirth
   version: 1.2.10

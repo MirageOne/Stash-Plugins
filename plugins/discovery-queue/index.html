@@ -1,0 +1,95 @@
+<!doctype html>
+<html lang="en">
+<head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <meta name="color-scheme" content="light dark">
+    <title>Discovery Queue</title>
+    <link rel="stylesheet" href="styles.css?v=1.0.0">
+</head>
+<body>
+    <main class="ld-shell dq-shell">
+        <header class="ld-header">
+            <div class="ld-brand-row">
+                <a class="ld-back" href="/scenes" aria-label="Back to Stash scenes">
+                    <svg viewBox="0 0 24 24" aria-hidden="true"><path d="m14.5 5-7 7 7 7"/></svg>
+                    <span>Stash</span>
+                </a>
+                <span class="ld-brand-divider" aria-hidden="true"></span>
+                <span class="ld-brand-name">Discovery Queue</span>
+            </div>
+            <div class="ld-header-actions">
+                <button id="dq-refresh" class="ld-button ld-button-secondary" type="button">
+                    <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M20 7v5h-5M4 17v-5h5"/><path d="M5.7 9a7 7 0 0 1 11.8-2L20 12M4 12l2.5 5a7 7 0 0 0 11.8-2"/></svg>
+                    Refresh picks
+                </button>
+            </div>
+        </header>
+
+        <section class="ld-intro" aria-labelledby="dq-title">
+            <div>
+                <p class="ld-eyebrow">PERSONAL DISCOVERY</p>
+                <h1 id="dq-title">Find your next scene.</h1>
+                <p class="ld-subtitle">Build a watch queue from your library, then shape future picks with a few simple choices.</p>
+            </div>
+            <div class="ld-workflow-note"><span class="ld-workflow-dot" aria-hidden="true"></span><span id="dq-learning-count">Learning from your choices</span></div>
+        </section>
+
+        <div id="dq-error" class="ld-error" role="alert" hidden></div>
+        <div id="dq-status" class="ld-status" role="status" aria-live="polite" hidden><span id="dq-status-message"></span></div>
+
+        <section class="dq-panel" aria-labelledby="dq-builder-title">
+            <div class="ld-module-heading">
+                <div><p class="ld-eyebrow">QUEUE BUILDER</p><h2 id="dq-builder-title">What are you in the mood for?</h2><p>Choose a starting point and narrow it with your library filters.</p></div>
+                <button id="dq-reset-learning" class="ld-button ld-button-quiet" type="button">Reset learned tastes</button>
+            </div>
+            <div class="dq-controls">
+                <label class="dq-control"><span>Pick style</span>
+                    <select id="dq-mode">
+                        <option value="for-you">For you</option>
+                        <option value="random">Surprise me</option>
+                        <option value="rating">Highest rated</option>
+                        <option value="recent">Recently added</option>
+                    </select>
+                </label>
+                <label class="dq-control"><span>Minimum rating <output id="dq-rating-output">0</output></span>
+                    <input id="dq-minimum-rating" type="range" min="0" max="100" step="5" value="0">
+                </label>
+                <label class="dq-control"><span>Scene length</span>
+                    <select id="dq-duration">
+                        <option value="any">Any length</option>
+                        <option value="short">Under 30 minutes</option>
+                        <option value="medium">30–60 minutes</option>
+                        <option value="long">Over 60 minutes</option>
+                    </select>
+                </label>
+                <label class="dq-check"><input id="dq-unplayed-only" type="checkbox" checked><span><strong>Unplayed only</strong><small>Use Stash play history</small></span></label>
+                <label class="dq-control dq-control-wide"><span>Scene title</span><input id="dq-title-filter" type="search" placeholder="Search titles" autocomplete="off"></label>
+                <label class="dq-control"><span>Tag</span><input id="dq-tag-filter" type="search" placeholder="Any tag" autocomplete="off"></label>
+                <label class="dq-control"><span>Performer</span><input id="dq-performer-filter" type="search" placeholder="Any performer" autocomplete="off"></label>
+                <label class="dq-control"><span>Studio</span><input id="dq-studio-filter" type="search" placeholder="Any studio" autocomplete="off"></label>
+                <button id="dq-build" class="ld-button ld-button-primary dq-build" type="button">Build my queue</button>
+            </div>
+            <div id="dq-profile" class="dq-profile" aria-live="polite"></div>
+        </section>
+
+        <section class="dq-results-section" aria-labelledby="dq-results-title">
+            <div class="ld-module-heading dq-results-heading">
+                <div><p class="ld-eyebrow">YOUR PICKS</p><h2 id="dq-results-title">Discovery queue</h2><p id="dq-result-summary">Set your filters, then build a queue from your library.</p></div>
+                <span id="dq-pool-note" class="dq-pool-note"></span>
+            </div>
+            <div id="dq-progress" class="ld-progress-card" hidden>
+                <div class="ld-progress-copy"><strong id="dq-progress-title">Loading scenes…</strong><span id="dq-progress-detail"></span></div>
+                <div class="ld-progress-track"><span id="dq-progress-bar"></span></div>
+            </div>
+            <div id="dq-queue" class="dq-queue">
+                <div class="ld-empty-results"><span class="ld-empty-icon" aria-hidden="true">✦</span><strong>Your next favorite is somewhere in your library.</strong><span>Build a queue to see recommendations.</span></div>
+            </div>
+        </section>
+
+        <footer class="ld-footer"><span>Discovery Queue</span><span>Learning uses your feedback saved in your signed-in Stash account. It never changes scene metadata.</span></footer>
+    </main>
+    <script src="core.js?v=1.0.0"></script>
+    <script src="app.js?v=1.0.0"></script>
+</body>
+</html>

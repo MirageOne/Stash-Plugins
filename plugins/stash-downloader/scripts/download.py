@@ -7,7 +7,7 @@ It's invoked via Stash's runPluginTask GraphQL mutation.
 
 Requirements:
 - The Python version configured for Stash and supported by the installed yt-dlp release
-- yt-dlp and requests (see requirements.txt)
+- requests (see requirements.txt); yt-dlp may be installed in the plugin-managed venv
 
 Usage:
   Called automatically by the Stash Downloader plugin via runPluginTask.
@@ -322,14 +322,42 @@ def redact_ytdlp_error(message: str, source_url: Optional[str] = None, proxy: Op
 _ytdlp_cmd: Optional[list] = None
 
 
-def get_ytdlp_cmd(custom_path: Optional[str] = None) -> list:
+def resolve_ytdlp_venv_path(configured_path: Optional[str] = None) -> str:
+    """Resolve the isolated environment used by the plugin-managed yt-dlp."""
+    if configured_path:
+        raw_path = os.path.expanduser(str(configured_path).strip())
+    elif os.name == "nt":
+        data_dir = os.environ.get("LOCALAPPDATA") or os.path.expanduser("~")
+        raw_path = os.path.join(data_dir, "Stash Downloader", "yt-dlp")
+    else:
+        data_dir = os.environ.get("XDG_DATA_HOME") or os.path.join(os.path.expanduser("~"), ".local", "share")
+        raw_path = os.path.join(data_dir, "stash-downloader", "yt-dlp")
+    if not os.path.isabs(raw_path):
+        raise ValueError("The managed yt-dlp environment path must be an absolute path.")
+    return os.path.abspath(raw_path)
+
+
+def ytdlp_venv_python(venv_path: str) -> str:
+    """Return the platform-specific Python executable in a virtual environment."""
+    if os.name == "nt":
+        return os.path.join(venv_path, "Scripts", "python.exe")
+    return os.path.join(venv_path, "bin", "python")
+
+
+def managed_ytdlp_venv_from_args(args: dict) -> str:
+    configured_path = server_setting(args, "ytdlpVenvPath", "ytdlp_venv_path")
+    return resolve_ytdlp_venv_path(configured_path)
+
+
+def get_ytdlp_cmd(custom_path: Optional[str] = None, managed_venv_path: Optional[str] = None) -> list:
     """
     Resolve the yt-dlp command to use.
 
     Resolution order:
     1. Custom path from plugin settings (ytdlpPath)
-    2. Python module: sys.executable -m yt_dlp (same Python env, no PATH needed)
-    3. CLI binary: yt-dlp on PATH (legacy fallback)
+    2. Plugin-managed virtual environment
+    3. Python module: sys.executable -m yt_dlp (same Python env, no PATH needed)
+    4. CLI binary: yt-dlp on PATH (legacy fallback)
 
     Returns list of command parts, e.g. ["yt-dlp"] or ["/usr/bin/python3", "-m", "yt_dlp"]
     """
@@ -350,6 +378,23 @@ def get_ytdlp_cmd(custom_path: Optional[str] = None) -> list:
     # Return cached result if available
     if _ytdlp_cmd is not None:
         return _ytdlp_cmd
+
+    # Prefer the isolated managed environment when it has been installed.
+    if managed_venv_path:
+        managed_python = ytdlp_venv_python(managed_venv_path)
+        if os.path.isfile(managed_python):
+            try:
+                result = subprocess.run(
+                    [managed_python, "-m", "yt_dlp", "--version"],
+                    capture_output=True, text=True, timeout=10
+                )
+                if result.returncode == 0:
+                    version = result.stdout.strip()
+                    log.info("Found yt-dlp in the plugin-managed environment (v%s)", version)
+                    _ytdlp_cmd = [managed_python, "-m", "yt_dlp"]
+                    return _ytdlp_cmd
+            except (OSError, subprocess.SubprocessError) as error:
+                log.debug("Plugin-managed yt-dlp check failed: %s", type(error).__name__)
 
     # Strategy 1: Python module (most reliable - uses same Python that runs this script)
     try:
@@ -386,9 +431,9 @@ def get_ytdlp_cmd(custom_path: Optional[str] = None) -> list:
     return []
 
 
-def check_ytdlp(custom_path: Optional[str] = None) -> bool:
+def check_ytdlp(custom_path: Optional[str] = None, managed_venv_path: Optional[str] = None) -> bool:
     """Check for yt-dlp without mutating the Stash server's Python environment."""
-    return bool(get_ytdlp_cmd(custom_path))
+    return bool(get_ytdlp_cmd(custom_path, managed_venv_path))
 
 
 def query_stash_configuration(server: dict) -> dict:
@@ -570,7 +615,12 @@ def detect_content_type(metadata: dict) -> str:
     return "video"
 
 
-def extract_metadata(url: str, proxy: Optional[str] = None, ytdlp_path: Optional[str] = None) -> dict:
+def extract_metadata(
+    url: str,
+    proxy: Optional[str] = None,
+    ytdlp_path: Optional[str] = None,
+    managed_venv_path: Optional[str] = None,
+) -> dict:
     """
     Extract metadata using yt-dlp without downloading.
 
@@ -582,7 +632,7 @@ def extract_metadata(url: str, proxy: Optional[str] = None, ytdlp_path: Optional
     Returns:
         dict with metadata on success, or dict with 'extraction_error' key on failure
     """
-    cmd = get_ytdlp_cmd(ytdlp_path) + [
+    cmd = get_ytdlp_cmd(ytdlp_path, managed_venv_path) + [
         "--dump-json",
         "--no-download",
         "--no-playlist",
@@ -920,6 +970,7 @@ def download_video(
     proxy: Optional[str] = None,
     progress_id: Optional[str] = None,
     ytdlp_path: Optional[str] = None,
+    managed_venv_path: Optional[str] = None,
     ffmpeg_path: Optional[str] = None,
 ) -> Tuple[Optional[str], Optional[str]]:
     """
@@ -955,7 +1006,7 @@ def download_video(
     output_template = os.path.join(output_dir, filename_template)
     staging_dir = tempfile.mkdtemp(prefix=".stash-downloader-", dir=output_dir)
 
-    cmd = get_ytdlp_cmd(ytdlp_path) + [
+    cmd = get_ytdlp_cmd(ytdlp_path, managed_venv_path) + [
         "-f",
         format_str,
         "-o",
@@ -1292,8 +1343,16 @@ def task_download(args: dict) -> dict:
                 log.warning("[task_download] Direct download failed, no fallback URL - trying yt-dlp with direct URL")
 
     # Check yt-dlp availability
-    if not check_ytdlp(ytdlp_path):
-        result = {"result_error": "yt-dlp is unavailable. Install it in the Python environment used by Stash, or configure its executable path in Stash plugin settings.", "success": False}
+    try:
+        managed_venv_path = managed_ytdlp_venv_from_args(args)
+    except ValueError as error:
+        result = {"result_error": str(error), "success": False}
+        if result_id:
+            save_result(result_id, result)
+        return result
+
+    if not check_ytdlp(ytdlp_path, managed_venv_path):
+        result = {"result_error": "yt-dlp is unavailable. Install it from the downloader page or configure its executable path in Stash plugin settings.", "success": False}
         if result_id:
             save_result(result_id, result)
         return result
@@ -1317,6 +1376,7 @@ def task_download(args: dict) -> dict:
         proxy=proxy,
         progress_id=progress_id,
         ytdlp_path=ytdlp_path,
+        managed_venv_path=managed_venv_path,
         ffmpeg_path=str(ffmpeg_path).strip() if ffmpeg_path else None,
     )
 
@@ -1353,6 +1413,14 @@ def task_extract_metadata(args: dict) -> dict:
     ytdlp_path = server_setting(args, "ytdlpPath", "ytdlp_path")
     result_id = args.get("result_id")
 
+    try:
+        managed_venv_path = managed_ytdlp_venv_from_args(args)
+    except ValueError as error:
+        result = {"result_error": str(error), "success": False}
+        if result_id:
+            save_result(result_id, result)
+        return result
+
     # Log proxy configuration for troubleshooting
     if proxy:
         log.debug("Proxy configured: %s", redact_proxy(proxy))
@@ -1373,13 +1441,18 @@ def task_extract_metadata(args: dict) -> dict:
             save_result(result_id, result)
         return result
 
-    if not check_ytdlp(ytdlp_path):
-        result = {"result_error": "yt-dlp is unavailable. Install it in the Python environment used by Stash, or configure its executable path in Stash plugin settings.", "success": False}
+    if not check_ytdlp(ytdlp_path, managed_venv_path):
+        result = {"result_error": "yt-dlp is unavailable. Install it from the downloader page or configure its executable path in Stash plugin settings.", "success": False}
         if result_id:
             save_result(result_id, result)
         return result
 
-    metadata = extract_metadata(url, proxy=proxy, ytdlp_path=ytdlp_path)
+    metadata = extract_metadata(
+        url,
+        proxy=proxy,
+        ytdlp_path=ytdlp_path,
+        managed_venv_path=managed_venv_path,
+    )
 
     # Check if extraction returned an error
     if "extraction_error" in metadata:
@@ -1572,7 +1645,19 @@ def task_check_ytdlp(args: dict) -> dict:
     interprets as a GraphQL error and returns null data.
     """
     custom_path = server_setting(args, "ytdlpPath", "ytdlp_path")
-    cmd = get_ytdlp_cmd(custom_path)
+    try:
+        managed_venv_path = managed_ytdlp_venv_from_args(args)
+    except ValueError as error:
+        return {
+            "available": False,
+            "success": True,
+            "version": None,
+            "status_message": str(error),
+            "resolution_method": None,
+            "can_manage": False,
+        }
+
+    cmd = get_ytdlp_cmd(custom_path, managed_venv_path)
 
     if not cmd:
         log.warning("yt-dlp not found via Python module or PATH")
@@ -1580,8 +1665,10 @@ def task_check_ytdlp(args: dict) -> dict:
             "available": False,
             "success": True,
             "version": None,
-            "status_message": "yt-dlp is unavailable. Install it in Stash's Python environment or configure its executable path in plugin settings.",
+            "status_message": "yt-dlp is unavailable. Install it here or configure a custom executable path in Stash plugin settings.",
             "resolution_method": None,
+            "can_manage": not bool(custom_path),
+            "managed_environment_path": managed_venv_path,
         }
 
     try:
@@ -1591,6 +1678,8 @@ def task_check_ytdlp(args: dict) -> dict:
             # Determine how yt-dlp was found for status reporting
             if custom_path:
                 method = f"custom path ({custom_path})"
+            elif cmd[0] == ytdlp_venv_python(managed_venv_path):
+                method = "plugin-managed Python environment"
             elif cmd[0] == sys.executable:
                 method = f"Python module ({sys.executable})"
             else:
@@ -1601,15 +1690,164 @@ def task_check_ytdlp(args: dict) -> dict:
                 "success": True,
                 "version": version,
                 "resolution_method": method,
+                "can_manage": not bool(custom_path),
+                "managed_environment_path": managed_venv_path,
             }
         else:
-            return {"available": False, "success": True, "version": None, "status_message": "yt-dlp check failed"}
+            return {
+                "available": False,
+                "success": True,
+                "version": None,
+                "status_message": "yt-dlp check failed",
+                "can_manage": not bool(custom_path),
+                "managed_environment_path": managed_venv_path,
+            }
     except subprocess.TimeoutExpired:
         log.error("yt-dlp version check timed out")
-        return {"available": False, "success": True, "version": None, "status_message": "yt-dlp check timed out"}
+        return {
+            "available": False,
+            "success": True,
+            "version": None,
+            "status_message": "yt-dlp check timed out",
+            "can_manage": not bool(custom_path),
+            "managed_environment_path": managed_venv_path,
+        }
     except (OSError, subprocess.SubprocessError) as error:
         log.warning("yt-dlp version check failed: %s", type(error).__name__)
-        return {"available": False, "success": True, "version": None, "status_message": "The configured yt-dlp executable could not be started."}
+        return {
+            "available": False,
+            "success": True,
+            "version": None,
+            "status_message": "The configured yt-dlp executable could not be started.",
+            "can_manage": not bool(custom_path),
+            "managed_environment_path": managed_venv_path,
+        }
+
+
+def task_manage_ytdlp(args: dict) -> dict:
+    """Install or update yt-dlp in an isolated virtual environment for this plugin."""
+    action = str(args.get("action") or "install").strip().lower()
+    if action not in ("install", "update"):
+        return {"success": False, "error": "Unknown yt-dlp management action."}
+
+    result_id = args.get("result_id")
+    if result_id:
+        try:
+            result_id = _validate_result_id(result_id)
+        except ValueError as error:
+            return {"success": False, "error": str(error)}
+
+    def finish(result: dict) -> dict:
+        if result_id and not save_result(result_id, result):
+            return {"success": False, "error": "The yt-dlp result could not be saved for the downloader page."}
+        return result
+
+    custom_path = server_setting(args, "ytdlpPath", "ytdlp_path")
+    if custom_path:
+        return finish({
+            "success": False,
+            "error": "A custom yt-dlp executable is configured in Stash plugin settings. Clear that setting to use the downloader-managed environment, or update the custom executable on the host.",
+        })
+
+    proxy = server_setting(args, "httpProxy", "proxy")
+    try:
+        venv_path = resolve_ytdlp_venv_path(server_setting(args, "ytdlpVenvPath", "ytdlp_venv_path"))
+    except ValueError as error:
+        return finish({"success": False, "error": str(error)})
+
+    environment = Path(venv_path)
+    venv_marker = environment / "pyvenv.cfg"
+    python_path = ytdlp_venv_python(venv_path)
+
+    try:
+        if environment.exists() and not environment.is_dir():
+            return finish({"success": False, "error": "The managed yt-dlp environment path exists but is not a directory."})
+
+        if not venv_marker.is_file():
+            if environment.exists() and any(environment.iterdir()):
+                return finish({
+                    "success": False,
+                    "error": "The managed yt-dlp path already contains files but is not a Python virtual environment. Choose an empty directory or remove the partial environment first.",
+                })
+            environment.parent.mkdir(parents=True, exist_ok=True)
+            log.info("Creating the plugin-managed Python environment at %s", venv_path)
+            create_env = subprocess.run(
+                [sys.executable, "-m", "venv", venv_path],
+                capture_output=True,
+                text=True,
+                timeout=120,
+            )
+            if create_env.returncode != 0:
+                details = (create_env.stderr or create_env.stdout or "").strip().splitlines()
+                detail = redact_ytdlp_error("\n".join(details[-4:]), proxy=proxy)
+                hint = "Install Python venv support in the Stash environment (for Debian-based Docker images, python3-venv), and ensure the configured directory is writable."
+                return finish({"success": False, "error": f"Could not create the isolated Python environment. {detail + ' ' if detail else ''}{hint}"})
+
+        if not os.path.isfile(python_path):
+            return finish({"success": False, "error": "The Python virtual environment is incomplete; choose a new managed environment path and try again."})
+
+        pip_environment = os.environ.copy()
+        if proxy:
+            if urlsplit(proxy).scheme.lower().startswith("socks"):
+                return finish({
+                    "success": False,
+                    "error": "The managed installer needs direct package-index access or an HTTP/HTTPS proxy. The configured SOCKS proxy can still be used by yt-dlp after installation.",
+                })
+            pip_environment["PIP_PROXY"] = proxy
+
+        log.info("%s yt-dlp in the isolated plugin environment", "Updating" if action == "update" else "Installing/updating")
+        pip_result = subprocess.run(
+            [
+                python_path,
+                "-m",
+                "pip",
+                "install",
+                "--upgrade",
+                "--disable-pip-version-check",
+                "--no-input",
+                "yt-dlp",
+            ],
+            capture_output=True,
+            text=True,
+            timeout=20 * 60,
+            env=pip_environment,
+        )
+        if pip_result.returncode != 0:
+            details = (pip_result.stderr or pip_result.stdout or "").strip().splitlines()
+            detail = redact_ytdlp_error("\n".join(details[-5:]), proxy=proxy)
+            return finish({
+                "success": False,
+                "error": "pip could not install or update yt-dlp. Check the Stash server's network/proxy access and Python package installation permissions. " + detail[-500:],
+            })
+
+        version_result = subprocess.run(
+            [python_path, "-m", "yt_dlp", "--version"],
+            capture_output=True,
+            text=True,
+            timeout=15,
+        )
+        version = version_result.stdout.strip() if version_result.returncode == 0 else ""
+        if not version:
+            details = (version_result.stderr or "").strip().splitlines()
+            detail = redact_ytdlp_error("\n".join(details[-4:]), proxy=proxy)
+            return finish({
+                "success": False,
+                "error": "yt-dlp was installed but could not be verified in the managed environment. " + detail[-400:],
+            })
+
+        log.info("yt-dlp %s is ready in the plugin-managed environment", version)
+        return finish({
+            "success": True,
+            "version": version,
+            "action": action,
+            "resolution_method": "plugin-managed Python environment",
+            "managed_environment_path": venv_path,
+        })
+    except subprocess.TimeoutExpired:
+        return finish({"success": False, "error": "The yt-dlp environment operation timed out. Check the Stash server's network access and try again."})
+    except (OSError, RuntimeError) as error:
+        message = redact_ytdlp_error(str(error), proxy=proxy)
+        return finish({"success": False, "error": f"Could not manage yt-dlp: {message[:500]}"})
 
 
 def task_test_proxy(args: dict) -> dict:
@@ -1743,7 +1981,7 @@ def main():
 
         log.debug("Detected task %s with argument keys %s", task_name, sorted(args.keys()))
 
-        if task_name in {"download", "extract_metadata", "check_ytdlp", "test_proxy", "fetch_image"}:
+        if task_name in {"download", "extract_metadata", "check_ytdlp", "manage_ytdlp", "test_proxy", "fetch_image"}:
             try:
                 configuration = query_stash_configuration(input_data.get("server_connection") or {})
                 args["_server_configuration"] = configuration
@@ -1759,6 +1997,7 @@ def main():
             "read_result": task_read_result,
             "cleanup_result": task_cleanup_result,
             "check_ytdlp": task_check_ytdlp,
+            "manage_ytdlp": task_manage_ytdlp,
             "test_proxy": task_test_proxy,
             "fetch_image": task_fetch_image,
         }

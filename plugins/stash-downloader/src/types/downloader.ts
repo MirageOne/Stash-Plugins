@@ -195,8 +195,10 @@ export type LogLevelSetting = 'off' | 'error' | 'warning' | 'info' | 'debug';
 export interface IPluginSettings {
   /** Optional destination inside the matching image/video-enabled Stash library. */
   serverDownloadPath?: string;
-  /** Custom path to yt-dlp binary. Leave empty for auto-detection (Python module first, then PATH). */
+  /** Custom executable; when empty, the managed virtual environment is checked before Stash Python and PATH. */
   ytdlpPath?: string;
+  /** Optional absolute location of the plugin-managed yt-dlp virtual environment. */
+  ytdlpVenvPath?: string;
   httpProxy?: string;
   logLevel: LogLevelSetting;
   showThumbnailPreviews: boolean;

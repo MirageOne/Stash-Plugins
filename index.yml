@@ -9,13 +9,13 @@
     description: Theme-adaptive library health checks, FFmpeg encoding audit and re-encoding, metadata assistance, scraping, tagging, and duplicate/version review with full file details, resolution-based keep recommendations, explicit keep selection, and confirmed scene plus file removal.
 - id: stash-downloader
   name: Stash Downloader
-  version: 0.7.3
-  date: "2026-11-08 00:13:01"
-  path: packages/stash-downloader/0.7.3.zip
-  sha256: 57804338c903b5bead5afaac26a1d02fe7dab0494c356c566a8e1e6d9afcaec0
+  version: 0.8.0
+  date: "2026-11-08 00:50:00"
+  path: packages/stash-downloader/0.8.0.zip
+  sha256: 58dff06eca524bd7f84fbcba6f168621c2c911a9ac9768910137c06483b987e0
   requires: []
   metadata:
-    description: Theme-adaptive media downloads with yt-dlp, proxy settings, Stash import profiles, duplicate-source checks, recoverable queue state, searchable status filters, metadata review, and a separate activity workspace.
+    description: Theme-adaptive media downloads with page-managed yt-dlp install and updates in an isolated Python environment, proxy settings, Stash import profiles, duplicate-source checks, recoverable queue state, searchable status filters, metadata review, and a separate activity workspace.
 - id: rebirth
   name: Rebirth
   version: 1.1.7

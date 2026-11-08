@@ -1039,8 +1039,12 @@
 .stash-downloader-plugin .ld-runtime-indicator { width: 9px; height: 9px; flex: 0 0 auto; border-radius: 50%; background: var(--ld-orange); }
 .stash-downloader-plugin .ld-runtime-indicator.is-ready { background: var(--ld-green); box-shadow: 0 0 10px color-mix(in srgb, var(--ld-green), transparent 45%); }
 .stash-downloader-plugin .ld-runtime-summary > div { display: grid; flex: 1 1 auto; min-width: 0; gap: 2px; }
+.stash-downloader-plugin .ld-runtime-summary > .ld-runtime-controls { display: flex; align-items: center; justify-content: flex-end; flex: 0 0 auto; gap: 8px; }
 .stash-downloader-plugin .ld-runtime-summary strong { color: var(--ld-text); font-size: 0.78rem; }
 .stash-downloader-plugin .ld-runtime-summary span:not(.ld-runtime-indicator) { color: var(--ld-muted); font-size: 0.7rem; line-height: 1.4; }
+.stash-downloader-plugin .ld-runtime-custom-path-note { max-width: 220px; color: var(--ld-muted); font-size: 0.68rem; line-height: 1.4; }
+.stash-downloader-plugin .ld-runtime-feedback { padding: 10px 13px; border: 1px solid color-mix(in srgb, var(--ld-green), transparent 68%); border-radius: 8px; background: color-mix(in srgb, var(--ld-green), transparent 92%); color: var(--ld-text); font-size: 0.76rem; line-height: 1.45; overflow-wrap: anywhere; }
+.stash-downloader-plugin .ld-runtime-feedback.is-error { border-color: color-mix(in srgb, var(--ld-red), transparent 58%); background: color-mix(in srgb, var(--ld-red), transparent 92%); }
 .stash-downloader-plugin .ld-runtime-details { display: grid; gap: 10px; padding: 13px 15px 15px; border-top: 1px solid var(--ld-border); }
 .stash-downloader-plugin .ld-runtime-details > div:not(.ld-runtime-actions) { display: flex; align-items: flex-start; justify-content: space-between; gap: 12px; }
 .stash-downloader-plugin .ld-runtime-details > div > span:first-child { color: var(--ld-muted); font-size: 0.75rem; }
@@ -1109,6 +1113,9 @@
   .stash-downloader-plugin .ld-runtime-summary { align-items: flex-start; flex-wrap: wrap; }
   .stash-downloader-plugin .ld-runtime-summary > div { flex-basis: calc(100% - 24px); }
   .stash-downloader-plugin .ld-runtime-summary > .ld-button { width: 100%; }
+  .stash-downloader-plugin .ld-runtime-summary > .ld-runtime-controls { width: 100%; display: grid; flex-basis: 100%; }
+  .stash-downloader-plugin .ld-runtime-controls > .ld-button { width: 100%; }
+  .stash-downloader-plugin .ld-runtime-custom-path-note { max-width: none; }
   .stash-downloader-plugin .ld-runtime-details > div:not(.ld-runtime-actions) { align-items: flex-start; flex-direction: column; gap: 4px; }
   .stash-downloader-plugin .ld-runtime-details code { max-width: 100%; text-align: left; }
   .stash-downloader-plugin .ld-runtime-actions { align-items: flex-start; flex-direction: column; }

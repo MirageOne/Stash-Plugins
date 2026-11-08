@@ -1,6 +1,6 @@
 name: Stash Downloader
 description: Download images and videos from URLs with automatic metadata extraction and organization
-version: 0.7.3
+version: 0.8.0
 url: https://github.com/MirageOne/Stasher/tree/main/plugins/stash-downloader
 settings:
   serverDownloadPath:
@@ -9,7 +9,11 @@ settings:
     type: STRING
   ytdlpPath:
     displayName: yt-dlp Path
-    description: "Custom path to yt-dlp binary. Leave empty for auto-detection (tries Python module first, then PATH). Examples: /usr/local/bin/yt-dlp, C:\\tools\\yt-dlp.exe"
+    description: "Custom path to yt-dlp executable. Leave empty to prefer the downloader-managed environment, then the Python module and PATH. Examples: /usr/local/bin/yt-dlp, C:\\tools\\yt-dlp.exe"
+    type: STRING
+  ytdlpVenvPath:
+    displayName: Managed yt-dlp Environment
+    description: "Optional absolute path for the downloader-managed Python virtual environment. Defaults to the Stash user's data directory. In Docker, use a writable path on a persistent mounted volume to preserve it when the container is replaced."
     type: STRING
   httpProxy:
     displayName: HTTP Proxy
@@ -17,7 +21,8 @@ settings:
     type: STRING
 
 # Python backend for server-side downloads (bypasses browser CORS).
-# yt-dlp and requests must be installed in the Python environment Stash uses.
+# Requests is installed in the Python environment Stash uses. yt-dlp can use
+# that environment, a custom executable, or the isolated downloader venv.
 exec:
   - python
   - "{pluginDir}/scripts/download.py"
@@ -40,9 +45,13 @@ tasks:
     defaultArgs:
       mode: cleanup_result
   - name: Check yt-dlp
-    description: Check if yt-dlp is installed and available; does not install packages
+    description: Check if yt-dlp is installed and available
     defaultArgs:
       mode: check_ytdlp
+  - name: Manage yt-dlp
+    description: Install or update yt-dlp in the downloader-managed Python environment
+    defaultArgs:
+      mode: manage_ytdlp
   - name: Test Proxy
     description: Test proxy connectivity by fetching a URL
     defaultArgs:

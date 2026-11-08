@@ -7,6 +7,7 @@ Stash Downloader adds a URL queue for downloading videos and images, extracting 
 - Queue individual URLs or batch-import a list.
 - Extract metadata through yt-dlp and review it before importing.
 - Download supported video URLs through yt-dlp and direct image URLs through the server, with progress reporting and quality limits.
+- Install or update yt-dlp from the page in an isolated Python virtual environment, without changing Stash's system Python.
 - Save downloads inside the matching video- or image-enabled Stash library so Stash can scan and index them.
 - Configure the server's yt-dlp executable and optional HTTP/SOCKS proxy in Stash plugin settings.
 - Use Stash's configured FFmpeg path for yt-dlp format merging when it is available.
@@ -20,8 +21,8 @@ Stash Downloader adds a URL queue for downloading videos and images, extracting 
 ## Requirements
 
 - A current Stash installation with plugin UI and raw plugin task support (Stash 0.32 or newer recommended).
-- The Python version configured for Stash and supported by the installed yt-dlp release (current yt-dlp releases may require a newer Python version).
-- yt-dlp and Requests with SOCKS support installed in that Python environment.
+- Python configured for Stash, with `requests[socks]` installed in that interpreter.
+- yt-dlp is optional; use the page's **Install yt-dlp** action to create a downloader-managed virtual environment in the Stash user's data directory. Python's `venv` support and access to the Python package index are required.
 - FFmpeg is optional for simple downloads; yt-dlp needs it to merge separate audio/video streams. The plugin passes Stash's configured FFmpeg path when available.
 
 The bundled interface is already built; Node.js and npm are not needed on the Stash server to install or use the plugin.
@@ -32,7 +33,7 @@ Install Python dependencies on the Stash host or in the Stash container:
 python -m pip install -r /path/to/stash-downloader/requirements.txt
 ```
 
-Use the Python interpreter configured for Stash if it differs from `python`. The plugin does not install packages or change the server's Python environment automatically.
+Use the Python interpreter configured for Stash if it differs from `python`. The requirements file installs Requests only; yt-dlp is installed separately by the downloader page into an isolated environment.
 
 ## Install
 
@@ -42,13 +43,13 @@ Add the MirageOne Stash Plugins source in **Settings → Plugins → Add source*
 https://raw.githubusercontent.com/MirageOne/Stash-Plugins/main/index.yml
 ```
 
-Reload sources and install **Stash Downloader** from **Available Plugins**. For a manual installation, extract the [0.7.3 manual archive](../../packages/stash-downloader/0.7.3-manual.zip) into Stash's configured plugin directory, install the Python dependencies, then enable the plugin in **Settings → Plugins**.
+Reload sources and install **Stash Downloader** from **Available Plugins**. For a manual installation, extract the [0.8.0 manual archive](../../packages/stash-downloader/0.8.0-manual.zip) into Stash's configured plugin directory, install the Python dependencies, then enable the plugin in **Settings → Plugins**.
 
 ## Configure
 
-In **Settings → Plugins → Stash Downloader**, set `yt-dlp Path` or `HTTP Proxy` if needed. Leave `Download Path` empty to use the first matching video or image library directory. A custom path must be an absolute directory inside a library enabled for that content type; leave it blank if video and image libraries use different roots. The server validates it before writing files so Stash can scan the completed download.
+In **Settings → Plugins → Stash Downloader**, set `yt-dlp Path` or `HTTP Proxy` if needed. Leave `yt-dlp Path` empty to use auto-detection and the page's managed environment. `Managed yt-dlp Environment` can point to an absolute writable virtual-environment directory; by default, Linux stores it under `~/.local/share/stash-downloader/yt-dlp` (or `$XDG_DATA_HOME/stash-downloader/yt-dlp`). For Docker, set this to a writable path on a persistent mounted volume so yt-dlp survives container replacement. `Download Path` can be left empty to use the first matching video or image library directory; a custom download path must be inside a library enabled for that content type.
 
-The browser cannot choose a server filesystem path or executable. Downloads use the plugin settings saved in Stash, and result/progress files are kept in a private temporary directory and removed after use or after 24 hours.
+The browser cannot choose a server filesystem path or executable. Downloads use the plugin settings saved in Stash, and result/progress files are kept in a private temporary directory and removed after use or after 24 hours. The Install/Update button runs `pip` only inside the managed virtual environment. The Stash container needs Python `venv` support, package-index network access (or the configured HTTP proxy), and write access to the managed path.
 
 On the downloader queue page, use **Import profile → Manage profiles** to create per-site behavior. Domain patterns accept one host per line and `*.example.com`; a matching profile is copied onto each new queue item. Profiles can control whether missing performers, tags, and studios are created, choose `{title}`, `{site}`, `{date}`, and `{id}` filename tokens, select a post-import action, and enable no-review batch importing. Existing queued items keep the profile values they were added with.
 
@@ -62,7 +63,8 @@ When a source URL already belongs to a Stash scene, the downloader offers **Open
 
 ## Troubleshooting
 
-- If **Check yt-dlp** finds a module but downloads cannot start, verify that Stash uses the same Python environment where yt-dlp and `requests[socks]` are installed. Set **yt-dlp Path** to an executable Stash can run when auto-detection finds the wrong installation.
+- If the managed install cannot start, check Python `venv` support, package-index network/proxy access, and write permissions. Debian-based Docker images may need `python3-venv`; use a persistent volume path for the managed environment.
+- A configured **yt-dlp Path** takes precedence over the managed environment. Clear that setting to use the page's Install/Update action, or update the custom executable yourself.
 - If a download cannot be imported, leave **Download Path** blank or choose a directory inside a Stash library enabled for that media type. Confirm the Stash process can write to the directory.
 - If metadata extraction or a download stalls, check the item log, proxy settings, and server network access. FFmpeg is needed when yt-dlp must combine separate audio and video streams.
 

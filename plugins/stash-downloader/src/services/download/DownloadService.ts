@@ -51,6 +51,22 @@ export interface IServerDownloadResult {
   jobId?: string;
 }
 
+export interface IServerYtDlpStatus {
+  available: boolean;
+  version?: string;
+  resolutionMethod?: string;
+  managedEnvironmentPath?: string;
+  canManage?: boolean;
+}
+
+export interface IServerYtDlpManageResult {
+  success: boolean;
+  version?: string;
+  action?: 'install' | 'update';
+  managedEnvironmentPath?: string;
+  error?: string;
+}
+
 export interface IGalleryDownloadResult {
   success: boolean;
   filePaths: string[];
@@ -287,7 +303,7 @@ export class DownloadService {
   /**
    * Check if yt-dlp is available on the server and get version
    */
-  async checkServerYtDlp(): Promise<{ available: boolean; version?: string; resolutionMethod?: string }> {
+  async checkServerYtDlp(): Promise<IServerYtDlpStatus> {
     try {
       const stashService = getStashService();
 
@@ -298,15 +314,80 @@ export class DownloadService {
       // Pass ytdlpPath setting if configured
       const result = await stashService.runPluginOperation(PLUGIN_ID, {
         mode: 'check_ytdlp',
-      }) as { available?: boolean; version?: string; resolution_method?: string } | null;
+      }) as {
+        available?: boolean;
+        version?: string;
+        resolution_method?: string;
+        managed_environment_path?: string;
+        can_manage?: boolean;
+      } | null;
 
       return {
         available: result?.available === true,
         version: result?.version || undefined,
         resolutionMethod: result?.resolution_method || undefined,
+        managedEnvironmentPath: result?.managed_environment_path || undefined,
+        canManage: result?.can_manage !== false,
       };
     } catch {
       return { available: false };
+    }
+  }
+
+  /** Install or update yt-dlp in the downloader's isolated server-side environment. */
+  async manageServerYtDlp(action: 'install' | 'update'): Promise<IServerYtDlpManageResult> {
+    const stashService = getStashService();
+    if (!stashService.isStashEnvironment()) {
+      return { success: false, error: 'This action is available only from the Stash server.' };
+    }
+
+    const resultId = `ytdlp-${Date.now()}-${Math.random().toString(36).slice(2, 9)}`;
+    const taskResult = await stashService.runPluginTaskAndWait(
+      PLUGIN_ID,
+      'Manage yt-dlp',
+      { mode: 'manage_ytdlp', action, result_id: resultId },
+      { pollIntervalMs: 1000, maxWaitMs: 20 * 60 * 1000 }
+    );
+
+    if (!taskResult.success) {
+      return { success: false, error: taskResult.error || 'The yt-dlp management task failed.' };
+    }
+
+    try {
+      const result = await stashService.runPluginOperation(PLUGIN_ID, {
+        mode: 'read_result',
+        result_id: resultId,
+      }) as {
+        retrieved?: boolean;
+        success?: boolean;
+        version?: string;
+        action?: 'install' | 'update';
+        managed_environment_path?: string;
+        task_error?: string;
+        error?: string;
+      } | null;
+
+      if (!result?.retrieved) {
+        return { success: false, error: 'The yt-dlp task finished without returning its result. Check the Stash log for details.' };
+      }
+      if (!result.success || result.task_error || result.error) {
+        return { success: false, error: result.task_error || result.error || 'The yt-dlp install/update failed.' };
+      }
+      if (!result.version) {
+        return { success: false, error: 'yt-dlp was installed but no version was reported.' };
+      }
+
+      return {
+        success: true,
+        version: result.version,
+        action: result.action || action,
+        managedEnvironmentPath: result.managed_environment_path,
+      };
+    } finally {
+      void stashService.runPluginOperation(PLUGIN_ID, {
+        mode: 'cleanup_result',
+        result_id: resultId,
+      }).catch(() => { /* ignore cleanup errors */ });
     }
   }
 

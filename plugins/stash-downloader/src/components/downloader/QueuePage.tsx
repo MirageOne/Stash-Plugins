@@ -50,6 +50,11 @@ export const QueuePage: React.FC = () => {
   const [showAboutModal, setShowAboutModal] = useState(false);
   const [ytDlpVersion, setYtDlpVersion] = useState<string | null>(null);
   const [ytDlpResolutionMethod, setYtDlpResolutionMethod] = useState<string | null>(null);
+  const [ytDlpCanManage, setYtDlpCanManage] = useState(true);
+  const [ytDlpManagedPath, setYtDlpManagedPath] = useState<string | null>(null);
+  const [isManagingYtDlp, setIsManagingYtDlp] = useState(false);
+  const [ytDlpManagementMessage, setYtDlpManagementMessage] = useState<string | null>(null);
+  const [ytDlpManagementError, setYtDlpManagementError] = useState<string | null>(null);
   const [videoLibraryPath, setVideoLibraryPath] = useState('');
   const [imageLibraryPath, setImageLibraryPath] = useState('');
   const [showImportProfiles, setShowImportProfiles] = useState(false);
@@ -234,6 +239,8 @@ export const QueuePage: React.FC = () => {
         const { getDownloadService } = await import('@/services/download');
         const downloadService = getDownloadService();
         const result = await downloadService.checkServerYtDlp();
+        setYtDlpCanManage(result.canManage !== false);
+        setYtDlpManagedPath(result.managedEnvironmentPath || null);
         if (result.available && result.version) {
           setYtDlpVersion(result.version);
           setYtDlpResolutionMethod(result.resolutionMethod || null);
@@ -749,6 +756,37 @@ export const QueuePage: React.FC = () => {
     toast.showToast('success', 'Queue Cleared', 'All items have been removed from the queue');
   };
 
+  const handleManageYtDlp = async () => {
+    const action = ytDlpVersion ? 'update' : 'install';
+    setIsManagingYtDlp(true);
+    setYtDlpManagementError(null);
+    setYtDlpManagementMessage(action === 'update' ? 'Updating yt-dlp in its isolated environment…' : 'Installing yt-dlp in its isolated environment…');
+
+    try {
+      const { getDownloadService } = await import('@/services/download');
+      const result = await getDownloadService().manageServerYtDlp(action);
+      if (!result.success || !result.version) {
+        throw new Error(result.error || 'The yt-dlp install/update failed.');
+      }
+
+      setYtDlpVersion(result.version);
+      setYtDlpResolutionMethod('plugin-managed Python environment');
+      setYtDlpCanManage(true);
+      setYtDlpManagedPath(result.managedEnvironmentPath || ytDlpManagedPath);
+      setYtDlpManagementMessage(`yt-dlp ${result.version} is ready in the downloader-managed environment.`);
+      log.addLog('info', 'system', `Installed/updated downloader-managed yt-dlp to ${result.version}.`);
+      toast.showToast('success', 'yt-dlp Ready', `Version ${result.version} is ready for downloads.`);
+    } catch (error) {
+      const message = error instanceof Error ? error.message : String(error);
+      setYtDlpManagementMessage(null);
+      setYtDlpManagementError(message);
+      log.addLog('error', 'system', 'Could not install/update downloader-managed yt-dlp.', message);
+      toast.showToast('error', 'yt-dlp Setup Failed', message);
+    } finally {
+      setIsManagingYtDlp(false);
+    }
+  };
+
   return (
     <div className="ld-page-root">
       <main className="container-lg py-4 ld-shell">
@@ -878,18 +916,34 @@ export const QueuePage: React.FC = () => {
                       ? "Using " + (ytDlpResolutionMethod || 'the configured server runtime') + " for broad site support."
                       : 'Built-in scrapers remain available; install yt-dlp for broader site support.'}</span>
                   </div>
-                  <button
-                    type="button"
-                    className="ld-button ld-button-secondary"
-                    aria-expanded={serverConfigExpanded}
-                    aria-controls="ld-runtime-details"
-                    onClick={() => setServerConfigExpanded(!serverConfigExpanded)}
-                  >
-                    {serverConfigExpanded ? 'Hide server details' : 'Server details'}
-                  </button>
+                  <div className="ld-runtime-controls">
+                    {ytDlpCanManage ? (
+                      <button type="button" className="ld-button ld-button-primary" onClick={handleManageYtDlp} disabled={isManagingYtDlp}>
+                        {isManagingYtDlp ? (ytDlpVersion ? 'Updating yt-dlp…' : 'Installing yt-dlp…') : ytDlpVersion ? 'Update yt-dlp' : 'Install yt-dlp'}
+                      </button>
+                    ) : (
+                      <span className="ld-runtime-custom-path-note">A custom yt-dlp path is configured. Update that executable on the host, or clear the path to use this page.</span>
+                    )}
+                    <button
+                      type="button"
+                      className="ld-button ld-button-secondary"
+                      aria-expanded={serverConfigExpanded}
+                      aria-controls="ld-runtime-details"
+                      onClick={() => setServerConfigExpanded(!serverConfigExpanded)}
+                    >
+                      {serverConfigExpanded ? 'Hide server details' : 'Server details'}
+                    </button>
+                  </div>
                 </div>
+                {(ytDlpManagementMessage || ytDlpManagementError) && (
+                  <div className={`ld-runtime-feedback${ytDlpManagementError ? ' is-error' : ''}`} role={ytDlpManagementError ? 'alert' : 'status'}>
+                    {ytDlpManagementError || ytDlpManagementMessage}
+                  </div>
+                )}
                 {serverConfigExpanded && (
                   <div id="ld-runtime-details" className="ld-runtime-details">
+                    <div><span>Managed yt-dlp environment</span><code>{ytDlpManagedPath || 'Stash user data/stash-downloader/yt-dlp'}</code></div>
+                    <div><span>Docker storage</span><span className="ld-runtime-value">Use a writable path on a persistent mounted volume so yt-dlp survives container replacement.</span></div>
                     <div><span>Video library</span><code>{videoDownloadPath}</code></div>
                     <div><span>Image library</span><code>{imageDownloadPath}</code></div>
                     <div>
@@ -1174,28 +1228,25 @@ export const QueuePage: React.FC = () => {
           </div>
 
           <p className="mb-0 mt-2">
-            <strong>Option 1: Install dependencies in Stash's Python environment</strong>
+            <strong>Install or update from the server readiness panel</strong>
           </p>
           <p className="mb-0">
-            Use the interpreter configured for Stash. For Docker installs, add these packages to the image or startup process so they remain available after a container is recreated.
+            The downloader creates an isolated Python virtual environment and installs yt-dlp there. It does not modify Stash's system Python or use the system package manager.
           </p>
-          <pre className="bg-dark text-light p-3 rounded" style={{ overflow: 'auto' }}>
-            <code>python -m pip install yt-dlp &quot;requests[socks]&quot;</code>
-          </pre>
+          <p className="mb-0">
+            The Stash Python installation needs <code>venv</code> support and access to the package index. On Debian-based Docker images, this may require <code>python3-venv</code>. Configure a persistent mounted path under <strong>Managed yt-dlp Environment</strong> so the installation survives container replacement.
+          </p>
 
           <p className="mb-0 mt-2">
-            <strong>Option 2: Set custom path in plugin settings</strong>
+            <strong>Using a custom executable</strong>
           </p>
           <div>
-            If yt-dlp is installed but not detected, set the <strong>yt-dlp Path</strong> setting
-            in Stash &rarr; Settings &rarr; Plugins &rarr; Stash Downloader to the full path
-            (e.g., <code>/usr/local/bin/yt-dlp</code> or <code>C:\tools\yt-dlp.exe</code>).
+            A configured <strong>yt-dlp Path</strong> takes precedence over the managed environment. Clear it to use the page's Install/Update button, or update your custom executable on the host.
           </div>
 
           <div className="alert alert-success mt-2">
             <small>
-              <strong>How detection works:</strong> The plugin first tries <code>python -m yt_dlp</code> (same Python environment),
-              then falls back to the <code>yt-dlp</code> CLI on PATH. A custom path in settings overrides both.
+              <strong>How detection works:</strong> The plugin checks a custom executable first, then the managed virtual environment, Stash's Python environment, and finally <code>yt-dlp</code> on PATH.
             </small>
           </div>
         </div>

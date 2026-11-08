@@ -820,11 +820,88 @@ export const QueuePage: React.FC = () => {
               <h1 id="downloaderTitle">Bring media into your library.</h1>
               <p className="ld-subtitle">Add a source, review the details, and import finished media into Stash.</p>
             </div>
-            <div className="ld-workflow-note">
-              <span className={"ld-workflow-dot " + (ytDlpVersion ? 'is-ready' : 'is-limited')} aria-hidden="true" />
-              <span>{ytDlpVersion ? "yt-dlp " + ytDlpVersion + " available" : 'Server extraction ready to check'}</span>
-            </div>
           </section>
+
+          {isStashEnvironment && (
+            <section className="ld-runtime-card" aria-label="Stash server readiness">
+              <div className="ld-runtime-summary">
+                <span className={"ld-runtime-indicator " + (ytDlpVersion ? 'is-ready' : 'is-limited')} aria-hidden="true" />
+                <div>
+                  <strong>{ytDlpVersion ? "yt-dlp " + ytDlpVersion : 'yt-dlp was not detected'}</strong>
+                  <span>{ytDlpVersion
+                    ? "Using " + (ytDlpResolutionMethod || 'the configured server runtime') + " for broad site support."
+                    : 'Built-in scrapers remain available; install yt-dlp for broader site support.'}</span>
+                </div>
+                <div className="ld-runtime-controls">
+                  {ytDlpCanManage ? (
+                    <button type="button" className="ld-button ld-button-primary" onClick={handleManageYtDlp} disabled={isManagingYtDlp}>
+                      {isManagingYtDlp ? (ytDlpVersion ? 'Updating yt-dlp…' : 'Installing yt-dlp…') : ytDlpVersion ? 'Update yt-dlp' : 'Install yt-dlp'}
+                    </button>
+                  ) : (
+                    <span className="ld-runtime-custom-path-note">A custom yt-dlp path is configured. Update that executable on the host, or clear the path to use this page.</span>
+                  )}
+                  <button
+                    type="button"
+                    className="ld-button ld-button-secondary"
+                    aria-expanded={serverConfigExpanded}
+                    aria-controls="ld-runtime-details"
+                    onClick={() => setServerConfigExpanded(!serverConfigExpanded)}
+                  >
+                    {serverConfigExpanded ? 'Hide server details' : 'Server details'}
+                  </button>
+                </div>
+              </div>
+              {(ytDlpManagementMessage || ytDlpManagementError) && (
+                <div className={`ld-runtime-feedback${ytDlpManagementError ? ' is-error' : ''}`} role={ytDlpManagementError ? 'alert' : 'status'}>
+                  {ytDlpManagementError || ytDlpManagementMessage}
+                </div>
+              )}
+              {serverConfigExpanded && (
+                <div id="ld-runtime-details" className="ld-runtime-details">
+                  <div><span>Managed yt-dlp environment</span><code>{ytDlpManagedPath || 'Stash user data/stash-downloader/yt-dlp'}</code></div>
+                  <div><span>Docker storage</span><span className="ld-runtime-value">Use a writable path on a persistent mounted volume so yt-dlp survives container replacement.</span></div>
+                  <div><span>Video library</span><code>{videoDownloadPath}</code></div>
+                  <div><span>Image library</span><code>{imageDownloadPath}</code></div>
+                  <div>
+                    <span>HTTP/SOCKS proxy</span>
+                    {httpProxy
+                      ? <code>{httpProxy.replace(/:\/\/[^@]+@/, '://***@')}</code>
+                      : <span className="ld-runtime-value">Not configured</span>}
+                  </div>
+                  {!ytDlpVersion && (
+                    <div className="ld-runtime-actions">
+                      <button type="button" className="ld-button ld-button-secondary" onClick={() => setShowYtDlpWarning(true)}>
+                        yt-dlp setup guide
+                      </button>
+                      <span>Install requirements in the Python environment used by Stash.</span>
+                    </div>
+                  )}
+                  {httpProxy && (
+                    <div className="ld-runtime-actions">
+                      <button
+                        type="button"
+                        className="ld-button ld-button-secondary"
+                        onClick={async () => {
+                          const { testHttpProxy } = await import('@/utils/systemCheck');
+                          const result = await testHttpProxy(httpProxy);
+                          if (result.success) {
+                            toast.showToast('success', 'Proxy Test', result.message);
+                            log.addLog('success', 'proxy', result.message, result.details);
+                          } else {
+                            toast.showToast('error', 'Proxy Test Failed', result.message);
+                            log.addLog('error', 'proxy', result.message, result.details);
+                          }
+                        }}
+                      >
+                        Test proxy
+                      </button>
+                      <span>Proxy credentials stay on the server; TLS verification remains enabled.</span>
+                    </div>
+                  )}
+                </div>
+              )}
+            </section>
+          )}
 
           <div className="ld-workspace-tabs" role="tablist" aria-label="Downloader workspaces">
             <button
@@ -905,87 +982,6 @@ export const QueuePage: React.FC = () => {
                 </div>
               </div>
             </section>
-
-            {isStashEnvironment && (
-              <section className="ld-runtime-card" aria-label="Stash server readiness">
-                <div className="ld-runtime-summary">
-                  <span className={"ld-runtime-indicator " + (ytDlpVersion ? 'is-ready' : 'is-limited')} aria-hidden="true" />
-                  <div>
-                    <strong>{ytDlpVersion ? "yt-dlp " + ytDlpVersion : 'yt-dlp was not detected'}</strong>
-                    <span>{ytDlpVersion
-                      ? "Using " + (ytDlpResolutionMethod || 'the configured server runtime') + " for broad site support."
-                      : 'Built-in scrapers remain available; install yt-dlp for broader site support.'}</span>
-                  </div>
-                  <div className="ld-runtime-controls">
-                    {ytDlpCanManage ? (
-                      <button type="button" className="ld-button ld-button-primary" onClick={handleManageYtDlp} disabled={isManagingYtDlp}>
-                        {isManagingYtDlp ? (ytDlpVersion ? 'Updating yt-dlp…' : 'Installing yt-dlp…') : ytDlpVersion ? 'Update yt-dlp' : 'Install yt-dlp'}
-                      </button>
-                    ) : (
-                      <span className="ld-runtime-custom-path-note">A custom yt-dlp path is configured. Update that executable on the host, or clear the path to use this page.</span>
-                    )}
-                    <button
-                      type="button"
-                      className="ld-button ld-button-secondary"
-                      aria-expanded={serverConfigExpanded}
-                      aria-controls="ld-runtime-details"
-                      onClick={() => setServerConfigExpanded(!serverConfigExpanded)}
-                    >
-                      {serverConfigExpanded ? 'Hide server details' : 'Server details'}
-                    </button>
-                  </div>
-                </div>
-                {(ytDlpManagementMessage || ytDlpManagementError) && (
-                  <div className={`ld-runtime-feedback${ytDlpManagementError ? ' is-error' : ''}`} role={ytDlpManagementError ? 'alert' : 'status'}>
-                    {ytDlpManagementError || ytDlpManagementMessage}
-                  </div>
-                )}
-                {serverConfigExpanded && (
-                  <div id="ld-runtime-details" className="ld-runtime-details">
-                    <div><span>Managed yt-dlp environment</span><code>{ytDlpManagedPath || 'Stash user data/stash-downloader/yt-dlp'}</code></div>
-                    <div><span>Docker storage</span><span className="ld-runtime-value">Use a writable path on a persistent mounted volume so yt-dlp survives container replacement.</span></div>
-                    <div><span>Video library</span><code>{videoDownloadPath}</code></div>
-                    <div><span>Image library</span><code>{imageDownloadPath}</code></div>
-                    <div>
-                      <span>HTTP/SOCKS proxy</span>
-                      {httpProxy
-                        ? <code>{httpProxy.replace(/:\/\/[^@]+@/, '://***@')}</code>
-                        : <span className="ld-runtime-value">Not configured</span>}
-                    </div>
-                    {!ytDlpVersion && (
-                      <div className="ld-runtime-actions">
-                        <button type="button" className="ld-button ld-button-secondary" onClick={() => setShowYtDlpWarning(true)}>
-                          yt-dlp setup guide
-                        </button>
-                        <span>Install requirements in the Python environment used by Stash.</span>
-                      </div>
-                    )}
-                    {httpProxy && (
-                      <div className="ld-runtime-actions">
-                        <button
-                          type="button"
-                          className="ld-button ld-button-secondary"
-                          onClick={async () => {
-                            const { testHttpProxy } = await import('@/utils/systemCheck');
-                            const result = await testHttpProxy(httpProxy);
-                            if (result.success) {
-                              toast.showToast('success', 'Proxy Test', result.message);
-                              log.addLog('success', 'proxy', result.message, result.details);
-                            } else {
-                              toast.showToast('error', 'Proxy Test Failed', result.message);
-                              log.addLog('error', 'proxy', result.message, result.details);
-                            }
-                          }}
-                        >
-                          Test proxy
-                        </button>
-                        <span>Proxy credentials stay on the server; TLS verification remains enabled.</span>
-                      </div>
-                    )}
-                  </div>
-                )}
-              </section>
-            )}
 
             <section className="ld-summary" aria-label="Download queue summary">
               <article className="ld-stat-card"><span className="ld-stat-label">In queue</span><strong>{queue.stats.total}</strong><span className="ld-stat-caption">all downloads</span></article>

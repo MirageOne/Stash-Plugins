@@ -9,10 +9,10 @@
     description: Theme-adaptive library health checks, FFmpeg encoding audit and re-encoding, metadata assistance, scraping, tagging, and duplicate/version review with full file details, resolution-based keep recommendations, explicit keep selection, and confirmed scene plus file removal.
 - id: stash-downloader
   name: Stash Downloader
-  version: 0.8.0
-  date: "2026-11-08 00:50:00"
-  path: packages/stash-downloader/0.8.0.zip
-  sha256: 58dff06eca524bd7f84fbcba6f168621c2c911a9ac9768910137c06483b987e0
+  version: 0.8.1
+  date: "2026-11-08 01:01:12"
+  path: packages/stash-downloader/0.8.1.zip
+  sha256: f848632ebbdc1e18f36ae25ff0923245b1af9dce61b5ef2788558be9cb687cfb
   requires: []
   metadata:
     description: Theme-adaptive media downloads with page-managed yt-dlp install and updates in an isolated Python environment, proxy settings, Stash import profiles, duplicate-source checks, recoverable queue state, searchable status filters, metadata review, and a separate activity workspace.

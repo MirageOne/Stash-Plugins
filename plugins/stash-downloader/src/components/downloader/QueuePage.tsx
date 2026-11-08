@@ -766,12 +766,12 @@ export const QueuePage: React.FC = () => {
             <div className="ld-header-actions">
               <button
                 type="button"
-                className="ld-button ld-button-secondary"
+                className="ld-button ld-button-secondary ld-about-trigger"
                 onClick={() => setShowAboutModal(true)}
                 aria-label={"About " + PLUGIN_NAME}
               >
                 <svg viewBox="0 0 24 24" aria-hidden="true"><circle cx="12" cy="12" r="9" /><path d="M12 11v5m0-8h.01" /></svg>
-                About
+                <span className="ld-about-label">About</span>
               </button>
             </div>
           </header>

@@ -754,6 +754,7 @@
 .stash-downloader-plugin .ld-button:disabled { opacity: 0.45; cursor: not-allowed; }
 .stash-downloader-plugin .ld-button-secondary { background: var(--ld-surface); border-color: var(--ld-border); color: var(--ld-text); }
 .stash-downloader-plugin .ld-button-secondary:hover:not(:disabled) { background: var(--ld-surface-strong); border-color: var(--ld-border-strong); }
+.stash-downloader-plugin .ld-button svg { width: 18px; height: 18px; flex: 0 0 auto; fill: none; stroke: currentColor; stroke-width: 1.8; stroke-linecap: round; stroke-linejoin: round; }
 .stash-downloader-plugin .ld-intro {
   display: flex;
   align-items: flex-end;
@@ -813,7 +814,7 @@
 .stash-downloader-plugin .ld-url-label { margin-bottom: 7px; color: var(--ld-muted) !important; font-size: 0.8rem; font-weight: 700; letter-spacing: 0.06em; text-transform: uppercase; }
 .stash-downloader-plugin .ld-url-row { align-items: stretch; }
 .stash-downloader-plugin .ld-url-input { min-width: 0; min-height: 44px; border-radius: 9px !important; background: var(--ld-surface-strong) !important; color: var(--ld-text) !important; }
-.stash-downloader-plugin .ld-url-type { width: 150px; flex: 0 0 150px; min-height: 44px; border-radius: 9px !important; background-color: var(--ld-surface-strong) !important; color: var(--ld-text) !important; }
+.stash-downloader-plugin .ld-url-type { width: 150px; flex: 0 0 150px; min-height: 44px; padding-inline-start: 14px !important; border-radius: 9px !important; background-color: var(--ld-surface-strong) !important; color: var(--ld-text) !important; }
 .stash-downloader-plugin .ld-url-help { margin-top: 7px; color: var(--ld-subtle) !important; font-size: 0.73rem; }
 .stash-downloader-plugin .ld-url-submit { min-height: 42px; padding-inline: 16px; border-radius: 9px; font-weight: 650; }
 .stash-downloader-plugin .form-control,
@@ -931,6 +932,55 @@
   .stash-downloader-plugin .modal-dialog-scrollable { height: calc(100% - 20px); }
 }
 
+/* In portrait, keep About discreet and let its panel float over the page. */
+@media (max-width: 620px) and (orientation: portrait) {
+  .stash-downloader-plugin .ld-header { position: relative; }
+  .stash-downloader-plugin .ld-brand-row { max-width: calc(100% - 46px); }
+  .stash-downloader-plugin .ld-header-actions {
+    position: absolute;
+    top: 13px;
+    right: 0;
+    width: auto;
+  }
+  .stash-downloader-plugin .ld-header-actions .ld-about-trigger {
+    width: 36px;
+    min-width: 36px;
+    height: 36px;
+    min-height: 36px;
+    flex: 0 0 36px;
+    padding: 0;
+    border-radius: 50%;
+  }
+  .stash-downloader-plugin .ld-about-label { display: none; }
+  .stash-downloader-plugin .ld-about-backdrop { display: none; }
+  .stash-downloader-plugin .ld-about-modal {
+    position: fixed;
+    inset: 0;
+    z-index: 1060;
+    overflow: hidden;
+    padding: 0;
+    background: transparent;
+  }
+  .stash-downloader-plugin .ld-about-dialog {
+    position: absolute;
+    top: 58px;
+    right: max(12px, calc((100vw - 1260px) / 2));
+    width: min(360px, calc(100vw - 24px));
+    max-width: none;
+    min-height: 0;
+    display: block;
+    margin: 0;
+    pointer-events: none;
+  }
+  .stash-downloader-plugin .ld-about-dialog .modal-content {
+    max-height: calc(100dvh - 72px);
+    overflow-y: auto;
+    pointer-events: auto;
+    border-radius: 12px !important;
+    box-shadow: 0 18px 48px rgba(0,0,0,0.44), inset 0 1px 0 rgba(255,255,255,0.04);
+  }
+}
+
 /* Small button refinements */
 
 .stash-downloader-plugin [hidden] { display: none !important; }
@@ -956,7 +1006,7 @@
 .stash-downloader-plugin .ld-source-footer { display: flex; align-items: center; justify-content: space-between; gap: 16px; padding-top: 15px; border-top: 1px solid var(--ld-border); }
 .stash-downloader-plugin .ld-source-profile { display: flex; align-items: center; flex-wrap: wrap; gap: 9px; min-width: 0; }
 .stash-downloader-plugin .ld-source-profile label { margin: 0; color: var(--ld-muted); font-size: 0.8rem; font-weight: 650; }
-.stash-downloader-plugin .ld-source-profile .form-select { width: auto; min-width: 170px; min-height: 36px; }
+.stash-downloader-plugin .ld-source-profile .form-select { width: auto; min-width: 170px; min-height: 36px; padding-inline-start: 14px !important; }
 .stash-downloader-plugin .ld-profile-note { flex: 1 1 100%; color: var(--ld-subtle); font-size: 0.72rem; }
 .stash-downloader-plugin .ld-batch-area > .d-flex { flex-wrap: wrap; gap: 8px !important; }
 .stash-downloader-plugin .ld-batch-area .btn { min-height: 36px; }
@@ -1002,7 +1052,7 @@
 .stash-downloader-plugin .ld-preference-toggle { min-height: 30px; padding: 0 9px; border: 1px solid var(--ld-border); border-radius: 7px; background: transparent; color: var(--ld-muted); font-size: 0.7rem; cursor: pointer; }
 .stash-downloader-plugin .ld-preference-toggle[aria-pressed="true"] { border-color: color-mix(in srgb, var(--ld-accent), transparent 68%); background: var(--ld-accent-soft); color: var(--ld-accent-bright); }
 .stash-downloader-plugin .ld-log-level { display: inline-flex; align-items: center; gap: 7px; margin-left: auto; color: var(--ld-muted); font-size: 0.7rem; }
-.stash-downloader-plugin .ld-log-level .form-select { width: auto; min-width: 105px; min-height: 30px; padding-top: 3px; padding-bottom: 3px; font-size: 0.7rem; }
+.stash-downloader-plugin .ld-log-level .form-select { width: auto; min-width: 105px; min-height: 30px; padding-top: 3px; padding-bottom: 3px; padding-inline-start: 14px !important; font-size: 0.7rem; }
 .stash-downloader-plugin .ld-empty-results { display: grid; justify-items: center; gap: 8px; padding: 36px 16px; color: var(--ld-muted); text-align: center; }
 .stash-downloader-plugin .ld-empty-results strong { color: var(--ld-text); font-size: 0.88rem; }
 .stash-downloader-plugin .ld-empty-results span { color: var(--ld-subtle); font-size: 0.75rem; }

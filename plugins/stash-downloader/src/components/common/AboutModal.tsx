@@ -30,14 +30,15 @@ export const AboutModal: React.FC<AboutModalProps> = ({ open, onClose }) => {
 
   return (
     <>
-      <div className="modal-backdrop fade show" onClick={onClose} />
+      <div className="modal-backdrop fade show ld-about-backdrop" onClick={onClose} />
       <div
-        className="modal fade show d-block"
+        className="modal fade show d-block ld-about-modal"
         tabIndex={-1}
         role="dialog"
         aria-modal="true"
+        onClick={onClose}
       >
-        <div className="modal-dialog modal-dialog-centered">
+        <div className="modal-dialog modal-dialog-centered ld-about-dialog" onClick={(event) => event.stopPropagation()}>
           <div className="modal-content bg-dark text-light">
             <div className="modal-header border-secondary">
               <div className="d-flex align-items-center gap-2 flex-grow-1">

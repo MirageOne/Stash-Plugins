@@ -14,7 +14,7 @@ Rebirth is built for Stash 0.32 and its plugin UI APIs. Its filter, Settings, an
 
 ## Install
 
-Add the **MirageOne Stash Plugins** source in **Settings → Plugins → Add source** using the index URL in the [repository README](../../README.md), then install **Rebirth** from **Available Plugins**. To install manually, download [Rebirth 1.2.0](../../packages/rebirth/1.2.0-manual.zip) and extract its `rebirth/` folder into Stash's configured plugins directory. Enable it in **Settings → Plugins** and refresh Stash in the browser after updating so the versioned JavaScript and CSS load.
+Add the **MirageOne Stash Plugins** source in **Settings → Plugins → Add source** using the index URL in the [repository README](../../README.md), then install **Rebirth** from **Available Plugins**. To install manually, download [Rebirth 1.2.1](../../packages/rebirth/1.2.1-manual.zip) and extract its `rebirth/` folder into Stash's configured plugins directory. Enable it in **Settings → Plugins** and refresh Stash in the browser after updating so the versioned JavaScript and CSS load.
 
 The one- or two-column mobile scene grid and the four-item navigation dock are configured in **Settings → Interface → Theme Settings**. Disable other full-app theme plugins while checking Rebirth so their global styles do not override its presentation.
 
@@ -62,8 +62,8 @@ Rebirth 1.1.8 replaces separate plugin utility icons with one top-bar app-grid b
 
 ## Visual audit
 
-Earlier Rebirth versions were checked in a clean Stash 0.32.0 instance at desktop and mobile widths, including the performer detail page with its filter closed and opened. The 1.2.0 tag directory was checked against Stash 0.32 tag and filter APIs and in desktop/mobile browser fixtures from 320 to 1280 pixels in both light and dark modes. A live Stash server is not running in this workspace. Stash continues to handle library mutations, playback, and server settings through its native routes and APIs.
+Earlier Rebirth versions were checked in a clean Stash 0.32.0 instance at desktop and mobile widths, including the performer detail page with its filter closed and opened. The 1.2.1 tag directory was checked against Stash 0.32 tag and filter APIs and in desktop/mobile browser fixtures from 320 to 1280 pixels in both light and dark modes. A live Stash server is not running in this workspace. Stash continues to handle library mutations, playback, and server settings through its native routes and APIs.
 
-The plugin has no external dependencies or build step. Its JavaScript and manifest can be syntax-checked directly with Node; its styles load from `css/rebirth-1.2.0.css`.
+The plugin has no external dependencies or build step. Its JavaScript and manifest can be syntax-checked directly with Node; its styles load from `css/rebirth-1.2.1.css`.
 
 Rebirth is distributed under [AGPL-3.0](./LICENSE).

@@ -27,10 +27,10 @@
     description: Theme-adaptive media downloads with page-managed yt-dlp install and updates in an isolated Python environment, proxy settings, Stash import profiles, duplicate-source checks, recoverable queue state, searchable status filters, metadata review, and a separate activity workspace.
 - id: rebirth
   name: Rebirth
-  version: 1.2.0
-  date: "2026-11-08 17:36:29"
-  path: packages/rebirth/1.2.0.zip
-  sha256: c8930c4a6c4bfd9dbf82c3e8c3ae6f5725df1e369e407e0e543c7111020ca4c9
+  version: 1.2.1
+  date: "2026-11-08 17:43:29"
+  path: packages/rebirth/1.2.1.zip
+  sha256: 433cafa816f6b422048f1281d136155173005263dd758657f4f90c9d31654f61
   requires: []
   metadata:
     description: Rebirth is a video-first Stash theme with account-synced appearance preferences, responsive navigation and mobile scene grids, an accent-responsive Stash box mark, custom switches, Geist typography, an automatically cycling carousel, themed Settings and Help, neutral raised cards and grouped ratings across performer, studio, group, and tag detail pages, a native filter sidebar styled to match the theme and hidden when collapsed on performer detail pages, responsive pagination, a compact task queue, icon-centered mobile navigation, and a single accent-aware plugin launcher flyout. The Tags page replaces icon tiles with a hierarchy directory, parent and child filters, parent selection, A–Z browsing, favorite controls, and links to each tag’s scenes, images, galleries, groups, markers, performers, and studios. Native search, sorting, pagination, bulk actions, and Tagger remain available. It also includes distinct tag chips, neutral Tagger results, evenly spaced performer actions, theme-styled dropdowns and selects, light and dark modes, eight accent colors, selected-accent primary buttons, outlined secondary actions, and semantic destructive actions.

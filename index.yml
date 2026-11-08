@@ -36,13 +36,13 @@
     description: Theme-adaptive personalized scene queue with title, tag, performer, studio, runtime, rating, and play-history filters. An explainable account-specific preference model learns from explicit like, finished, skip, and less-like-this choices and can be reset at any time.
 - id: rebirth
   name: Rebirth
-  version: 1.2.10
-  date: "2026-11-08 20:14:34"
-  path: packages/rebirth/1.2.10.zip
-  sha256: bad024b2fb8ce95dfc28360883a464ae28cebfbde8dddf42e2a37ef94eba4813
+  version: 1.2.11
+  date: "2026-11-08 18:09:57"
+  path: packages/rebirth/1.2.11.zip
+  sha256: 231657b9bf381871afe982af4f9a6affb5dab5e916ee6c974951219d42e66a27
   requires: []
   metadata:
-    description: Rebirth is a video-first Stash theme with appearance preferences saved in the signed-in user's Stash UI settings, responsive navigation and mobile scene grids, an accent-responsive Stash box mark, custom switches, Geist typography, an automatically cycling home carousel for recently added, recently released, or randomly selected scenes on each page load, with full titles fitted inside the fixed-height hero, themed Settings and Help, neutral raised cards and grouped ratings on performer, studio, group, and tag detail pages, a native filter sidebar styled to match the theme and hidden when collapsed on detail pages, responsive pagination, a compact task queue, icon-centered mobile navigation, and a single accent-aware plugin launcher flyout. Installed plugin actions stay aligned; poster cards preserve the full Stash screenshot. The Tags page provides a hierarchy directory with parent and child filters, parent selection, A–Z browsing, favorites, and links to each tag's related content while retaining native search, sorting, pagination, bulk actions, and Tagger mode. It also includes distinct tag chips, theme-styled dropdowns, light and dark modes, eight accent colors, selected-accent primary buttons, outlined secondary actions, and semantic destructive actions.
+    description: A responsive Stash theme with customizable accents, light and dark modes, and streamlined navigation.
 - id: tpdb-markers
   name: TPDB Markers
   version: 1.0.0

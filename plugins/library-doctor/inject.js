@@ -1,10 +1,10 @@
-/* Adds a Library Doctor utility button beside the other right-side navbar
-   actions. The dashboard is served as a standalone same-origin plugin asset
-   page, so opening it does not interfere with Stash's React route state. */
+/* Adds Library Doctor as an in-app Stash route while keeping its existing
+   dashboard served from the plugin's same-origin raw interface. */
 (function () {
     "use strict";
 
     var ENTRY_ID = "library-doctor-nav-entry";
+    var APP_ROUTE = "/plugins/library-doctor";
     var DASHBOARD_URL = "/plugin/library-doctor/assets/index.html";
     var HOST_THEME_KEY = "library-doctor.host-theme.v1";
     var ICON = "<svg viewBox='0 0 24 24' aria-hidden='true' focusable='false' fill='none' stroke='currentColor' stroke-width='1.8' stroke-linecap='round' stroke-linejoin='round'><path d='M6 3.5v5a4 4 0 0 0 8 0v-5M4 3.5h4M12 3.5h4'/><path d='M14 8.5v2a4 4 0 0 0 4 4h1'/><circle cx='19' cy='17' r='2.5'/></svg>";
@@ -153,41 +153,77 @@
             document.querySelector("nav.navbar .navbar-buttons");
     }
 
+    function registerDashboardRoute() {
+        var api = window.PluginApi;
+        if (!api || !api.React || !api.register || typeof api.register.route !== "function") { return false; }
+        api.register.route(APP_ROUTE, function () {
+            return api.React.createElement("iframe", {
+                src: DASHBOARD_URL,
+                title: "Library Doctor",
+                className: "library-doctor-dashboard-frame",
+                style: { display: "block", width: "100%", height: "calc(100vh - 60px)", minHeight: "540px", border: "0", background: "transparent" }
+            });
+        });
+        if (window.location.pathname === APP_ROUTE) {
+            window.setTimeout(function () { window.dispatchEvent(new PopStateEvent("popstate")); }, 50);
+        }
+        return true;
+    }
+
+    function syncEntryActiveState(link) {
+        var active = window.location.pathname === APP_ROUTE || window.location.pathname.indexOf(APP_ROUTE + "/") === 0;
+        link.classList.toggle("stash-nav-active", active);
+        if (active) { link.setAttribute("aria-current", "page"); }
+        else { link.removeAttribute("aria-current"); }
+    }
+
     function ensureEntry() {
         if (!document.body || location.pathname.indexOf("/plugin/library-doctor/") === 0) {
             return false;
         }
         var buttons = findUtilityButtons();
-        if (!buttons || document.getElementById(ENTRY_ID)) { return false; }
-
-        /* The dashboard opens in a standalone document, so store the host's
-           computed theme before navigating to it. */
-        syncHostTheme();
-
-        var link = document.createElement("a");
-        link.id = ENTRY_ID;
+        if (!buttons) { return false; }
+        var link = document.getElementById(ENTRY_ID);
+        if (!link) {
+            /* Store the host's computed theme before the embedded dashboard loads. */
+            syncHostTheme();
+            link = document.createElement("a");
+            link.id = ENTRY_ID;
+            link.innerHTML = ICON;
+        }
         link.className = "btn btn-secondary minimal nav-utility";
-        link.href = DASHBOARD_URL;
-        link.target = "_blank";
-        link.rel = "noopener noreferrer";
+        link.href = APP_ROUTE;
+        link.removeAttribute("target");
+        link.removeAttribute("rel");
         link.title = "Open Library Doctor health checks";
         link.setAttribute("aria-label", "Library Doctor");
         link.style.order = "89";
-        link.innerHTML = ICON;
+        syncEntryActiveState(link);
+        if (link.getAttribute("data-in-app-route-bound") !== "true") {
+            window.addEventListener("popstate", function () { syncEntryActiveState(link); });
+            link.addEventListener("click", function (event) {
+                if (event.button !== 0 || event.metaKey || event.ctrlKey || event.shiftKey || event.altKey) { return; }
+                event.preventDefault();
+                window.history.pushState({}, "", APP_ROUTE);
+                syncEntryActiveState(link);
+                window.dispatchEvent(new PopStateEvent("popstate"));
+            });
+            link.setAttribute("data-in-app-route-bound", "true");
+        }
 
         /* Place the action beside Settings in the utility controls instead of
            among the primary library routes. */
-        var settings = buttons.querySelector('a[href="/settings"]');
-        if (settings) {
-            buttons.insertBefore(link, settings);
-        } else {
-            buttons.appendChild(link);
+        if (link.parentElement !== buttons) {
+            var settings = buttons.querySelector('a[href="/settings"]');
+            if (settings) { buttons.insertBefore(link, settings); }
+            else { buttons.appendChild(link); }
         }
         return true;
     }
 
     function start() {
         if (!document.body) { return; }
+        registerDashboardRoute();
         syncHostTheme();
         ensureEntry();
         if (typeof MutationObserver === "undefined") { return; }

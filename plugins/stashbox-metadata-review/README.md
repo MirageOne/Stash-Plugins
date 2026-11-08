@@ -13,7 +13,7 @@ The Stash 0.32 GraphQL scraper supports **performers, scenes, studios, and tags*
 
 ## Use
 
-1. Open the **StashBox Metadata Review** shortcut in the Stash navigation. If it is not visible after installation, reload the plugin list and refresh the browser.
+1. Open the **StashBox Metadata Review** shortcut in the Stash navigation. It opens inside Stash's main view and keeps the Stash navigation available. If the shortcut is not visible after installation, reload the plugin list and refresh the browser.
 2. Select a record type, search your local library, and select one record.
 3. Choose the configured StashBox sources to query, then select **Compare metadata**.
 4. When a source returns several matches, choose the correct one from that source's match list.
@@ -37,7 +37,7 @@ The dashboard keeps the latest 30 applied changes in the current browser's local
 
 ## Install
 
-Add the **MirageOne Stash Plugins** source in **Settings → Plugins → Add source** using the index URL in the [repository README](../../README.md), then install **StashBox Metadata Review** from **Available Plugins**. For a manual installation, download [the 1.2.1 manual archive](../../packages/stashbox-metadata-review/1.2.1-manual.zip), extract its `stashbox-metadata-review/` directory into Stash's configured plugin directory, enable it, and refresh Stash in the browser.
+Add the **MirageOne Stash Plugins** source in **Settings → Plugins → Add source** using the index URL in the [repository README](../../README.md), then install **StashBox Metadata Review** from **Available Plugins**. For a manual installation, download [the 1.2.2 manual archive](../../packages/stashbox-metadata-review/1.2.2-manual.zip), extract its `stashbox-metadata-review/` directory into Stash's configured plugin directory, enable it, and refresh Stash in the browser.
 
 ## Validation
 

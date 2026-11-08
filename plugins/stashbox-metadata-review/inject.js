@@ -1,10 +1,10 @@
-/* Adds a StashBox Metadata Review utility button beside the other right-side navbar
-   actions. The dashboard is served as a standalone same-origin plugin asset
-   page, so opening it does not interfere with Stash's React route state. */
+/* Adds StashBox Metadata Review as an in-app Stash route while keeping its
+   existing dashboard served from the plugin's same-origin raw interface. */
 (function () {
     "use strict";
 
     var ENTRY_ID = "stashbox-metadata-review-nav-entry";
+    var APP_ROUTE = "/plugins/stashbox-metadata-review";
     var DASHBOARD_URL = "/plugin/stashbox-metadata-review/assets/index.html";
     var HOST_THEME_KEY = "stashbox-metadata-review.host-theme.v1";
     var ICON = "<svg viewBox='0 0 24 24' aria-hidden='true' focusable='false' fill='none' stroke='currentColor' stroke-width='1.8' stroke-linecap='round' stroke-linejoin='round'><ellipse cx='9' cy='5' rx='5.5' ry='2.3'/><path d='M3.5 5v8.5c0 1.3 2.5 2.3 5.5 2.3 1.1 0 2.1-.1 2.9-.4M14.5 5v4.1'/><path d='M3.5 9c0 1.3 2.5 2.3 5.5 2.3 1 0 1.9-.1 2.7-.3'/><circle cx='17' cy='15.8' r='3.2'/><path d='m19.4 18.2 2 2'/></svg>";
@@ -153,41 +153,78 @@
             document.querySelector("nav.navbar .navbar-buttons");
     }
 
+    function registerDashboardRoute() {
+        var api = window.PluginApi;
+        if (!api || !api.React || !api.register || typeof api.register.route !== "function") { return false; }
+        api.register.route(APP_ROUTE, function () {
+            return api.React.createElement("iframe", {
+                src: DASHBOARD_URL,
+                title: "StashBox Metadata Review",
+                className: "stashbox-metadata-review-dashboard-frame",
+                style: { display: "block", width: "100%", height: "calc(100vh - 60px)", minHeight: "540px", border: "0", background: "transparent" }
+            });
+        });
+        if (window.location.pathname === APP_ROUTE) {
+            window.setTimeout(function () { window.dispatchEvent(new PopStateEvent("popstate")); }, 50);
+        }
+        return true;
+    }
+
+    function syncEntryActiveState(link) {
+        var active = window.location.pathname === APP_ROUTE || window.location.pathname.indexOf(APP_ROUTE + "/") === 0;
+        link.classList.toggle("stash-nav-active", active);
+        if (active) { link.setAttribute("aria-current", "page"); }
+        else { link.removeAttribute("aria-current"); }
+    }
+
     function ensureEntry() {
         if (!document.body || location.pathname.indexOf("/plugin/stashbox-metadata-review/") === 0) {
             return false;
         }
         var buttons = findUtilityButtons();
-        if (!buttons || document.getElementById(ENTRY_ID)) { return false; }
+        if (!buttons) { return false; }
+        var link = document.getElementById(ENTRY_ID);
+        if (!link) {
+            /* Store the host's computed theme before the embedded dashboard loads. */
+            syncHostTheme();
+            link = document.createElement("a");
+            link.id = ENTRY_ID;
+            link.innerHTML = ICON;
+        }
 
-        /* The dashboard opens in a standalone document, so store the host's
-           computed theme before navigating to it. */
-        syncHostTheme();
-
-        var link = document.createElement("a");
-        link.id = ENTRY_ID;
         link.className = "btn btn-secondary minimal nav-utility";
-        link.href = DASHBOARD_URL;
-        link.target = "_blank";
-        link.rel = "noopener noreferrer";
+        link.href = APP_ROUTE;
+        link.removeAttribute("target");
+        link.removeAttribute("rel");
         link.title = "Compare and review metadata from configured StashBoxes";
         link.setAttribute("aria-label", "StashBox Metadata Review");
         link.style.order = "89";
-        link.innerHTML = ICON;
+        syncEntryActiveState(link);
+        if (link.getAttribute("data-in-app-route-bound") !== "true") {
+            window.addEventListener("popstate", function () { syncEntryActiveState(link); });
+            link.addEventListener("click", function (event) {
+                if (event.button !== 0 || event.metaKey || event.ctrlKey || event.shiftKey || event.altKey) { return; }
+                event.preventDefault();
+                window.history.pushState({}, "", APP_ROUTE);
+                syncEntryActiveState(link);
+                window.dispatchEvent(new PopStateEvent("popstate"));
+            });
+            link.setAttribute("data-in-app-route-bound", "true");
+        }
 
         /* Place the action beside Settings in the utility controls instead of
            among the primary library routes. */
-        var settings = buttons.querySelector('a[href="/settings"]');
-        if (settings) {
-            buttons.insertBefore(link, settings);
-        } else {
-            buttons.appendChild(link);
+        if (link.parentElement !== buttons) {
+            var settings = buttons.querySelector('a[href="/settings"]');
+            if (settings) { buttons.insertBefore(link, settings); }
+            else { buttons.appendChild(link); }
         }
         return true;
     }
 
     function start() {
         if (!document.body) { return; }
+        registerDashboardRoute();
         syncHostTheme();
         ensureEntry();
         if (typeof MutationObserver === "undefined") { return; }

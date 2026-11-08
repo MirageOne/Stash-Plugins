@@ -6,7 +6,7 @@ The home carousel and Continue Watching shelf use Stash GraphQL scene data. New 
 
 Geist Variable Sans 5.3.0 from Fontsource is bundled under the SIL Open Font License 1.1 and loads through Stash's local plugin asset route, so the theme does not need a remote font request.
 
-When signed in, Rebirth syncs appearance preferences to server-side plugin settings keyed by the authenticated Stash user ID. Existing account and browser preferences migrate on first use; later sessions use the account copy across browsers, including incognito. The browser keeps a local cache and remains the fallback when the session identity or server-side plugin settings are unavailable. No preferences are written to Stash's user record. The login page is served outside Stash's plugin UI, so a theme plugin alone cannot restyle it. FrontPage component patching uses Stash's documented experimental UI plugin API and should be checked against each Stash release.
+When signed in, Rebirth stores appearance preferences in Stash's per-user UI configuration through the native `configureUI` API. The browser keeps a local cache for immediate display, while Stash's account settings restore the same appearance across browsers and incognito sessions. Existing browser preferences migrate into the signed-in account the first time the account settings are available. The login page is served outside Stash's plugin UI, so a theme plugin alone cannot restyle it. FrontPage component patching uses Stash's documented experimental UI plugin API and should be checked against each Stash release.
 
 ## Requirements and compatibility
 
@@ -14,7 +14,7 @@ Rebirth is built for Stash 0.32 and its plugin UI APIs. Its filter, Settings, an
 
 ## Install
 
-Add the **MirageOne Stash Plugins** source in **Settings → Plugins → Add source** using the index URL in the [repository README](../../README.md), then install **Rebirth** from **Available Plugins**. To install manually, download [Rebirth 1.2.2](../../packages/rebirth/1.2.2-manual.zip) and extract its `rebirth/` folder into Stash's configured plugins directory. Enable it in **Settings → Plugins** and refresh Stash in the browser after updating so the versioned JavaScript and CSS load.
+Add the **MirageOne Stash Plugins** source in **Settings → Plugins → Add source** using the index URL in the [repository README](../../README.md), then install **Rebirth** from **Available Plugins**. To install manually, download [Rebirth 1.2.3](../../packages/rebirth/1.2.3-manual.zip) and extract its `rebirth/` folder into Stash's configured plugins directory. Enable it in **Settings → Plugins** and refresh Stash in the browser after updating so the versioned JavaScript and CSS load.
 
 The one- or two-column mobile scene grid and the four-item navigation dock are configured in **Settings → Interface → Theme Settings**. Disable other full-app theme plugins while checking Rebirth so their global styles do not override its presentation.
 
@@ -62,8 +62,8 @@ Rebirth 1.1.8 replaces separate plugin utility icons with one top-bar app-grid b
 
 ## Visual audit
 
-Earlier Rebirth versions were checked in a clean Stash 0.32.0 instance at desktop and mobile widths, including the performer detail page with its filter closed and opened. The 1.2.2 tag directory was checked against Stash 0.32 tag and filter APIs and in desktop/mobile browser fixtures from 320 to 1280 pixels in both light and dark modes. A live Stash server is not running in this workspace. Stash continues to handle library mutations, playback, and server settings through its native routes and APIs.
+Earlier Rebirth versions were checked in a clean Stash 0.32.0 instance at desktop and mobile widths, including the performer detail page with its filter closed and opened. The 1.2.2 tag directory was checked against Stash 0.32 tag and filter APIs and in desktop/mobile browser fixtures from 320 to 1280 pixels in both light and dark modes. User preference persistence uses Stash 0.32's per-user `configuration.ui` and `configureUI(partial:)` GraphQL fields; it was tested with isolated browser storage and mocked authenticated GraphQL responses. A live Stash server is not running in this workspace. Stash continues to handle library mutations, playback, and server settings through its native routes and APIs.
 
-The plugin has no external dependencies or build step. Its JavaScript and manifest can be syntax-checked directly with Node; its styles load from `css/rebirth-1.2.2.css`.
+The plugin has no external dependencies or build step. Its JavaScript and manifest can be syntax-checked directly with Node; its styles load from `css/rebirth-1.2.3.css`.
 
 Rebirth is distributed under [AGPL-3.0](./LICENSE).

@@ -1,12 +1,12 @@
 name: Rebirth
-description: Rebirth is a video-first Stash theme with account-synced appearance preferences, responsive navigation and mobile scene grids, an accent-responsive Stash box mark, custom switches, Geist typography, an automatically cycling carousel, themed Settings and Help, neutral card surfaces and grouped ratings on performer, studio, group, and tag details, Rebirth-colored filters aligned beside navigation, the performer filter sidebar collapsed by default with its native toggle retained, responsive pagination, a compact task queue, icon-centered mobile navigation, a single accent-aware plugin launcher flyout, a hierarchy-aware tag directory with parent and A–Z filters, favorite toggles, and linked content counts, distinct tag chips, neutral Tagger results, evenly spaced performer actions that wrap to fit, theme-styled dropdowns and selects, light and dark modes, eight accent colors, selected-accent primary buttons, outlined secondary actions, and semantic destructive actions.
-version: 1.2.2
+description: Rebirth is a video-first Stash theme with appearance preferences saved in the signed-in user's Stash UI settings, responsive navigation and mobile scene grids, an accent-responsive Stash box mark, custom switches, Geist typography, an automatically cycling carousel, themed Settings and Help, neutral card surfaces and grouped ratings on performer, studio, group, and tag details, Rebirth-colored filters aligned beside navigation, the performer filter sidebar collapsed by default with its native toggle retained, responsive pagination, a compact task queue, icon-centered mobile navigation, a single accent-aware plugin launcher flyout, a hierarchy-aware tag directory with parent and A–Z filters, favorite toggles, and linked content counts, distinct tag chips, neutral Tagger results, evenly spaced performer actions that wrap to fit, theme-styled dropdowns and selects, light and dark modes, eight accent colors, selected-accent primary buttons, outlined secondary actions, and semantic destructive actions.
+version: 1.2.3
 url: https://github.com/MirageOne/Stash-Plugins/tree/main/plugins/rebirth
 ui:
   javascript:
-    - rebirth-1.2.2.js
+    - rebirth-1.2.3.js
   css:
-    - css/rebirth-1.2.2.css
+    - css/rebirth-1.2.3.css
   assets:
     /fonts: fonts
     /icons: icons

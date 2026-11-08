@@ -934,6 +934,29 @@
 
 /* In portrait, keep About discreet and let its panel float over the page. */
 @media (max-width: 620px) and (orientation: portrait) {
+  .stash-downloader-plugin {
+    width: 100%;
+    max-width: 100%;
+    min-width: 0;
+  }
+  .stash-downloader-plugin .ld-page-root,
+  .stash-downloader-plugin .ld-shell,
+  .stash-downloader-plugin .ld-app-stack {
+    width: 100%;
+    max-width: 100%;
+    min-width: 0;
+  }
+  .stash-downloader-plugin .ld-shell { width: calc(100% - 24px); }
+  .stash-downloader-plugin .ld-app-stack > *,
+  .stash-downloader-plugin .ld-workspace-panel,
+  .stash-downloader-plugin .ld-source-card,
+  .stash-downloader-plugin .ld-queue-workspace,
+  .stash-downloader-plugin .ld-runtime-card,
+  .stash-downloader-plugin .ld-summary,
+  .stash-downloader-plugin .ld-workspace-tabs {
+    max-width: 100%;
+    min-width: 0;
+  }
   .stash-downloader-plugin .ld-header { position: relative; }
   .stash-downloader-plugin .ld-brand-row { max-width: calc(100% - 46px); }
   .stash-downloader-plugin .ld-header-actions {

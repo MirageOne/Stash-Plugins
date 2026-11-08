@@ -22,7 +22,7 @@
     var state = {
         type: "performer", sources: [], selectedSources: Object.create(null), local: null, matches: [],
         sourceResults: [], candidateIndex: Object.create(null), choices: Object.create(null), busy: false, history: loadHistory(),
-        workspace: "record", batchScenes: [], batchMatches: Object.create(null), batchSelected: Object.create(null),
+        workspace: "record", batchScenes: [], batchMatches: Object.create(null), batchSelected: Object.create(null), batchSourceSelection: Object.create(null),
         batchLoading: false, batchStop: false, batchCanStop: false, batchApplied: Object.create(null)
     };
     var els = {};
@@ -146,8 +146,14 @@
         return graphQLRequest(CONFIG_QUERY).then(function (data) {
             var general = data.configuration && data.configuration.general;
             state.sources = general && Array.isArray(general.stashBoxes) ? general.stashBoxes.filter(function (source) { return source && source.endpoint; }) : [];
+            var previousRecordSelection = state.selectedSources;
+            var previousBatchSelection = state.batchSourceSelection;
             state.selectedSources = Object.create(null);
-            state.sources.forEach(function (source) { state.selectedSources[source.endpoint] = true; });
+            state.batchSourceSelection = Object.create(null);
+            state.sources.forEach(function (source) {
+                state.selectedSources[source.endpoint] = Object.prototype.hasOwnProperty.call(previousRecordSelection, source.endpoint) ? previousRecordSelection[source.endpoint] : true;
+                state.batchSourceSelection[source.endpoint] = Object.prototype.hasOwnProperty.call(previousBatchSelection, source.endpoint) ? previousBatchSelection[source.endpoint] : true;
+            });
             renderSources();
             setError("");
             if (!state.sources.length) setStatus("No StashBoxes are configured. Add one under Settings → Metadata Providers, then refresh this page.");
@@ -173,18 +179,25 @@
     }
 
     function renderBatchSources() {
-        if (!els.batchSource) return;
+        if (!els.batchSources) return;
         if (!state.sources.length) {
-            els.batchSource.innerHTML = '<option value="">No StashBox sources</option>';
+            els.batchSources.innerHTML = '<p class="sbmr-muted">No configured StashBoxes were found.</p>';
+            els.batchSourceCount.textContent = "";
+            els.batchSourceAll.disabled = true;
+            els.batchSourceNone.disabled = true;
             return;
         }
-        var selectedOption = els.batchSource.selectedOptions && els.batchSource.selectedOptions[0];
-        var previousEndpoint = selectedOption && selectedOption.dataset.endpoint;
-        els.batchSource.innerHTML = state.sources.map(function (source, index) {
-            return '<option value="' + index + '" data-endpoint="' + escapeHtml(source.endpoint) + '">' + escapeHtml(source.name || "StashBox " + (index + 1)) + '</option>';
+        els.batchSources.innerHTML = state.sources.map(function (source, index) {
+            return '<label class="sbmr-source-option"><input type="checkbox" data-batch-source-index="' + index + '" ' + (state.batchSourceSelection[source.endpoint] ? "checked" : "") + '><span class="sbmr-source-copy"><strong>' + escapeHtml(source.name || "StashBox " + (index + 1)) + '</strong><small>' + escapeHtml(source.endpoint) + '</small></span></label>';
         }).join("");
-        var selectedIndex = state.sources.findIndex(function (source) { return source.endpoint === previousEndpoint; });
-        els.batchSource.value = String(selectedIndex >= 0 ? selectedIndex : 0);
+        var count = state.sources.filter(function (source) { return state.batchSourceSelection[source.endpoint]; }).length;
+        els.batchSourceCount.textContent = count + " of " + state.sources.length + " selected";
+        els.batchSourceAll.disabled = count === state.sources.length || state.batchLoading;
+        els.batchSourceNone.disabled = count === 0 || state.batchLoading;
+    }
+
+    function selectedBatchSources() {
+        return state.sources.filter(function (source) { return state.batchSourceSelection[source.endpoint]; });
     }
 
     function updateBatchButtons() {
@@ -192,9 +205,11 @@
         var selected = state.batchScenes.filter(function (scene) { return state.batchSelected[String(scene.id)]; });
         var comparable = selected.filter(function (scene) { return state.batchMatches[String(scene.id)] && state.batchMatches[String(scene.id)].results && state.batchMatches[String(scene.id)].results.length; });
         els.batchLoad.disabled = state.busy || state.batchLoading;
-        els.batchSource.disabled = state.batchLoading;
         [els.batchMissing, els.batchDays, els.batchLimit, els.batchUnorganized, els.batchQuery,
             els.batchEmptyOnly, els.batchOrganize, els.batchTagMode].forEach(function (control) { control.disabled = state.batchLoading; });
+        if (els.batchSources) els.batchSources.querySelectorAll("input").forEach(function (control) { control.disabled = state.batchLoading; });
+        els.batchSourceAll.disabled = state.batchLoading || !state.sources.length || state.sources.every(function (source) { return state.batchSourceSelection[source.endpoint]; });
+        els.batchSourceNone.disabled = state.batchLoading || !state.sources.some(function (source) { return state.batchSourceSelection[source.endpoint]; });
         els.batchSelectAll.disabled = state.batchLoading || !state.batchScenes.length;
         els.batchSelectNone.disabled = state.batchLoading || !state.batchScenes.length;
         els.batchCompare.disabled = state.busy || state.batchLoading || !selected.length || !state.sources.length;
@@ -531,20 +546,27 @@
         });
     }
 
-    function selectedBatchCandidate(scene) {
+    function selectedBatchResult(scene) {
         var match = state.batchMatches[String(scene.id)];
         if (!match || !match.results || !match.results.length) return null;
         return match.results[match.candidateIndex || 0] || null;
     }
 
-    function batchCandidateLabel(scene, candidate, index) {
+    function selectedBatchCandidate(scene) {
+        var result = selectedBatchResult(scene);
+        return result ? result.candidate : null;
+    }
+
+    function batchCandidateLabel(scene, result, index) {
+        var candidate = result.candidate;
         var score = Core.analyzeSceneMatch(scene, candidate);
         var name = candidate.title || candidate.code || "Result " + (index + 1);
         var parts = [];
+        parts.push(result.source.name || result.source.endpoint);
         if (score.phashMatches) parts.push(score.phashMatches + " pHash");
         if (score.oshashMatches) parts.push(score.oshashMatches + " OSHash");
         if (score.durationMatches) parts.push(score.durationMatches + " duration");
-        return name + (parts.length ? " · " + parts.join(" / ") : " · fingerprints not close");
+        return name + " · " + parts.join(" / ") + (score.phashMatches || score.oshashMatches || score.durationMatches ? "" : " · fingerprints not close");
     }
 
     var BATCH_SCALAR_FIELDS = [
@@ -552,9 +574,12 @@
         ["date", "Date"], ["production_date", "Production date"], ["urls", "URLs"]
     ];
 
-    function initializeBatchChoices(scene, match, candidate) {
+    function initializeBatchChoices(scene, match, result) {
         if (match.selectedFields) return;
+        var candidate = result.candidate;
+        var previousStashChoices = match.selectedStashIDs || Object.create(null);
         match.selectedFields = Object.create(null);
+        match.selectedStashIDs = Object.create(null);
         var onlyEmpty = els.batchEmptyOnly.checked;
         BATCH_SCALAR_FIELDS.forEach(function (field) {
             var value = candidate[field[0]];
@@ -568,20 +593,30 @@
         if ((candidate.performers || []).some(function (performer) { return performer.stored_id; }) && (!onlyEmpty || !(scene.performers || []).length)) match.selectedFields.performer_ids = true;
         if ((candidate.tags || []).some(function (tag) { return tag.stored_id; }) && (!onlyEmpty || !(scene.tags || []).length)) match.selectedFields.tag_ids = true;
         if ((candidate.groups || []).some(function (group) { return group.stored_id; }) && (!onlyEmpty || !(scene.groups || []).length)) match.selectedFields.groups = true;
-        if (candidate.remote_site_id && (!onlyEmpty || !(scene.stash_ids || []).some(function (stashID) { return stashEndpointKey(stashID.endpoint) === stashEndpointKey(match.source.endpoint); }))) match.selectedFields.stash_ids = true;
+        match.sourceResults.forEach(function (sourceResult) {
+            var idCandidate = sourceResult.results[sourceResult.candidateIndex || 0];
+            if (!idCandidate || !idCandidate.remote_site_id) return;
+            var remoteID = idCandidate.remote_site_id;
+            var existing = (scene.stash_ids || []).filter(function (stashID) { return stashEndpointKey(stashID.endpoint) === stashEndpointKey(sourceResult.source.endpoint); })[0];
+            match.selectedStashIDs[sourceResult.source.endpoint] = Object.prototype.hasOwnProperty.call(previousStashChoices, sourceResult.source.endpoint)
+                ? previousStashChoices[sourceResult.source.endpoint]
+                : (!onlyEmpty || !existing || String(existing.stash_id) !== String(remoteID));
+        });
+        match.selectedFields.stash_ids = Object.keys(match.selectedStashIDs).some(function (endpoint) { return match.selectedStashIDs[endpoint]; });
     }
 
     function renderBatchScene(scene) {
         var id = String(scene.id);
         var match = state.batchMatches[id];
-        var candidate = selectedBatchCandidate(scene);
-        if (candidate && match) initializeBatchChoices(scene, match, candidate);
+        var selectedResult = selectedBatchResult(scene);
+        var candidate = selectedResult && selectedResult.candidate;
+        if (selectedResult && match && !(state.batchLoading && state.batchCanStop)) initializeBatchChoices(scene, match, selectedResult);
         var score = candidate ? Core.analyzeSceneMatch(scene, candidate) : null;
         var fileDurations = (scene.files || []).map(function (file) { return Number(file.duration); }).filter(function (duration) { return duration > 0; });
         var createdDate = scene.created_at ? new Date(scene.created_at).toLocaleDateString() : "";
         var sceneDetails = [scene.code, scene.date, fileDurations.length ? fileDurations.map(function (duration) { return Math.round(duration) + "s"; }).join(" / ") : "No file duration", createdDate ? "Added " + createdDate : ""].filter(Boolean).join(" · ");
         var status = state.batchApplied[id] ? (state.batchApplied[id].error ? "Needs review" : "Completed") : (match ? (match.error ? "Error" : (candidate ? "Match found" : "No match")) : "Not compared");
-        var candidatePicker = match && match.results && match.results.length > 1 ? '<label class="sbmr-candidate-picker"><span>Candidate (' + match.results.length + ')</span><select data-batch-candidate="' + escapeHtml(id) + '">' + match.results.map(function (entry, index) {
+        var candidatePicker = match && match.results && match.results.length > 1 ? '<label class="sbmr-candidate-picker"><span>Metadata candidate (' + match.results.length + ')</span><select data-batch-candidate="' + escapeHtml(id) + '">' + match.results.map(function (entry, index) {
             return '<option value="' + index + '" ' + ((match.candidateIndex || 0) === index ? "selected" : "") + '>' + escapeHtml(batchCandidateLabel(scene, entry, index)) + '</option>';
         }).join("") + '</select></label>' : "";
         var closestDuration = score && score.bestDurationDifference < 9999 ? ' · closest ' + score.bestDurationDifference.toFixed(1) + 's' : "";
@@ -595,7 +630,7 @@
                 var raw = candidate[field[0]];
                 if (!Core.hasValue(raw)) return "";
                 var current = field[0] === "urls" ? scene.urls : scene[field[0]];
-                var checked = !!match.selectedFields[field[0]];
+                var checked = !!(match.selectedFields && match.selectedFields[field[0]]);
                 return '<label class="sbmr-batch-field"><input type="checkbox" data-batch-field="' + field[0] + '" data-scene-id="' + escapeHtml(id) + '" ' + (checked ? "checked" : "") + '><span><strong>' + escapeHtml(field[1]) + '</strong><small><b>Stash:</b> ' + escapeHtml(formatted(current)) + '</small><small><b>Source:</b> ' + escapeHtml(formatted(raw)) + '</small></span></label>';
             }).join("");
             var matchedStudio = candidate.studio && candidate.studio.stored_id ? candidate.studio.name : "";
@@ -615,15 +650,35 @@
             if (matchedGroups.length) relationshipRows.push(['groups', 'Matched groups', (scene.groups || []).map(function (entry) { return entry.group && entry.group.name; }).filter(Boolean).join(", ") || "Not set", matchedGroups.map(function (group) { return group.name; }).join(", ")]);
             if (matchedPerformers.length) relationshipRows.push(['performer_ids', 'Matched performers', localPerformerNames.join(", ") || "Not set", matchedPerformers.map(function (performer) { return performer.name; }).join(", ")]);
             if (matchedTags.length) relationshipRows.push(['tag_ids', 'Matched tags', localTagNames.join(", ") || "Not set", matchedTags.map(function (tag) { return tag.name; }).join(", ")]);
-            if (candidate.remote_site_id) relationshipRows.push(['stash_ids', 'StashBox ID', "Linked IDs: " + (scene.stash_ids || []).length, candidate.remote_site_id]);
+            match.sourceResults.forEach(function (sourceResult) {
+                var idCandidate = sourceResult.results[sourceResult.candidateIndex || 0];
+                if (!idCandidate || !idCandidate.remote_site_id) return;
+                var existingID = (scene.stash_ids || []).filter(function (stashID) { return stashEndpointKey(stashID.endpoint) === stashEndpointKey(sourceResult.source.endpoint); })[0];
+                var linked = match.selectedStashIDs && match.selectedStashIDs[sourceResult.source.endpoint];
+                var label = "Link " + (sourceResult.source.name || sourceResult.source.endpoint) + " ID";
+                var stashLine = (existingID ? "Current: " + existingID.stash_id + " · " : "") + "Source: " + idCandidate.remote_site_id;
+                relationshipRows.push(['stash_ids', label, stashLine, sourceResult.source.endpoint, sourceResult.source.endpoint, linked]);
+            });
             fieldRows += relationshipRows.map(function (field) {
-                return '<label class="sbmr-batch-field sbmr-batch-relationship"><input type="checkbox" data-batch-field="' + field[0] + '" data-scene-id="' + escapeHtml(id) + '" ' + (match.selectedFields[field[0]] ? "checked" : "") + '><span><strong>' + escapeHtml(field[1]) + '</strong><small><b>Stash:</b> ' + escapeHtml(field[2]) + '</small><small><b>Source:</b> ' + escapeHtml(field[3]) + '</small></span></label>';
+                var endpointAttribute = field[4] ? ' data-batch-stash-endpoint="' + escapeHtml(field[4]) + '"' : '';
+                var checked = field[5] === undefined ? !!(match.selectedFields && match.selectedFields[field[0]]) : !!field[5];
+                return '<label class="sbmr-batch-field sbmr-batch-relationship"><input type="checkbox" data-batch-field="' + field[0] + '" data-scene-id="' + escapeHtml(id) + '"' + endpointAttribute + ' ' + (checked ? "checked" : "") + '><span><strong>' + escapeHtml(field[1]) + '</strong><small><b>Stash:</b> ' + escapeHtml(field[2]) + '</small><small><b>Source:</b> ' + escapeHtml(field[3]) + '</small></span></label>';
             }).join("");
             if (unmatchedPerformers || unmatchedTags || unmatchedGroups) fieldRows += '<p class="sbmr-batch-unmatched">' + (unmatchedPerformers ? unmatchedPerformers + ' performer' + (unmatchedPerformers === 1 ? "" : "s") + ' ' : "") + (unmatchedTags ? unmatchedTags + ' tag' + (unmatchedTags === 1 ? "" : "s") + ' ' : "") + (unmatchedGroups ? unmatchedGroups + ' group' + (unmatchedGroups === 1 ? "" : "s") + ' ' : "") + 'did not match existing Stash records and will remain unlinked.</p>';
         }
         var message = state.batchApplied[id] && state.batchApplied[id].error ? '<p class="sbmr-batch-row-error">' + escapeHtml(state.batchApplied[id].error) + '</p>' : "";
         if (match && match.error) message = '<p class="sbmr-batch-row-error">' + escapeHtml(match.error) + '</p>';
-        var content = match && match.error ? "" : (candidate ? scoreBadges + candidatePicker + '<div class="sbmr-batch-fields">' + fieldRows + '</div>' : (match ? '<p class="sbmr-muted">No StashBox result matched this scene.</p>' : '<p class="sbmr-muted">Select scenes, then find StashBox matches.</p>'));
+        var sourceSummary = match && match.sourceResults ? '<div class="sbmr-batch-source-summary">' + match.sourceResults.map(function (sourceResult) {
+            var sourceName = sourceResult.source.name || sourceResult.source.endpoint;
+            var idCandidate = sourceResult.results[sourceResult.candidateIndex || 0];
+            var sourceText = sourceResult.error ? "Error: " + sourceResult.error : (sourceResult.results.length ? sourceResult.results.length + " match" + (sourceResult.results.length === 1 ? "" : "es") + (idCandidate && idCandidate.remote_site_id ? " · ID " + idCandidate.remote_site_id : "") : "No match");
+            var candidateSelect = sourceResult.results.length > 1 ? '<label class="sbmr-source-id-choice"><span>ID candidate</span><select data-batch-id-candidate-endpoint="' + escapeHtml(sourceResult.source.endpoint) + '">' + sourceResult.results.map(function (entry, index) {
+                return '<option value="' + index + '" ' + ((sourceResult.candidateIndex || 0) === index ? "selected" : "") + '>' + escapeHtml(entry.title || entry.code || "Result " + (index + 1)) + (entry.remote_site_id ? " · " + entry.remote_site_id : " · no ID") + '</option>';
+            }).join("") + '</select></label>' : "";
+            return '<div class="sbmr-batch-source-summary-item ' + (sourceResult.error ? "is-error" : "") + '"><span><strong>' + escapeHtml(sourceName) + '</strong> ' + escapeHtml(sourceText) + '</span>' + candidateSelect + '</div>';
+        }).join("") + '</div>' : "";
+        var chosenSource = selectedResult ? '<div class="sbmr-batch-selected-source"><strong>Metadata from:</strong> ' + escapeHtml(selectedResult.source.name || selectedResult.source.endpoint) + '<small>' + escapeHtml(selectedResult.source.endpoint) + '</small></div>' : "";
+        var content = match && match.error ? "" : (candidate ? sourceSummary + scoreBadges + candidatePicker + chosenSource + '<div class="sbmr-batch-fields">' + fieldRows + '</div>' : (match ? sourceSummary + '<p class="sbmr-muted">No StashBox result matched this scene.</p>' : '<p class="sbmr-muted">Select scenes, then find StashBox matches.</p>'));
         return '<article class="sbmr-batch-card ' + (state.batchApplied[id] && !state.batchApplied[id].error ? "is-completed" : "") + '"><div class="sbmr-batch-card-heading"><label class="sbmr-batch-scene-select"><input type="checkbox" data-batch-scene="' + escapeHtml(id) + '" ' + (state.batchSelected[id] ? "checked" : "") + '><span><strong>' + escapeHtml(scene.title || "Untitled scene") + '</strong><small>' + escapeHtml(sceneDetails || "No additional scene details") + '</small></span></label><span class="sbmr-batch-state">' + escapeHtml(status) + '</span></div>' + message + content + '</article>';
     }
 
@@ -641,22 +696,27 @@
         if (state.batchLoading) return;
         var scenes = batchSelectedScenes();
         if (!scenes.length) { setError("Select at least one scene to process."); return; }
-        var source = state.sources[Number(els.batchSource.value)];
-        if (!source) { setError("Select a configured StashBox source."); return; }
+        var sources = selectedBatchSources();
+        if (!sources.length) { setError("Select at least one StashBox source."); return; }
         setError("");
         state.batchLoading = true;
         state.batchStop = false;
         state.batchCanStop = true;
         state.batchApplied = Object.create(null);
-        scenes.forEach(function (scene) { delete state.batchMatches[String(scene.id)]; });
+        scenes.forEach(function (scene) { state.batchMatches[String(scene.id)] = { results: [], sourceResults: [], candidateIndex: 0, selectedFields: null }; });
         els.batchStop.hidden = false;
         updateBatchButtons();
-        updateBatchProgress("Finding StashBox matches…", "0 of " + scenes.length + " scenes", 0);
+        var totalChecks = scenes.length * sources.length;
+        updateBatchProgress("Searching selected StashBoxes…", "0 of " + totalChecks + " source-scene checks", 0);
         renderBatchScenes();
+        var sourceIndex = 0;
         var offset = 0;
+        var checked = 0;
 
         function nextBatch() {
-            if (state.batchStop || offset >= scenes.length) return Promise.resolve();
+            if (state.batchStop || sourceIndex >= sources.length) return Promise.resolve();
+            var source = sources[sourceIndex];
+            if (offset >= scenes.length) { sourceIndex += 1; offset = 0; return nextBatch(); }
             var currentBatch = scenes.slice(offset, offset + BATCH_SIZE);
             var variables = { source: { stash_box_endpoint: source.endpoint }, input: { scene_ids: currentBatch.map(function (scene) { return String(scene.id); }) } };
             return graphQLRequest(BATCH_SCRAPE_QUERY, variables).then(function (data) {
@@ -664,28 +724,42 @@
                 currentBatch.forEach(function (scene, index) {
                     var results = grouped[index] || [];
                     results = results.slice().sort(function (a, b) { return Core.compareSceneCandidates(scene, a, b); });
-                    state.batchMatches[String(scene.id)] = { results: results, candidateIndex: 0, source: source };
-                    if (results[0]) initializeBatchChoices(scene, state.batchMatches[String(scene.id)], results[0]);
+                    var match = state.batchMatches[String(scene.id)];
+                    match.sourceResults.push({ source: source, results: results });
+                    results.forEach(function (candidate) { match.results.push({ source: source, candidate: candidate }); });
                 });
             }).catch(function (error) {
-                currentBatch.forEach(function (scene) { state.batchMatches[String(scene.id)] = { results: [], error: error.message, source: source }; });
+                currentBatch.forEach(function (scene) {
+                    state.batchMatches[String(scene.id)].sourceResults.push({ source: source, results: [], error: error.message });
+                });
             }).then(function () {
                 offset += currentBatch.length;
-                updateBatchProgress("Finding StashBox matches…", offset + " of " + scenes.length + " scenes" + (state.batchStop ? " · stopping after this batch" : ""), offset / scenes.length * 100);
+                checked += currentBatch.length;
+                updateBatchProgress("Searching selected StashBoxes…", checked + " of " + totalChecks + " source-scene checks" + (state.batchStop ? " · stopping after this batch" : ""), checked / totalChecks * 100);
                 renderBatchScenes();
                 return nextBatch();
             });
         }
 
         nextBatch().then(function () {
-            var matched = scenes.filter(function (scene) { return state.batchMatches[String(scene.id)] && state.batchMatches[String(scene.id)].results && state.batchMatches[String(scene.id)].results.length; }).length;
-            setStatus("Checked " + offset + " scenes; " + matched + " returned StashBox matches." + (state.batchStop ? " Stopped after the current batch." : ""));
+            scenes.forEach(function (scene) {
+                var match = state.batchMatches[String(scene.id)];
+                match.results.sort(function (a, b) { return Core.compareSceneCandidates(scene, a.candidate, b.candidate); });
+                if (match.results.length) initializeBatchChoices(scene, match, match.results[match.candidateIndex || 0]);
+            });
+            var matched = scenes.filter(function (scene) { return state.batchMatches[String(scene.id)].results.length; }).length;
+            var linkedSources = scenes.reduce(function (sum, scene) {
+                var match = state.batchMatches[String(scene.id)];
+                return sum + match.sourceResults.filter(function (entry) { var candidate = entry.results[entry.candidateIndex || 0]; return candidate && candidate.remote_site_id; }).length;
+            }, 0);
+            setStatus("Checked " + checked + " source-scene pairs across " + sources.length + " StashBox" + (sources.length === 1 ? "" : "es") + "; " + matched + " scene" + (matched === 1 ? " has" : "s have") + " matches. " + linkedSources + " source IDs are available to link." + (state.batchStop ? " Stopped after the current batch." : ""));
             els.batchProgress.hidden = true;
         }).catch(function (error) { setError(error.message); }).finally(function () {
             state.batchLoading = false;
             state.batchStop = false;
             state.batchCanStop = false;
             updateBatchButtons();
+            renderBatchSources();
             renderBatchScenes();
         });
     }
@@ -712,7 +786,8 @@
             var scene = scenes[index];
             var id = String(scene.id);
             var match = state.batchMatches[id];
-            var candidate = selectedBatchCandidate(scene);
+            var selectedResult = selectedBatchResult(scene);
+            var candidate = selectedResult && selectedResult.candidate;
             index += 1;
             var selected = Object.keys(match.selectedFields || {}).filter(function (key) { return match.selectedFields[key]; });
             return graphQLRequest(BATCH_FRESH_SCENE_QUERY, { id: id }).then(function (data) {
@@ -765,8 +840,14 @@
                         }
                     } else if (key === "stash_ids") {
                         if (Core.canonicalStashIDs(scene.stash_ids) !== Core.canonicalStashIDs(fresh.stash_ids)) throw new Error("The local StashBox IDs changed after comparison. Reload the queue and compare again.");
-                        if (candidate.remote_site_id && match.source && match.source.endpoint) {
-                            input.stash_ids = (fresh.stash_ids || []).filter(function (stashID) { return stashEndpointKey(stashID.endpoint) !== stashEndpointKey(match.source.endpoint); }).map(function (stashID) { return { endpoint: stashID.endpoint, stash_id: stashID.stash_id, updated_at: stashID.updated_at }; }).concat([{ endpoint: match.source.endpoint, stash_id: candidate.remote_site_id, updated_at: new Date().toISOString() }]);
+                        var selectedIDs = match.sourceResults.filter(function (sourceResult) {
+                            var idCandidate = sourceResult.results[sourceResult.candidateIndex || 0];
+                            return match.selectedStashIDs && match.selectedStashIDs[sourceResult.source.endpoint] && idCandidate && idCandidate.remote_site_id;
+                        });
+                        if (selectedIDs.length) {
+                            input.stash_ids = Core.mergeSourceStashIDs(fresh.stash_ids, selectedIDs.map(function (sourceResult) {
+                                return { endpoint: sourceResult.source.endpoint, stash_id: sourceResult.results[sourceResult.candidateIndex || 0].remote_site_id };
+                            }));
                             before.stash_ids = fresh.stash_ids || [];
                         }
                     }
@@ -782,7 +863,14 @@
                     var historyFields = Object.keys(input).filter(function (key) { return key !== "id"; });
                     var after = {};
                     historyFields.forEach(function (key) { after[key] = input[key]; });
-                    state.history.unshift({ at: new Date().toISOString(), type: "scene", label: "Scene", entity: scene.title || "Untitled scene", entityId: id, sources: [match.source && match.source.name || "StashBox"], fields: historyFields, before: before, after: after });
+                    var sourceNames = [];
+                    if (selectedResult) sourceNames.push(selectedResult.source.name || selectedResult.source.endpoint);
+                    (match.sourceResults || []).forEach(function (sourceResult) {
+                        var idCandidate = sourceResult.results[sourceResult.candidateIndex || 0];
+                        if (match.selectedStashIDs && match.selectedStashIDs[sourceResult.source.endpoint] && idCandidate && idCandidate.remote_site_id) sourceNames.push(sourceResult.source.name || sourceResult.source.endpoint);
+                    });
+                    sourceNames = sourceNames.filter(function (name, sourceIndex, all) { return all.indexOf(name) === sourceIndex; });
+                    state.history.unshift({ at: new Date().toISOString(), type: "scene", label: "Scene", entity: scene.title || "Untitled scene", entityId: id, sources: sourceNames, fields: historyFields, before: before, after: after });
                     state.history = state.history.slice(0, 30);
                     saveHistory();
                 });
@@ -884,10 +972,54 @@
             state.batchScenes.forEach(function (scene) { state.batchSelected[String(scene.id)] = false; });
             renderBatchScenes();
         });
+        els.batchSourceAll.addEventListener("click", function () {
+            state.sources.forEach(function (source) { state.batchSourceSelection[source.endpoint] = true; });
+            state.batchMatches = Object.create(null);
+            state.batchApplied = Object.create(null);
+            renderBatchSources();
+            renderBatchScenes();
+            setStatus("All configured StashBoxes selected. Find matches again to refresh the scene results.");
+        });
+        els.batchSourceNone.addEventListener("click", function () {
+            state.sources.forEach(function (source) { state.batchSourceSelection[source.endpoint] = false; });
+            state.batchMatches = Object.create(null);
+            state.batchApplied = Object.create(null);
+            renderBatchSources();
+            renderBatchScenes();
+            setStatus("StashBox source selection cleared.");
+        });
+        els.batchSources.addEventListener("change", function (event) {
+            var input = event.target.closest("[data-batch-source-index]");
+            if (!input) return;
+            var source = state.sources[Number(input.dataset.batchSourceIndex)];
+            if (source) state.batchSourceSelection[source.endpoint] = input.checked;
+            state.batchMatches = Object.create(null);
+            state.batchApplied = Object.create(null);
+            renderBatchSources();
+            renderBatchScenes();
+            setStatus("Source selection changed. Find matches again to refresh the scene results.");
+        });
         els.batchCompare.addEventListener("click", compareBatchScenes);
         els.batchStop.addEventListener("click", function () { if (state.batchCanStop) { state.batchStop = true; els.batchStop.disabled = true; } });
         els.batchApply.addEventListener("click", applyBatchScenes);
         els.batchResults.addEventListener("change", function (event) {
+            var idCandidateSelect = event.target.closest("[data-batch-id-candidate-endpoint]");
+            if (idCandidateSelect) {
+                var idSceneCard = idCandidateSelect.closest(".sbmr-batch-card");
+                var idSceneBox = idSceneCard && idSceneCard.querySelector("[data-batch-scene]");
+                var idSceneID = idSceneBox && idSceneBox.dataset.batchScene;
+                var idMatch = idSceneID && state.batchMatches[idSceneID];
+                var idSourceResult = idMatch && idMatch.sourceResults.filter(function (entry) { return entry.source.endpoint === idCandidateSelect.dataset.batchIdCandidateEndpoint; })[0];
+                if (!idSourceResult) return;
+                idSourceResult.candidateIndex = Number(idCandidateSelect.value);
+                var sceneForID = state.batchScenes.filter(function (item) { return String(item.id) === idSceneID; })[0];
+                var idCandidate = idSourceResult.results[idSourceResult.candidateIndex];
+                var existingID = sceneForID && (sceneForID.stash_ids || []).filter(function (stashID) { return stashEndpointKey(stashID.endpoint) === stashEndpointKey(idSourceResult.source.endpoint); })[0];
+                idMatch.selectedStashIDs[idSourceResult.source.endpoint] = !!(idCandidate && idCandidate.remote_site_id) && (!els.batchEmptyOnly.checked || !existingID || String(existingID.stash_id) !== String(idCandidate.remote_site_id));
+                idMatch.selectedFields.stash_ids = Object.keys(idMatch.selectedStashIDs).some(function (endpoint) { return idMatch.selectedStashIDs[endpoint]; });
+                renderBatchScenes();
+                return;
+            }
             var candidateSelect = event.target.closest("[data-batch-candidate]");
             if (candidateSelect) {
                 var id = candidateSelect.dataset.batchCandidate;
@@ -896,7 +1028,7 @@
                 match.candidateIndex = Number(candidateSelect.value);
                 match.selectedFields = null;
                 var scene = state.batchScenes.filter(function (item) { return String(item.id) === id; })[0];
-                if (scene && selectedBatchCandidate(scene)) initializeBatchChoices(scene, match, selectedBatchCandidate(scene));
+                if (scene && selectedBatchResult(scene)) initializeBatchChoices(scene, match, selectedBatchResult(scene));
                 renderBatchScenes();
                 return;
             }
@@ -909,8 +1041,12 @@
             var fieldBox = event.target.closest("[data-batch-field]");
             if (fieldBox) {
                 var fieldMatch = state.batchMatches[fieldBox.dataset.sceneId];
-                if (fieldMatch) fieldMatch.selectedFields[fieldBox.dataset.batchField] = fieldBox.checked;
+                if (fieldMatch && fieldBox.dataset.batchStashEndpoint) {
+                    fieldMatch.selectedStashIDs[fieldBox.dataset.batchStashEndpoint] = fieldBox.checked;
+                    fieldMatch.selectedFields.stash_ids = Object.keys(fieldMatch.selectedStashIDs).some(function (endpoint) { return fieldMatch.selectedStashIDs[endpoint]; });
+                } else if (fieldMatch) fieldMatch.selectedFields[fieldBox.dataset.batchField] = fieldBox.checked;
                 updateBatchButtons();
+                if (fieldBox.dataset.batchStashEndpoint) renderBatchScenes();
             }
         });
         els.batchEmptyOnly.addEventListener("change", function () {
@@ -918,17 +1054,12 @@
                 var match = state.batchMatches[id];
                 if (match && match.results && match.results.length) {
                     match.selectedFields = null;
+                    match.selectedStashIDs = null;
                     var scene = state.batchScenes.filter(function (item) { return String(item.id) === id; })[0];
-                    if (scene) initializeBatchChoices(scene, match, selectedBatchCandidate(scene));
+                    if (scene) initializeBatchChoices(scene, match, selectedBatchResult(scene));
                 }
             });
             renderBatchScenes();
-        });
-        els.batchSource.addEventListener("change", function () {
-            state.batchMatches = Object.create(null);
-            state.batchApplied = Object.create(null);
-            renderBatchScenes();
-            setStatus("Source changed. Find matches again to use the selected StashBox.");
         });
         els.refresh.addEventListener("click", function () {
             setError("");
@@ -954,7 +1085,9 @@
         els.selectionNote = byId("sbmr-selection-note"); els.apply = byId("sbmr-apply"); els.error = byId("sbmr-error");
         els.status = byId("sbmr-status"); els.statusMessage = byId("sbmr-status-message"); els.refresh = byId("sbmr-refresh");
         els.history = byId("sbmr-history"); els.clearHistory = byId("sbmr-clear-history");
-        els.batchSource = byId("sbmr-batch-source"); els.batchLoad = byId("sbmr-batch-load");
+        els.batchSources = byId("sbmr-batch-sources"); els.batchSourceCount = byId("sbmr-batch-source-count");
+        els.batchSourceAll = byId("sbmr-batch-source-all"); els.batchSourceNone = byId("sbmr-batch-source-none");
+        els.batchLoad = byId("sbmr-batch-load");
         els.batchMissing = byId("sbmr-batch-missing"); els.batchDays = byId("sbmr-batch-days");
         els.batchLimit = byId("sbmr-batch-limit"); els.batchUnorganized = byId("sbmr-batch-unorganized");
         els.batchQuery = byId("sbmr-batch-query"); els.batchEmptyOnly = byId("sbmr-batch-empty-only");

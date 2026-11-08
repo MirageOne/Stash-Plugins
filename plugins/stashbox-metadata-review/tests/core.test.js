@@ -99,6 +99,22 @@ test("StashID conflict comparison ignores timestamps and normalizes endpoint sla
     assert.notEqual(core.canonicalStashIDs([{ endpoint: "https://stashdb.org", stash_id: "abc" }]), core.canonicalStashIDs([]));
 });
 
+test("source-specific StashIDs are merged by endpoint without replacing other sources", () => {
+    const existing = [
+        { endpoint: "https://stashdb.org/", stash_id: "old-stashdb", updated_at: "2026-01-01" },
+        { endpoint: "https://theporndb.net/graphql", stash_id: "keep-tpdb", updated_at: "2026-01-02" }
+    ];
+    const result = core.mergeSourceStashIDs(existing, [
+        { endpoint: "https://stashdb.org", stash_id: "new-stashdb" },
+        { endpoint: "https://example.org/graphql", stash_id: "example-id" }
+    ], "2026-11-08T15:00:00.000Z");
+    assert.deepEqual(result, [
+        { endpoint: "https://theporndb.net/graphql", stash_id: "keep-tpdb", updated_at: "2026-01-02" },
+        { endpoint: "https://stashdb.org", stash_id: "new-stashdb", updated_at: "2026-11-08T15:00:00.000Z" },
+        { endpoint: "https://example.org/graphql", stash_id: "example-id", updated_at: "2026-11-08T15:00:00.000Z" }
+    ]);
+});
+
 test("scene queue filters can combine unorganized, missing metadata, and recent dates", () => {
     const now = new Date("2026-11-08T12:00:00.000Z");
     assert.deepEqual(core.buildSceneFilters({ unorganized: true, missing: "tags", days: 7 }, now), {

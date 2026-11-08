@@ -5,7 +5,7 @@ This repository hosts independent Stash plugins. Each plugin keeps its manifest,
 ## Available plugins
 
 - [Library Doctor](plugins/library-doctor/README.md) — Health Check, FFmpeg encoding audit and re-encoding, metadata assistance, scraping, tagging, and duplicate or alternate-version review. [Screenshots](plugins/library-doctor/README.md#screenshots)
-- [StashBox Metadata Review](plugins/stashbox-metadata-review/README.md) — review performer, scene, studio, and tag metadata field by field, or filter and batch-process scenes with Tagger-style pHash/duration matching, OSHash indicators, missing-field filters, and reviewed metadata/relationship updates. [Manual archive](packages/stashbox-metadata-review/1.1.0-manual.zip)
+- [StashBox Metadata Review](plugins/stashbox-metadata-review/README.md) — review performer, scene, studio, and tag metadata field by field, or tag filtered scenes across any or all configured StashBoxes with Tagger-style fingerprint matching and source-specific IDs for downstream plugins. [Manual archive](packages/stashbox-metadata-review/1.2.0-manual.zip)
 - [Stash Downloader](plugins/stash-downloader/README.md) — a theme-adaptive media queue with import profiles, source duplicate checks, recoverable server downloads, managed yt-dlp install/update, metadata review, search, and status filters. [Screenshots](plugins/stash-downloader/README.md#screenshots)
 - [Rebirth](plugins/rebirth/README.md) — a video-first redesign with per-account appearance preferences, an accent-responsive Stash mark, Geist typography, themed native Settings sections and Help modals, responsive scene and performer pagination, a Plugins filter above fixed action buttons, switches with matched on/off thumb insets, a compact task queue, a mobile scene-column selector, an automatically cycling new-arrivals carousel, Continue Watching, customizable navigation, eight distinct accent colors, and accent-filled primary actions in light and dark modes. [Screenshots](plugins/rebirth/README.md#screenshots)
 - [TPDB Markers](plugins/tpdb-markers/README.md) — imports ThePornDB markers, logs batch progress, and can create and link Stash Groups from TPDB movie or group records.
@@ -24,7 +24,7 @@ Reload plugins, then install any listed plugin from **Available Plugins**. New p
 Download a plugin's manual archive, extract its included plugin folder into Stash's configured plugins directory, then enable it in **Settings → Plugins**.
 
 - [Library Doctor manual archive](packages/library-doctor/1.6.9-manual.zip)
-- [StashBox Metadata Review manual archive](packages/stashbox-metadata-review/1.1.0-manual.zip)
+- [StashBox Metadata Review manual archive](packages/stashbox-metadata-review/1.2.0-manual.zip)
 - [Stash Downloader manual archive](packages/stash-downloader/0.8.2-manual.zip)
 - [Rebirth manual archive](packages/rebirth/1.1.7-manual.zip)
 - [TPDB Markers manual archive](packages/tpdb-markers/1.0.0-manual.zip)

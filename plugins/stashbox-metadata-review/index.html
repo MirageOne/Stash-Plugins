@@ -5,7 +5,7 @@
     <meta name="viewport" content="width=device-width, initial-scale=1">
     <meta name="color-scheme" content="light dark">
     <title>StashBox Metadata Review</title>
-    <link rel="stylesheet" href="styles.css?v=1.1.0">
+    <link rel="stylesheet" href="styles.css?v=1.2.0">
 </head>
 <body>
     <main class="ld-shell sbmr-shell">
@@ -40,7 +40,7 @@
 
         <nav id="sbmr-workspaces" class="ld-workspace-tabs" aria-label="Metadata Review workspaces">
             <button class="ld-workspace-tab is-active" type="button" data-sbmr-workspace="record" aria-pressed="true">Record Review</button>
-            <button class="ld-workspace-tab" type="button" data-sbmr-workspace="batch" aria-pressed="false">Batch Scene Tagger</button>
+            <button class="ld-workspace-tab" type="button" data-sbmr-workspace="batch" aria-pressed="false">Scene Tagger</button>
         </nav>
 
         <section class="sbmr-panel" data-sbmr-panel="record" aria-labelledby="sbmr-select-title">
@@ -84,7 +84,11 @@
 
         <section id="sbmr-batch-workspace" class="sbmr-panel sbmr-batch-workspace sbmr-workspace-inactive" data-sbmr-panel="batch" aria-labelledby="sbmr-batch-title">
             <div class="ld-module-heading sbmr-panel-heading">
-                <div><p class="ld-eyebrow">BATCH SCENE TAGGER</p><h2 id="sbmr-batch-title">Filter the queue, then review matches</h2><p>Scene results use Tagger’s pHash and duration ranking, with exact OSHash matches shown for review. Each scene stays unchanged until you apply the fields you select.</p></div>
+                <div><p class="ld-eyebrow">SCENE TAGGER</p><h2 id="sbmr-batch-title">Find and review scene metadata</h2><p>Filter the scene queue, search any or all configured StashBoxes, then review the best fingerprint matches before applying changes. StashBox IDs remain linked to their own source so source-specific plugins can use them.</p></div>
+            </div>
+            <div class="sbmr-batch-source-panel">
+                <div class="sbmr-batch-source-heading"><div><strong>Search sources</strong><p class="sbmr-muted">Each selected StashBox is queried independently. You can link IDs from every confirmed source, even when metadata comes from a different match.</p></div><div class="sbmr-batch-source-actions"><span id="sbmr-batch-source-count" class="sbmr-muted"></span><button id="sbmr-batch-source-all" class="ld-button ld-button-secondary" type="button" disabled>Select all</button><button id="sbmr-batch-source-none" class="ld-button ld-button-secondary" type="button" disabled>Clear</button></div></div>
+                <div id="sbmr-batch-sources" class="sbmr-source-list"><p class="sbmr-muted">Loading configured StashBoxes…</p></div>
             </div>
             <div class="sbmr-batch-filters">
                 <label class="sbmr-control sbmr-batch-select"><span>Missing metadata</span>
@@ -127,7 +131,6 @@
                 <button id="sbmr-batch-load" class="ld-button ld-button-primary" type="button">Load scene queue</button>
             </div>
             <div class="sbmr-batch-settings">
-                <label class="sbmr-control sbmr-batch-select"><span>StashBox source</span><select id="sbmr-batch-source"></select></label>
                 <label class="sbmr-batch-check"><input id="sbmr-batch-empty-only" type="checkbox" checked><span><strong>Preselect empty fields</strong><small>Other values can still be selected manually</small></span></label>
                 <label class="sbmr-batch-check"><input id="sbmr-batch-organize" type="checkbox"><span><strong>Mark scenes organized</strong><small>Applied only after a successful update</small></span></label>
                 <label class="sbmr-control sbmr-batch-select"><span>Tag behavior</span><select id="sbmr-batch-tag-mode"><option value="merge">Merge matched tags</option><option value="replace">Replace with matched tags</option></select></label>
@@ -137,7 +140,7 @@
                 <div class="sbmr-batch-actions">
                     <button id="sbmr-batch-select-all" class="ld-button ld-button-secondary" type="button" disabled>Select all</button>
                     <button id="sbmr-batch-select-none" class="ld-button ld-button-secondary" type="button" disabled>Select none</button>
-                    <button id="sbmr-batch-compare" class="ld-button ld-button-primary" type="button" disabled>Find StashBox matches</button>
+                    <button id="sbmr-batch-compare" class="ld-button ld-button-primary" type="button" disabled>Find matches across sources</button>
                     <button id="sbmr-batch-stop" class="ld-button ld-button-secondary" type="button" hidden>Stop after this batch</button>
                     <button id="sbmr-batch-apply" class="ld-button ld-button-primary" type="button" disabled>Apply reviewed scenes</button>
                 </div>
@@ -156,7 +159,7 @@
 
         <footer class="ld-footer"><span>StashBox Metadata Review</span><span>Review each value before saving to your library.</span></footer>
     </main>
-    <script src="core.js?v=1.1.0"></script>
-    <script src="app.js?v=1.1.0"></script>
+    <script src="core.js?v=1.2.0"></script>
+    <script src="app.js?v=1.2.0"></script>
 </body>
 </html>

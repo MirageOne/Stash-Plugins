@@ -218,6 +218,24 @@
         }).sort());
     }
 
+    function mergeSourceStashIDs(existing, additions, updatedAt) {
+        var result = (Array.isArray(existing) ? existing : []).filter(function (item) {
+            return item && item.endpoint && item.stash_id;
+        }).map(function (item) {
+            return { endpoint: item.endpoint, stash_id: item.stash_id, updated_at: item.updated_at };
+        });
+        var timestamp = updatedAt || new Date().toISOString();
+        (Array.isArray(additions) ? additions : []).forEach(function (item) {
+            if (!item || !item.endpoint || !item.stash_id) return;
+            var endpoint = String(item.endpoint).trim().replace(/\/+$/, "").toLocaleLowerCase();
+            result = result.filter(function (entry) {
+                return String(entry.endpoint || "").trim().replace(/\/+$/, "").toLocaleLowerCase() !== endpoint;
+            });
+            result.push({ endpoint: item.endpoint, stash_id: item.stash_id, updated_at: timestamp });
+        });
+        return result;
+    }
+
     function buildSceneFilters(options, now) {
         var opts = options || {};
         var sceneFilter = {};
@@ -247,6 +265,7 @@
         compareSceneCandidates: compareSceneCandidates,
         buildSceneFilters: buildSceneFilters,
         canonicalStashIDs: canonicalStashIDs,
+        mergeSourceStashIDs: mergeSourceStashIDs,
         canonical: canonical,
         hasValue: hasValue
     };

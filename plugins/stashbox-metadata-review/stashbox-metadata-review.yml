@@ -1,6 +1,6 @@
 name: StashBox Metadata Review
-description: Review configured StashBox metadata field by field or batch-tag filtered scenes with Tagger-style fingerprint matching and reviewed relationship updates.
-version: 1.1.0
+description: Review configured StashBox metadata field by field or tag filtered scenes across multiple StashBoxes with source-aware IDs and Tagger-style fingerprint matching.
+version: 1.2.0
 url: https://github.com/MirageOne/Stash-Plugins/tree/main/plugins/stashbox-metadata-review
 interface: raw
 ui:

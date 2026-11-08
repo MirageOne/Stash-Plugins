@@ -26,45 +26,81 @@ Copy or symlink this directory into Stash's configured `plugins/` directory, rel
 
 ## Screenshots
 
-These screenshots were captured from Rebirth 1.1.7 running on Stash 0.32.0. The test library contains one fictional performer and no scenes, so the home page shows its empty new-arrivals state and the scene library is empty. The collapsed native filter is hidden when detail pages for performers, studios, groups, or tags open and remains available from its filter button.
+These screenshots were captured from Rebirth 1.2.6 running on Stash 0.32.0. The isolated fixture uses a fictional performer and studio with generated artwork for three demo scenes. The plugin launcher screenshots show Rebirth's live flyout populated with representative plugin shortcuts.
 
-### Home in light mode
+### Home
 
-![Rebirth 1.1.7 home page in light mode on Stash 0.32.0](screenshots/home-light.png)
+Light mode, desktop:
 
-![Rebirth 1.1.7 home page in light mode at a 390-pixel mobile width](screenshots/home-light-mobile.png)
+![Rebirth 1.2.6 home page in light mode on Stash 0.32.0](screenshots/home-light.png)
 
-### Scene library in light mode
+Light mode, 390-pixel mobile width:
 
-![Rebirth 1.1.7 scene library in light mode on Stash 0.32.0](screenshots/scene-library-light.png)
+![Rebirth 1.2.6 home page in light mode on mobile](screenshots/home-light-mobile.png)
 
-![Rebirth 1.1.7 scene library in light mode at a 390-pixel mobile width](screenshots/scene-library-light-mobile.png)
+Dark mode, desktop and mobile:
 
-### Performer detail in dark mode
+![Rebirth 1.2.6 home page in dark mode](screenshots/home-dark.png)
 
-![Rebirth 1.1.7 performer detail page on Stash 0.32.0 with the filter closed](screenshots/performer-detail-desktop.png)
+![Rebirth 1.2.6 home page in dark mode on mobile](screenshots/home-dark-mobile.png)
 
-The native filter opens on demand and remains selectable:
+### Scene library
 
-![Rebirth performer detail page with the native filter open](screenshots/performer-detail-desktop-filters.png)
+Light mode, desktop and mobile:
 
-### Performer detail on mobile
+![Rebirth 1.2.6 scene library in light mode](screenshots/scene-library-light.png)
 
-![Rebirth 1.1.7 performer detail page at a 390-pixel mobile width with the filter closed](screenshots/performer-detail-mobile.png)
+![Rebirth 1.2.6 scene library in light mode on mobile](screenshots/scene-library-light-mobile.png)
+
+Dark mode, desktop and mobile:
+
+![Rebirth 1.2.6 scene library in dark mode](screenshots/scene-library-dark.png)
+
+![Rebirth 1.2.6 scene library in dark mode on mobile](screenshots/scene-library-dark-mobile.png)
+
+Poster layout keeps wide scene art fully visible inside the taller card:
+
+![Rebirth 1.2.6 poster scene cards with the full scene artwork visible](screenshots/scene-library-poster-light.png)
+
+![Rebirth 1.2.6 poster scene cards on mobile with the full scene artwork visible](screenshots/scene-library-poster-light-mobile.png)
+
+### Performer detail
+
+The native filter opens on demand and remains selectable. Both light and dark modes show the detail card and grouped rating control; the filter dialog is included in each desktop set.
+
+Dark mode:
+
+![Rebirth 1.2.6 performer detail page in dark mode](screenshots/performer-detail-desktop.png)
+
+![Rebirth 1.2.6 performer detail page with the native filter open in dark mode](screenshots/performer-detail-desktop-filters.png)
+
+![Rebirth 1.2.6 performer detail page in dark mode on mobile](screenshots/performer-detail-mobile.png)
+
+Light mode:
+
+![Rebirth 1.2.6 performer detail page in light mode](screenshots/performer-detail-light-desktop.png)
+
+![Rebirth 1.2.6 performer detail page with the native filter open in light mode](screenshots/performer-detail-light-filters.png)
+
+![Rebirth 1.2.6 performer detail page in light mode on mobile](screenshots/performer-detail-light-mobile.png)
+
+### Plugin launcher flyout
+
+The app-grid button gathers installed plugin shortcuts into one icon-centered flyout. These images show the rendered Rebirth flyout on desktop and mobile in both color modes.
+
+![Rebirth plugin launcher flyout in light mode on desktop](screenshots/plugin-launcher-desktop.png)
+
+![Rebirth plugin launcher flyout in light mode on mobile](screenshots/plugin-launcher-mobile.png)
+
+![Rebirth plugin launcher flyout in dark mode on desktop](screenshots/plugin-launcher-dark-desktop.png)
+
+![Rebirth plugin launcher flyout in dark mode on mobile](screenshots/plugin-launcher-dark-mobile.png)
 
 The mobile **More** flyout presents the remaining destinations as an icon-centered grid. [View the flyout mockup](mockups/navigation-flyout-mobile-neutral-icons-preview.png). The responsive scene and performer pagination is previewed in the [pagination mockup](mockups/pagination-bar.html), and the eight accent colors are compared in the [palette mockup](mockups/accent-palettes.html).
 
-### Plugin launcher preview
-
-Rebirth 1.1.8 replaces separate plugin utility icons with one top-bar app-grid button. Its flyout shows shortcuts for installed plugin pages and includes a link to plugin management. These are design previews; the launcher behavior was checked in a browser fixture rather than captured from a live Stash instance.
-
-![Rebirth plugin launcher flyout on desktop](screenshots/plugin-launcher-desktop-preview.png)
-
-![Rebirth plugin launcher flyout on mobile](screenshots/plugin-launcher-mobile-preview.png)
-
 ## Visual audit
 
-Earlier Rebirth versions were checked in a clean Stash 0.32.0 instance at desktop and mobile widths, including the performer detail page with its filter closed and opened. The 1.2.2 tag directory was checked against Stash 0.32 tag and filter APIs and in desktop/mobile browser fixtures from 320 to 1280 pixels in both light and dark modes. User preference persistence uses Stash 0.32's per-user `configuration.ui` and `configureUI(partial:)` GraphQL fields; it was tested with isolated browser storage and mocked authenticated GraphQL responses. A live Stash server is not running in this workspace. Stash continues to handle library mutations, playback, and server settings through its native routes and APIs.
+Rebirth 1.2.6 was checked in an isolated Stash 0.32.0 instance at desktop and mobile widths in both color modes, including the performer filter dialog and the plugin launcher flyout. The screenshot fixture contains only fictional metadata and generated demo artwork. The 1.2.2 tag directory was checked against Stash 0.32 tag and filter APIs in desktop and mobile browser fixtures from 320 to 1280 pixels. User preference persistence uses Stash 0.32's per-user `configuration.ui` and `configureUI(partial:)` GraphQL fields. Stash continues to handle library mutations, playback, and server settings through its native routes and APIs.
 
 The plugin has no external dependencies or build step. Its JavaScript and manifest can be syntax-checked directly with Node; its styles load from `css/rebirth-1.2.6.css`.
 

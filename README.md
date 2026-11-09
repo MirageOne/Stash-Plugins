@@ -28,7 +28,7 @@ Download a plugin's manual archive, extract its included plugin folder into Stas
 - [Library Doctor manual archive](packages/library-doctor/1.6.12-manual.zip)
 - [StashBox Metadata Review manual archive](packages/stashbox-metadata-review/1.2.3-manual.zip)
 - [Stash Downloader manual archive](packages/stash-downloader/0.8.4-manual.zip)
-- [Discovery Queue manual archive](packages/discovery-queue/1.0.2-manual.zip)
+- [Discovery Queue manual archive](packages/discovery-queue/1.0.3-manual.zip)
 - [Scene Gallery Builder manual archive](packages/scene-gallery-builder/1.0.0-manual.zip)
 - [Rebirth manual archive](packages/rebirth/1.2.16-manual.zip)
 - [TPDB Markers manual archive](packages/tpdb-markers/1.0.0-manual.zip)

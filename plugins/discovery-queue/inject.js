@@ -5,7 +5,7 @@
 
     var ENTRY_ID = "discovery-queue-nav-entry";
     var APP_ROUTE = "/plugins/discovery-queue";
-    var DASHBOARD_URL = "/plugin/discovery-queue/assets/index.html";
+    var DASHBOARD_URL = "/plugin/discovery-queue/assets/index.html?v=1.0.3";
     var HOST_THEME_KEY = "discovery-queue.host-theme.v1";
     var ICON = "<svg viewBox='0 0 24 24' aria-hidden='true' focusable='false' fill='none' stroke='currentColor' stroke-width='1.8' stroke-linecap='round' stroke-linejoin='round'><path d='M4 5h9M4 9h7M4 13h6M4 17h6'/><circle cx='17' cy='15' r='4.5'/><path d='m15.5 15 1 1 2-2M17 2v2'/></svg>";
 

@@ -15,8 +15,11 @@
         duration: "any",
         title: "",
         tag: "",
+        tagId: "",
         performer: "",
-        studio: ""
+        performerId: "",
+        studio: "",
+        studioId: ""
     };
     var ACTION_DELTAS = {
         like: { tags: 2.5, performers: 1.25, studios: 1.5 },
@@ -66,6 +69,7 @@
         settings.minimumRating = clamp(sourceSettings.minimumRating, 0, 100);
         if (["any", "short", "medium", "long"].indexOf(sourceSettings.duration) !== -1) { settings.duration = sourceSettings.duration; }
         ["title", "tag", "performer", "studio"].forEach(function (key) { settings[key] = String(sourceSettings[key] || "").slice(0, 120); });
+        ["tagId", "performerId", "studioId"].forEach(function (key) { settings[key] = String(sourceSettings[key] || "").slice(0, 40); });
 
         var affinities = input.affinities && typeof input.affinities === "object" ? input.affinities : {};
         var sceneFeedback = {};
@@ -183,6 +187,15 @@
         return (Array.isArray(items) ? items : []).some(function (item) { return normalizedText(item && item.name).indexOf(needle) !== -1; });
     }
 
+    function matchesEntityID(items, selectedID, fallbackQuery) {
+        if (selectedID) {
+            return (Array.isArray(items) ? items : []).some(function (item) {
+                return item && item.id !== undefined && item.id !== null && String(item.id) === String(selectedID);
+            });
+        }
+        return matchesText(items, fallbackQuery);
+    }
+
     function sceneDuration(scene) {
         return (Array.isArray(scene && scene.files) ? scene.files : []).reduce(function (maximum, file) {
             return Math.max(maximum, Number(file && file.duration) || 0);
@@ -202,9 +215,11 @@
             if (filters.unplayedOnly && Number(scene.play_count || 0) > 0) { return false; }
             if (Number(scene.rating100 || 0) < minimumRating) { return false; }
             if (query && normalizedText(scene.title).indexOf(query) === -1) { return false; }
-            if (tagQuery && !matchesText(scene.tags, tagQuery)) { return false; }
-            if (performerQuery && !matchesText(scene.performers, performerQuery)) { return false; }
-            if (studioQuery && normalizedText(scene.studio && scene.studio.name).indexOf(studioQuery) === -1) { return false; }
+            if ((filters.tagId || tagQuery) && !matchesEntityID(scene.tags, filters.tagId, tagQuery)) { return false; }
+            if ((filters.performerId || performerQuery) && !matchesEntityID(scene.performers, filters.performerId, performerQuery)) { return false; }
+            if (filters.studioId) {
+                if (!scene.studio || String(scene.studio.id) !== String(filters.studioId)) { return false; }
+            } else if (studioQuery && normalizedText(scene.studio && scene.studio.name).indexOf(studioQuery) === -1) { return false; }
             var duration = sceneDuration(scene);
             if (filters.duration === "short" && !(duration > 0 && duration < 1800)) { return false; }
             if (filters.duration === "medium" && !(duration >= 1800 && duration <= 3600)) { return false; }

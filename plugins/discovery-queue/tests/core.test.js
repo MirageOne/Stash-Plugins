@@ -26,6 +26,13 @@ test("normalizes invalid and older profile data to safe account defaults", funct
     assert.equal(profile.affinities.tags.broken.weight, 12);
 });
 
+test("preserves selected tag, performer, and studio identifiers", function () {
+    const profile = Core.normalizeProfile({ settings: { tag: "Drama", tagId: 12, performerId: 34, studioId: "56" } });
+    assert.equal(profile.settings.tagId, "12");
+    assert.equal(profile.settings.performerId, "34");
+    assert.equal(profile.settings.studioId, "56");
+});
+
 test("like and finished feedback raise scene and related entity scores", function () {
     const target = scene("liked");
     let profile = Core.defaultProfile();
@@ -56,6 +63,25 @@ test("filters apply play history, rating, runtime, and relationship criteria", f
     const profile = Core.defaultProfile();
     assert.deepEqual(Core.filterScenes(scenes, profile, { unplayedOnly: true, minimumRating: 60, duration: "medium", tag: "dram", performer: "performer one", studio: "studio one" }).map(function (item) { return item.id; }), ["match"]);
     assert.deepEqual(Core.filterScenes(scenes, profile, { unplayedOnly: false, duration: "long" }).map(function (item) { return item.id; }), ["long"]);
+});
+
+test("relationship menu filters match selected IDs rather than similarly named entities", function () {
+    const exact = scene("exact", {
+        tags: [{ id: "tag-2", name: "Drama" }],
+        performers: [{ id: "performer-2", name: "Performer One" }],
+        studio: { id: "studio-2", name: "Studio One" }
+    });
+    const similarlyNamed = scene("similar", {
+        tags: [{ id: "tag-20", name: "Drama" }],
+        performers: [{ id: "performer-20", name: "Performer One" }],
+        studio: { id: "studio-20", name: "Studio One" }
+    });
+    const results = Core.filterScenes([exact, similarlyNamed], Core.defaultProfile(), {
+        tag: "Drama", tagId: "tag-2",
+        performer: "Performer One", performerId: "performer-2",
+        studio: "Studio One", studioId: "studio-2"
+    });
+    assert.deepEqual(results.map(function (item) { return item.id; }), ["exact"]);
 });
 
 test("recent skips and completions leave the current discovery pool", function () {

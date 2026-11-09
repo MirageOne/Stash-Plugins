@@ -492,6 +492,8 @@ h1, h2, p { margin-top: 0; }
 .dq-controls { display: grid; grid-template-columns: repeat(4, minmax(0, 1fr)); align-items: end; gap: 12px; }
 .dq-control { display: grid; min-width: 0; gap: 6px; color: var(--ld-subtle); font-size: 0.7rem; font-weight: 700; letter-spacing: 0.055em; text-transform: uppercase; }
 .dq-control input:not([type="range"]), .dq-control select { width: 100%; min-width: 0; min-height: 42px; padding: 0 11px; border: 1px solid var(--ld-border-strong); border-radius: var(--ld-radius-sm); outline: 0; background: var(--ld-surface-strong); color: var(--ld-text); font: inherit; font-size: 0.82rem; letter-spacing: normal; text-transform: none; }
+.dq-control select option { background: var(--ld-surface-strong); color: var(--ld-text); }
+.dq-control select:disabled { opacity: 0.55; cursor: wait; }
 .dq-control input::placeholder { color: var(--ld-subtle); }
 .dq-control input:focus, .dq-control select:focus { border-color: var(--ld-accent); box-shadow: 0 0 0 3px var(--ld-accent-soft); }
 .dq-control input[type="range"] { width: 100%; min-height: 42px; margin: 0; accent-color: var(--ld-accent); }

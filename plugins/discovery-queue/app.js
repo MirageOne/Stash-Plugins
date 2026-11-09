@@ -5,10 +5,12 @@
     var HOST_THEME_KEY = "discovery-queue.host-theme.v1";
     var USER_PROFILE_KEY = "discoveryQueue";
     var PAGE_SIZE = 100;
+    var FILTER_CATALOG_PAGE_SIZE = 250;
     var MAX_POOL = 1000;
     var DISPLAY_LIMIT = 24;
     var PROFILE_QUERY = "query DiscoveryQueueProfile { configuration { ui } }";
     var SAVE_PROFILE_MUTATION = "mutation DiscoveryQueueSaveProfile($partial: Map!) { configureUI(partial: $partial) }";
+    var FILTER_CATALOG_QUERY = "query DiscoveryQueueFilterCatalog($filter: FindFilterType!) { findTags(filter: $filter) { count tags { id name } } findPerformers(filter: $filter) { count performers { id name } } findStudios(filter: $filter) { count studios { id name } } }";
     var SCENES_QUERY = "query DiscoveryQueueScenes($filter: FindFilterType!, $sceneFilter: SceneFilterType!) { findScenes(filter: $filter, scene_filter: $sceneFilter) { count scenes { id title date created_at rating100 play_count last_played_at resume_time studio { id name } performers { id name } tags { id name } files { duration height } paths { screenshot } } } }";
     var state = {
         profile: Core.defaultProfile(),
@@ -21,6 +23,7 @@
         loadedCount: 0,
         totalCount: 0
     };
+    var filterCatalogs = { tags: [], performers: [], studios: [] };
 
     var els = {
         error: document.getElementById("dq-error"),
@@ -111,6 +114,120 @@
         });
     }
 
+    function sortedCatalog(items) {
+        var seen = Object.create(null);
+        return (Array.isArray(items) ? items : []).filter(function (item) {
+            if (!item || item.id === undefined || item.id === null || !String(item.name || "").trim()) { return false; }
+            var id = String(item.id);
+            if (seen[id]) { return false; }
+            seen[id] = true;
+            return true;
+        }).map(function (item) {
+            return { id: String(item.id), name: String(item.name).trim() };
+        }).sort(function (a, b) {
+            return a.name.localeCompare(b.name, undefined, { sensitivity: "base" }) || a.id.localeCompare(b.id);
+        });
+    }
+
+    function populateEntitySelect(select, placeholder, items) {
+        select.textContent = "";
+        var any = document.createElement("option");
+        any.value = "";
+        any.textContent = placeholder;
+        select.appendChild(any);
+        items.forEach(function (item) {
+            var option = document.createElement("option");
+            option.value = item.id;
+            option.textContent = item.name;
+            select.appendChild(option);
+        });
+        select.disabled = false;
+    }
+
+    function normalizedEntityName(value) {
+        var text = String(value || "");
+        if (text.normalize) { text = text.normalize("NFD").replace(/[\u0300-\u036f]/g, ""); }
+        return text.toLocaleLowerCase().trim();
+    }
+
+    function loadFilterCatalogs() {
+        var catalogs = { tags: [], performers: [], studios: [] };
+        var counts = { tags: 0, performers: 0, studios: 0 };
+        var page = 1;
+        function loadPage() {
+            return request(FILTER_CATALOG_QUERY, {
+                filter: { page: page, per_page: FILTER_CATALOG_PAGE_SIZE }
+            }).then(function (data) {
+                var definitions = [
+                    { key: "tags", field: "findTags", list: "tags" },
+                    { key: "performers", field: "findPerformers", list: "performers" },
+                    { key: "studios", field: "findStudios", list: "studios" }
+                ];
+                definitions.forEach(function (definition) {
+                    var result = data && data[definition.field];
+                    if (!result) { throw new Error("Stash did not return the " + definition.key + " menu."); }
+                    counts[definition.key] = Number(result.count) || 0;
+                    catalogs[definition.key] = catalogs[definition.key].concat(result[definition.list] || []);
+                });
+                if (page * FILTER_CATALOG_PAGE_SIZE < Math.max(counts.tags, counts.performers, counts.studios)) {
+                    page += 1;
+                    return loadPage();
+                }
+            });
+        }
+        return loadPage().then(function () {
+            filterCatalogs.tags = sortedCatalog(catalogs.tags);
+            filterCatalogs.performers = sortedCatalog(catalogs.performers);
+            filterCatalogs.studios = sortedCatalog(catalogs.studios);
+            populateEntitySelect(els.tag, "Any tag", filterCatalogs.tags);
+            populateEntitySelect(els.performer, "Any performer", filterCatalogs.performers);
+            populateEntitySelect(els.studio, "Any studio", filterCatalogs.studios);
+        });
+    }
+
+    function restoreEntitySelection(select, items, settingName, settingId, settings) {
+        var savedID = String(settings[settingId] || "");
+        var savedName = String(settings[settingName] || "");
+        var match = items.filter(function (item) { return item.id === savedID; })[0];
+        if (!match && savedName) {
+            var normalizedName = normalizedEntityName(savedName);
+            match = items.filter(function (item) { return normalizedEntityName(item.name) === normalizedName; })[0];
+            if (match) {
+                settings[settingId] = match.id;
+                settings[settingName] = match.name;
+            }
+        }
+        if (match) {
+            select.value = match.id;
+            return;
+        }
+        if (savedID) {
+            var unavailable = document.createElement("option");
+            unavailable.value = savedID;
+            unavailable.textContent = savedName ? savedName + " (not in library)" : "Previously selected item (not in library)";
+            select.appendChild(unavailable);
+            select.value = savedID;
+            return;
+        }
+        if (savedName) {
+            var legacy = document.createElement("option");
+            legacy.value = "__saved_filter__";
+            legacy.textContent = "Saved filter: " + savedName;
+            legacy.dataset.savedValue = savedName;
+            select.insertBefore(legacy, select.children[1] || null);
+            select.value = legacy.value;
+            return;
+        }
+        select.value = "";
+    }
+
+    function selectedEntityFilter(select) {
+        var option = select.options[select.selectedIndex];
+        if (!option || !option.value) { return { name: "", id: "" }; }
+        if (option.value === "__saved_filter__") { return { name: option.dataset.savedValue || "", id: "" }; }
+        return { name: option.textContent, id: option.value };
+    }
+
     function loadProfile() {
         return request(PROFILE_QUERY).then(function (data) {
             var ui = data && data.configuration && data.configuration.ui;
@@ -156,21 +273,27 @@
         els.duration.value = settings.duration;
         els.unplayed.checked = Boolean(settings.unplayedOnly);
         els.title.value = settings.title;
-        els.tag.value = settings.tag;
-        els.performer.value = settings.performer;
-        els.studio.value = settings.studio;
+        restoreEntitySelection(els.tag, filterCatalogs.tags, "tag", "tagId", settings);
+        restoreEntitySelection(els.performer, filterCatalogs.performers, "performer", "performerId", settings);
+        restoreEntitySelection(els.studio, filterCatalogs.studios, "studio", "studioId", settings);
     }
 
     function settingsFromControls() {
+        var tag = selectedEntityFilter(els.tag);
+        var performer = selectedEntityFilter(els.performer);
+        var studio = selectedEntityFilter(els.studio);
         return {
             mode: els.mode.value,
             minimumRating: Number(els.rating.value) || 0,
             duration: els.duration.value,
             unplayedOnly: els.unplayed.checked,
             title: els.title.value.trim(),
-            tag: els.tag.value.trim(),
-            performer: els.performer.value.trim(),
-            studio: els.studio.value.trim()
+            tag: tag.name,
+            tagId: tag.id,
+            performer: performer.name,
+            performerId: performer.id,
+            studio: studio.name,
+            studioId: studio.id
         };
     }
 
@@ -452,8 +575,23 @@
     function start() {
         applyHostTheme();
         bindEvents();
-        loadProfile().then(function () {
-            setStatus("Ready to build your queue.");
+        setStatus("Loading tag, performer, and studio menus…");
+        var filterCatalogWarning = "";
+        loadFilterCatalogs().catch(function (error) {
+            filterCatalogWarning = error.message;
+            filterCatalogs = { tags: [], performers: [], studios: [] };
+            populateEntitySelect(els.tag, "Any tag", filterCatalogs.tags);
+            populateEntitySelect(els.performer, "Any performer", filterCatalogs.performers);
+            populateEntitySelect(els.studio, "Any studio", filterCatalogs.studios);
+        }).then(function () {
+            return loadProfile();
+        }).then(function () {
+            if (filterCatalogWarning) {
+                setError("Could not load the tag, performer, and studio menus. " + filterCatalogWarning);
+                setStatus("Queue ready. Relationship filters are unavailable until Stash returns the menu options.");
+            } else {
+                setStatus("Ready to build your queue.");
+            }
         }).catch(function (error) {
             setError("Could not load account preferences. " + error.message);
         });

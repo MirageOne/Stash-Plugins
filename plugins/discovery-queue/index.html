@@ -5,7 +5,7 @@
     <meta name="viewport" content="width=device-width, initial-scale=1">
     <meta name="color-scheme" content="light dark">
     <title>Discovery Queue</title>
-    <link rel="stylesheet" href="styles.css?v=1.0.1">
+    <link rel="stylesheet" href="styles.css?v=1.0.2">
 </head>
 <body>
     <main class="ld-shell dq-shell">
@@ -65,9 +65,9 @@
                 </label>
                 <label class="dq-check"><input id="dq-unplayed-only" type="checkbox" checked><span><strong>Unplayed only</strong><small>Use Stash play history</small></span></label>
                 <label class="dq-control dq-control-wide"><span>Scene title</span><input id="dq-title-filter" type="search" placeholder="Search titles" autocomplete="off"></label>
-                <label class="dq-control"><span>Tag</span><input id="dq-tag-filter" type="search" placeholder="Any tag" autocomplete="off"></label>
-                <label class="dq-control"><span>Performer</span><input id="dq-performer-filter" type="search" placeholder="Any performer" autocomplete="off"></label>
-                <label class="dq-control"><span>Studio</span><input id="dq-studio-filter" type="search" placeholder="Any studio" autocomplete="off"></label>
+                <label class="dq-control"><span>Tag</span><select id="dq-tag-filter" disabled><option value="">Any tag</option></select></label>
+                <label class="dq-control"><span>Performer</span><select id="dq-performer-filter" disabled><option value="">Any performer</option></select></label>
+                <label class="dq-control"><span>Studio</span><select id="dq-studio-filter" disabled><option value="">Any studio</option></select></label>
                 <button id="dq-build" class="ld-button ld-button-primary dq-build" type="button">Build my queue</button>
             </div>
             <div id="dq-profile" class="dq-profile" aria-live="polite"></div>
@@ -89,7 +89,7 @@
 
         <footer class="ld-footer"><span>Discovery Queue</span><span>Learning uses your feedback saved in your signed-in Stash account. It never changes scene metadata.</span></footer>
     </main>
-    <script src="core.js?v=1.0.0"></script>
-    <script src="app.js?v=1.0.0"></script>
+    <script src="core.js?v=1.0.2"></script>
+    <script src="app.js?v=1.0.2"></script>
 </body>
 </html>

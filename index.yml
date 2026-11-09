@@ -27,13 +27,13 @@
     description: Theme-adaptive media downloads with page-managed yt-dlp install and updates in an isolated Python environment, proxy settings, Stash import profiles, duplicate-source checks, recoverable queue state, searchable status filters, metadata review, and a separate activity workspace.
 - id: discovery-queue
   name: Discovery Queue
-  version: 1.0.1
-  date: "2026-11-08 17:59:22"
-  path: packages/discovery-queue/1.0.1.zip
-  sha256: efa728c5708b42489c1aa54dcd92fe52abf2aeddcf3105081b9e30f30c1d739d
+  version: 1.0.2
+  date: "2026-11-09 01:55:06"
+  path: packages/discovery-queue/1.0.2.zip
+  sha256: 55b513de5aecf975357276dbc7d9fc70c50b019395351bff9611b9c84b82945b
   requires: []
   metadata:
-    description: Theme-adaptive personalized scene queue with title, tag, performer, studio, runtime, rating, and play-history filters. An explainable account-specific preference model learns from explicit like, finished, skip, and less-like-this choices and can be reset at any time.
+    description: Theme-adaptive personalized scene queue with selectable tag, performer, and studio menus plus title, runtime, rating, and play-history filters. An explainable account-specific preference model learns from explicit like, finished, skip, and less-like-this choices and can be reset at any time.
 - id: scene-gallery-builder
   name: Scene Gallery Builder
   version: 1.0.0

@@ -1,0 +1,130 @@
+<!doctype html>
+<html lang="en">
+<head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <meta name="color-scheme" content="dark">
+    <title>Scene Gallery Builder</title>
+    <link rel="stylesheet" href="styles.css?v=1.0.0">
+</head>
+<body>
+    <main class="sgb-shell">
+        <header class="sgb-header">
+            <div class="sgb-brand-row">
+                <a class="sgb-back" href="/scenes" target="_top" aria-label="Back to Stash scenes">
+                    <svg viewBox="0 0 24 24" aria-hidden="true"><path d="m14.5 5-7 7 7 7"/></svg>
+                    <span>Stash</span>
+                </a>
+                <span class="sgb-brand-divider" aria-hidden="true"></span>
+                <span class="sgb-brand-name">Scene Gallery Builder</span>
+            </div>
+            <a class="sgb-settings-link" href="/settings?tab=plugins" target="_top">Plugin settings</a>
+        </header>
+
+        <section class="sgb-intro" aria-labelledby="sgb-title">
+            <div>
+                <p class="sgb-eyebrow">SCENE ARTWORK</p>
+                <h1 id="sgb-title">Turn each scene into a browsable gallery.</h1>
+                <p class="sgb-subtitle">Extract still frames from your local videos with FFmpeg, then let Stash index them into galleries linked to the source scenes.</p>
+            </div>
+            <div class="sgb-workflow-note"><span class="sgb-workflow-dot" aria-hidden="true"></span>Local frames · Native scene links</div>
+        </section>
+
+        <div id="sgb-error" class="sgb-error" role="alert" hidden></div>
+        <div id="sgb-status" class="sgb-status" role="status" aria-live="polite" hidden></div>
+
+        <section class="sgb-progress" id="sgb-progress" hidden aria-live="polite">
+            <div class="sgb-progress-copy">
+                <strong id="sgb-progress-title">Preparing…</strong>
+                <span id="sgb-progress-detail">Waiting for Stash</span>
+            </div>
+            <button id="sgb-cancel" class="sgb-button sgb-button-quiet" type="button">Cancel job</button>
+            <div class="sgb-progress-track" role="progressbar" aria-label="Gallery generation progress" aria-valuemin="0" aria-valuemax="100" aria-valuenow="0">
+                <span id="sgb-progress-bar"></span>
+            </div>
+        </section>
+
+        <section class="sgb-controls-card" aria-labelledby="sgb-controls-title">
+            <div class="sgb-card-heading">
+                <div>
+                    <p class="sgb-eyebrow">GENERATION SETTINGS</p>
+                    <h2 id="sgb-controls-title">Choose what to create</h2>
+                    <p>Pick a frame count for this run. It applies to the full library run or the scene you refresh.</p>
+                </div>
+                <div class="sgb-frame-count">
+                    <label for="sgb-image-count">Images per scene</label>
+                    <div class="sgb-count-input">
+                        <button type="button" data-count-step="-1" aria-label="Remove one image">−</button>
+                        <input id="sgb-image-count" type="number" min="1" max="30" step="1" value="8" inputmode="numeric">
+                        <button type="button" data-count-step="1" aria-label="Add one image">+</button>
+                    </div>
+                    <small>Choose 1–30 frames</small>
+                </div>
+            </div>
+
+            <div class="sgb-settings-grid">
+                <label class="sgb-field" for="sgb-library">
+                    <span>Image library</span>
+                    <select id="sgb-library" disabled>
+                        <option>Loading Stash libraries…</option>
+                    </select>
+                    <small>Generated files are stored in a dedicated folder under this image-enabled library.</small>
+                </label>
+                <label class="sgb-field" for="sgb-sampling">
+                    <span>Frame selection</span>
+                    <select id="sgb-sampling">
+                        <option value="smart">Smart · scene changes first</option>
+                        <option value="uniform">Evenly spaced · faster</option>
+                    </select>
+                    <small>Smart sampling favors scene changes, avoids black and near-identical frames, then fills gaps evenly. Frames come from the local video.</small>
+                </label>
+            </div>
+
+            <div class="sgb-action-row">
+                <div class="sgb-action-copy">
+                    <strong id="sgb-scene-count">Library scenes will be checked before generation.</strong>
+                    <span>Existing galleries refresh when the image count or sampling mode changes.</span>
+                </div>
+                <button id="sgb-generate-missing" class="sgb-button sgb-button-primary" type="button" disabled>
+                    <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M4 12a8 8 0 1 0 2.34-5.66L4 8.7M4 4v4.7h4.7M12 8v4l2.5 1.5"/></svg>
+                    Generate or update galleries
+                </button>
+            </div>
+        </section>
+
+        <section class="sgb-library-section" aria-labelledby="sgb-library-title">
+            <div class="sgb-library-heading">
+                <div>
+                    <p class="sgb-eyebrow">SCENE QUEUE</p>
+                    <h2 id="sgb-library-title">Generate or refresh a scene</h2>
+                </div>
+                <label class="sgb-search" for="sgb-search">
+                    <svg viewBox="0 0 24 24" aria-hidden="true"><circle cx="10.8" cy="10.8" r="6.8"/><path d="m16 16 4.5 4.5"/></svg>
+                    <input id="sgb-search" type="search" placeholder="Search scenes" autocomplete="off">
+                </label>
+            </div>
+            <div class="sgb-table-wrap">
+                <table class="sgb-table">
+                    <thead><tr><th>Scene</th><th>Studio</th><th>Gallery</th><th>Status</th><th></th></tr></thead>
+                    <tbody id="sgb-scenes-body">
+                        <tr><td colspan="5" class="sgb-table-message">Loading scenes from Stash…</td></tr>
+                    </tbody>
+                </table>
+            </div>
+            <div class="sgb-pagination">
+                <span id="sgb-page-summary">—</span>
+                <div>
+                    <button id="sgb-page-prev" class="sgb-button sgb-button-secondary" type="button" disabled>Previous</button>
+                    <button id="sgb-page-next" class="sgb-button sgb-button-secondary" type="button" disabled>Next</button>
+                </div>
+            </div>
+        </section>
+
+        <footer class="sgb-footer">
+            <span id="sgb-auto-status">Automatic generation is off.</span>
+            <span>Scene IDs are used internally to keep reruns linked to the same gallery.</span>
+        </footer>
+    </main>
+    <script src="app.js?v=1.0.0"></script>
+</body>
+</html>

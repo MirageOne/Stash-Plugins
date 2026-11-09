@@ -8,6 +8,7 @@ This repository hosts independent Stash plugins. Each plugin keeps its manifest,
 - [StashBox Metadata Review](plugins/stashbox-metadata-review/README.md) — review performer, scene, studio, and tag metadata field by field, or tag filtered scenes across any or all configured StashBoxes with Tagger-style fingerprint matching and source-specific IDs for downstream plugins. [Manual archive](packages/stashbox-metadata-review/1.2.3-manual.zip)
 - [Stash Downloader](plugins/stash-downloader/README.md) — a theme-adaptive media queue with import profiles, source duplicate checks, recoverable server downloads, managed yt-dlp install/update, metadata review, search, and status filters. [Screenshots](plugins/stash-downloader/README.md#screenshots)
 - [Discovery Queue](plugins/discovery-queue/README.md) — build a scene queue with play-history, runtime, rating, tag, performer, and studio filters. Explicit like, finish, skip, and dislike choices tune account-specific recommendations.
+- [Scene Gallery Builder](plugins/scene-gallery-builder/README.md) — generate a selectable number of stills from each scene, package them as a scene-named ZIP Gallery, and copy scene metadata and links into Stash.
 - [Rebirth](plugins/rebirth/README.md) — A responsive Stash theme with customizable accents, light and dark modes, and streamlined navigation. [Screenshots](plugins/rebirth/README.md#screenshots)
 - [TPDB Markers](plugins/tpdb-markers/README.md) — imports ThePornDB markers, logs batch progress, and can create and link Stash Groups from TPDB movie or group records.
 ## Install from Stash
@@ -28,6 +29,7 @@ Download a plugin's manual archive, extract its included plugin folder into Stas
 - [StashBox Metadata Review manual archive](packages/stashbox-metadata-review/1.2.3-manual.zip)
 - [Stash Downloader manual archive](packages/stash-downloader/0.8.4-manual.zip)
 - [Discovery Queue manual archive](packages/discovery-queue/1.0.1-manual.zip)
+- [Scene Gallery Builder manual archive](packages/scene-gallery-builder/1.0.0-manual.zip)
 - [Rebirth manual archive](packages/rebirth/1.2.16-manual.zip)
 - [TPDB Markers manual archive](packages/tpdb-markers/1.0.0-manual.zip)
 

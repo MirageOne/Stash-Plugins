@@ -34,6 +34,15 @@
   requires: []
   metadata:
     description: Theme-adaptive personalized scene queue with title, tag, performer, studio, runtime, rating, and play-history filters. An explainable account-specific preference model learns from explicit like, finished, skip, and less-like-this choices and can be reset at any time.
+- id: scene-gallery-builder
+  name: Scene Gallery Builder
+  version: 1.0.0
+  date: "2026-11-09 01:10:53"
+  path: packages/scene-gallery-builder/1.0.0.zip
+  sha256: 2dd88d0849e6f7a220b5d8a7c0917442a46057d53b903eb9673225d092095d32
+  requires: []
+  metadata:
+    description: Generate a selectable number of scene-named stills, package them in a scene-named ZIP Gallery, and copy supported metadata while linking the Gallery and images to the source scene.
 - id: rebirth
   name: Rebirth
   version: 1.2.16

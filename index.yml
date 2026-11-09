@@ -36,10 +36,10 @@
     description: Theme-adaptive personalized scene queue with title, tag, performer, studio, runtime, rating, and play-history filters. An explainable account-specific preference model learns from explicit like, finished, skip, and less-like-this choices and can be reset at any time.
 - id: rebirth
   name: Rebirth
-  version: 1.2.15
-  date: "2026-11-08 19:35:47"
-  path: packages/rebirth/1.2.15.zip
-  sha256: fee008c0b4cd131ff6916db93ff16de1e2b5f1bf015ab31adb0830238aa8ab92
+  version: 1.2.16
+  date: "2026-11-08 19:41:54"
+  path: packages/rebirth/1.2.16.zip
+  sha256: 5d70e029b75d82b1afaad2f3e58cfd4476cdcc6188a34655fd9c53b5c6254571
   requires: []
   metadata:
     description: A responsive Stash theme with customizable accents, light and dark modes, and streamlined navigation.

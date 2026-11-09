@@ -1,12 +1,12 @@
 name: Rebirth
 description: A responsive Stash theme with customizable accents, light and dark modes, and streamlined navigation.
-version: 1.2.14
+version: 1.2.15
 url: https://github.com/MirageOne/Stash-Plugins/tree/main/plugins/rebirth
 ui:
   javascript:
-    - rebirth-1.2.14.js
+    - rebirth-1.2.15.js
   css:
-    - css/rebirth-1.2.14.css
+    - css/rebirth-1.2.15.css
   assets:
     /fonts: fonts
     /icons: icons
